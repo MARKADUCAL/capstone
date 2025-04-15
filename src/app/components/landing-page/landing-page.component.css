@@ -1,0 +1,544 @@
+/* Reset styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Navbar Styles */
+.navbar {
+  background-color: #f5ebd6; /* Light beige color */
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.container {
+  width: 100%;
+  height: 95px;
+  margin: 0 auto; /* Center the container */
+  display: flex;
+  justify-content: space-between; /* Space between items */
+  align-items: center;
+  padding: 0 20px; /* Add padding to the left and right */
+}
+
+/* Logo Styling */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 100px;
+  width: 100px;
+}
+
+.logo span {
+  font-size: 24px;
+  font-weight: bold;
+  color: #393e46;
+}
+
+/* Navigation Links */
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin-right: 20px; /* Adds space between the nav links and the button */
+}
+
+.nav-links li {
+  margin: 0 15px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #004c80; /* Blue hover effect */
+}
+
+/* Get Started Button */
+.get-started a {
+  background-color: #5e8b7e; /* Muted green */
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 20px; /* Rounded button */
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.get-started a:hover {
+  background-color: #4a7568; /* Darker green */
+}
+
+/* Hero Section */
+.hero {
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 960px; /* Full viewport height */
+  background: url("/assets/homebackground.png") no-repeat center center;
+  background-size: cover;
+}
+
+.hero-content {
+  background: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+  padding: 30px;
+  border-radius: 105px;
+  max-width: 750px;
+  height: 460px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text */
+  border: 5px solid #393e46;
+}
+
+.hero-content h2 {
+  font-size: 64px; /* Increase font size */
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #393e46;
+  font-family: "Kdam Thmor Pro", sans-serif; /* Apply the font */
+}
+
+.hero-content p {
+  font-size: 16px; /* Increase font size */
+  color: #555;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* Button */
+.book-now-btn {
+  display: inline-block;
+  background-color: #6d9886; /* Green button */
+  color: white;
+  font-size: 20px;
+  border-radius: 22px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  height: 60px; /* Fixed height unit */
+  width: 400px; /* Fixed width unit */
+  text-align: center;
+  line-height: 60px; /* Vertically center text */
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.book-now-btn:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Services Section */
+.services {
+  font-size: 36px;
+  text-align: center;
+  padding: 2rem 0;
+  background-color: #f9f9f9;
+  height: 393px;
+}
+
+.services h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.services-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.service-item {
+  text-align: center;
+  width: 150px;
+}
+
+.service-item img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 0.5rem;
+}
+
+.service-item p {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Easy as 123 Section */
+.easy-steps {
+  text-align: center;
+  padding: 2rem 0;
+  background-color: #4caf91;
+  color: #fff;
+  height: 400px;
+}
+
+.easy-steps h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.steps-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.step {
+  text-align: center;
+  width: 150px;
+}
+
+.step h3 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.step p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Pricing Section */
+.pricing {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: auto; /* Adjust height to fit content */
+}
+
+.pricing h2 {
+  text-align: center;
+  color: #333;
+}
+
+.pricing-steps {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.step-image {
+  flex: 1;
+  margin: 10px;
+  padding: 15px;
+  text-align: center; /* Center the image */
+}
+
+.step-image img {
+  max-width: 100%; /* Responsive image */
+  height: auto; /* Maintain aspect ratio */
+}
+
+/* Location Section */
+.location-section {
+  text-align: center;
+  margin: 20px 0;
+  height: 500px;
+}
+.location-section h2 {
+  font-size: 64px;
+  padding: 20px;
+}
+
+.location-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 80px;
+}
+
+.location-card {
+  background-color: #f9f9f9; /* Light background color */
+  border: 1px solid #ddd; /* Light border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the card */
+  width: 250px; /* Fixed width for cards */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  text-align: left; /* Align text to the left */
+}
+
+.location-icon {
+  font-size: 24px; /* Size of the location icon */
+  margin-bottom: 10px; /* Space below the icon */
+}
+
+/* Gallery Section */
+.gallery {
+  text-align: center;
+  margin: 40px 0;
+  background-color: #6d9886;
+  height: 805px;
+}
+.gallery h2 {
+  padding: 20px;
+  color: #f7f7f7;
+  font-size: 61px;
+}
+
+.gallery-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.gallery-item {
+  width: 393px; /* Set a specific width */
+  height: 262px; /* Set a specific height */
+  overflow: hidden; /* Hide overflow */
+  position: relative; /* Positioning for absolute children */
+}
+
+.gallery-item img {
+  width: 100%; /* Make image responsive */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Contact Section */
+.contact {
+  height: 780px; /* Set maximum height */
+  overflow-y: auto; /* Allow scrolling */
+  text-align: center;
+  margin: 40px 0;
+  padding: 20px; /* Add padding */
+  background-color: #f9f9f9; /* Light background color */
+}
+
+.contact h2 {
+  font-size: 61px;
+  margin: 40px;
+}
+
+.contact-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.quick-contact {
+  width: 426px;
+  height: 555px;
+  background-color: #393e46; /* Dark background */
+  color: white; /* White text */
+  padding: 20px; /* Padding around the section */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Center items vertically */
+}
+
+.quick-contact h3 {
+  margin-top: -50px;
+  margin-bottom: 50px; /* Space below the heading */
+  font-size: 32px; /* Increased font size for the heading */
+}
+
+.contact-item {
+  text-align: left;
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 15px; /* Space between items */
+  font-size: 20px; /* Increased font size for contact items */
+}
+
+.contact-item i {
+  margin-right: 10px; /* Space between icon and text */
+  font-size: 28px; /* Increased icon size */
+  color: #4caf91; /* Icon color */
+}
+
+.contact-form {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between inputs */
+  align-items: center; /* Center items horizontally */
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 15px; /* Increase padding for a more spacious feel */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Slightly rounded corners */
+  width: 100%;
+
+  color: #666; /* Darker text color */
+  background-color: #f9f9f9; /* Light background color */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #4caf91; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+.contact-form button {
+  font-size: 32px;
+  height: 78px; /* Fixed height */
+  width: 317px; /* Fixed width */
+  padding: 10px;
+  background-color: #393e46; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* No border */
+  border-radius: 39px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  margin-top: 40px; /* Space above the button */
+}
+
+.contact-form button:hover {
+  background-color: #45a049; /* Darker shade on hover */
+}
+
+/* Contact Form Input Sizes */
+.input-large {
+  padding: 15px; /* Increase padding for a spacious feel */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Slightly rounded corners */
+  width: 100%; /* Full width */
+  font-size: 16px; /* Font size */
+  color: #666; /* Darker text color */
+  background-color: #f9f9f9; /* Light background color */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+  height: 163px; /* Fixed height for large inputs */
+}
+
+.input-medium {
+  padding: 12px; /* Slightly less padding */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Slightly rounded corners */
+  width: 100%; /* Full width */
+  font-size: 32px; /* Font size */
+  color: #666; /* Darker text color */
+  background-color: #f9f9f9; /* Light background color */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+  height: 72px; /* Fixed height for medium inputs */
+}
+
+.input-small {
+  padding: 10px; /* Less padding */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Slightly rounded corners */
+  width: 100%; /* Full width */
+  font-size: 32px; /* Font size */
+  color: #666; /* Darker text color */
+  background-color: #f9f9f9; /* Light background color */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+  height: 60px; /* Fixed height for small inputs */
+}
+
+/* Focus Styles */
+.input-large:focus,
+.input-medium:focus,
+.input-small:focus {
+  border-color: #4caf91; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+/* Footer */
+.footer {
+  background-color: #393e46; /* Dark background */
+  color: white; /* White text */
+  padding: 20px; /* Padding for the footer */
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between; /* Space between sections */
+  flex-wrap: wrap; /* Allow wrapping */
+}
+
+.footer-container div {
+  flex: 1; /* Equal width for each section */
+  min-width: 200px; /* Minimum width for each section */
+  margin: 10px; /* Margin between sections */
+}
+
+.footer-container h3 {
+  margin-bottom: 10px; /* Space below headings */
+}
+
+.footer-container ul {
+  list-style: none; /* Remove bullet points */
+  padding: 0; /* Remove padding */
+}
+
+.footer-container ul li {
+  margin-bottom: 5px; /* Space between list items */
+}
+
+.footer-container a {
+  color: white; /* Link color */
+  text-decoration: none; /* Remove underline */
+}
+
+.footer-container a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+.footer-bottom {
+  text-align: center; /* Center text */
+  border-top: 1px solid #444; /* Top border */
+  padding-top: 10px; /* Space above text */
+}
+
+.footer-bottom p {
+  margin: 5px 0; /* Space above and below text */
+}
+
+.booknow-button {
+  display: inline-block; /* Makes the link behave like a button */
+  text-align: center;
+  background-color: #6d9886;
+  color: white;
+  text-decoration: none; /* Remove underline */
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+  width: 263px;
+  height: 60px;
+  line-height: 60px; /* Vertically center the text */
+}
+
+.booknow-button:hover {
+  background-color: #4a7568;
+  text-decoration: none; /* Just in case */
+}

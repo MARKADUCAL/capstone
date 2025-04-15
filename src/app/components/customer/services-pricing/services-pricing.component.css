@@ -1,0 +1,104 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f8f8;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 30px;
+  text-transform: uppercase;
+}
+
+.service-icons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 30px 0;
+}
+
+.service-item {
+  background: white;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 120px;
+  text-align: center;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.service-item img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.step-box {
+  background: #333;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 280px;
+  text-align: left;
+}
+
+.step-box h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.step-box p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.vehicle-types,
+.services-list {
+  font-size: 14px;
+}
+
+.vehicle-size,
+.services-list div {
+  background: #444;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 4px;
+}
+
+.vehicle-size span,
+.services-list span {
+  font-weight: bold;
+  color: #ffd700;
+  margin-right: 8px;
+}
+
+.pricing-table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+}
+
+.pricing-table th,
+.pricing-table td {
+  border: 1px solid white;
+  padding: 8px;
+  text-align: center;
+}
+
+.pricing-table th {
+  background: #444;
+}
+
+.pricing-table td:first-child {
+  font-weight: bold;
+}

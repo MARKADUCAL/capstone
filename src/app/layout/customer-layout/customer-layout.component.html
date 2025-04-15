@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="sidebar">
+    <img src="/assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/customer/services-pricing">💰 Services & Pricing</a>
+      </li>
+      <li>
+        <a routerLink="/customer/tranaction-hitory">📜 Transaction History</a>
+      </li>
+      <li><a routerLink="/customer/appointment">📅 Appointment</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <header class="header">
+      <div class="menu-icon">☰</div>
+      <h2>Services & Pricing</h2>
+      <div class="user-info">
+        <img
+          src="../assets/user-avatar.png"
+          alt="User Avatar"
+          class="user-avatar"
+        />
+        <span class="user-name">Mark Aducal</span>
+        <button class="dropdown-btn">▼</button>
+      </div>
+    </header>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
