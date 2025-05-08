@@ -1,1 +1,57 @@
-<p>employee-layout works!</p>
+<div class="container">
+  <div class="sidebar">
+    <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/employee/dashboard" routerLinkActive="active"
+          >📊 Dashboard</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/appointments" routerLinkActive="active"
+          >📅 Appointments</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/wash-services" routerLinkActive="active"
+          >🚗 Wash Services</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/customer-records" routerLinkActive="active"
+          >👥 Customer Records</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/inventory" routerLinkActive="active"
+          >📦 Inventory</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/time-tracking" routerLinkActive="active"
+          >⏱️ Time Tracking</a
+        >
+      </li>
+      <li>
+        <a routerLink="/employee/profile" routerLinkActive="active"
+          >👤 My Profile</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <header class="header">
+      <div class="menu-icon">☰</div>
+      <h2>Employee Dashboard</h2>
+      <div class="user-info">
+        <img src="assets/logo.jpg" alt="User Avatar" class="user-avatar" />
+        <span class="user-name">Employee Name</span>
+        <button class="dropdown-btn">▼</button>
+      </div>
+    </header>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -157,4 +157,255 @@ class Post extends GlobalMethods
             );
         }
     }
+    
+    public function register_admin($data) {
+        // Validate required fields
+        if (empty($data->first_name) || empty($data->email) || empty($data->password) || empty($data->admin_id)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        // Validate email format
+        if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendPayload(null, "failed", "Invalid email format", 400);
+        }
+        
+        // Admin key check temporarily removed
+
+        try {
+            // Check if email already exists
+            $sql = "SELECT COUNT(*) FROM admins WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $count = $statement->fetchColumn();
+
+            if ($count > 0) {
+                return $this->sendPayload(null, "failed", "Email already registered", 400);
+            }
+            
+            // Check if admin_id already exists
+            $sql = "SELECT COUNT(*) FROM admins WHERE admin_id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->admin_id]);
+            $count = $statement->fetchColumn();
+
+            if ($count > 0) {
+                return $this->sendPayload(null, "failed", "Admin ID already exists", 400);
+            }
+        
+            // Proceed with registration
+            $sql = "INSERT INTO admins (admin_id, first_name, last_name, email, phone, password) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
+
+            $statement->execute([
+                $data->admin_id,
+                $data->first_name,
+                $data->last_name ?? '',
+                $data->email,
+                $data->phone ?? '',
+                $hashedPassword
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Admin successfully registered", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Registration failed", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Admin registration error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "Database error occurred. Please try again.", 
+                500
+            );
+        }
+    }
+    
+    public function login_admin($data) {
+        // Validate required fields
+        if (empty($data->email) || empty($data->password)) {
+            return $this->sendPayload(null, "failed", "Email and password are required", 400);
+        }
+
+        try {
+            // Get admin by email
+            $sql = "SELECT * FROM admins WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $admin = $statement->fetch(PDO::FETCH_ASSOC);
+
+            // Check if admin exists and verify password
+            if ($admin && password_verify($data->password, $admin['password'])) {
+                // Generate JWT token
+                $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+                $payload = [
+                    'iss' => 'autowash_hub',
+                    'aud' => 'admin',
+                    'iat' => time(),
+                    'exp' => time() + (60 * 60 * 24), // 24 hours
+                    'data' => [
+                        'id' => $admin['id'],
+                        'email' => $admin['email'],
+                        'first_name' => $admin['first_name'],
+                        'last_name' => $admin['last_name']
+                    ]
+                ];
+                
+                $jwt = JWT::encode($payload, $key, 'HS256');
+                
+                // Remove password from admin data
+                unset($admin['password']);
+                
+                return $this->sendPayload(
+                    [
+                        'token' => $jwt,
+                        'admin' => $admin
+                    ],
+                    "success",
+                    "Login successful",
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Invalid email or password", 401);
+            }
+        } catch (\PDOException $e) {
+            error_log("Admin login error: " . $e->getMessage());
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Database error occurred. Please try again.",
+                500
+            );
+        }
+    }
+
+    public function register_employee($data) {
+        // Validate required fields
+        if (empty($data->first_name) || empty($data->email) || empty($data->password) || empty($data->employee_id) || empty($data->position)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        // Validate email format
+        if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendPayload(null, "failed", "Invalid email format", 400);
+        }
+
+        try {
+            // Check if email already exists
+            $sql = "SELECT COUNT(*) FROM employees WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $count = $statement->fetchColumn();
+
+            if ($count > 0) {
+                return $this->sendPayload(null, "failed", "Email already registered", 400);
+            }
+            
+            // Check if employee_id already exists
+            $sql = "SELECT COUNT(*) FROM employees WHERE employee_id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->employee_id]);
+            $count = $statement->fetchColumn();
+
+            if ($count > 0) {
+                return $this->sendPayload(null, "failed", "Employee ID already exists", 400);
+            }
+        
+            // Proceed with registration
+            $sql = "INSERT INTO employees (employee_id, first_name, last_name, email, phone, password, position) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
+
+            $statement->execute([
+                $data->employee_id,
+                $data->first_name,
+                $data->last_name ?? '',
+                $data->email,
+                $data->phone ?? '',
+                $hashedPassword,
+                $data->position
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Employee successfully registered", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Registration failed", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Employee registration error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "Database error occurred. Please try again.", 
+                500
+            );
+        }
+    }
+
+    public function login_employee($data) {
+        // Validate required fields
+        if (empty($data->email) || empty($data->password)) {
+            return $this->sendPayload(null, "failed", "Email and password are required", 400);
+        }
+
+        try {
+            // Get employee by email
+            $sql = "SELECT * FROM employees WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $employee = $statement->fetch(PDO::FETCH_ASSOC);
+
+            // Check if employee exists and verify password
+            if ($employee && password_verify($data->password, $employee['password'])) {
+                // Generate JWT token
+                $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+                $payload = [
+                    'iss' => 'autowash_hub',
+                    'aud' => 'employee',
+                    'iat' => time(),
+                    'exp' => time() + (60 * 60 * 8), // 8 hours
+                    'data' => [
+                        'id' => $employee['id'],
+                        'employee_id' => $employee['employee_id'],
+                        'email' => $employee['email'],
+                        'first_name' => $employee['first_name'],
+                        'last_name' => $employee['last_name'],
+                        'position' => $employee['position']
+                    ]
+                ];
+                
+                $jwt = JWT::encode($payload, $key, 'HS256');
+                
+                // Remove password from employee data
+                unset($employee['password']);
+                
+                return $this->sendPayload(
+                    [
+                        'token' => $jwt,
+                        'employee' => $employee
+                    ],
+                    "success",
+                    "Login successful",
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Invalid email or password", 401);
+            }
+        } catch (\PDOException $e) {
+            error_log("Employee login error: " . $e->getMessage());
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Database error occurred. Please try again.",
+                500
+            );
+        }
+    }
 }

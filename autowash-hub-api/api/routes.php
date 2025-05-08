@@ -51,4 +51,28 @@ if ($method === 'POST') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'register_admin') !== false) {
+        $result = $post->register_admin($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'login_admin') !== false) {
+        $result = $post->login_admin($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'register_employee') !== false) {
+        $result = $post->register_employee($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'login_employee') !== false) {
+        $result = $post->login_employee($data);
+        echo json_encode($result);
+        exit();
+    }
 }
