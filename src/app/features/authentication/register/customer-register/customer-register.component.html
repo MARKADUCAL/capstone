@@ -1,73 +1,146 @@
-<body>
-  <div class="container">
-    <div class="register-form">
-      <div class="logo-section">
-        <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
-      </div>
-      <div class="form-section">
-        <div class="signup-box">
-          <h2>Sign Up</h2>
-          <div *ngIf="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
-          <form (ngSubmit)="onSubmit()">
-            <input
-              type="text"
-              [(ngModel)]="customer.first_name"
-              name="first_name"
-              placeholder="First Name*"
-              required
-            />
-            <input
-              type="text"
-              [(ngModel)]="customer.last_name"
-              name="last_name"
-              placeholder="Last Name"
-            />
-            <input
-              type="email"
-              [(ngModel)]="customer.email"
-              name="email"
-              placeholder="Email*"
-              required
-            />
-            <input
-              type="tel"
-              [(ngModel)]="customer.phone"
-              name="phone"
-              placeholder="Phone Number"
-            />
-            <input
-              type="password"
-              [(ngModel)]="customer.password"
-              name="password"
-              placeholder="Password*"
-              required
-            />
-            <input
-              type="password"
-              [(ngModel)]="customer.confirm_password"
-              name="confirm_password"
-              placeholder="Confirm Password*"
-              required
-            />
-
-            <div class="checkbox-container">
-              <input type="checkbox" id="terms" required />
-              <label for="terms"
-                >I agree to the <a href="#">Terms & Conditions</a> and
-                <a href="#">Privacy Policy</a>.</label
-              >
-            </div>
-
-            <button type="submit">Sign Up</button>
-
-            <p class="signin-text">
-              Already have an account? <a href="/customer-login">Sign In?</a>
-            </p>
-          </form>
+<div class="container">
+  <div class="register-form">
+    <div class="logo-section">
+      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
+    </div>
+    <div class="form-section">
+      <div class="signup-box">
+        <h2>Sign Up</h2>
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
         </div>
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+          <input
+            type="text"
+            [(ngModel)]="customer.first_name"
+            name="first_name"
+            placeholder="First Name*"
+            required
+            #firstName="ngModel"
+          />
+          <div
+            *ngIf="firstName.invalid && (firstName.dirty || firstName.touched)"
+            class="error-message"
+          >
+            First name is required
+          </div>
+
+          <input
+            type="text"
+            [(ngModel)]="customer.last_name"
+            name="last_name"
+            placeholder="Last Name*"
+            required
+            #lastName="ngModel"
+          />
+          <div
+            *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)"
+            class="error-message"
+          >
+            Last name is required
+          </div>
+
+          <input
+            type="email"
+            [(ngModel)]="customer.email"
+            name="email"
+            placeholder="Email*"
+            required
+            pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+            #email="ngModel"
+          />
+          <div
+            *ngIf="email.invalid && (email.dirty || email.touched)"
+            class="error-message"
+          >
+            Please enter a valid email address
+          </div>
+
+          <input
+            type="tel"
+            [(ngModel)]="customer.phone"
+            name="phone"
+            placeholder="Phone Number*"
+            required
+            pattern="[0-9]{11}"
+            #phone="ngModel"
+          />
+          <div
+            *ngIf="phone.invalid && (phone.dirty || phone.touched)"
+            class="error-message"
+          >
+            Please enter a valid 11-digit phone number
+          </div>
+
+          <input
+            type="password"
+            [(ngModel)]="customer.password"
+            name="password"
+            placeholder="Password*"
+            required
+            minlength="8"
+            #password="ngModel"
+          />
+          <div
+            *ngIf="password.invalid && (password.dirty || password.touched)"
+            class="error-message"
+          >
+            Password must be at least 8 characters long
+          </div>
+
+          <input
+            type="password"
+            [(ngModel)]="customer.confirm_password"
+            name="confirm_password"
+            placeholder="Confirm Password*"
+            required
+            #confirmPassword="ngModel"
+          />
+          <div
+            *ngIf="
+              confirmPassword.invalid &&
+              (confirmPassword.dirty || confirmPassword.touched)
+            "
+            class="error-message"
+          >
+            Please confirm your password
+          </div>
+
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="terms"
+              required
+              [(ngModel)]="termsAccepted"
+              name="terms"
+              #terms="ngModel"
+            />
+            <label for="terms"
+              >I agree to the <a href="#">Terms & Conditions</a> and
+              <a href="#">Privacy Policy</a>.*</label
+            >
+          </div>
+          <div
+            *ngIf="terms.invalid && (terms.dirty || terms.touched)"
+            class="error-message"
+          >
+            You must accept the terms and conditions
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="!registerForm.form.valid"
+            [ngClass]="{ 'disabled-button': !registerForm.form.valid }"
+          >
+            Sign Up
+          </button>
+
+          <p class="signin-text">
+            Already have an account?
+            <a [routerLink]="['/customer-login']">Sign In?</a>
+          </p>
+        </form>
       </div>
     </div>
   </div>
-</body>
+</div>
