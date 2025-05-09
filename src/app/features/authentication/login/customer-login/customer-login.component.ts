@@ -63,7 +63,7 @@ export class CustomerLoginComponent {
               );
 
               // Navigate to customer dashboard
-              this.router.navigate(['/customer']);
+              this.router.navigate(['/customer-view']);
             } else {
               this.errorMessage = 'Invalid response from server';
             }

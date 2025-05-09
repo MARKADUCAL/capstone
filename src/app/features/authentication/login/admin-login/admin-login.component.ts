@@ -74,7 +74,7 @@ export class AdminLoginComponent {
               }
 
               // Navigate to admin dashboard
-              this.router.navigate(['/admin']);
+              this.router.navigate(['/admin-view']);
             } else {
               this.errorMessage = 'Invalid response from server';
             }

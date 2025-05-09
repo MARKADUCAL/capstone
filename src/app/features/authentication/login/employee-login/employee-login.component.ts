@@ -74,7 +74,7 @@ export class EmployeeLoginComponent {
               }
 
               // Navigate to employee dashboard
-              this.router.navigate(['/employee']);
+              this.router.navigate(['/employee-view']);
             } else {
               this.errorMessage = 'Invalid response from server';
             }
