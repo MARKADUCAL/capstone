@@ -10,6 +10,31 @@ import { CustomerLayoutComponent } from './layout/customer-layout/customer-layou
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { EmployeeLayoutComponent } from './layout/employee-layout/employee-layout.component';
 
+// Admin components
+import { DashboardComponent } from './components/admin/dashboard/dashboard.component';
+import { WashingPointComponent } from './components/admin/washing-point/washing-point.component';
+import { CarWashBookingComponent } from './components/admin/car-wash-booking/car-wash-booking.component';
+import { InventoryManagementComponent } from './components/admin/inventory-management/inventory-management.component';
+import { EmployeeManagementComponent } from './components/admin/employee-management/employee-management.component';
+import { UserManagementComponent } from './components/admin/user-management/user-management.component';
+import { ManageEnquiriesComponent } from './components/admin/manage-enquiries/manage-enquiries.component';
+import { ReportingComponent } from './components/admin/reporting/reporting.component';
+import { PagesComponent } from './components/admin/pages/pages.component';
+
+// Customer components
+import { ServicesPricingComponent } from './components/customer/services-pricing/services-pricing.component';
+import { AppointmentComponent } from './components/customer/appointment/appointment.component';
+import { TranactionHitoryComponent } from './components/customer/tranaction-hitory/tranaction-hitory.component';
+
+// Employee components
+import { DashboardComponent as EmployeeDashboardComponent } from './components/employee/dashboard/dashboard.component';
+import { AppointmentsComponent } from './components/employee/appointments/appointments.component';
+import { WashServicesComponent } from './components/employee/wash-services/wash-services.component';
+import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
+import { InventoryComponent } from './components/employee/inventory/inventory.component';
+import { TimeTrackingComponent } from './components/employee/time-tracking/time-tracking.component';
+import { ProfileComponent } from './components/employee/profile/profile.component';
+
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'customer-login', component: CustomerLoginComponent },
@@ -24,15 +49,15 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     children: [
-      { path: 'dashboard', component: LandingPageComponent },
-      { path: 'washing-point', component: LandingPageComponent },
-      { path: 'car-wash-booking', component: LandingPageComponent },
-      { path: 'inventory-management', component: LandingPageComponent },
-      { path: 'employee-management', component: LandingPageComponent },
-      { path: 'user-management', component: LandingPageComponent },
-      { path: 'manage-enquiries', component: LandingPageComponent },
-      { path: 'reporting', component: LandingPageComponent },
-      { path: 'pages', component: LandingPageComponent },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'washing-point', component: WashingPointComponent },
+      { path: 'car-wash-booking', component: CarWashBookingComponent },
+      { path: 'inventory-management', component: InventoryManagementComponent },
+      { path: 'employee-management', component: EmployeeManagementComponent },
+      { path: 'user-management', component: UserManagementComponent },
+      { path: 'manage-enquiries', component: ManageEnquiriesComponent },
+      { path: 'reporting', component: ReportingComponent },
+      { path: 'pages', component: PagesComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -42,13 +67,13 @@ export const routes: Routes = [
     path: 'employee',
     component: EmployeeLayoutComponent,
     children: [
-      { path: 'dashboard', component: LandingPageComponent },
-      { path: 'appointments', component: LandingPageComponent },
-      { path: 'wash-services', component: LandingPageComponent },
-      { path: 'customer-records', component: LandingPageComponent },
-      { path: 'inventory', component: LandingPageComponent },
-      { path: 'time-tracking', component: LandingPageComponent },
-      { path: 'profile', component: LandingPageComponent },
+      { path: 'dashboard', component: EmployeeDashboardComponent },
+      { path: 'appointments', component: AppointmentsComponent },
+      { path: 'wash-services', component: WashServicesComponent },
+      { path: 'customer-records', component: CustomerRecordsComponent },
+      { path: 'inventory', component: InventoryComponent },
+      { path: 'time-tracking', component: TimeTrackingComponent },
+      { path: 'profile', component: ProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -58,27 +83,9 @@ export const routes: Routes = [
     path: 'customer',
     component: CustomerLayoutComponent,
     children: [
-      {
-        path: 'services-pricing',
-        loadComponent: () =>
-          import(
-            './components/customer/services-pricing/services-pricing.component'
-          ).then((m) => m.ServicesPricingComponent),
-      },
-      {
-        path: 'appointment',
-        loadComponent: () =>
-          import(
-            './components/customer/appointment/appointment.component'
-          ).then((m) => m.AppointmentComponent),
-      },
-      {
-        path: 'tranaction-hitory',
-        loadComponent: () =>
-          import(
-            './components/customer/tranaction-hitory/tranaction-hitory.component'
-          ).then((m) => m.TranactionHitoryComponent),
-      },
+      { path: 'services-pricing', component: ServicesPricingComponent },
+      { path: 'appointment', component: AppointmentComponent },
+      { path: 'tranaction-hitory', component: TranactionHitoryComponent },
       { path: '', redirectTo: 'services-pricing', pathMatch: 'full' },
     ],
   },

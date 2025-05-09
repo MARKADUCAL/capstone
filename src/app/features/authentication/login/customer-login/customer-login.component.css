@@ -1,28 +1,32 @@
-/* General Styles */
-body {
-  font-family: Arial, sans-serif;
+* {
   margin: 0;
   padding: 0;
-  background-color: #f5ebd6; /* Light beige background to match image */
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body,
+html {
+  height: 100%;
+  background-color: #f5ebd6; /* Light beige background */
+}
+
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  padding: 20px;
+  background-color: #f5ebd6;
 }
 
-/* Main Container */
-.container {
+.login-card {
   display: flex;
-  background: #f7f7f7;
-  padding: 25px;
-  border-radius: 90px; /* More rounded corners */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  max-width: 1236px;
-  width: 1000px;
-  height: 700px;
-  position: relative;
+  width: 800px;
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 5px solid #393e46;
 }
 
 /* Logo Section */
@@ -30,183 +34,183 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
+  padding: 30px;
+  background-color: #78bedb; /* Light blue background */
+  position: relative;
+  overflow: hidden;
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
 }
 
-.logo-section img {
-  width: 400px;
+.logo-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
 }
 
-.logo-section .logo-text {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
+.logo {
+  width: 180px;
+  height: auto;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-title {
+  font-size: 28px;
   color: #333;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* Form Section */
 .form-section {
   flex: 1;
+  padding: 30px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
 }
 
-/* Login Box */
-.login-box {
+.login-form {
+  max-width: 350px;
   width: 100%;
-  max-width: 300px;
-  text-align: center;
-  background: #f7f7f7;
-  padding: 30px;
-  border-radius: 36px;
-  border: 5px solid #393e46;
-  position: relative; /* For border styling */
-  margin-right: 25px;
+  margin: 0 auto;
 }
 
-/* Optional: If you want to add a subtle shadow along with the border */
-.login-box::after {
-  content: "";
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  right: -5px;
-  bottom: -5px;
-  border: 5px solid #393e46;
-  border-radius: 8px;
-  z-index: -1;
-}
-
-.login-box h2 {
-  font-size: 50px;
-  margin: 25px;
+.login-form h2 {
+  font-size: 24px;
+  font-weight: 600;
   color: #333;
-  font-weight: 500;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-/* Input Fields */
-.login-box input {
-  width: 90%;
-  padding: 12px 15px;
-  height: 20px;
-  margin: 8px 0;
-  border: 5px solid #393e46;
-  border-radius: 20px; /* Rounded input fields */
-  font-size: 14px;
-  background-color: white;
+.form-group {
+  margin-bottom: 15px;
 }
 
-/* Label styling */
-.field-label {
+.form-group label {
   display: block;
-  text-align: left;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   font-size: 14px;
   color: #666;
 }
 
-/* Remember Me and Forgot Password row */
+.form-group input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #333;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #78bedb;
+  outline: none;
+}
+
 .remember-forgot {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 15px 0;
+  margin-bottom: 20px;
+  font-size: 12px;
 }
 
 .remember-me {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #666;
 }
 
-.remember-me input[type="checkbox"] {
-  width: auto;
-  margin: 0;
+.remember-me input {
+  margin-right: 5px;
 }
 
 .forgot-password {
-  font-size: 12px;
-}
-
-.forgot-password a {
   color: #666;
   text-decoration: none;
 }
 
-/* Sign In Button */
-.login-box button {
-  width: 225px;
-  height: 64px;
-  padding: 12px;
-  background-color: #f7f7f7; /* Dark button color */
-  color: #333;
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.sign-in-btn {
+  width: 100%;
+  padding: 12px 0;
+  background-color: #6cb4a7; /* Green button */
+  color: white;
   border: none;
-  border-radius: 36px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 20px;
+  border-radius: 5px;
+  font-size: 16px;
   font-weight: 500;
-  border: 5px solid #393e46;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 15px;
 }
 
-/* Sign Up Text */
-.signup-text {
-  margin-top: 20px;
-  font-size: 12px;
-  color: #666;
+.sign-in-btn:hover {
+  background-color: #5a9d91;
 }
 
-.signup-text a {
-  color: #333;
-  text-decoration: underline; /* adds underline */
-  font-weight: bold; /* makes text bold */
+.sign-in-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
-/* Responsive styles */
-@media screen and (max-width: 768px) {
-  .container {
+.sign-up-link {
+  text-align: center;
+  font-size: 14px;
+}
+
+.sign-up-link a {
+  color: #78bedb;
+  text-decoration: none;
+}
+
+.sign-up-link a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-bottom: 15px;
+  text-align: center;
+  padding: 8px;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-card {
     flex-direction: column;
-    width: 90%;
-    height: auto;
-    padding: 20px;
+    width: 100%;
+    max-width: 400px;
   }
 
   .logo-section {
-    display: none; /* Hide logo section on smaller screens */
+    padding: 20px;
+    border-radius: 25px 25px 0 0;
   }
 
   .form-section {
-    width: 100%;
-  }
-
-  .login-box {
-    margin: 0 auto;
-    max-width: 90%;
-  }
-}
-
-/* For very small screens */
-@media screen and (max-width: 480px) {
-  .container {
-    border-radius: 40px;
-    padding: 15px;
-  }
-
-  .login-box {
     padding: 20px;
-  }
-
-  .login-box h2 {
-    font-size: 36px;
-    margin: 15px;
-  }
-
-  .login-box button {
-    width: 80%;
   }
 }

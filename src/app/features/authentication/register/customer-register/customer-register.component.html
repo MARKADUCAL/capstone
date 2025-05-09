@@ -1,144 +1,131 @@
-<div class="container">
-  <div class="register-form">
+<div class="register-container">
+  <div class="register-card">
+    <!-- Logo Section (Left) -->
     <div class="logo-section">
-      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
+      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+      <h1 class="logo-title">AutoWash Hub</h1>
     </div>
+
+    <!-- Register Form Section (Right) -->
     <div class="form-section">
-      <div class="signup-box">
+      <div class="register-form">
         <h2>Sign Up</h2>
+
         <div *ngIf="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
+
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-          <input
-            type="text"
-            [(ngModel)]="customer.first_name"
-            name="first_name"
-            placeholder="First Name*"
-            required
-            #firstName="ngModel"
-          />
-          <div
-            *ngIf="firstName.invalid && (firstName.dirty || firstName.touched)"
-            class="error-message"
-          >
-            First name is required
-          </div>
-
-          <input
-            type="text"
-            [(ngModel)]="customer.last_name"
-            name="last_name"
-            placeholder="Last Name*"
-            required
-            #lastName="ngModel"
-          />
-          <div
-            *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)"
-            class="error-message"
-          >
-            Last name is required
-          </div>
-
-          <input
-            type="email"
-            [(ngModel)]="customer.email"
-            name="email"
-            placeholder="Email*"
-            required
-            pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
-            #email="ngModel"
-          />
-          <div
-            *ngIf="email.invalid && (email.dirty || email.touched)"
-            class="error-message"
-          >
-            Please enter a valid email address
-          </div>
-
-          <input
-            type="tel"
-            [(ngModel)]="customer.phone"
-            name="phone"
-            placeholder="Phone Number*"
-            required
-            pattern="[0-9]{11}"
-            #phone="ngModel"
-          />
-          <div
-            *ngIf="phone.invalid && (phone.dirty || phone.touched)"
-            class="error-message"
-          >
-            Please enter a valid 11-digit phone number
-          </div>
-
-          <input
-            type="password"
-            [(ngModel)]="customer.password"
-            name="password"
-            placeholder="Password*"
-            required
-            minlength="8"
-            #password="ngModel"
-          />
-          <div
-            *ngIf="password.invalid && (password.dirty || password.touched)"
-            class="error-message"
-          >
-            Password must be at least 8 characters long
-          </div>
-
-          <input
-            type="password"
-            [(ngModel)]="customer.confirm_password"
-            name="confirm_password"
-            placeholder="Confirm Password*"
-            required
-            #confirmPassword="ngModel"
-          />
-          <div
-            *ngIf="
-              confirmPassword.invalid &&
-              (confirmPassword.dirty || confirmPassword.touched)
-            "
-            class="error-message"
-          >
-            Please confirm your password
-          </div>
-
-          <div class="checkbox-container">
+          <div class="form-group">
+            <label for="first_name">First Name</label>
             <input
-              type="checkbox"
-              id="terms"
+              type="text"
+              id="first_name"
+              [(ngModel)]="customer.first_name"
+              name="first_name"
+              placeholder="Enter your first name"
               required
-              [(ngModel)]="termsAccepted"
-              name="terms"
-              #terms="ngModel"
+              #firstName="ngModel"
             />
-            <label for="terms"
-              >I agree to the <a href="#">Terms & Conditions</a> and
-              <a href="#">Privacy Policy</a>.*</label
-            >
           </div>
-          <div
-            *ngIf="terms.invalid && (terms.dirty || terms.touched)"
-            class="error-message"
-          >
-            You must accept the terms and conditions
+
+          <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input
+              type="text"
+              id="last_name"
+              [(ngModel)]="customer.last_name"
+              name="last_name"
+              placeholder="Enter your last name"
+              required
+              #lastName="ngModel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="customer.email"
+              name="email"
+              placeholder="Enter your email"
+              required
+              pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+              #email="ngModel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              [(ngModel)]="customer.phone"
+              name="phone"
+              placeholder="Enter your phone number"
+              required
+              pattern="[0-9]{11}"
+              #phone="ngModel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="customer.password"
+              name="password"
+              placeholder="Create a password"
+              required
+              minlength="8"
+              #password="ngModel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm_password"
+              [(ngModel)]="customer.confirm_password"
+              name="confirm_password"
+              placeholder="Confirm your password"
+              required
+              #confirmPassword="ngModel"
+            />
+          </div>
+
+          <div class="terms-container">
+            <label class="terms-checkbox">
+              <input
+                type="checkbox"
+                id="terms"
+                required
+                [(ngModel)]="termsAccepted"
+                name="terms"
+                #terms="ngModel"
+              />
+              <span
+                >I agree to the <a href="#">Terms & Conditions</a> and
+                <a href="#">Privacy Policy</a></span
+              >
+            </label>
           </div>
 
           <button
             type="submit"
+            class="sign-up-btn"
             [disabled]="!registerForm.form.valid"
-            [ngClass]="{ 'disabled-button': !registerForm.form.valid }"
           >
             Sign Up
           </button>
 
-          <p class="signin-text">
+          <div class="sign-in-link">
             Already have an account?
-            <a [routerLink]="['/customer-login']">Sign In?</a>
-          </p>
+            <a routerLink="/customer-login">Sign In</a>
+          </div>
         </form>
       </div>
     </div>

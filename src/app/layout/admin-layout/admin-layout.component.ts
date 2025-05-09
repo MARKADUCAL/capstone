@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+  Router,
+} from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,4 +14,24 @@ import { CommonModule } from '@angular/common';
   styleUrl: './admin-layout.component.css',
   standalone: true,
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  showDropdown = false;
+
+  constructor(private router: Router) {}
+
+  toggleDropdown() {
+    this.showDropdown = !this.showDropdown;
+  }
+
+  logout() {
+    // Clear the local storage or cookies
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
+
+    // Redirect to login page
+    this.router.navigate(['/admin-login']);
+
+    // Close dropdown
+    this.showDropdown = false;
+  }
+}
