@@ -3,12 +3,24 @@
     <img src="/assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
     <ul class="nav-links">
       <li>
-        <a routerLink="/customer/services-pricing">💰 Services & Pricing</a>
+        <a
+          routerLink="/customer-view/services-pricing"
+          routerLinkActive="active"
+          >💰 Services & Pricing</a
+        >
       </li>
       <li>
-        <a routerLink="/customer/tranaction-hitory">📜 Transaction History</a>
+        <a
+          routerLink="/customer-view/tranaction-hitory"
+          routerLinkActive="active"
+          >📜 Transaction History</a
+        >
       </li>
-      <li><a routerLink="/customer/appointment">📅 Appointment</a></li>
+      <li>
+        <a routerLink="/customer-view/appointment" routerLinkActive="active"
+          >📅 Appointment</a
+        >
+      </li>
     </ul>
   </div>
 
@@ -21,7 +33,7 @@
         <span class="user-name">Mark Aducal</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/customer/profile">
+          <a class="dropdown-item" routerLink="/customer-view/profile">
             <i class="profile-icon">👤</i> View Profile
           </a>
           <a class="dropdown-item" (click)="logout()">

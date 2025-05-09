@@ -29,7 +29,7 @@ export class AdminLayoutComponent {
     localStorage.removeItem('adminData');
 
     // Redirect to login page
-    this.router.navigate(['/admin-login']);
+    this.router.navigate(['/admin']);
 
     // Close dropdown
     this.showDropdown = false;

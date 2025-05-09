@@ -3,47 +3,51 @@
     <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
     <ul class="nav-links">
       <li>
-        <a routerLink="/admin/dashboard" routerLinkActive="active"
+        <a routerLink="/admin-view/dashboard" routerLinkActive="active"
           >📊 Dashboard</a
         >
       </li>
       <li>
-        <a routerLink="/admin/washing-point" routerLinkActive="active"
+        <a routerLink="/admin-view/washing-point" routerLinkActive="active"
           >🚿 Washing Point</a
         >
       </li>
       <li>
-        <a routerLink="/admin/car-wash-booking" routerLinkActive="active"
+        <a routerLink="/admin-view/car-wash-booking" routerLinkActive="active"
           >🗓️ Car Wash Booking</a
         >
       </li>
       <li>
-        <a routerLink="/admin/inventory-management" routerLinkActive="active"
+        <a
+          routerLink="/admin-view/inventory-management"
+          routerLinkActive="active"
           >📦 Inventory Management</a
         >
       </li>
       <li>
-        <a routerLink="/admin/employee-management" routerLinkActive="active"
+        <a
+          routerLink="/admin-view/employee-management"
+          routerLinkActive="active"
           >👨‍💼 Employee Management</a
         >
       </li>
       <li>
-        <a routerLink="/admin/user-management" routerLinkActive="active"
+        <a routerLink="/admin-view/user-management" routerLinkActive="active"
           >👥 User Management</a
         >
       </li>
       <li>
-        <a routerLink="/admin/manage-enquiries" routerLinkActive="active"
+        <a routerLink="/admin-view/manage-enquiries" routerLinkActive="active"
           >❓ Manage Enquiries</a
         >
       </li>
       <li>
-        <a routerLink="/admin/reporting" routerLinkActive="active"
+        <a routerLink="/admin-view/reporting" routerLinkActive="active"
           >📈 Reporting</a
         >
       </li>
       <li>
-        <a routerLink="/admin/pages" routerLinkActive="active">📄 Pages</a>
+        <a routerLink="/admin-view/pages" routerLinkActive="active">📄 Pages</a>
       </li>
     </ul>
   </div>
@@ -57,7 +61,7 @@
         <span class="user-name">Admin Name</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/admin/profile">
+          <a class="dropdown-item" routerLink="/admin-view/profile">
             <i class="profile-icon">👤</i> View Profile
           </a>
           <a class="dropdown-item" (click)="logout()">

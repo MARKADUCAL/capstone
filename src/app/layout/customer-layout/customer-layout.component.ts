@@ -24,7 +24,7 @@ export class CustomerLayoutComponent {
     localStorage.removeItem('customerData');
 
     // Redirect to login page
-    this.router.navigate(['/customer-login']);
+    this.router.navigate(['/customer']);
 
     // Close dropdown
     this.showDropdown = false;

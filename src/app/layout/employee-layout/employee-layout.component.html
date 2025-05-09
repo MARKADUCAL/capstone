@@ -3,37 +3,39 @@
     <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
     <ul class="nav-links">
       <li>
-        <a routerLink="/employee/dashboard" routerLinkActive="active"
+        <a routerLink="/employee-view/dashboard" routerLinkActive="active"
           >📊 Dashboard</a
         >
       </li>
       <li>
-        <a routerLink="/employee/appointments" routerLinkActive="active"
+        <a routerLink="/employee-view/appointments" routerLinkActive="active"
           >📅 Appointments</a
         >
       </li>
       <li>
-        <a routerLink="/employee/wash-services" routerLinkActive="active"
+        <a routerLink="/employee-view/wash-services" routerLinkActive="active"
           >🚗 Wash Services</a
         >
       </li>
       <li>
-        <a routerLink="/employee/customer-records" routerLinkActive="active"
+        <a
+          routerLink="/employee-view/customer-records"
+          routerLinkActive="active"
           >👥 Customer Records</a
         >
       </li>
       <li>
-        <a routerLink="/employee/inventory" routerLinkActive="active"
+        <a routerLink="/employee-view/inventory" routerLinkActive="active"
           >📦 Inventory</a
         >
       </li>
       <li>
-        <a routerLink="/employee/time-tracking" routerLinkActive="active"
+        <a routerLink="/employee-view/time-tracking" routerLinkActive="active"
           >⏱️ Time Tracking</a
         >
       </li>
       <li>
-        <a routerLink="/employee/profile" routerLinkActive="active"
+        <a routerLink="/employee-view/profile" routerLinkActive="active"
           >👤 My Profile</a
         >
       </li>
@@ -49,7 +51,7 @@
         <span class="user-name">Employee Name</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/employee/profile">
+          <a class="dropdown-item" routerLink="/employee-view/profile">
             <i class="profile-icon">👤</i> View Profile
           </a>
           <a class="dropdown-item" (click)="logout()">

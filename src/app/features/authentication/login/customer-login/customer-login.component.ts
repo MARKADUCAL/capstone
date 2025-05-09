@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,15 +13,29 @@ import { Router } from '@angular/router';
   styleUrl: './customer-login.component.css',
   host: { ngSkipHydration: 'true' },
 })
-export class CustomerLoginComponent {
+export class CustomerLoginComponent implements OnInit {
   loginData = {
     email: '',
     password: '',
   };
   errorMessage = '';
   isLoading = false;
+  apiBaseUrl = '';
 
   constructor(private http: HttpClient, private router: Router) {}
+
+  ngOnInit() {
+    // Dynamically determine the API base URL
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      // For local development
+      this.apiBaseUrl = 'http://localhost/autowash-hub-api/api';
+    } else {
+      // For production environment - adjust as needed
+      this.apiBaseUrl = window.location.origin + '/autowash-hub-api/api';
+    }
+    console.log('API Base URL:', this.apiBaseUrl);
+  }
 
   onSubmit() {
     this.errorMessage = '';
@@ -42,12 +56,10 @@ export class CustomerLoginComponent {
 
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
 
+    console.log('Attempting login with:', this.loginData);
+
     this.http
-      .post(
-        'http://localhost/autowash-hub-api/api/login_customer',
-        this.loginData,
-        { headers }
-      )
+      .post(`${this.apiBaseUrl}/login_customer`, this.loginData, { headers })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
@@ -80,8 +92,14 @@ export class CustomerLoginComponent {
           } else if (error.status === 0) {
             this.errorMessage =
               'Cannot connect to server. Please check your connection.';
+          } else if (error.status === 401) {
+            this.errorMessage = 'Invalid email or password. Please try again.';
+          } else if (error.status === 404) {
+            this.errorMessage = 'API endpoint not found. Please check the URL.';
           } else {
-            this.errorMessage = 'Login failed. Please try again.';
+            this.errorMessage = `Login failed (${error.status}): ${
+              error.statusText || 'Unknown error'
+            }`;
           }
         },
       });

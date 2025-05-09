@@ -29,7 +29,7 @@ export class EmployeeLayoutComponent {
     localStorage.removeItem('employeeData');
 
     // Redirect to login page
-    this.router.navigate(['/employee-login']);
+    this.router.navigate(['/employee']);
 
     // Close dropdown
     this.showDropdown = false;
