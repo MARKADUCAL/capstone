@@ -5,13 +5,20 @@
       <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
       <span>AutoWash Hub</span>
     </div>
-    <ul class="nav-links">
-      <li><a href="#hero">Home</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="#pricing">Pricing</a></li>
-      <li><a href="#location-section">Location</a></li>
-      <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#contact">Contact</a></li>
+    <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <ul class="nav-links" [class.mobile-nav-active]="mobileMenuOpen">
+      <li><a href="#hero" (click)="closeMobileMenu()">Home</a></li>
+      <li><a href="#services" (click)="closeMobileMenu()">Services</a></li>
+      <li><a href="#pricing" (click)="closeMobileMenu()">Pricing</a></li>
+      <li>
+        <a href="#location-section" (click)="closeMobileMenu()">Location</a>
+      </li>
+      <li><a href="#gallery" (click)="closeMobileMenu()">Gallery</a></li>
+      <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
     </ul>
     <div class="get-started">
       <a href="/customer" class="btn">Get Started</a>

@@ -8,4 +8,14 @@ import { RouterModule } from '@angular/router';
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css',
 })
-export class LandingPageComponent {}
+export class LandingPageComponent {
+  mobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
+  }
+}
