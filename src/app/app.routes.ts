@@ -37,16 +37,16 @@ import { ProfileComponent } from './components/employee/profile/profile.componen
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
-  { path: 'customer-login', component: CustomerLoginComponent },
+  { path: 'customer', component: CustomerLoginComponent },
   { path: 'customer-register', component: CustomerRegisterComponent },
-  { path: 'admin-login', component: AdminLoginComponent },
+  { path: 'admin', component: AdminLoginComponent },
   { path: 'admin-register', component: AdminRegisterComponent },
-  { path: 'employee-login', component: EmployeeLoginComponent },
+  { path: 'employee', component: EmployeeLoginComponent },
   { path: 'employee-register', component: EmployeeRegisterComponent },
 
   // Admin dashboard routes
   {
-    path: 'admin',
+    path: 'admin-view',
     component: AdminLayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
@@ -64,7 +64,7 @@ export const routes: Routes = [
 
   // Employee dashboard routes
   {
-    path: 'employee',
+    path: 'employee-view',
     component: EmployeeLayoutComponent,
     children: [
       { path: 'dashboard', component: EmployeeDashboardComponent },
@@ -80,7 +80,7 @@ export const routes: Routes = [
 
   // Customer dashboard routes
   {
-    path: 'customer',
+    path: 'customer-view',
     component: CustomerLayoutComponent,
     children: [
       { path: 'services-pricing', component: ServicesPricingComponent },
