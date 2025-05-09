@@ -1,67 +1,90 @@
 <div class="container">
-  <div class="sidebar">
-    <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+  <div class="sidebar" [class.sidebar-active]="sidebarActive">
+    <div class="sidebar-close" (click)="toggleSidebar()">✕</div>
+    <div class="logo">
+      <img src="assets/images/logo.svg" alt="Logo" />
+      <h2>AutoWash Hub</h2>
+    </div>
     <ul class="nav-links">
       <li>
-        <a routerLink="/employee-view/dashboard" routerLinkActive="active"
-          >📊 Dashboard</a
-        >
-      </li>
-      <li>
-        <a routerLink="/employee-view/appointments" routerLinkActive="active"
-          >📅 Appointments</a
-        >
-      </li>
-      <li>
-        <a routerLink="/employee-view/wash-services" routerLinkActive="active"
-          >🚗 Wash Services</a
+        <a
+          routerLink="/employee/dashboard"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-tachometer-alt"></i> Dashboard</a
         >
       </li>
       <li>
         <a
-          routerLink="/employee-view/customer-records"
+          routerLink="/employee/appointments"
           routerLinkActive="active"
-          >👥 Customer Records</a
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-calendar-alt"></i> Appointments</a
         >
       </li>
       <li>
-        <a routerLink="/employee-view/inventory" routerLinkActive="active"
-          >📦 Inventory</a
+        <a
+          routerLink="/employee/wash-services"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-car"></i> Wash Services</a
         >
       </li>
       <li>
-        <a routerLink="/employee-view/time-tracking" routerLinkActive="active"
-          >⏱️ Time Tracking</a
+        <a
+          routerLink="/employee/customer-records"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-user-friends"></i> Customer Records</a
         >
       </li>
       <li>
-        <a routerLink="/employee-view/profile" routerLinkActive="active"
-          >👤 My Profile</a
+        <a
+          routerLink="/employee/inventory"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-box"></i> Inventory</a
+        >
+      </li>
+      <li>
+        <a
+          routerLink="/employee/time-tracking"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-clock"></i> Time Tracking</a
         >
       </li>
     </ul>
   </div>
 
+  <div
+    class="sidebar-overlay"
+    *ngIf="sidebarActive"
+    (click)="toggleSidebar()"
+  ></div>
+
   <div class="content">
-    <header class="header">
-      <div class="menu-icon">☰</div>
+    <div class="header">
+      <div class="menu-icon" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </div>
       <h2>Employee Dashboard</h2>
-      <div class="user-info">
-        <img src="assets/logo.jpg" alt="User Avatar" class="user-avatar" />
-        <span class="user-name">Employee Name</span>
+      <div class="user-info" (clickOutside)="hideDropdown()">
+        <img class="user-avatar" src="assets/images/avatar.jpg" alt="User" />
+        <span class="user-name">Mark Aducal</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/employee-view/profile">
-            <i class="profile-icon">👤</i> View Profile
+          <a class="dropdown-item" routerLink="/employee/profile">
+            <i class="fas fa-user profile-icon"></i> Profile
           </a>
           <a class="dropdown-item" (click)="logout()">
-            <i class="logout-icon">🚪</i> Logout
+            <i class="fas fa-sign-out-alt logout-icon"></i> Logout
           </a>
         </div>
       </div>
-    </header>
-    <main class="main-content">
+    </div>
+    <div class="main-content">
       <router-outlet></router-outlet>
-    </main>
+    </div>
   </div>
 </div>

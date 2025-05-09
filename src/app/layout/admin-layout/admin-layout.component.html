@@ -1,77 +1,98 @@
 <div class="container">
-  <div class="sidebar">
-    <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+  <div class="sidebar" [class.sidebar-active]="sidebarActive">
+    <div class="sidebar-close" (click)="toggleSidebar()">✕</div>
+    <div class="logo">
+      <img src="assets/images/logo.svg" alt="Logo" />
+      <h2>AutoWash Hub</h2>
+    </div>
     <ul class="nav-links">
       <li>
-        <a routerLink="/admin-view/dashboard" routerLinkActive="active"
-          >📊 Dashboard</a
-        >
-      </li>
-      <li>
-        <a routerLink="/admin-view/washing-point" routerLinkActive="active"
-          >🚿 Washing Point</a
-        >
-      </li>
-      <li>
-        <a routerLink="/admin-view/car-wash-booking" routerLinkActive="active"
-          >🗓️ Car Wash Booking</a
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-tachometer-alt"></i> Dashboard</a
         >
       </li>
       <li>
         <a
-          routerLink="/admin-view/inventory-management"
+          routerLink="/admin/employees"
           routerLinkActive="active"
-          >📦 Inventory Management</a
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-users"></i> Employees</a
         >
       </li>
       <li>
         <a
-          routerLink="/admin-view/employee-management"
+          routerLink="/admin/customers"
           routerLinkActive="active"
-          >👨‍💼 Employee Management</a
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-user-friends"></i> Customers</a
         >
       </li>
       <li>
-        <a routerLink="/admin-view/user-management" routerLinkActive="active"
-          >👥 User Management</a
+        <a
+          routerLink="/admin/services"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-car"></i> Services</a
         >
       </li>
       <li>
-        <a routerLink="/admin-view/manage-enquiries" routerLinkActive="active"
-          >❓ Manage Enquiries</a
+        <a
+          routerLink="/admin/appointments"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-calendar-alt"></i> Appointments</a
         >
       </li>
       <li>
-        <a routerLink="/admin-view/reporting" routerLinkActive="active"
-          >📈 Reporting</a
+        <a
+          routerLink="/admin/inventory"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-box"></i> Inventory</a
         >
       </li>
       <li>
-        <a routerLink="/admin-view/pages" routerLinkActive="active">📄 Pages</a>
+        <a
+          routerLink="/admin/reports"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-chart-bar"></i> Reports</a
+        >
       </li>
     </ul>
   </div>
 
+  <div
+    class="sidebar-overlay"
+    *ngIf="sidebarActive"
+    (click)="toggleSidebar()"
+  ></div>
+
   <div class="content">
-    <header class="header">
-      <div class="menu-icon">☰</div>
-      <h2>Admin Dashboard</h2>
-      <div class="user-info">
-        <img src="assets/logo.jpg" alt="User Avatar" class="user-avatar" />
-        <span class="user-name">Admin Name</span>
+    <div class="header">
+      <div class="menu-icon" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </div>
+      <h2>Admin Panel</h2>
+      <div class="user-info" (clickOutside)="hideDropdown()">
+        <img class="user-avatar" src="assets/images/avatar.jpg" alt="User" />
+        <span class="user-name">Mark Aducal</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/admin-view/profile">
-            <i class="profile-icon">👤</i> View Profile
+          <a class="dropdown-item" routerLink="/admin/profile">
+            <i class="fas fa-user profile-icon"></i> Profile
           </a>
           <a class="dropdown-item" (click)="logout()">
-            <i class="logout-icon">🚪</i> Logout
+            <i class="fas fa-sign-out-alt logout-icon"></i> Logout
           </a>
         </div>
       </div>
-    </header>
-    <main class="main-content">
+    </div>
+    <div class="main-content">
       <router-outlet></router-outlet>
-    </main>
+    </div>
   </div>
 </div>
