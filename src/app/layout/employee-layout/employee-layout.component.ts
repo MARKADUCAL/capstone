@@ -1,13 +1,24 @@
-import { Component, HostListener } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  Inject,
+  PLATFORM_ID,
+  OnDestroy,
+} from '@angular/core';
 import {
   RouterOutlet,
   RouterLink,
   RouterLinkActive,
   Router,
   RouterModule,
+  NavigationEnd,
+  Event,
+  ActivatedRoute,
 } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { Subscription, filter, map } from 'rxjs';
 
 @Component({
   selector: 'app-employee-layout',
@@ -23,11 +34,119 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
   styleUrl: './employee-layout.component.css',
   standalone: true,
 })
-export class EmployeeLayoutComponent {
+export class EmployeeLayoutComponent implements OnInit, OnDestroy {
   showDropdown = false;
   sidebarActive = false;
 
-  constructor(private router: Router) {}
+  // User data properties
+  firstName = '';
+  lastName = '';
+  fullName = 'Employee';
+  userInitials = 'EM';
+
+  // Page title
+  pageTitle = 'Employee Dashboard';
+  private routeSubscription: Subscription;
+
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    // Initialize the subscription
+    this.routeSubscription = new Subscription();
+  }
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadUserData();
+      this.setupRouteTitleTracking();
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+  }
+
+  setupRouteTitleTracking() {
+    this.routeSubscription = this.router.events
+      .pipe(
+        filter((event: Event) => event instanceof NavigationEnd),
+        map(() => this.getPageTitle(this.activatedRoute))
+      )
+      .subscribe((title) => {
+        this.pageTitle = title;
+      });
+  }
+
+  getPageTitle(route: ActivatedRoute): string {
+    // Get the last segment of the URL path to determine current page
+    const path = window.location.pathname;
+    const segment = path.split('/').pop() || '';
+
+    // Map URL segments to page titles
+    switch (segment) {
+      case 'dashboard':
+        return 'Dashboard';
+      case 'appointments':
+        return 'Appointments';
+      case 'wash-services':
+        return 'Wash Services';
+      case 'customer-records':
+        return 'Customer Records';
+      case 'inventory':
+        return 'Inventory';
+      case 'time-tracking':
+        return 'Time Tracking';
+      case 'profile':
+        return 'Profile';
+      default:
+        return 'Employee Dashboard';
+    }
+  }
+
+  loadUserData() {
+    // Only attempt to access localStorage in browser environment
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Get employee data from localStorage
+    const employeeDataStr = localStorage.getItem('employee_data');
+
+    if (employeeDataStr) {
+      try {
+        const employeeData = JSON.parse(employeeDataStr);
+
+        // Set user data properties
+        this.firstName = employeeData.first_name || '';
+        this.lastName = employeeData.last_name || '';
+        this.fullName = `${this.firstName} ${this.lastName}`.trim();
+        if (!this.fullName) this.fullName = 'Employee';
+
+        // Create initials from first and last name
+        this.userInitials = this.createInitials(this.firstName, this.lastName);
+      } catch (error) {
+        console.error('Error parsing employee data:', error);
+      }
+    }
+  }
+
+  // Helper function to create initials from name
+  createInitials(firstName: string, lastName: string): string {
+    const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+    const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+
+    if (firstInitial && lastInitial) {
+      return `${firstInitial}${lastInitial}`;
+    } else if (firstInitial) {
+      return firstInitial + firstInitial;
+    } else if (lastInitial) {
+      return lastInitial + lastInitial;
+    } else {
+      return 'EM'; // Default fallback
+    }
+  }
 
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
@@ -49,7 +168,7 @@ export class EmployeeLayoutComponent {
   }
 
   closeSidebarOnMobile() {
-    if (window.innerWidth < 768) {
+    if (isPlatformBrowser(this.platformId) && window.innerWidth < 768) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
@@ -57,15 +176,23 @@ export class EmployeeLayoutComponent {
 
   @HostListener('window:resize', ['$event'])
   onResize() {
-    if (window.innerWidth > 768 && this.sidebarActive) {
+    if (
+      isPlatformBrowser(this.platformId) &&
+      window.innerWidth > 768 &&
+      this.sidebarActive
+    ) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
   }
 
   logout() {
-    // Clear any local storage items
-    localStorage.removeItem('employee_token');
+    // Only attempt to access localStorage in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      // Clear any local storage items
+      localStorage.removeItem('employee_token');
+      localStorage.removeItem('employee_data');
+    }
 
     // Close the dropdown
     this.hideDropdown();

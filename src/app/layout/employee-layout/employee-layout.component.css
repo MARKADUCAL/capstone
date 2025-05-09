@@ -45,6 +45,28 @@ body {
   margin-bottom: 20px;
 }
 
+.logo-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.logo-container img {
+  max-width: 120px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.logo-container h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
 .nav-links {
   list-style: none;
   padding: 0;
@@ -103,6 +125,19 @@ body {
   height: 35px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.user-avatar-placeholder {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 .user-name {
@@ -204,7 +239,12 @@ body {
     display: block;
   }
 
+  /* Hide the overlay by default and only show when active */
   .sidebar-overlay {
+    display: none;
+  }
+
+  .sidebar-overlay.active {
     display: block;
   }
 

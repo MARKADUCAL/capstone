@@ -1,14 +1,14 @@
 <div class="container">
   <div class="sidebar" [class.sidebar-active]="sidebarActive">
     <div class="sidebar-close" (click)="toggleSidebar()">✕</div>
-    <div class="logo">
-      <img src="assets/images/logo.svg" alt="Logo" />
+    <div class="logo-container">
+      <img src="assets/logo.jpg" alt="Logo" />
       <h2>AutoWash Hub</h2>
     </div>
     <ul class="nav-links">
       <li>
         <a
-          routerLink="/employee/dashboard"
+          routerLink="/employee-view/dashboard"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-tachometer-alt"></i> Dashboard</a
@@ -16,7 +16,7 @@
       </li>
       <li>
         <a
-          routerLink="/employee/appointments"
+          routerLink="/employee-view/appointments"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-calendar-alt"></i> Appointments</a
@@ -24,7 +24,7 @@
       </li>
       <li>
         <a
-          routerLink="/employee/wash-services"
+          routerLink="/employee-view/wash-services"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-car"></i> Wash Services</a
@@ -32,7 +32,7 @@
       </li>
       <li>
         <a
-          routerLink="/employee/customer-records"
+          routerLink="/employee-view/customer-records"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-user-friends"></i> Customer Records</a
@@ -40,7 +40,7 @@
       </li>
       <li>
         <a
-          routerLink="/employee/inventory"
+          routerLink="/employee-view/inventory"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-box"></i> Inventory</a
@@ -48,7 +48,7 @@
       </li>
       <li>
         <a
-          routerLink="/employee/time-tracking"
+          routerLink="/employee-view/time-tracking"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"
           ><i class="fas fa-clock"></i> Time Tracking</a
@@ -59,7 +59,7 @@
 
   <div
     class="sidebar-overlay"
-    *ngIf="sidebarActive"
+    [class.active]="sidebarActive"
     (click)="toggleSidebar()"
   ></div>
 
@@ -68,13 +68,13 @@
       <div class="menu-icon" (click)="toggleSidebar()">
         <i class="fas fa-bars"></i>
       </div>
-      <h2>Employee Dashboard</h2>
+      <h2>{{ pageTitle }}</h2>
       <div class="user-info" (clickOutside)="hideDropdown()">
-        <img class="user-avatar" src="assets/images/avatar.jpg" alt="User" />
-        <span class="user-name">Mark Aducal</span>
+        <div class="user-avatar-placeholder">{{ userInitials }}</div>
+        <span class="user-name">{{ fullName }}</span>
         <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/employee/profile">
+          <a class="dropdown-item" routerLink="/employee-view/profile">
             <i class="fas fa-user profile-icon"></i> Profile
           </a>
           <a class="dropdown-item" (click)="logout()">

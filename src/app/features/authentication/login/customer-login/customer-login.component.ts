@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -20,21 +20,28 @@ export class CustomerLoginComponent implements OnInit {
   };
   errorMessage = '';
   isLoading = false;
-  apiBaseUrl = '';
+  apiBaseUrl = 'http://localhost/autowash-hub-api/api'; // Default fallback URL
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
-    // Dynamically determine the API base URL
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      // For local development
-      this.apiBaseUrl = 'http://localhost/autowash-hub-api/api';
-    } else {
-      // For production environment - adjust as needed
-      this.apiBaseUrl = window.location.origin + '/autowash-hub-api/api';
+    // Only access window when in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      // Dynamically determine the API base URL
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        // For local development
+        this.apiBaseUrl = 'http://localhost/autowash-hub-api/api';
+      } else {
+        // For production environment - adjust as needed
+        this.apiBaseUrl = window.location.origin + '/autowash-hub-api/api';
+      }
+      console.log('API Base URL:', this.apiBaseUrl);
     }
-    console.log('API Base URL:', this.apiBaseUrl);
   }
 
   onSubmit() {
