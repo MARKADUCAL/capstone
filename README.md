@@ -1,59 +1,136 @@
-# AutowashHub
+# AutoWashHub - Car Wash Management System
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
+AutoWashHub is a comprehensive car wash management system built with Angular, designed to streamline the booking and management of car wash services. The system provides both customer-facing booking interfaces and employee management tools.
 
-## Development server
+## Features
 
-To start a local development server, run:
+### Customer Portal
+
+- Easy appointment booking system
+- Real-time slot availability checking
+- Service selection and customization
+- Booking management (view, cancel, pay)
+- Status tracking for bookings
+
+### Employee Dashboard
+
+- Inventory management system
+  - Stock tracking
+  - Item management
+  - Usage monitoring
+- Appointment management
+  - View and manage customer bookings
+  - Status updates
+  - Service tracking
+
+## Prerequisites
+
+Before running this application, make sure you have the following installed:
+
+- Node.js (v14 or higher)
+- npm (Node Package Manager)
+- Angular CLI (v19.2.4)
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-username/autowashhub.git
+cd autowashhub
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+## Development Server
+
+To start the development server:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/` in your browser. The application will automatically reload when you make changes to the source files.
 
-## Code scaffolding
+## Build
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+To build the project for production:
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
+## Testing
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Unit Tests
+
+Run unit tests via [Karma](https://karma-runner.github.io):
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+### End-to-End Tests
 
-For end-to-end (e2e) testing, run:
+Execute end-to-end tests:
 
 ```bash
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Note: You'll need to set up an e2e testing framework of your choice.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── components/
+│   │   ├── customer/
+│   │   │   └── appointment/
+│   │   └── employee/
+│   │       ├── inventory/
+│   │       └── appointments/
+│   ├── models/
+│   └── services/
+├── assets/
+└── environments/
+```
+
+## Code Scaffolding
+
+Generate new components, directives, pipes, services, classes, guards, interfaces, enums, or modules:
+
+```bash
+ng generate component component-name
+# or
+ng generate directive|pipe|service|class|guard|interface|enum|module
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular Documentation](https://angular.dev/)
+- [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli)
+- [Angular Material](https://material.angular.io/)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, please open an issue in the GitHub repository or contact the development team.
