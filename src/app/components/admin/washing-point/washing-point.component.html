@@ -1,1 +1,71 @@
-<p>washing-point works!</p>
+<div class="washing-points-container">
+  <div class="header">
+    <h2>Washing Points Management</h2>
+    <button mat-raised-button color="primary" (click)="addWashingPoint()">
+      <mat-icon>add</mat-icon>
+      Add Washing Point
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="washingPoints" class="mat-elevation-z8">
+    <!-- ID Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let point">{{ point.id }}</td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let point">{{ point.name }}</td>
+    </ng-container>
+
+    <!-- Location Column -->
+    <ng-container matColumnDef="location">
+      <th mat-header-cell *matHeaderCellDef>Location</th>
+      <td mat-cell *matCellDef="let point">{{ point.location }}</td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td
+        mat-cell
+        *matCellDef="let point"
+        [ngClass]="point.status.toLowerCase()"
+      >
+        {{ point.status }}
+      </td>
+    </ng-container>
+
+    <!-- Price Column -->
+    <ng-container matColumnDef="pricePerHour">
+      <th mat-header-cell *matHeaderCellDef>Price/Hour</th>
+      <td mat-cell *matCellDef="let point">${{ point.pricePerHour }}</td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let point">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="editWashingPoint(point)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="deleteWashingPoint(point.id)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>

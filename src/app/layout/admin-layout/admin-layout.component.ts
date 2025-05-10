@@ -95,9 +95,9 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       case 'user-management':
         return 'Customer Management';
       case 'washing-point':
-        return 'Services';
+        return 'Washing Points Management';
       case 'car-wash-booking':
-        return 'Appointments';
+        return 'Car Wash Bookings';
       case 'inventory-management':
         return 'Inventory Management';
       case 'reporting':

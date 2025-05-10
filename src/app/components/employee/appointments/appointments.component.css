@@ -1,0 +1,232 @@
+.appointments-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.filters-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 300px;
+}
+
+.status-filter {
+  min-width: 200px;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 16px;
+}
+
+.loading-state p {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Error State */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: #fff3f3;
+  border-radius: 8px;
+  gap: 16px;
+}
+
+.error-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.error-state p {
+  color: #dc3545;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Table Styles */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.appointments-table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  padding: 16px;
+}
+
+.mat-mdc-cell {
+  padding: 16px;
+  color: #212529;
+}
+
+.mat-mdc-row:hover {
+  background: #f8f9fa;
+}
+
+/* Customer Info Styling */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.customer-phone {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+/* Status Chip Colors */
+::ng-deep .mat-mdc-chip.mat-accent {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+::ng-deep .mat-mdc-chip.mat-primary {
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+::ng-deep .mat-mdc-chip.success {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+::ng-deep .mat-mdc-chip.mat-warn {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* No Data State */
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: #f8f9fa;
+  gap: 16px;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #6c757d;
+}
+
+.no-data p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .appointments-container {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .filters-section {
+    flex-direction: column;
+  }
+
+  .search-field,
+  .status-filter {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 12px 8px;
+  }
+
+  .customer-info {
+    gap: 2px;
+  }
+
+  .customer-name,
+  .customer-phone {
+    font-size: 0.9em;
+  }
+}
+
+/* Animation */
+.mat-mdc-row {
+  transition: background-color 0.2s ease;
+}
+
+/* Scrollable Table */
+.table-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

@@ -1,0 +1,133 @@
+.admin-pages-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.content-card {
+  margin: 16px 0;
+  padding: 16px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Services Section */
+.services-list,
+.locations-list,
+.gallery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.service-item,
+.location-item,
+.gallery-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  position: relative;
+}
+
+.service-item mat-form-field,
+.location-item mat-form-field,
+.gallery-item mat-form-field {
+  flex: 1;
+}
+
+/* Delete button positioning */
+.service-item button,
+.location-item button,
+.gallery-item button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Save button container */
+.save-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #fff;
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab styles */
+::ng-deep .mat-mdc-tab-group {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  padding: 24px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .admin-pages-container {
+    padding: 16px;
+  }
+
+  .service-item,
+  .location-item,
+  .gallery-item {
+    flex-direction: column;
+    padding-top: 48px; /* Space for delete button */
+  }
+
+  .service-item mat-form-field,
+  .location-item mat-form-field,
+  .gallery-item mat-form-field {
+    width: 100%;
+  }
+}
+
+/* Animation */
+.service-item,
+.location-item,
+.gallery-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-item:hover,
+.location-item:hover,
+.gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card hover effect */
+.content-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.content-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
+button[mat-raised-button] {
+  transition: transform 0.2s ease;
+}
+
+button[mat-raised-button]:hover {
+  transform: translateY(-1px);
+}

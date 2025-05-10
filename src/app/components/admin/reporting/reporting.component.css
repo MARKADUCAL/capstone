@@ -1,0 +1,225 @@
+.reporting-container {
+  padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.header h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 60px;
+  height: 4px;
+  background: #1976d2;
+  border-radius: 2px;
+}
+
+/* Stats Grid Styling */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stats-card {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  border: none;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px;
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: #1976d2;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover .stat-icon {
+  transform: scale(1.1);
+}
+
+.stat-icon mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.stat-details {
+  flex: 1;
+}
+
+.stat-details h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Status Colors */
+.success .stat-icon {
+  background-color: #4caf50;
+}
+
+.warning .stat-icon {
+  background-color: #ff9800;
+}
+
+.danger .stat-icon {
+  background-color: #f44336;
+}
+
+/* Charts Container */
+.charts-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  margin-top: 32px;
+  min-height: 500px;
+}
+
+.chart-wrapper {
+  padding: 24px;
+  height: 400px;
+  position: relative;
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  height: 450px;
+}
+
+::ng-deep .mat-mdc-tab-body {
+  height: 100%;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  height: 100%;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Material Tab Customization */
+::ng-deep .mat-mdc-tab-header {
+  background-color: #ffffff;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 16px;
+}
+
+::ng-deep .mat-mdc-tab {
+  transition: all 0.3s ease;
+}
+
+::ng-deep .mat-mdc-tab:hover {
+  background-color: #f8f9fa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reporting-container {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+    padding: 16px;
+  }
+
+  .header h2 {
+    font-size: 24px;
+  }
+}
+
+/* Animation for Cards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-card {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.stats-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stats-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stats-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stats-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+/* Chart Tooltip Customization */
+::ng-deep .chartjs-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px 12px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+}

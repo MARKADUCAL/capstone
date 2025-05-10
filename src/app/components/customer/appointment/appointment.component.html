@@ -1,27 +1,238 @@
 <div class="container">
   <div class="header">
-    <span class="available-slots">Available slot</span>
-    <span class="slot-count">10</span>
-  </div>
-
-  <button class="book-now">+ Book Now</button>
-
-  <div class="booking-details">
-    <div class="client-name">John Doe</div>
-    <div class="detail-item">
-      <span class="detail-label">Vehicle Type:</span> small
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Date:</span> March 03, 2003
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Time:</span> 12:00pm
+    <div class="available-slots">
+      Available slots: <span class="slot-count">{{ availableSlots }}</span>
     </div>
   </div>
 
-  <div class="action-buttons">
-    <button class="action-button">View</button>
-    <button class="action-button">Pay</button>
-    <button class="action-button">Cancel</button>
+  <button class="book-now" (click)="openBookingModal()">+ Book Now</button>
+
+  <!-- Customer Bookings Section -->
+  <div *ngIf="customerBookings.length > 0">
+    <div *ngFor="let booking of customerBookings" class="booking-details">
+      <div class="client-name">{{ booking.nickname }}</div>
+      <div class="detail-item">
+        <span class="detail-label">Vehicle:</span> {{ booking.vehicleType }}
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Service:</span> {{ booking.services }}
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Date:</span>
+        {{ formatDate(booking.washDate) }}
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Time:</span> {{ booking.washTime }}
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Status:</span>
+        <span [ngClass]="getStatusClass(booking.status)">{{
+          booking.status
+        }}</span>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-button" (click)="viewBooking(booking)">
+          View
+        </button>
+        <button
+          class="action-button"
+          (click)="payBooking(booking)"
+          *ngIf="booking.status === 'pending'"
+        >
+          Pay
+        </button>
+        <button
+          class="action-button"
+          (click)="cancelBooking(booking)"
+          *ngIf="booking.status !== 'cancelled'"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No bookings message -->
+  <div *ngIf="customerBookings.length === 0" class="no-bookings">
+    You don't have any bookings yet.
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" *ngIf="showBookingModal">
+  <div class="booking-modal-container">
+    <div
+      class="booking-modal"
+      role="dialog"
+      aria-labelledby="booking-modal-title"
+    >
+      <!-- Modal Header with Logo -->
+      <div class="modal-header">
+        <div class="logo-title">
+          <img
+            src="assets/logo.jpg"
+            alt="AutoWash Hub Logo"
+            class="modal-logo"
+          />
+          <h2 id="booking-modal-title">Car Wash Booking</h2>
+        </div>
+        <button
+          class="close-btn"
+          (click)="closeBookingModal()"
+          aria-label="Close booking form"
+        >
+          &times;
+        </button>
+      </div>
+
+      <!-- Success or Error Message -->
+      <div *ngIf="successMessage" class="message success-message" role="status">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="message error-message" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Booking Form -->
+      <form (ngSubmit)="submitBooking()" novalidate>
+        <!-- Vehicle Type -->
+        <div class="form-group">
+          <select
+            id="vehicleType"
+            name="vehicleType"
+            [(ngModel)]="bookingForm.vehicleType"
+            aria-label="Vehicle Type"
+            placeholder="Vehicle Type"
+          >
+            <option value="" disabled selected>Vehicle Type</option>
+            <option *ngFor="let type of vehicleTypes" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+          <div class="select-arrow"></div>
+        </div>
+
+        <!-- Services -->
+        <div class="form-group">
+          <select
+            id="services"
+            name="services"
+            [(ngModel)]="bookingForm.services"
+            aria-label="Select Services"
+          >
+            <option value="" disabled selected>Select Services</option>
+            <option *ngFor="let service of services" [value]="service">
+              {{ service }}
+            </option>
+          </select>
+          <div class="select-arrow"></div>
+        </div>
+
+        <!-- Washing Point -->
+        <div class="form-group">
+          <select
+            id="washingPoint"
+            name="washingPoint"
+            [(ngModel)]="bookingForm.washingPoint"
+            aria-label="Select Washing Point"
+          >
+            <option value="" disabled selected>Select Washing Point</option>
+            <option *ngFor="let point of washingPoints" [value]="point">
+              {{ point }}
+            </option>
+          </select>
+          <div class="select-arrow"></div>
+        </div>
+
+        <!-- Nickname -->
+        <div class="form-group">
+          <input
+            type="text"
+            id="nickname"
+            name="nickname"
+            [(ngModel)]="bookingForm.nickname"
+            placeholder="Nickname"
+            aria-required="true"
+          />
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            [(ngModel)]="bookingForm.phone"
+            placeholder="Phone Number"
+            aria-required="true"
+          />
+        </div>
+
+        <!-- Wash Date -->
+        <div class="form-group">
+          <label for="washDate">Wash Date</label>
+          <div class="date-input-container">
+            <input
+              type="date"
+              id="washDate"
+              name="washDate"
+              [(ngModel)]="bookingForm.washDate"
+              aria-required="true"
+              placeholder="dd/mm/yy"
+            />
+            <div class="date-icon"></div>
+          </div>
+        </div>
+
+        <!-- Wash Time -->
+        <div class="form-group">
+          <label for="washTime">Wash Time</label>
+          <div class="time-input-container">
+            <input
+              type="time"
+              id="washTime"
+              name="washTime"
+              [(ngModel)]="bookingForm.washTime"
+              aria-required="true"
+              placeholder="--:--"
+            />
+            <div class="time-icon"></div>
+          </div>
+        </div>
+
+        <!-- Payment Type -->
+        <div class="form-group">
+          <select
+            id="paymentType"
+            name="paymentType"
+            [(ngModel)]="bookingForm.paymentType"
+            aria-label="Payment Type"
+          >
+            <option value="" disabled selected>Payment Type</option>
+            <option *ngFor="let payment of paymentTypes" [value]="payment">
+              {{ payment }}
+            </option>
+          </select>
+          <div class="select-arrow"></div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <textarea
+            id="notes"
+            name="notes"
+            [(ngModel)]="bookingForm.notes"
+            placeholder="Additional Notes (Optional)"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? "Processing..." : "Book Now" }}
+        </button>
+      </form>
+    </div>
   </div>
 </div>

@@ -1,1 +1,32 @@
-<p>inventory-management works!</p>
+<div class="inventory-container">
+  <div class="header">
+    <h2>Inventory Management</h2>
+    <button mat-raised-button color="primary" (click)="addItem()">
+      <mat-icon>add</mat-icon>
+      Add Item
+    </button>
+  </div>
+
+  <div class="inventory-grid">
+    @for (item of inventoryItems; track item.id) {
+    <mat-card class="inventory-card">
+      <div class="item-image">
+        <img [src]="item.imageUrl" [alt]="item.name" />
+      </div>
+      <div class="item-details">
+        <h3>{{ item.name }}</h3>
+        <p class="stock-info">Stock: {{ item.stock }} Available</p>
+      </div>
+      <div class="item-actions">
+        <button mat-button color="primary" (click)="editItem(item)">
+          Details
+        </button>
+        <button mat-button color="accent" (click)="editItem(item)">Edit</button>
+        <button mat-button class="take-btn" (click)="takeItem(item)">
+          Take Item
+        </button>
+      </div>
+    </mat-card>
+    }
+  </div>
+</div>

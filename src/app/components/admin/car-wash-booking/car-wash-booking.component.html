@@ -1,1 +1,65 @@
-<p>car-wash-booking works!</p>
+<div class="bookings-container">
+  <div class="header">
+    <div class="header-left">
+      <mat-select [(ngModel)]="selectedStatus" class="status-filter">
+        <mat-option value="All">All</mat-option>
+        <mat-option value="Pending">Pending</mat-option>
+        <mat-option value="Approved">Approved</mat-option>
+        <mat-option value="Rejected">Rejected</mat-option>
+      </mat-select>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="addSlotBooking()">
+        <mat-icon>add</mat-icon>
+        Add Slot Booking
+      </button>
+      <button mat-raised-button color="accent" (click)="addBooking()">
+        <mat-icon>add</mat-icon>
+        Add New Booking
+      </button>
+    </div>
+  </div>
+
+  <div class="bookings-grid">
+    @for (booking of filterBookings(selectedStatus); track booking.id) {
+    <mat-card class="booking-card" [ngClass]="booking.status.toLowerCase()">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <div class="user-avatar-placeholder">
+            {{ getUserInitials(booking.customerName) }}
+          </div>
+        </div>
+        <mat-card-title>{{ booking.customerName }}</mat-card-title>
+        <mat-card-subtitle>
+          Vehicle Type: {{ booking.vehicleType }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="booking-details">
+          <p><strong>Date:</strong> {{ booking.date }}</p>
+          <p><strong>Time:</strong> {{ booking.time }}</p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="viewBooking(booking)">
+          View
+        </button>
+        @if (booking.status === 'Pending') {
+        <button
+          mat-button
+          class="approve-btn"
+          (click)="approveBooking(booking)"
+        >
+          Approve
+        </button>
+        <button mat-button class="reject-btn" (click)="rejectBooking(booking)">
+          Reject
+        </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+</div>

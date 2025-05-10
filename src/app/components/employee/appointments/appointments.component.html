@@ -1,1 +1,182 @@
-<p>appointments works!</p>
+<div class="appointments-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Appointments Management</h1>
+    <button mat-raised-button color="primary" (click)="refreshAppointments()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search appointments</mat-label>
+      <input
+        matInput
+        (keyup)="onSearch($event)"
+        placeholder="Search by customer, vehicle, or service"
+        [value]="searchTerm"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Filter by status</mat-label>
+      <mat-select
+        [(value)]="statusFilter"
+        (selectionChange)="onStatusFilterChange($event.value)"
+      >
+        <mat-option value="all">All Status</mat-option>
+        <mat-option value="pending">Pending</mat-option>
+        <mat-option value="confirmed">Confirmed</mat-option>
+        <mat-option value="completed">Completed</mat-option>
+        <mat-option value="cancelled">Cancelled</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading and Error States -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading appointments...</p>
+  </div>
+
+  <div *ngIf="error" class="error-state">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadAppointments()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Appointments Table -->
+  <div class="table-container" *ngIf="!isLoading && !error">
+    <table
+      mat-table
+      [dataSource]="filteredAppointments"
+      matSort
+      class="appointments-table"
+    >
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+        <td mat-cell *matCellDef="let appointment">
+          {{ formatDate(appointment.washDate) }}
+        </td>
+      </ng-container>
+
+      <!-- Time Column -->
+      <ng-container matColumnDef="time">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
+        <td mat-cell *matCellDef="let appointment">
+          {{ appointment.washTime }}
+        </td>
+      </ng-container>
+
+      <!-- Customer Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+        <td mat-cell *matCellDef="let appointment">
+          <div class="customer-info">
+            <span class="customer-name">{{ appointment.nickname }}</span>
+            <span class="customer-phone">{{ appointment.phone }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Vehicle Column -->
+      <ng-container matColumnDef="vehicle">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Vehicle</th>
+        <td mat-cell *matCellDef="let appointment">
+          {{ appointment.vehicleType }}
+        </td>
+      </ng-container>
+
+      <!-- Service Column -->
+      <ng-container matColumnDef="service">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Service</th>
+        <td mat-cell *matCellDef="let appointment">
+          {{ appointment.services }}
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let appointment">
+          <mat-chip [color]="getStatusColor(appointment.status)" selected>
+            {{ appointment.status }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Payment Column -->
+      <ng-container matColumnDef="payment">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Payment</th>
+        <td mat-cell *matCellDef="let appointment">
+          {{ appointment.paymentType }}
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let appointment">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            aria-label="Appointment actions"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button
+              mat-menu-item
+              (click)="updateStatus(appointment, BookingStatus.CONFIRMED)"
+              *ngIf="appointment.status === BookingStatus.PENDING"
+            >
+              <mat-icon>check_circle</mat-icon>
+              <span>Confirm</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="updateStatus(appointment, BookingStatus.COMPLETED)"
+              *ngIf="appointment.status === BookingStatus.CONFIRMED"
+            >
+              <mat-icon>done_all</mat-icon>
+              <span>Mark Complete</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="updateStatus(appointment, BookingStatus.CANCELLED)"
+              *ngIf="
+                appointment.status !== BookingStatus.CANCELLED &&
+                appointment.status !== BookingStatus.COMPLETED
+              "
+            >
+              <mat-icon>cancel</mat-icon>
+              <span>Cancel</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <!-- No Data Message -->
+    <div *ngIf="filteredAppointments.length === 0" class="no-data">
+      <mat-icon>event_busy</mat-icon>
+      <p>No appointments found</p>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 25, 100]"
+      aria-label="Select page of appointments"
+    >
+    </mat-paginator>
+  </div>
+</div>

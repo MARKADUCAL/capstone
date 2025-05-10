@@ -79,7 +79,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     switch (segment) {
       case 'profile':
         return 'Profile';
-      case 'services-pricing':
+      case 'services':
         return 'Services & Pricing';
       case 'appointment':
         return 'Appointment';

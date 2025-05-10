@@ -20,11 +20,13 @@ import { UserManagementComponent } from './components/admin/user-management/user
 import { ManageEnquiriesComponent } from './components/admin/manage-enquiries/manage-enquiries.component';
 import { ReportingComponent } from './components/admin/reporting/reporting.component';
 import { PagesComponent } from './components/admin/pages/pages.component';
+import { ProfileComponent as AdminProfileComponent } from './components/admin/profile/profile.component';
 
 // Customer components
 import { ServicesPricingComponent } from './components/customer/services-pricing/services-pricing.component';
 import { AppointmentComponent } from './components/customer/appointment/appointment.component';
 import { TranactionHitoryComponent } from './components/customer/tranaction-hitory/tranaction-hitory.component';
+import { ProfileComponent as CustomerProfileComponent } from './components/customer/profile/profile.component';
 
 // Employee components
 import { DashboardComponent as EmployeeDashboardComponent } from './components/employee/dashboard/dashboard.component';
@@ -33,7 +35,7 @@ import { WashServicesComponent } from './components/employee/wash-services/wash-
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { TimeTrackingComponent } from './components/employee/time-tracking/time-tracking.component';
-import { ProfileComponent } from './components/employee/profile/profile.component';
+import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -58,7 +60,7 @@ export const routes: Routes = [
       { path: 'manage-enquiries', component: ManageEnquiriesComponent },
       { path: 'reporting', component: ReportingComponent },
       { path: 'pages', component: PagesComponent },
-      { path: 'profile', component: PagesComponent },
+      { path: 'profile', component: AdminProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -74,7 +76,7 @@ export const routes: Routes = [
       { path: 'customer-records', component: CustomerRecordsComponent },
       { path: 'inventory', component: InventoryComponent },
       { path: 'time-tracking', component: TimeTrackingComponent },
-      { path: 'profile', component: ProfileComponent },
+      { path: 'profile', component: EmployeeProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -84,11 +86,20 @@ export const routes: Routes = [
     path: 'customer-view',
     component: CustomerLayoutComponent,
     children: [
-      { path: 'services-pricing', component: ServicesPricingComponent },
-      { path: 'appointment', component: AppointmentComponent },
+      {
+        path: 'profile',
+        component: CustomerProfileComponent,
+      },
+      {
+        path: 'appointment',
+        component: AppointmentComponent,
+      },
+      {
+        path: 'services',
+        component: ServicesPricingComponent,
+      },
       { path: 'tranaction-hitory', component: TranactionHitoryComponent },
-      { path: 'profile', component: ProfileComponent },
-      { path: '', redirectTo: 'services-pricing', pathMatch: 'full' },
+      { path: '', redirectTo: 'services', pathMatch: 'full' },
     ],
   },
 ];
