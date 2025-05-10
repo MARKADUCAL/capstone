@@ -1,6 +1,6 @@
 # AutoWashHub - Car Wash Management System
 
-AutoWashHub is a comprehensive car wash management system built with Angular, designed to streamline the booking and management of car wash services. The system provides both customer-facing booking interfaces and employee management tools.
+AutoWashHub is a comprehensive car wash management system built with Angular frontend and PHP backend, designed to streamline the booking and management of car wash services. The system provides both customer-facing booking interfaces and employee management tools.
 
 ## Features
 
@@ -27,9 +27,11 @@ AutoWashHub is a comprehensive car wash management system built with Angular, de
 
 Before running this application, make sure you have the following installed:
 
-- Node.js (v14 or higher)
-- npm (Node Package Manager)
+- PHP 8.0 or higher
+- MySQL/MariaDB
+- Apache/Nginx web server
 - Angular CLI (v19.2.4)
+- Composer (PHP package manager)
 
 ## Installation
 
@@ -40,15 +42,32 @@ git clone https://github.com/your-username/autowashhub.git
 cd autowashhub
 ```
 
-2. Install dependencies:
+2. Install Angular dependencies:
 
 ```bash
 npm install
 ```
 
+3. Install PHP dependencies:
+
+```bash
+cd backend
+composer install
+```
+
+4. Configure your database:
+
+- Create a new MySQL database
+- Copy `.env.example` to `.env` and update database credentials
+- Run database migrations:
+
+```bash
+php artisan migrate
+```
+
 ## Development Server
 
-To start the development server:
+To start the Angular development server:
 
 ```bash
 ng serve
@@ -56,9 +75,11 @@ ng serve
 
 Navigate to `http://localhost:4200/` in your browser. The application will automatically reload when you make changes to the source files.
 
+For the PHP backend, ensure your web server is running and configured to serve the backend directory.
+
 ## Build
 
-To build the project for production:
+To build the Angular project for production:
 
 ```bash
 ng build
@@ -68,15 +89,13 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## Testing
 
-### Unit Tests
+### Frontend Tests
 
-Run unit tests via [Karma](https://karma-runner.github.io):
+Run Angular unit tests via [Karma](https://karma-runner.github.io):
 
 ```bash
 ng test
 ```
-
-### End-to-End Tests
 
 Execute end-to-end tests:
 
@@ -86,26 +105,42 @@ ng e2e
 
 Note: You'll need to set up an e2e testing framework of your choice.
 
+### Backend Tests
+
+Run PHP unit tests:
+
+```bash
+cd backend
+php phpunit
+```
+
 ## Project Structure
 
 ```
-src/
-├── app/
-│   ├── components/
-│   │   ├── customer/
-│   │   │   └── appointment/
-│   │   └── employee/
-│   │       ├── inventory/
-│   │       └── appointments/
-│   ├── models/
-│   └── services/
-├── assets/
-└── environments/
+project/
+├── src/                    # Angular frontend
+│   ├── app/
+│   │   ├── components/
+│   │   │   ├── customer/
+│   │   │   │   └── appointment/
+│   │   │   └── employee/
+│   │   │       ├── inventory/
+│   │   │       └── appointments/
+│   │   ├── models/
+│   │   └── services/
+│   ├── assets/
+│   └── environments/
+│
+└── backend/               # PHP backend
+    ├── api/              # API endpoints
+    ├── config/           # Configuration files
+    ├── database/         # Database migrations and seeds
+    └── models/           # PHP model classes
 ```
 
 ## Code Scaffolding
 
-Generate new components, directives, pipes, services, classes, guards, interfaces, enums, or modules:
+Generate new Angular components, directives, pipes, services, classes, guards, interfaces, enums, or modules:
 
 ```bash
 ng generate component component-name
@@ -126,6 +161,7 @@ ng generate directive|pipe|service|class|guard|interface|enum|module
 - [Angular Documentation](https://angular.dev/)
 - [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli)
 - [Angular Material](https://material.angular.io/)
+- [PHP Documentation](https://www.php.net/docs.php)
 
 ## License
 
