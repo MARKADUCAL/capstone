@@ -1,13 +1,7 @@
 .container {
-  width: 100%;
-  max-width: 400px;
-  margin: 20px auto;
-  font-family: Arial, sans-serif;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
 }
 
 .header {
@@ -18,14 +12,12 @@
 }
 
 .available-slots {
-  font-size: 18px;
-  color: #666;
+  font-size: 1.2em;
 }
 
 .slot-count {
-  font-size: 24px;
   font-weight: bold;
-  color: #2c3e50;
+  color: #1976d2;
 }
 
 .book-now {
@@ -46,79 +38,75 @@
 }
 
 .booking-details {
-  border: 1px solid #eee;
-  border-radius: 6px;
-  padding: 15px;
-  margin-bottom: 20px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .client-name {
+  font-size: 1.2em;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #2c3e50;
+  margin-bottom: 8px;
+  color: #1976d2;
 }
 
 .detail-item {
-  margin: 5px 0;
-  color: #666;
+  margin: 8px 0;
 }
 
 .detail-label {
-  font-weight: bold;
-  margin-right: 5px;
+  font-weight: 500;
+  color: #666;
 }
 
 .action-buttons {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .action-button {
-  flex: 1;
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #f0f0f0;
-  color: #333;
-  transition: background-color 0.2s;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 500;
 }
 
 .action-button:hover {
-  background-color: #e0e0e0;
+  background-color: #1565c0;
 }
 
-/* Status styling */
+/* Status styles */
 .status-pending {
-  color: #f39c12;
-  font-weight: bold;
+  color: #f57c00;
 }
 
 .status-confirmed {
-  color: #2ecc71;
-  font-weight: bold;
+  color: #43a047;
 }
 
 .status-completed {
-  color: #3498db;
-  font-weight: bold;
+  color: #1976d2;
 }
 
 .status-cancelled {
-  color: #e74c3c;
-  font-weight: bold;
+  color: #d32f2f;
 }
 
 /* No bookings message */
 .no-bookings {
   text-align: center;
+  padding: 24px;
   color: #666;
-  margin: 30px 0;
   font-style: italic;
 }
 
-/* Modal Styles */
+/* Modal overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -130,54 +118,35 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  overflow-y: auto;
-  padding: 20px;
 }
 
 .booking-modal-container {
-  max-width: 400px;
-  width: 100%;
-}
-
-.booking-modal {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  border: 2px solid #2980b9;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  margin-bottom: 24px;
 }
 
 .logo-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .modal-logo {
   width: 40px;
   height: 40px;
-  object-fit: cover;
   border-radius: 50%;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 20px;
-  color: #333;
-  font-weight: 600;
 }
 
 .close-btn {
@@ -188,141 +157,35 @@
   color: #666;
 }
 
-.close-btn:hover {
-  color: #333;
-}
-
-/* Form Styles */
-form {
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #333;
-}
-
-/* Input Styles */
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
-  background-color: white;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #3498db;
-  outline: none;
-}
-
-/* Dropdown arrow styling */
-.select-arrow {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #666;
-  pointer-events: none;
-}
-
-.form-group select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 30px;
-}
-
-/* Date and Time input styling */
-.date-input-container,
-.time-input-container {
-  position: relative;
-}
-
-.date-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M20 3h-1V2c0-.6-.4-1-1-1s-1 .4-1 1v1H7V2c0-.6-.4-1-1-1s-1 .4-1 1v1H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V10h16v11zm0-13H4V5h16v3z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: center;
-  pointer-events: none;
-}
-
-.time-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: center;
-  pointer-events: none;
-}
-
-/* Submit Button */
-.submit-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #5cb85c; /* Green button color */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-.submit-btn:hover {
-  background-color: #4cae4c;
-}
-
-.submit-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-/* Message Styles */
 .message {
-  padding: 10px 20px;
-  margin: 0 20px;
+  padding: 12px;
   border-radius: 4px;
+  margin-bottom: 16px;
 }
 
 .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  width: 100%;
+}
+
+/* Material Design overrides */
+::ng-deep .mat-form-field {
+  width: 100%;
 }
 
 /* Screen reader only class */

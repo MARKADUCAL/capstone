@@ -3,6 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import {
   VEHICLE_TYPES,
   PAYMENT_TYPES,
@@ -17,7 +24,19 @@ import { BookingService } from '../../../services/booking.service';
 @Component({
   selector: 'app-appointment',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, MatStepperModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    MatStepperModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSnackBarModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatFormFieldModule,
+  ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],
 })

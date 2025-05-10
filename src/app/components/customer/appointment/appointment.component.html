@@ -97,140 +97,136 @@
       <!-- Booking Form -->
       <form (ngSubmit)="submitBooking()" novalidate>
         <!-- Vehicle Type -->
-        <div class="form-group">
-          <select
-            id="vehicleType"
-            name="vehicleType"
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Vehicle Type</mat-label>
+          <mat-select
             [(ngModel)]="bookingForm.vehicleType"
-            aria-label="Vehicle Type"
-            placeholder="Vehicle Type"
+            name="vehicleType"
+            required
           >
-            <option value="" disabled selected>Vehicle Type</option>
-            <option *ngFor="let type of vehicleTypes" [value]="type">
+            <mat-option *ngFor="let type of vehicleTypes" [value]="type">
               {{ type }}
-            </option>
-          </select>
-          <div class="select-arrow"></div>
-        </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
         <!-- Services -->
-        <div class="form-group">
-          <select
-            id="services"
-            name="services"
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Select Services</mat-label>
+          <mat-select
             [(ngModel)]="bookingForm.services"
-            aria-label="Select Services"
+            name="services"
+            required
           >
-            <option value="" disabled selected>Select Services</option>
-            <option *ngFor="let service of services" [value]="service">
+            <mat-option *ngFor="let service of services" [value]="service">
               {{ service }}
-            </option>
-          </select>
-          <div class="select-arrow"></div>
-        </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
         <!-- Washing Point -->
-        <div class="form-group">
-          <select
-            id="washingPoint"
-            name="washingPoint"
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Select Washing Point</mat-label>
+          <mat-select
             [(ngModel)]="bookingForm.washingPoint"
-            aria-label="Select Washing Point"
+            name="washingPoint"
+            required
           >
-            <option value="" disabled selected>Select Washing Point</option>
-            <option *ngFor="let point of washingPoints" [value]="point">
+            <mat-option *ngFor="let point of washingPoints" [value]="point">
               {{ point }}
-            </option>
-          </select>
-          <div class="select-arrow"></div>
-        </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
         <!-- Nickname -->
-        <div class="form-group">
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Nickname</mat-label>
           <input
-            type="text"
-            id="nickname"
-            name="nickname"
+            matInput
             [(ngModel)]="bookingForm.nickname"
-            placeholder="Nickname"
-            aria-required="true"
+            name="nickname"
+            required
+            aria-label="Enter your nickname"
           />
-        </div>
+        </mat-form-field>
 
         <!-- Phone Number -->
-        <div class="form-group">
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Phone Number</mat-label>
           <input
+            matInput
             type="tel"
-            id="phone"
-            name="phone"
             [(ngModel)]="bookingForm.phone"
-            placeholder="Phone Number"
-            aria-required="true"
+            name="phone"
+            required
+            aria-label="Enter your phone number"
           />
-        </div>
+        </mat-form-field>
 
         <!-- Wash Date -->
-        <div class="form-group">
-          <label for="washDate">Wash Date</label>
-          <div class="date-input-container">
-            <input
-              type="date"
-              id="washDate"
-              name="washDate"
-              [(ngModel)]="bookingForm.washDate"
-              aria-required="true"
-              placeholder="dd/mm/yy"
-            />
-            <div class="date-icon"></div>
-          </div>
-        </div>
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Wash Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [(ngModel)]="bookingForm.washDate"
+            name="washDate"
+            required
+            aria-label="Select wash date"
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
 
         <!-- Wash Time -->
-        <div class="form-group">
-          <label for="washTime">Wash Time</label>
-          <div class="time-input-container">
-            <input
-              type="time"
-              id="washTime"
-              name="washTime"
-              [(ngModel)]="bookingForm.washTime"
-              aria-required="true"
-              placeholder="--:--"
-            />
-            <div class="time-icon"></div>
-          </div>
-        </div>
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Wash Time</mat-label>
+          <input
+            matInput
+            type="time"
+            [(ngModel)]="bookingForm.washTime"
+            name="washTime"
+            required
+            aria-label="Select wash time"
+          />
+        </mat-form-field>
 
         <!-- Payment Type -->
-        <div class="form-group">
-          <select
-            id="paymentType"
-            name="paymentType"
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Payment Type</mat-label>
+          <mat-select
             [(ngModel)]="bookingForm.paymentType"
-            aria-label="Payment Type"
+            name="paymentType"
+            required
           >
-            <option value="" disabled selected>Payment Type</option>
-            <option *ngFor="let payment of paymentTypes" [value]="payment">
-              {{ payment }}
-            </option>
-          </select>
-          <div class="select-arrow"></div>
-        </div>
+            <mat-option *ngFor="let type of paymentTypes" [value]="type">
+              {{ type }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
         <!-- Notes -->
-        <div class="form-group">
+        <mat-form-field appearance="fill" class="form-group">
+          <mat-label>Notes</mat-label>
           <textarea
-            id="notes"
-            name="notes"
+            matInput
             [(ngModel)]="bookingForm.notes"
-            placeholder="Additional Notes (Optional)"
-            rows="3"
+            name="notes"
+            aria-label="Additional notes (optional)"
           ></textarea>
-        </div>
+        </mat-form-field>
 
         <!-- Submit Button -->
-        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-          {{ isSubmitting ? "Processing..." : "Book Now" }}
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="isSubmitting"
+        >
+          {{ isSubmitting ? "Booking..." : "Book Now" }}
         </button>
       </form>
     </div>
