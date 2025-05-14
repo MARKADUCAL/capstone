@@ -58,5 +58,28 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_employee_count() {
+        try {
+            $sql = "SELECT COUNT(*) as total_employees FROM employees";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['total_employees' => $result['total_employees']],
+                "success",
+                "Employee count retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve employee count: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

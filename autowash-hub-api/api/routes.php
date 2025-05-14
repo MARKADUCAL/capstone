@@ -45,6 +45,12 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'get_employee_count') !== false) {
+        $result = $get->get_employee_count();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request

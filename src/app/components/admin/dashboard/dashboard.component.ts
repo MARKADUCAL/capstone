@@ -15,7 +15,7 @@ Chart.register(...registerables);
 interface BusinessStats {
   totalCustomers: number;
   totalBookings: number;
-  activeEmployees: number;
+  totalEmployees: number;
   customerSatisfaction: number;
 }
 
@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
   businessStats: BusinessStats = {
     totalCustomers: 0,
     totalBookings: 150,
-    activeEmployees: 8,
+    totalEmployees: 8,
     customerSatisfaction: 4.7,
   };
 
@@ -114,6 +114,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCustomerCount();
+    this.loadEmployeeCount();
 
     // Only initialize charts if in browser environment
     if (isPlatformBrowser(this.platformId)) {
@@ -142,6 +143,27 @@ export class DashboardComponent implements OnInit {
         console.error('Error fetching customer count:', error);
         // Set a default value if fetch fails
         this.businessStats.totalCustomers = 0;
+      },
+    });
+  }
+
+  private loadEmployeeCount(): void {
+    this.http.get(`${this.apiUrl}/get_employee_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.businessStats.totalEmployees = response.payload.total_employees;
+        } else {
+          console.error('Failed to fetch employee count:', response);
+          // Keep the default value if fetch fails
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching employee count:', error);
+        // Keep the default value if fetch fails
       },
     });
   }
