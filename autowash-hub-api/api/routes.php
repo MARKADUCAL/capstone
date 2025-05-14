@@ -51,6 +51,12 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'get_all_customers') !== false) {
+        $result = $get->get_all_customers();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request

@@ -81,5 +81,28 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_all_customers() {
+        try {
+            $sql = "SELECT id, first_name, last_name, email, phone, created_at FROM customers ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['customers' => $customers],
+                "success",
+                "Customers retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve customers: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

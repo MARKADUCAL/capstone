@@ -7,6 +7,32 @@
     </button>
   </div>
 
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading-container">
+    <p>Loading users...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error) {
+  <div class="error-container">
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadCustomers()">
+      Try Again
+    </button>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && !error && users.length === 0) {
+  <div class="empty-container">
+    <p>No users found.</p>
+  </div>
+  }
+
+  <!-- Users Grid -->
+  @if (!loading && !error && users.length > 0) {
   <div class="users-grid">
     @for (user of users; track user.id) {
     <mat-card class="user-card">
@@ -36,16 +62,19 @@
         </div>
       </mat-card-content>
 
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="viewUser(user)">
+      <mat-card-actions class="action-buttons">
+        <button class="action-btn view-btn" (click)="viewUser(user)">
           View
         </button>
-        <button mat-button color="accent" (click)="editUser(user)">Edit</button>
-        <button mat-button color="warn" (click)="deleteUser(user)">
+        <button class="action-btn edit-btn" (click)="editUser(user)">
+          Edit
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteUser(user)">
           Delete
         </button>
       </mat-card-actions>
     </mat-card>
     }
   </div>
+  }
 </div>
