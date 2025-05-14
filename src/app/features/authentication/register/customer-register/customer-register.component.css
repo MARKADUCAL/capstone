@@ -132,17 +132,16 @@ html {
 
 .terms-checkbox {
   display: flex;
-  align-items: center;
-  font-size: 13px;
-  color: #666;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-.terms-checkbox input {
-  margin-right: 8px;
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 3px;
 }
 
 .terms-checkbox a {
-  color: #78bedb;
+  color: #3498db;
   text-decoration: none;
 }
 
@@ -190,13 +189,28 @@ html {
 }
 
 .error-message {
-  color: #e74c3c;
-  font-size: 14px;
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #d32f2f;
+  padding: 10px;
+  border-radius: 4px;
   margin-bottom: 15px;
-  text-align: center;
-  padding: 8px;
-  background-color: rgba(231, 76, 60, 0.1);
-  border-radius: 5px;
+  font-size: 14px;
+}
+
+.validation-error {
+  color: #e74c3c;
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #e74c3c;
+}
+
+input.ng-valid {
+  border-color: #2ecc71;
 }
 
 /* Responsive Design */

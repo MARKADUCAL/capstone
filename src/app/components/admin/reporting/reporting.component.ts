@@ -10,6 +10,7 @@ import {
   ChartOptions,
   registerables,
 } from 'chart.js';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -72,7 +73,30 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  onTabChange(event: MatTabChangeEvent): void {
+    setTimeout(() => {
+      // Reinitialize the chart in the selected tab
+      switch (event.index) {
+        case 0:
+          this.initializeRevenueChart();
+          break;
+        case 1:
+          this.initializeServiceChart();
+          break;
+        case 2:
+          this.initializeBookingsChart();
+          break;
+      }
+    }, 100);
+  }
+
   private initializeCharts(): void {
+    this.initializeRevenueChart();
+    this.initializeServiceChart();
+    this.initializeBookingsChart();
+  }
+
+  private initializeRevenueChart(): void {
     // Revenue Trend Chart
     const revenueCtx = document.getElementById(
       'revenueChart'
@@ -144,7 +168,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         },
       });
     }
+  }
 
+  private initializeServiceChart(): void {
     // Service Distribution Chart
     const serviceCtx = document.getElementById(
       'serviceChart'
@@ -205,7 +231,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         },
       });
     }
+  }
 
+  private initializeBookingsChart(): void {
     // Bookings Chart
     const bookingsCtx = document.getElementById(
       'bookingsChart'

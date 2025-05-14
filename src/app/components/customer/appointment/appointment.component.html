@@ -5,10 +5,17 @@
     </div>
   </div>
 
-  <button class="book-now" (click)="openBookingModal()">+ Book Now</button>
+  <button
+    mat-raised-button
+    color="primary"
+    class="book-now"
+    (click)="openBookingModal()"
+  >
+    + Book Now
+  </button>
 
   <!-- Customer Bookings Section -->
-  <div *ngIf="customerBookings.length > 0">
+  <div *ngIf="isBrowser && customerBookings.length > 0">
     <div *ngFor="let booking of customerBookings" class="booking-details">
       <div class="client-name">{{ booking.nickname }}</div>
       <div class="detail-item">
@@ -32,18 +39,20 @@
       </div>
 
       <div class="action-buttons">
-        <button class="action-button" (click)="viewBooking(booking)">
+        <button mat-button color="primary" (click)="viewBooking(booking)">
           View
         </button>
         <button
-          class="action-button"
+          mat-button
+          color="accent"
           (click)="payBooking(booking)"
           *ngIf="booking.status === 'pending'"
         >
           Pay
         </button>
         <button
-          class="action-button"
+          mat-button
+          color="warn"
           (click)="cancelBooking(booking)"
           *ngIf="booking.status !== 'cancelled'"
         >
@@ -54,13 +63,13 @@
   </div>
 
   <!-- No bookings message -->
-  <div *ngIf="customerBookings.length === 0" class="no-bookings">
+  <div *ngIf="isBrowser && customerBookings.length === 0" class="no-bookings">
     You don't have any bookings yet.
   </div>
 </div>
 
 <!-- Booking Modal -->
-<div class="modal-overlay" *ngIf="showBookingModal">
+<div class="modal-overlay" *ngIf="isBrowser && showBookingModal">
   <div class="booking-modal-container">
     <div
       class="booking-modal"

@@ -35,7 +35,13 @@ export class BookingService {
 
   // Get all bookings for current user
   getBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(this.apiUrl);
+    // Using mock data instead of API call that's causing errors
+    return of(this.mockBookings).pipe(
+      delay(800), // Simulate network delay
+      catchError((error) =>
+        throwError(() => new Error('Failed to load bookings: ' + error.message))
+      )
+    );
   }
 
   // Create a new booking

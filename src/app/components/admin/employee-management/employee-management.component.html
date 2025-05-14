@@ -1,7 +1,7 @@
 <div class="employee-container">
   <div class="header">
     <h2>Employee Management</h2>
-    <button mat-raised-button color="primary" (click)="addEmployee()">
+    <button mat-raised-button color="primary" (click)="openAddEmployeeModal()">
       <mat-icon>add</mat-icon>
       Add New Employee
     </button>
@@ -43,5 +43,82 @@
       </mat-card-actions>
     </mat-card>
     }
+  </div>
+
+  <!-- Add Employee Modal -->
+  <div class="modal" [class.show-modal]="isAddModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Employee</h2>
+        <span class="close-btn" (click)="closeAddEmployeeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form class="employee-form" (ngSubmit)="submitEmployeeForm()">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              [(ngModel)]="newEmployee.name"
+              required
+              placeholder="Enter employee name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select
+              id="role"
+              name="role"
+              [(ngModel)]="newEmployee.role"
+              required
+            >
+              <option value="" disabled selected>Select role</option>
+              <option value="Carwasher">Carwasher</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              [(ngModel)]="newEmployee.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              [(ngModel)]="newEmployee.status"
+              required
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeAddEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>

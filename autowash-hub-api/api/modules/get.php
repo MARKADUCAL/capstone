@@ -35,6 +35,28 @@ class Get extends GlobalMethods {
         }
         return array("code" => $code, "errmsg" => $errmsg);
     }
-
+    
+    public function get_customer_count() {
+        try {
+            $sql = "SELECT COUNT(*) as total_customers FROM customers";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['total_customers' => $result['total_customers']],
+                "success",
+                "Customer count retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve customer count: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

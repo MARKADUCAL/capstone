@@ -34,7 +34,6 @@ import { AppointmentsComponent } from './components/employee/appointments/appoin
 import { WashServicesComponent } from './components/employee/wash-services/wash-services.component';
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
-import { TimeTrackingComponent } from './components/employee/time-tracking/time-tracking.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
 
 export const routes: Routes = [
@@ -75,7 +74,6 @@ export const routes: Routes = [
       { path: 'wash-services', component: WashServicesComponent },
       { path: 'customer-records', component: CustomerRecordsComponent },
       { path: 'inventory', component: InventoryComponent },
-      { path: 'time-tracking', component: TimeTrackingComponent },
       { path: 'profile', component: EmployeeProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

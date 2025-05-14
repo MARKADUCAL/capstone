@@ -98,8 +98,6 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
         return 'Customer Records';
       case 'inventory':
         return 'Inventory';
-      case 'time-tracking':
-        return 'Time Tracking';
       case 'profile':
         return 'Profile';
       default:

@@ -1,21 +1,140 @@
-<body>
-  <div class="container">
-    <div class="filter">
-      <button class="dropdown">Date range ▼</button>
+<div class="container">
+  <div class="transaction-card">
+    <p><strong>Date :</strong> March 20, 2025</p>
+    <p><strong>Time :</strong> 2:30 PM</p>
+    <p><strong>Service Availed :</strong> Regular</p>
+    <p><strong>Amount Paid :</strong> ₱500</p>
+    <p><strong>Payment Method :</strong> GCash</p>
+    <p>
+      <strong>Status :</strong>
+      <span class="status-completed">Completed</span>
+    </p>
+
+    <div class="buttons">
+      <button class="view-btn" (click)="openViewModal()">View</button>
+      <button class="feedback-btn" (click)="openFeedbackModal()">
+        Feedback
+      </button>
     </div>
+  </div>
+</div>
 
-    <div class="transaction-card">
-      <p><strong>Date :</strong> March 20, 2025</p>
-      <p><strong>Time :</strong> 2:30 PM</p>
-      <p><strong>Service Availed :</strong> Regular</p>
-      <p><strong>Amount Paid :</strong> ₱500</p>
-      <p><strong>Payment Method :</strong> GCash</p>
-      <p><strong>Status :</strong> Completed</p>
+<!-- View Transaction Modal -->
+<div class="modal" [class.show-modal]="isViewModalOpen">
+  <div class="modal-content transaction-modal">
+    <div class="modal-header">
+      <h2>Transaction Details</h2>
+      <span class="close-btn" (click)="closeViewModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="transaction-detail">
+        <div class="transaction-header">
+          <div class="transaction-id">
+            <span class="label">Transaction ID:</span>
+            <span class="value">#TRX20240320</span>
+          </div>
+          <div class="transaction-status">
+            <span class="status-completed">Completed</span>
+          </div>
+        </div>
 
-      <div class="buttons">
-        <button class="view-btn">View</button>
-        <button class="feedback-btn">Feedback</button>
+        <div class="detail-section">
+          <div class="detail-item">
+            <div class="detail-icon"><i class="calendar-icon">📅</i></div>
+            <div class="detail-content">
+              <span class="label">Date</span>
+              <span class="value">March 20, 2025</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon"><i class="time-icon">⏱️</i></div>
+            <div class="detail-content">
+              <span class="label">Time</span>
+              <span class="value">2:30 PM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-item">
+            <div class="detail-icon"><i class="service-icon">🚿</i></div>
+            <div class="detail-content">
+              <span class="label">Service Availed</span>
+              <span class="value">Regular</span>
+            </div>
+          </div>
+          <div class="detail-item full-width">
+            <div class="detail-icon"><i class="description-icon">📋</i></div>
+            <div class="detail-content">
+              <span class="label">Service Description</span>
+              <span class="value"
+                >Standard car wash with exterior cleaning and basic interior
+                vacuum</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-item">
+            <div class="detail-icon"><i class="payment-icon">💵</i></div>
+            <div class="detail-content">
+              <span class="label">Amount Paid</span>
+              <span class="value">₱500</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon"><i class="method-icon">💳</i></div>
+            <div class="detail-content">
+              <span class="label">Payment Method</span>
+              <span class="value">GCash</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-item">
+            <div class="detail-icon"><i class="staff-icon">👤</i></div>
+            <div class="detail-content">
+              <span class="label">Staff</span>
+              <span class="value">John Doe</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</body>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal" [class.show-modal]="isFeedbackModalOpen">
+  <div class="modal-content feedback-modal">
+    <div class="modal-header">
+      <h2>Leave Feedback</h2>
+      <span class="close-btn" (click)="closeFeedbackModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="rating-container">
+        <p>How would you rate our service?</p>
+        <div class="stars">
+          <span
+            class="star"
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            [class.active]="star <= currentRating"
+            (click)="setRating(star)"
+          >
+            <i class="star-icon">★</i>
+          </span>
+        </div>
+        <p class="rating-text">{{ getRatingText() }}</p>
+      </div>
+      <div class="feedback-form">
+        <textarea
+          placeholder="Tell us about your experience..."
+          rows="5"
+        ></textarea>
+        <button class="submit-feedback-btn">Submit Feedback</button>
+      </div>
+    </div>
+  </div>
+</div>

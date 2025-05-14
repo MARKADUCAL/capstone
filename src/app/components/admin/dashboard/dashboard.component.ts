@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,12 +7,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { Chart, registerables } from 'chart.js';
+import { HttpClient } from '@angular/common/http';
 
 // Register Chart.js components
 Chart.register(...registerables);
 
 interface BusinessStats {
-  totalRevenue: number;
+  totalCustomers: number;
   totalBookings: number;
   activeEmployees: number;
   customerSatisfaction: number;
@@ -44,7 +45,7 @@ interface RecentBooking {
 })
 export class DashboardComponent implements OnInit {
   businessStats: BusinessStats = {
-    totalRevenue: 25000,
+    totalCustomers: 0,
     totalBookings: 150,
     activeEmployees: 8,
     customerSatisfaction: 4.7,
@@ -104,14 +105,53 @@ export class DashboardComponent implements OnInit {
 
   private revenueChart: Chart | undefined;
   private servicesChart: Chart | undefined;
+  private apiUrl = 'http://localhost/autowash-hub-api/api';
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+    this.loadCustomerCount();
+
+    // Only initialize charts if in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.initializeCharts();
+      }, 100);
+    }
+  }
+
+  private loadCustomerCount(): void {
+    this.http.get(`${this.apiUrl}/get_customer_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.businessStats.totalCustomers = response.payload.total_customers;
+        } else {
+          console.error('Failed to fetch customer count:', response);
+          // Set a default value if fetch fails
+          this.businessStats.totalCustomers = 0;
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching customer count:', error);
+        // Set a default value if fetch fails
+        this.businessStats.totalCustomers = 0;
+      },
+    });
   }
 
   private initializeCharts(): void {
+    // Only proceed if we're in a browser environment
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Revenue Chart
     const revenueCtx = document.getElementById(
       'revenueChart'

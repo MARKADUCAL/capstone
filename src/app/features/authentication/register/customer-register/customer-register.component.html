@@ -27,6 +27,12 @@
               required
               #firstName="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="firstName.invalid && firstName.touched"
+            >
+              First name is required
+            </small>
           </div>
 
           <div class="form-group">
@@ -40,6 +46,12 @@
               required
               #lastName="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="lastName.invalid && lastName.touched"
+            >
+              Last name is required
+            </small>
           </div>
 
           <div class="form-group">
@@ -54,6 +66,12 @@
               pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
               #email="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="email.invalid && email.touched"
+            >
+              Please enter a valid email address
+            </small>
           </div>
 
           <div class="form-group">
@@ -63,11 +81,17 @@
               id="phone"
               [(ngModel)]="customer.phone"
               name="phone"
-              placeholder="Enter your phone number"
+              placeholder="Enter your phone number (11 digits)"
               required
               pattern="[0-9]{11}"
               #phone="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="phone.invalid && phone.touched"
+            >
+              Please enter a valid 11-digit phone number
+            </small>
           </div>
 
           <div class="form-group">
@@ -77,11 +101,17 @@
               id="password"
               [(ngModel)]="customer.password"
               name="password"
-              placeholder="Create a password"
+              placeholder="Create a password (min 8 characters)"
               required
               minlength="8"
               #password="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="password.invalid && password.touched"
+            >
+              Password must be at least 8 characters long
+            </small>
           </div>
 
           <div class="form-group">
@@ -95,6 +125,21 @@
               required
               #confirmPassword="ngModel"
             />
+            <small
+              class="validation-error"
+              *ngIf="confirmPassword.invalid && confirmPassword.touched"
+            >
+              Please confirm your password
+            </small>
+            <small
+              class="validation-error"
+              *ngIf="
+                customer.password !== customer.confirm_password &&
+                confirmPassword.touched
+              "
+            >
+              Passwords do not match
+            </small>
           </div>
 
           <div class="terms-container">
@@ -112,14 +157,21 @@
                 <a href="#">Privacy Policy</a></span
               >
             </label>
+            <small
+              class="validation-error"
+              *ngIf="terms.invalid && terms.touched"
+            >
+              You must accept the terms and conditions
+            </small>
           </div>
 
           <button
             type="submit"
             class="sign-up-btn"
-            [disabled]="!registerForm.form.valid"
+            [disabled]="!registerForm.form.valid || isLoading"
           >
-            Sign Up
+            <span *ngIf="!isLoading">Sign Up</span>
+            <span *ngIf="isLoading">Registering...</span>
           </button>
 
           <div class="sign-in-link">

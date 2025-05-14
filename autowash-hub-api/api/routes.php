@@ -10,6 +10,7 @@ loadEnv(__DIR__ . '/.env');
 require_once "./autoload.php";
 require_once "./modules/get.php";
 require_once "./modules/post.php";
+require_once "./modules/put.php";
 require_once "./config/database.php";
 
 // CORS headers
@@ -28,11 +29,22 @@ $pdo = $connection->connect();
 
 // Initialize modules
 $post = new Post($pdo);
+$get = new Get($pdo);
+$put = new Put($pdo);
 
 // Handle OPTIONS request (CORS preflight)
 if ($method === 'OPTIONS') {
     header('HTTP/1.1 200 OK');
     exit();
+}
+
+// Handle GET requests
+if ($method === 'GET') {
+    if (strpos($request, 'get_customer_count') !== false) {
+        $result = $get->get_customer_count();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request
@@ -72,6 +84,23 @@ if ($method === 'POST') {
     
     if (strpos($request, 'login_employee') !== false) {
         $result = $post->login_employee($data);
+        echo json_encode($result);
+        exit();
+    }
+}
+
+// Handle PUT requests
+if ($method === 'PUT') {
+    // Get PUT data
+    $data = json_decode(file_get_contents("php://input"));
+    
+    // Check for JWT token for protected routes
+    $headers = getallheaders();
+    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+    
+    if (strpos($request, 'update_customer_profile') !== false) {
+        // Process the update
+        $result = $put->update_customer_profile($data);
         echo json_encode($result);
         exit();
     }

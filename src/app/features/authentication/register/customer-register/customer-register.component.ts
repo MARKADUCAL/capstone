@@ -25,16 +25,26 @@ export class CustomerRegisterComponent {
 
   termsAccepted = false;
   errorMessage = '';
+  isLoading = false;
 
   constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit(): void {
     // Reset error message
     this.errorMessage = '';
+    this.isLoading = true;
+
+    console.log('Registration form submitted:', {
+      ...this.customer,
+      password: '[REDACTED]',
+      confirm_password: '[REDACTED]',
+      termsAccepted: this.termsAccepted,
+    });
 
     // Add terms validation
     if (!this.termsAccepted) {
       this.errorMessage = 'Please accept the terms and conditions';
+      this.isLoading = false;
       return;
     }
 
@@ -48,11 +58,27 @@ export class CustomerRegisterComponent {
       !this.customer.confirm_password
     ) {
       this.errorMessage = 'Please fill in all required fields';
+      this.isLoading = false;
       return;
     }
 
     if (this.customer.password !== this.customer.confirm_password) {
       this.errorMessage = 'Passwords do not match';
+      this.isLoading = false;
+      return;
+    }
+
+    // Password length validation
+    if (this.customer.password.length < 8) {
+      this.errorMessage = 'Password must be at least 8 characters long';
+      this.isLoading = false;
+      return;
+    }
+
+    // Phone number validation
+    if (!/^\d{11}$/.test(this.customer.phone)) {
+      this.errorMessage = 'Phone number must be exactly 11 digits';
+      this.isLoading = false;
       return;
     }
 
@@ -60,6 +86,7 @@ export class CustomerRegisterComponent {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.customer.email)) {
       this.errorMessage = 'Please enter a valid email address';
+      this.isLoading = false;
       return;
     }
 
@@ -71,6 +98,11 @@ export class CustomerRegisterComponent {
       password: this.customer.password,
     };
 
+    console.log('Sending registration data to API:', {
+      ...registrationData,
+      password: '[REDACTED]',
+    });
+
     this.http
       .post(
         'http://localhost/autowash-hub-api/api/register_customer',
@@ -79,25 +111,38 @@ export class CustomerRegisterComponent {
       )
       .subscribe({
         next: (response: any) => {
-          console.log('Response:', response);
-          if (response.status.remarks === 'success') {
+          this.isLoading = false;
+          console.log('Registration response:', response);
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
             // Show success message before redirecting
             alert('Registration successful! Please login.');
-            this.router.navigate(['/customer-login']);
+            this.router.navigate(['/customer']);
           } else {
             this.errorMessage =
-              response.status.message || 'Registration failed';
+              (response && response.status && response.status.message) ||
+              'Registration failed with unknown error';
           }
         },
         error: (error) => {
-          console.error('Registration error', error);
-          if (error.error?.status?.message) {
+          this.isLoading = false;
+          console.error('Registration error:', error);
+
+          if (error.error && error.error.status && error.error.status.message) {
             this.errorMessage = error.error.status.message;
           } else if (error.status === 0) {
             this.errorMessage =
-              'Cannot connect to server. Please try again later.';
+              'Cannot connect to server. Please check if the backend is running and accessible.';
+          } else if (error.status === 400) {
+            this.errorMessage =
+              'Invalid registration data. Please check your inputs.';
+          } else if (error.status === 500) {
+            this.errorMessage = 'Server error. Please try again later.';
           } else {
-            this.errorMessage = 'Registration failed. Please try again.';
+            this.errorMessage = `Registration failed with status ${error.status}. Please try again.`;
           }
         },
       });

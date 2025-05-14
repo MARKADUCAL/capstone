@@ -126,7 +126,10 @@
   </div>
 
   <!-- Charts Section -->
-  <mat-tab-group class="charts-container">
+  <mat-tab-group
+    class="charts-container"
+    (selectedTabChange)="onTabChange($event)"
+  >
     <mat-tab label="Revenue Trend">
       <div class="chart-wrapper">
         <canvas id="revenueChart"></canvas>

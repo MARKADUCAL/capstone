@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -47,6 +47,7 @@ export class AppointmentComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   availableSlots = 12;
+  isBrowser: boolean;
 
   // Form options
   vehicleTypes = VEHICLE_TYPES;
@@ -72,10 +73,17 @@ export class AppointmentComponent implements OnInit {
   // Customer bookings
   customerBookings: Booking[] = [];
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    private bookingService: BookingService,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
-    this.loadBookings();
+    if (this.isBrowser) {
+      this.loadBookings();
+    }
   }
 
   // Load customer bookings
