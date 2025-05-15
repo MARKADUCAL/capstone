@@ -57,6 +57,12 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'get_all_employees') !== false) {
+        $result = $get->get_all_employees();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request

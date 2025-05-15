@@ -5,13 +5,18 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface Employee {
   id: number;
   name: string;
   role: string;
   phone: string;
+  email: string;
   status: 'Active' | 'Inactive';
+  employeeId?: string;
+  registrationDate?: string;
 }
 
 @Component({
@@ -23,31 +28,79 @@ interface Employee {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    HttpClientModule,
   ],
   templateUrl: './employee-management.component.html',
   styleUrl: './employee-management.component.css',
 })
 export class EmployeeManagementComponent implements OnInit {
-  employees: Employee[] = [
-    {
-      id: 1,
-      name: 'John Doe',
-      role: 'Carwasher',
-      phone: '123-456-7890',
-      status: 'Active',
-    },
-  ];
-
+  employees: Employee[] = [];
   isAddModalOpen = false;
   newEmployee: Employee = this.createEmptyEmployee();
+  loading: boolean = true;
+  error: string | null = null;
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private snackBar: MatSnackBar,
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    // Load employees data
+    this.loadEmployees();
+  }
+
+  loadEmployees(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        console.log('Employee response:', response);
+
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success' &&
+          response.payload &&
+          response.payload.employees
+        ) {
+          // Transform the data from the API to match the Employee interface
+          this.employees = response.payload.employees.map((employee: any) => ({
+            id: employee.id,
+            employeeId: employee.employee_id,
+            name: `${employee.first_name} ${employee.last_name}`,
+            email: employee.email,
+            phone: employee.phone || 'N/A',
+            role: employee.position || 'Employee',
+            status: 'Active', // Default to active since we don't have a status in the DB
+            registrationDate: this.formatDate(employee.created_at),
+          }));
+        } else {
+          this.error = 'Failed to load employees';
+          this.showNotification('Failed to load employees');
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        this.error = 'Error loading employees. Please try again later.';
+        console.error('Error loading employees:', error);
+        this.showNotification(
+          'Error loading employees. Please try again later.'
+        );
+      },
+    });
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   }
 
   openAddEmployeeModal(): void {
@@ -133,6 +186,7 @@ export class EmployeeManagementComponent implements OnInit {
       name: '',
       role: '',
       phone: '',
+      email: '',
       status: 'Active',
     };
   }

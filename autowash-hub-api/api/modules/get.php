@@ -104,5 +104,28 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_all_employees() {
+        try {
+            $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at FROM employees ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['employees' => $employees],
+                "success",
+                "Employees retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve employees: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>
