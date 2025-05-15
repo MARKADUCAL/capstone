@@ -13,6 +13,7 @@ interface WashingPoint {
   location: string;
   status: 'Available' | 'Occupied' | 'Maintenance';
   pricePerHour: number;
+  phone?: string;
 }
 
 @Component({
@@ -33,24 +34,43 @@ export class WashingPointComponent implements OnInit {
   washingPoints: WashingPoint[] = [
     {
       id: 1,
-      name: 'Point A',
-      location: 'Block 1',
+      name: 'Elite Auto Spa',
+      location: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
       status: 'Available',
       pricePerHour: 10,
+      phone: '123-456-7890',
     },
     {
       id: 2,
-      name: 'Point B',
-      location: 'Block 2',
-      status: 'Occupied',
+      name: 'Elite Auto Spa',
+      location: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
+      status: 'Available',
       pricePerHour: 12,
+      phone: '123-456-7890',
     },
     {
       id: 3,
-      name: 'Point C',
-      location: 'Block 1',
-      status: 'Maintenance',
+      name: 'Elite Auto Spa',
+      location: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
+      status: 'Available',
       pricePerHour: 10,
+      phone: '123-456-7890',
+    },
+    {
+      id: 4,
+      name: 'Elite Auto Spa',
+      location: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
+      status: 'Available',
+      pricePerHour: 15,
+      phone: '123-456-7890',
+    },
+    {
+      id: 5,
+      name: 'Elite Auto Spa',
+      location: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
+      status: 'Available',
+      pricePerHour: 12,
+      phone: '123-456-7890',
     },
   ];
 

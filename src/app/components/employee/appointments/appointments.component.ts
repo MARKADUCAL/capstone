@@ -196,4 +196,25 @@ export class AppointmentsComponent implements OnInit {
   refreshAppointments(): void {
     this.loadAppointments();
   }
+
+  getInitials(name: string): string {
+    if (!name) return 'NA';
+    return name
+      .split(' ')
+      .map((part) => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
+  viewDetails(appointment: Booking): void {
+    // For now, this just shows a notification with details
+    // Later this could open a detailed view dialog
+    const message = `${appointment.nickname}'s ${appointment.services} appointment`;
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+    });
+  }
 }

@@ -10,20 +10,31 @@
   <div class="inventory-grid">
     @for (item of inventoryItems; track item.id) {
     <mat-card class="inventory-card">
-      <div class="item-image">
-        <img [src]="item.imageUrl" [alt]="item.name" />
+      <div class="card-content">
+        <div class="item-image">
+          <img [src]="item.imageUrl" [alt]="item.name" />
+        </div>
+        <div class="item-details">
+          <h3>{{ item.name }}</h3>
+          <p class="stock-info">Stock: {{ item.stock }} Available</p>
+          <p class="category">
+            <mat-icon>category</mat-icon> {{ item.category || "General" }}
+          </p>
+          <p class="price">
+            <mat-icon>attach_money</mat-icon> {{ item.price | currency }}
+          </p>
+        </div>
       </div>
-      <div class="item-details">
-        <h3>{{ item.name }}</h3>
-        <p class="stock-info">Stock: {{ item.stock }} Available</p>
-      </div>
-      <div class="item-actions">
-        <button mat-button color="primary" (click)="editItem(item)">
-          Details
+
+      <div class="action-buttons">
+        <button class="action-btn view-btn" (click)="editItem(item)">
+          View
         </button>
-        <button mat-button color="accent" (click)="editItem(item)">Edit</button>
-        <button mat-button class="take-btn" (click)="takeItem(item)">
-          Take Item
+        <button class="action-btn edit-btn" (click)="editItem(item)">
+          Edit
+        </button>
+        <button class="action-btn take-btn" (click)="takeItem(item)">
+          Take
         </button>
       </div>
     </mat-card>

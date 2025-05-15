@@ -37,28 +37,45 @@
 
       <mat-card-content>
         <div class="booking-details">
-          <p><strong>Date:</strong> {{ booking.date }}</p>
-          <p><strong>Time:</strong> {{ booking.time }}</p>
+          <p><mat-icon>calendar_today</mat-icon> {{ booking.date }}</p>
+          <p><mat-icon>access_time</mat-icon> {{ booking.time }}</p>
+          <p>
+            <mat-icon>local_car_wash</mat-icon>
+            {{ booking.serviceType || "Standard Wash" }}
+          </p>
+          <p>
+            <mat-icon>attach_money</mat-icon> {{ booking.price | currency }}
+          </p>
         </div>
       </mat-card-content>
 
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="viewBooking(booking)">
+      <div class="action-buttons">
+        <button class="action-btn view-btn" (click)="viewBooking(booking)">
           View
         </button>
         @if (booking.status === 'Pending') {
         <button
-          mat-button
-          class="approve-btn"
+          class="action-btn approve-btn"
           (click)="approveBooking(booking)"
         >
           Approve
         </button>
-        <button mat-button class="reject-btn" (click)="rejectBooking(booking)">
+        <button class="action-btn reject-btn" (click)="rejectBooking(booking)">
           Reject
         </button>
+        } @else if (booking.status === 'Approved') {
+        <button
+          class="action-btn complete-btn"
+          (click)="completeBooking(booking)"
+        >
+          Complete
+        </button>
+        } @else {
+        <button class="action-btn edit-btn" (click)="viewBooking(booking)">
+          Edit
+        </button>
         }
-      </mat-card-actions>
+      </div>
     </mat-card>
     }
   </div>

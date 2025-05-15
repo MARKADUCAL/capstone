@@ -17,7 +17,7 @@ interface Task {
 }
 
 interface DailyStats {
-  totalTasks: number;
+  totalBookings: number;
   completedTasks: number;
   pendingTasks: number;
   customerRating: number;
@@ -40,7 +40,7 @@ interface DailyStats {
 })
 export class DashboardComponent implements OnInit {
   dailyStats: DailyStats = {
-    totalTasks: 12,
+    totalBookings: 12,
     completedTasks: 8,
     pendingTasks: 4,
     customerRating: 4.5,

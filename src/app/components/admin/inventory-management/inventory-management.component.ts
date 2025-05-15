@@ -12,6 +12,7 @@ interface InventoryItem {
   imageUrl: string;
   stock: number;
   price: number;
+  category?: string;
 }
 
 @Component({

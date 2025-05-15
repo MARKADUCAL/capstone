@@ -13,7 +13,9 @@ interface CarWashBooking {
   vehicleType: 'small' | 'medium' | 'large';
   date: string;
   time: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+  serviceType?: string;
+  price?: number;
   imageUrl?: string;
 }
 
@@ -96,5 +98,10 @@ export class CarWashBookingComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  completeBooking(booking: CarWashBooking): void {
+    booking.status = 'Completed';
+    this.showNotification('Booking marked as completed');
   }
 }

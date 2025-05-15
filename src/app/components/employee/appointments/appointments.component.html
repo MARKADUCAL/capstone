@@ -50,131 +50,90 @@
     </button>
   </div>
 
-  <!-- Appointments Table -->
-  <div class="table-container" *ngIf="!isLoading && !error">
-    <table
-      mat-table
-      [dataSource]="filteredAppointments"
-      matSort
-      class="appointments-table"
-    >
-      <!-- Date Column -->
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-        <td mat-cell *matCellDef="let appointment">
-          {{ formatDate(appointment.washDate) }}
-        </td>
-      </ng-container>
-
-      <!-- Time Column -->
-      <ng-container matColumnDef="time">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Time</th>
-        <td mat-cell *matCellDef="let appointment">
-          {{ appointment.washTime }}
-        </td>
-      </ng-container>
-
-      <!-- Customer Column -->
-      <ng-container matColumnDef="customer">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
-        <td mat-cell *matCellDef="let appointment">
-          <div class="customer-info">
-            <span class="customer-name">{{ appointment.nickname }}</span>
-            <span class="customer-phone">{{ appointment.phone }}</span>
-          </div>
-        </td>
-      </ng-container>
-
-      <!-- Vehicle Column -->
-      <ng-container matColumnDef="vehicle">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Vehicle</th>
-        <td mat-cell *matCellDef="let appointment">
-          {{ appointment.vehicleType }}
-        </td>
-      </ng-container>
-
-      <!-- Service Column -->
-      <ng-container matColumnDef="service">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Service</th>
-        <td mat-cell *matCellDef="let appointment">
-          {{ appointment.services }}
-        </td>
-      </ng-container>
-
-      <!-- Status Column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-        <td mat-cell *matCellDef="let appointment">
-          <mat-chip [color]="getStatusColor(appointment.status)" selected>
-            {{ appointment.status }}
-          </mat-chip>
-        </td>
-      </ng-container>
-
-      <!-- Payment Column -->
-      <ng-container matColumnDef="payment">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Payment</th>
-        <td mat-cell *matCellDef="let appointment">
-          {{ appointment.paymentType }}
-        </td>
-      </ng-container>
-
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let appointment">
-          <button
-            mat-icon-button
-            [matMenuTriggerFor]="menu"
-            aria-label="Appointment actions"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button
-              mat-menu-item
-              (click)="updateStatus(appointment, BookingStatus.CONFIRMED)"
-              *ngIf="appointment.status === BookingStatus.PENDING"
-            >
-              <mat-icon>check_circle</mat-icon>
-              <span>Confirm</span>
-            </button>
-            <button
-              mat-menu-item
-              (click)="updateStatus(appointment, BookingStatus.COMPLETED)"
-              *ngIf="appointment.status === BookingStatus.CONFIRMED"
-            >
-              <mat-icon>done_all</mat-icon>
-              <span>Mark Complete</span>
-            </button>
-            <button
-              mat-menu-item
-              (click)="updateStatus(appointment, BookingStatus.CANCELLED)"
-              *ngIf="
-                appointment.status !== BookingStatus.CANCELLED &&
-                appointment.status !== BookingStatus.COMPLETED
-              "
-            >
-              <mat-icon>cancel</mat-icon>
-              <span>Cancel</span>
-            </button>
-          </mat-menu>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-
-    <!-- No Data Message -->
+  <!-- Card-based Appointments -->
+  <div class="appointments-grid" *ngIf="!isLoading && !error">
     <div *ngIf="filteredAppointments.length === 0" class="no-data">
       <mat-icon>event_busy</mat-icon>
       <p>No appointments found</p>
     </div>
 
+    <div
+      *ngFor="let appointment of filteredAppointments"
+      class="appointment-card"
+      [attr.data-status]="appointment.status.toLowerCase()"
+    >
+      <div class="card-header">
+        <div class="avatar">
+          {{ getInitials(appointment.nickname) }}
+        </div>
+        <div class="customer-info">
+          <h3>{{ appointment.nickname }}</h3>
+          <p class="vehicle-type">
+            Vehicle Type: {{ appointment.vehicleType }}
+          </p>
+        </div>
+      </div>
+
+      <div class="card-details">
+        <div class="detail-item">
+          <mat-icon>calendar_today</mat-icon>
+          <span>{{ formatDate(appointment.washDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon>access_time</mat-icon>
+          <span>{{ appointment.washTime }}</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon>local_car_wash</mat-icon>
+          <span>{{ appointment.services }}</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon>attach_money</mat-icon>
+          <span>{{ appointment.paymentType || "Cash" }}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="view-btn" (click)="viewDetails(appointment)">
+          View
+        </button>
+
+        <!-- Show appropriate action buttons based on status -->
+        <ng-container *ngIf="appointment.status === BookingStatus.PENDING">
+          <button
+            class="approve-btn"
+            (click)="updateStatus(appointment, BookingStatus.CONFIRMED)"
+          >
+            Approve
+          </button>
+          <button
+            class="reject-btn"
+            (click)="updateStatus(appointment, BookingStatus.CANCELLED)"
+          >
+            Reject
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="appointment.status === BookingStatus.CONFIRMED">
+          <button
+            class="complete-btn"
+            (click)="updateStatus(appointment, BookingStatus.COMPLETED)"
+          >
+            Complete
+          </button>
+          <button
+            class="reject-btn"
+            (click)="updateStatus(appointment, BookingStatus.CANCELLED)"
+          >
+            Cancel
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
     <!-- Paginator -->
     <mat-paginator
-      [pageSizeOptions]="[5, 10, 25, 100]"
+      [pageSizeOptions]="[6, 12, 24, 48]"
       aria-label="Select page of appointments"
     >
     </mat-paginator>
