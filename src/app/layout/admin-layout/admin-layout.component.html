@@ -56,6 +56,14 @@
       </li>
       <li>
         <a
+          routerLink="/admin-view/service-management"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-clipboard-list"></i> Services</a
+        >
+      </li>
+      <li>
+        <a
           routerLink="/admin-view/manage-enquiries"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"

@@ -127,5 +127,30 @@ class Get extends GlobalMethods {
             );
         }
     }
+    
+    public function get_all_services() {
+        try {
+            $sql = "SELECT id, name, description, price, duration_minutes, category, is_active, created_at, updated_at 
+                   FROM services 
+                   ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['services' => $services],
+                "success",
+                "Services retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve services: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

@@ -1,243 +1,114 @@
-<div class="container">
-  <div class="header">
-    <div class="available-slots">
-      Available slots: <span class="slot-count">{{ availableSlots }}</span>
-    </div>
-  </div>
-
-  <button
-    mat-raised-button
-    color="primary"
-    class="book-now"
-    (click)="openBookingModal()"
-  >
-    + Book Now
-  </button>
-
-  <!-- Customer Bookings Section -->
-  <div *ngIf="isBrowser && customerBookings.length > 0">
-    <div *ngFor="let booking of customerBookings" class="booking-details">
-      <div class="client-name">{{ booking.nickname }}</div>
-      <div class="detail-item">
-        <span class="detail-label">Vehicle:</span> {{ booking.vehicleType }}
-      </div>
-      <div class="detail-item">
-        <span class="detail-label">Service:</span> {{ booking.services }}
-      </div>
-      <div class="detail-item">
-        <span class="detail-label">Date:</span>
-        {{ formatDate(booking.washDate) }}
-      </div>
-      <div class="detail-item">
-        <span class="detail-label">Time:</span> {{ booking.washTime }}
-      </div>
-      <div class="detail-item">
-        <span class="detail-label">Status:</span>
-        <span [ngClass]="getStatusClass(booking.status)">{{
-          booking.status
-        }}</span>
-      </div>
-
-      <div class="action-buttons">
-        <button mat-button color="primary" (click)="viewBooking(booking)">
-          View
-        </button>
-        <button
-          mat-button
-          color="accent"
-          (click)="payBooking(booking)"
-          *ngIf="booking.status === 'pending'"
-        >
-          Pay
-        </button>
-        <button
-          mat-button
-          color="warn"
-          (click)="cancelBooking(booking)"
-          *ngIf="booking.status !== 'cancelled'"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- No bookings message -->
-  <div *ngIf="isBrowser && customerBookings.length === 0" class="no-bookings">
-    You don't have any bookings yet.
-  </div>
-</div>
-
-<!-- Booking Modal -->
-<div class="modal-overlay" *ngIf="isBrowser && showBookingModal">
-  <div class="booking-modal-container">
-    <div
-      class="booking-modal"
-      role="dialog"
-      aria-labelledby="booking-modal-title"
+<form class="booking-form" (ngSubmit)="submitBooking()" autocomplete="off">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Vehicle Type*</mat-label>
+    <mat-select
+      [(ngModel)]="bookingForm.vehicleType"
+      name="vehicleType"
+      required
     >
-      <!-- Modal Header with Logo -->
-      <div class="modal-header">
-        <div class="logo-title">
-          <img
-            src="assets/logo.jpg"
-            alt="AutoWash Hub Logo"
-            class="modal-logo"
-          />
-          <h2 id="booking-modal-title">Car Wash Booking</h2>
-        </div>
-        <button
-          class="close-btn"
-          (click)="closeBookingModal()"
-          aria-label="Close booking form"
-        >
-          &times;
-        </button>
-      </div>
+      <mat-option *ngFor="let type of vehicleTypes" [value]="type">{{
+        type
+      }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-      <!-- Success or Error Message -->
-      <div *ngIf="successMessage" class="message success-message" role="status">
-        {{ successMessage }}
-      </div>
-      <div *ngIf="errorMessage" class="message error-message" role="alert">
-        {{ errorMessage }}
-      </div>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Select Services*</mat-label>
+    <mat-select [(ngModel)]="bookingForm.services" name="services" required>
+      <mat-option *ngFor="let service of services" [value]="service.name">
+        {{ service.name }} - ${{ service.price }} ({{
+          service.duration_minutes
+        }}
+        mins)
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 
-      <!-- Booking Form -->
-      <form (ngSubmit)="submitBooking()" novalidate>
-        <!-- Vehicle Type -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Vehicle Type</mat-label>
-          <mat-select
-            [(ngModel)]="bookingForm.vehicleType"
-            name="vehicleType"
-            required
-          >
-            <mat-option *ngFor="let type of vehicleTypes" [value]="type">
-              {{ type }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Nickname*</mat-label>
+    <input
+      matInput
+      [(ngModel)]="bookingForm.nickname"
+      name="nickname"
+      required
+      placeholder="Enter your nickname"
+    />
+  </mat-form-field>
 
-        <!-- Services -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Select Services</mat-label>
-          <mat-select
-            [(ngModel)]="bookingForm.services"
-            name="services"
-            required
-          >
-            <mat-option *ngFor="let service of services" [value]="service">
-              {{ service }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Phone Number*</mat-label>
+    <input
+      matInput
+      [(ngModel)]="bookingForm.phone"
+      name="phone"
+      required
+      placeholder="Enter your phone number"
+    />
+  </mat-form-field>
 
-        <!-- Washing Point -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Select Washing Point</mat-label>
-          <mat-select
-            [(ngModel)]="bookingForm.washingPoint"
-            name="washingPoint"
-            required
-          >
-            <mat-option *ngFor="let point of washingPoints" [value]="point">
-              {{ point }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Wash Date*</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [(ngModel)]="bookingForm.washDate"
+      name="washDate"
+      required
+      placeholder="Select wash date"
+    />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
 
-        <!-- Nickname -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Nickname</mat-label>
-          <input
-            matInput
-            [(ngModel)]="bookingForm.nickname"
-            name="nickname"
-            required
-            aria-label="Enter your nickname"
-          />
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Wash Time*</mat-label>
+    <input
+      matInput
+      type="time"
+      [(ngModel)]="bookingForm.washTime"
+      name="washTime"
+      required
+      placeholder="Select wash time"
+    />
+  </mat-form-field>
 
-        <!-- Phone Number -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Phone Number</mat-label>
-          <input
-            matInput
-            type="tel"
-            [(ngModel)]="bookingForm.phone"
-            name="phone"
-            required
-            aria-label="Enter your phone number"
-          />
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Payment Type*</mat-label>
+    <mat-select
+      [(ngModel)]="bookingForm.paymentType"
+      name="paymentType"
+      required
+    >
+      <mat-option *ngFor="let type of paymentTypes" [value]="type">{{
+        type
+      }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-        <!-- Wash Date -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Wash Date</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [(ngModel)]="bookingForm.washDate"
-            name="washDate"
-            required
-            aria-label="Select wash date"
-          />
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Notes</mat-label>
+    <textarea
+      matInput
+      [(ngModel)]="bookingForm.notes"
+      name="notes"
+      rows="2"
+      placeholder="Additional notes (optional)"
+    ></textarea>
+  </mat-form-field>
 
-        <!-- Wash Time -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Wash Time</mat-label>
-          <input
-            matInput
-            type="time"
-            [(ngModel)]="bookingForm.washTime"
-            name="washTime"
-            required
-            aria-label="Select wash time"
-          />
-        </mat-form-field>
-
-        <!-- Payment Type -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Payment Type</mat-label>
-          <mat-select
-            [(ngModel)]="bookingForm.paymentType"
-            name="paymentType"
-            required
-          >
-            <mat-option *ngFor="let type of paymentTypes" [value]="type">
-              {{ type }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Notes -->
-        <mat-form-field appearance="fill" class="form-group">
-          <mat-label>Notes</mat-label>
-          <textarea
-            matInput
-            [(ngModel)]="bookingForm.notes"
-            name="notes"
-            aria-label="Additional notes (optional)"
-          ></textarea>
-        </mat-form-field>
-
-        <!-- Submit Button -->
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="isSubmitting"
-        >
-          {{ isSubmitting ? "Booking..." : "Book Now" }}
-        </button>
-      </form>
-    </div>
+  <div class="form-actions">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="isSubmitting"
+    >
+      Book Now
+    </button>
   </div>
-</div>
+
+  <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+  <mat-hint *ngIf="successMessage" style="color: green">{{
+    successMessage
+  }}</mat-hint>
+</form>

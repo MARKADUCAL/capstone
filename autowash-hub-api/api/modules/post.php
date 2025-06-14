@@ -408,4 +408,100 @@ class Post extends GlobalMethods
             );
         }
     }
+
+    public function add_service($data) {
+        // Validate required fields
+        if (empty($data->name) || empty($data->price) || empty($data->duration_minutes) || empty($data->category)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            // Prepare the SQL query to insert a new service
+            $sql = "INSERT INTO services (name, description, price, duration_minutes, category, is_active) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            
+            // Set is_active to 1 if true, 0 if false
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $statement->execute([
+                $data->name,
+                $data->description ?? '',
+                $data->price,
+                $data->duration_minutes,
+                $data->category,
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                // Get the newly created service ID
+                $serviceId = $this->pdo->lastInsertId();
+                
+                // Fetch the created service
+                $sql = "SELECT id, name, description, price, duration_minutes, category, is_active, created_at, updated_at 
+                       FROM services WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$serviceId]);
+                $service = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['service' => $service], 
+                    "success", 
+                    "Service added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add service", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Service creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "Database error occurred: " . $e->getMessage(), 
+                500
+            );
+        }
+    }
+    
+    public function delete_service($id) {
+        // Validate service ID
+        if (!is_numeric($id) || $id <= 0) {
+            return $this->sendPayload(null, "failed", "Invalid service ID", 400);
+        }
+
+        try {
+            // Check if the service exists
+            $sql = "SELECT COUNT(*) FROM services WHERE id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$id]);
+            $count = $statement->fetchColumn();
+
+            if ($count == 0) {
+                return $this->sendPayload(null, "failed", "Service not found", 404);
+            }
+            
+            // Delete the service
+            $sql = "DELETE FROM services WHERE id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$id]);
+
+            if ($statement->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Service deleted successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to delete service", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Service deletion error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "Database error occurred: " . $e->getMessage(), 
+                500
+            );
+        }
+    }
 }

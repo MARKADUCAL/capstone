@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-services-pricing',
   imports: [],
   templateUrl: './services-pricing.component.html',
-  styleUrl: './services-pricing.component.css'
+  styleUrl: './services-pricing.component.css',
 })
-export class ServicesPricingComponent {
-
-}
+export class ServicesPricingComponent {}

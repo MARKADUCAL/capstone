@@ -21,6 +21,7 @@ import { ManageEnquiriesComponent } from './components/admin/manage-enquiries/ma
 import { ReportingComponent } from './components/admin/reporting/reporting.component';
 import { PagesComponent } from './components/admin/pages/pages.component';
 import { ProfileComponent as AdminProfileComponent } from './components/admin/profile/profile.component';
+import { ServiceManagementComponent } from './components/admin/service-management/service-management.component';
 
 // Customer components
 import { ServicesPricingComponent } from './components/customer/services-pricing/services-pricing.component';
@@ -59,6 +60,7 @@ export const routes: Routes = [
       { path: 'manage-enquiries', component: ManageEnquiriesComponent },
       { path: 'reporting', component: ReportingComponent },
       { path: 'pages', component: PagesComponent },
+      { path: 'service-management', component: ServiceManagementComponent },
       { path: 'profile', component: AdminProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

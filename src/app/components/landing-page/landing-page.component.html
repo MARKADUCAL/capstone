@@ -38,7 +38,9 @@
       carwash specialists offering quality services including body wash,
       interior vacuum, and more.
     </p>
-    <a href="/customer" class="book-now-btn">Book Now</a>
+    <a (click)="onBookNowClick()" class="book-now-btn" style="cursor: pointer"
+      >Book Now</a
+    >
   </div>
 </header>
 
@@ -262,3 +264,19 @@
     </p>
   </div>
 </footer>
+
+<!-- Custom Modal -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h3>AutoWash Hub</h3>
+    </div>
+    <div class="modal-body">
+      <p>Do you want to proceed with booking?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-ok" (click)="confirmBooking()">OK</button>
+      <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">Cancel</button>
+    </div>
+  </div>
+</div>

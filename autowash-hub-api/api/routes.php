@@ -63,6 +63,12 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'services') !== false) {
+        $result = $get->get_all_services();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request
@@ -105,6 +111,12 @@ if ($method === 'POST') {
         echo json_encode($result);
         exit();
     }
+    
+    if (strpos($request, 'services') !== false) {
+        $result = $post->add_service($data);
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle PUT requests
@@ -119,6 +131,26 @@ if ($method === 'PUT') {
     if (strpos($request, 'update_customer_profile') !== false) {
         // Process the update
         $result = $put->update_customer_profile($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'services') !== false) {
+        // Process the service update
+        $result = $put->update_service($data);
+        echo json_encode($result);
+        exit();
+    }
+}
+
+// Handle DELETE requests
+if ($method === 'DELETE') {
+    // Extract ID from URL for delete operations
+    $parts = explode('/', $request);
+    $id = end($parts);
+    
+    if (strpos($request, 'services') !== false && is_numeric($id)) {
+        $result = $post->delete_service($id);
         echo json_encode($result);
         exit();
     }

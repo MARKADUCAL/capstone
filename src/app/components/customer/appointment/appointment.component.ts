@@ -15,11 +15,11 @@ import {
   PAYMENT_TYPES,
   BookingForm,
   WASHING_POINTS,
-  CAR_WASH_SERVICES,
   Booking,
   BookingStatus,
 } from '../../../models/booking.model';
 import { BookingService } from '../../../services/booking.service';
+import { ServiceService, Service } from '../../../services/service.service';
 
 @Component({
   selector: 'app-appointment',
@@ -51,7 +51,7 @@ export class AppointmentComponent implements OnInit {
 
   // Form options
   vehicleTypes = VEHICLE_TYPES;
-  services = CAR_WASH_SERVICES.map((service) => service.name);
+  services: Service[] = [];
   washingPoints = WASHING_POINTS.filter((point) => point.available).map(
     (point) => point.name
   );
@@ -75,6 +75,7 @@ export class AppointmentComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
+    private serviceService: ServiceService,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -83,7 +84,20 @@ export class AppointmentComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadBookings();
+      this.loadServices();
     }
+  }
+
+  // Load services from API
+  loadServices(): void {
+    this.serviceService.getAllServices().subscribe(
+      (services) => {
+        this.services = services;
+      },
+      (error) => {
+        this.errorMessage = 'Failed to load services: ' + error.message;
+      }
+    );
   }
 
   // Load customer bookings

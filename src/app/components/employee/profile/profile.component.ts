@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -22,6 +22,9 @@ interface EmployeeProfile {
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent implements OnInit {
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
   profile: EmployeeProfile = {
     id: 0,
     employee_id: '',
@@ -51,6 +54,8 @@ export class ProfileComponent implements OnInit {
   }
 
   checkUserType(): void {
+    if (!this.isBrowser) return;
+
     // Get the current route
     const currentUrl = this.router.url;
 
@@ -68,6 +73,8 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
+    if (!this.isBrowser) return;
+
     const employeeData = localStorage.getItem('employee_data');
     if (employeeData) {
       this.profile = { ...this.profile, ...JSON.parse(employeeData) };
@@ -104,6 +111,13 @@ export class ProfileComponent implements OnInit {
         this.isSaving = false;
         return;
       }
+    }
+
+    if (!this.isBrowser) {
+      this.errorMessage =
+        'Profile update is only available in browser environment';
+      this.isSaving = false;
+      return;
     }
 
     const token =
