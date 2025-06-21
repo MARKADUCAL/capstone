@@ -1,17 +1,81 @@
 <div class="container">
-  <div class="transaction-card">
-    <p><strong>Date :</strong> March 20, 2025</p>
-    <p><strong>Time :</strong> 2:30 PM</p>
-    <p><strong>Service Availed :</strong> Regular</p>
-    <p><strong>Amount Paid :</strong> ₱500</p>
-    <p><strong>Payment Method :</strong> GCash</p>
+  <div class="filter-buttons">
+    <button
+      class="filter-btn"
+      [class.active]="currentFilter === 'all'"
+      (click)="setFilter('all')"
+    >
+      All
+    </button>
+    <button
+      class="filter-btn"
+      [class.active]="currentFilter === 'pending'"
+      (click)="setFilter('pending')"
+    >
+      Pending
+    </button>
+    <button
+      class="filter-btn"
+      [class.active]="currentFilter === 'confirmed'"
+      (click)="setFilter('confirmed')"
+    >
+      Confirmed
+    </button>
+    <button
+      class="filter-btn"
+      [class.active]="currentFilter === 'completed'"
+      (click)="setFilter('completed')"
+    >
+      Completed
+    </button>
+  </div>
+  <div *ngIf="isLoading" class="loading-indicator">
+    <p>Loading transactions...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div
+    *ngIf="!isLoading && !errorMessage && bookings.length === 0"
+    class="no-transactions"
+  >
+    <p>You have no past transactions.</p>
+  </div>
+
+  <div
+    *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      bookings.length > 0 &&
+      filteredBookings.length === 0
+    "
+    class="no-transactions"
+  >
+    <p>No transactions match the current filter.</p>
+  </div>
+
+  <div class="transaction-card" *ngFor="let booking of filteredBookings">
+    <p><strong>Date :</strong> {{ booking.washDate | date : "longDate" }}</p>
+    <p><strong>Time :</strong> {{ booking.washTime }}</p>
+    <p><strong>Service Availed :</strong> {{ booking.serviceName }}</p>
+    <p><strong>Amount Paid :</strong> {{ booking.price | currency : "PHP" }}</p>
+    <p><strong>Payment Method :</strong> {{ booking.paymentType }}</p>
     <p>
       <strong>Status :</strong>
-      <span class="status-completed">Completed</span>
+      <span
+        [ngClass]="{
+          'status-completed': booking.status === 'completed',
+          'status-in-progress': booking.status === 'confirmed',
+          'status-pending': booking.status === 'pending'
+        }"
+        >{{ booking.status }}</span
+      >
     </p>
 
     <div class="buttons">
-      <button class="view-btn" (click)="openViewModal()">View</button>
+      <button class="view-btn" (click)="openViewModal(booking)">View</button>
       <button class="feedback-btn" (click)="openFeedbackModal()">
         Feedback
       </button>
@@ -21,7 +85,7 @@
 
 <!-- View Transaction Modal -->
 <div class="modal" [class.show-modal]="isViewModalOpen">
-  <div class="modal-content transaction-modal">
+  <div class="modal-content transaction-modal" *ngIf="selectedBooking">
     <div class="modal-header">
       <h2>Transaction Details</h2>
       <span class="close-btn" (click)="closeViewModal()">&times;</span>
@@ -31,10 +95,10 @@
         <div class="transaction-header">
           <div class="transaction-id">
             <span class="label">Transaction ID:</span>
-            <span class="value">#TRX20240320</span>
+            <span class="value">#{{ selectedBooking.id }}</span>
           </div>
           <div class="transaction-status">
-            <span class="status-completed">Completed</span>
+            <span class="status-completed">{{ selectedBooking.status }}</span>
           </div>
         </div>
 
@@ -43,14 +107,16 @@
             <div class="detail-icon"><i class="calendar-icon">📅</i></div>
             <div class="detail-content">
               <span class="label">Date</span>
-              <span class="value">March 20, 2025</span>
+              <span class="value">{{
+                selectedBooking.washDate | date : "longDate"
+              }}</span>
             </div>
           </div>
           <div class="detail-item">
             <div class="detail-icon"><i class="time-icon">⏱️</i></div>
             <div class="detail-content">
               <span class="label">Time</span>
-              <span class="value">2:30 PM</span>
+              <span class="value">{{ selectedBooking.washTime }}</span>
             </div>
           </div>
         </div>
@@ -60,17 +126,16 @@
             <div class="detail-icon"><i class="service-icon">🚿</i></div>
             <div class="detail-content">
               <span class="label">Service Availed</span>
-              <span class="value">Regular</span>
+              <span class="value">{{ selectedBooking.serviceName }}</span>
             </div>
           </div>
           <div class="detail-item full-width">
             <div class="detail-icon"><i class="description-icon">📋</i></div>
             <div class="detail-content">
               <span class="label">Service Description</span>
-              <span class="value"
-                >Standard car wash with exterior cleaning and basic interior
-                vacuum</span
-              >
+              <span class="value">{{
+                selectedBooking.serviceDescription
+              }}</span>
             </div>
           </div>
         </div>
@@ -80,14 +145,16 @@
             <div class="detail-icon"><i class="payment-icon">💵</i></div>
             <div class="detail-content">
               <span class="label">Amount Paid</span>
-              <span class="value">₱500</span>
+              <span class="value">{{
+                selectedBooking.price | currency : "PHP"
+              }}</span>
             </div>
           </div>
           <div class="detail-item">
             <div class="detail-icon"><i class="method-icon">💳</i></div>
             <div class="detail-content">
               <span class="label">Payment Method</span>
-              <span class="value">GCash</span>
+              <span class="value">{{ selectedBooking.paymentType }}</span>
             </div>
           </div>
         </div>
@@ -96,8 +163,8 @@
           <div class="detail-item">
             <div class="detail-icon"><i class="staff-icon">👤</i></div>
             <div class="detail-content">
-              <span class="label">Staff</span>
-              <span class="value">John Doe</span>
+              <span class="label">Vehicle Type</span>
+              <span class="value">{{ selectedBooking.vehicleType }}</span>
             </div>
           </div>
         </div>

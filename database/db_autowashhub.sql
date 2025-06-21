@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2025 at 07:10 AM
+-- Generation Time: Jun 15, 2025 at 10:54 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -106,7 +106,7 @@ INSERT INTO `employees` (`id`, `employee_id`, `first_name`, `last_name`, `email`
 --
 
 CREATE TABLE `services` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
@@ -114,8 +114,7 @@ CREATE TABLE `services` (
   `category` varchar(100) NOT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`)
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -123,40 +122,52 @@ CREATE TABLE `services` (
 --
 
 INSERT INTO `services` (`id`, `name`, `description`, `price`, `duration_minutes`, `category`, `is_active`, `created_at`, `updated_at`) VALUES
-(0, 'Basic Car Wash', 'Exterior wash with soap and water', 15.00, 20, 'Basic Wash', 1, '2025-06-11 07:38:15', '2025-06-11 07:38:15'),
-(0, 'Premium Wash', 'Exterior wash with wax and tire shine', 25.00, 30, 'Premium Wash', 1, '2025-06-11 07:38:15', '2025-06-11 07:38:15'),
-(0, 'Interior Vacuum', 'Complete interior vacuum and dusting', 20.00, 25, 'Additional Services', 1, '2025-06-11 07:38:15', '2025-06-11 07:38:15'),
-(0, '123', '123', 123.00, 123, 'Premium Wash', 1, '2025-06-11 07:39:53', '2025-06-11 07:39:53'),
-(0, '123123123', '123', 123123.00, 1231231, 'Premium Wash', 1, '2025-06-11 08:03:31', '2025-06-11 08:03:31');
+(2, '123', '123', 123.00, 123, 'Basic Wash', 1, '2025-06-14 05:46:01', '2025-06-14 05:50:44'),
+(3, 'basic ', 'a lot of e', 123.00, 123, 'Basic Wash', 1, '2025-06-14 11:18:43', '2025-06-14 11:18:43');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `admins`
+-- Indexes for table `services`
 --
-ALTER TABLE `admins`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `admin_id` (`admin_id`);
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `customers`
+-- AUTO_INCREMENT for dumped tables
 --
-ALTER TABLE `customers`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
 
 --
--- Indexes for table `employees`
+-- AUTO_INCREMENT for table `services`
 --
-ALTER TABLE `employees`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `employee_id` (`employee_id`);
+ALTER TABLE `services`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--
+-- Table structure for table `inventory`
+--
+
+CREATE TABLE `inventory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `image_url` varchar(255) NOT NULL,
+  `date_of_input` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inventory`
+--
+
+INSERT INTO `inventory` (`id`, `name`, `stock`, `image_url`, `date_of_input`) VALUES
+(1, 'Car Shampoo', 5, 'assets/images/car-shampoo.png', '2024-03-20 00:00:00');

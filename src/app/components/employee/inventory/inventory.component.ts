@@ -1,22 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AddInventoryModalComponent } from './add-inventory-modal.component';
 
 interface InventoryItem {
   id: number;
   name: string;
   stock: number;
   imageUrl: string;
+  dateOfInput?: string;
 }
 
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AddInventoryModalComponent],
   templateUrl: './inventory.component.html',
   styleUrl: './inventory.component.css',
 })
 export class InventoryComponent implements OnInit {
   inventoryItems: InventoryItem[] = [];
+  showAddModal = false;
 
   ngOnInit() {
     // Sample data - replace with actual API call in production
@@ -25,7 +28,8 @@ export class InventoryComponent implements OnInit {
         id: 1,
         name: 'Car Shampoo',
         stock: 5,
-        imageUrl: 'assets/images/car-shampoo.png', // Update with actual image path
+        imageUrl: 'assets/images/car-shampoo.png',
+        dateOfInput: '2024-03-20',
       },
     ];
   }
@@ -48,7 +52,21 @@ export class InventoryComponent implements OnInit {
   }
 
   addNewItem() {
-    // Implement add new item logic
-    console.log('Adding new item');
+    this.showAddModal = true;
+  }
+
+  onCloseModal() {
+    this.showAddModal = false;
+  }
+
+  onAddItem(newItem: any) {
+    const item: InventoryItem = {
+      id: this.inventoryItems.length + 1,
+      name: newItem.name,
+      stock: newItem.stock,
+      imageUrl: newItem.imageUrl,
+      dateOfInput: newItem.dateOfInput,
+    };
+    this.inventoryItems.push(item);
   }
 }

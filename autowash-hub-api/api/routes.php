@@ -63,6 +63,18 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+
+    if (strpos($request, 'get_bookings_by_customer') !== false) {
+        if (isset($_GET['customer_id'])) {
+            $customerId = $_GET['customer_id'];
+            $result = $get->get_bookings_by_customer($customerId);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Customer ID is required.']);
+        }
+        exit();
+    }
     
     if (strpos($request, 'services') !== false) {
         $result = $get->get_all_services();
@@ -114,6 +126,12 @@ if ($method === 'POST') {
     
     if (strpos($request, 'services') !== false) {
         $result = $post->add_service($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'create_booking') !== false) {
+        $result = $post->create_booking($data);
         echo json_encode($result);
         exit();
     }

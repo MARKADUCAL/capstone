@@ -1,7 +1,6 @@
 export interface BookingForm {
   vehicleType: string;
   services: string;
-  washingPoint: string;
   nickname: string;
   phone: string;
   washDate: string;
@@ -15,6 +14,9 @@ export interface Booking extends BookingForm {
   status: BookingStatus;
   dateCreated: string;
   price?: number;
+  serviceName?: string;
+  serviceDescription?: string;
+  serviceDuration?: number;
 }
 
 export enum BookingStatus {

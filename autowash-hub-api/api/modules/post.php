@@ -409,6 +409,59 @@ class Post extends GlobalMethods
         }
     }
 
+    public function create_booking($data) {
+        // Basic validation
+        if (
+            empty($data->customer_id) || 
+            empty($data->service_id) || 
+            empty($data->vehicle_type) || 
+            empty($data->nickname) || 
+            empty($data->phone) || 
+            empty($data->wash_date) || 
+            empty($data->wash_time) || 
+            empty($data->payment_type) ||
+            !isset($data->price)
+        ) {
+            return $this->sendPayload(null, "failed", "Missing required booking fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO bookings (customer_id, service_id, vehicle_type, nickname, phone, wash_date, wash_time, payment_type, price, notes) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute([
+                $data->customer_id,
+                $data->service_id,
+                $data->vehicle_type,
+                $data->nickname,
+                $data->phone,
+                $data->wash_date,
+                $data->wash_time,
+                $data->payment_type,
+                $data->price,
+                $data->notes ?? null
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $booking_id = $this->pdo->lastInsertId();
+                return $this->sendPayload(["booking_id" => $booking_id], "success", "Booking created successfully", 201);
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to create booking", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Booking creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
     public function add_service($data) {
         // Validate required fields
         if (empty($data->name) || empty($data->price) || empty($data->duration_minutes) || empty($data->category)) {
@@ -424,7 +477,7 @@ class Post extends GlobalMethods
             
             // Set is_active to 1 if true, 0 if false
             $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
-            
+
             $statement->execute([
                 $data->name,
                 $data->description ?? '',
@@ -503,5 +556,5 @@ class Post extends GlobalMethods
                 500
             );
         }
-    }
+	}
 }

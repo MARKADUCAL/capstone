@@ -152,5 +152,48 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_bookings_by_customer($customerId) {
+        try {
+            $sql = "SELECT 
+                        b.id,
+                        b.wash_date as washDate,
+                        b.wash_time as washTime,
+                        b.status,
+                        b.price,
+                        b.vehicle_type as vehicleType,
+                        b.payment_type as paymentType,
+                        b.notes,
+                        s.name as serviceName,
+                        s.description as serviceDescription,
+                        s.duration_minutes as serviceDuration
+                    FROM 
+                        bookings b
+                    JOIN 
+                        services s ON b.service_id = s.id
+                    WHERE 
+                        b.customer_id = ?
+                    ORDER BY 
+                        b.wash_date DESC, b.wash_time DESC";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$customerId]);
+            $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['bookings' => $bookings],
+                "success",
+                "Bookings retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve bookings: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

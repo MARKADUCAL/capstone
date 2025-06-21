@@ -14,7 +14,6 @@ import {
   VEHICLE_TYPES,
   PAYMENT_TYPES,
   BookingForm,
-  WASHING_POINTS,
   Booking,
   BookingStatus,
 } from '../../../models/booking.model';
@@ -52,16 +51,12 @@ export class AppointmentComponent implements OnInit {
   // Form options
   vehicleTypes = VEHICLE_TYPES;
   services: Service[] = [];
-  washingPoints = WASHING_POINTS.filter((point) => point.available).map(
-    (point) => point.name
-  );
   paymentTypes = PAYMENT_TYPES;
 
   // Booking form model
   bookingForm: BookingForm = {
     vehicleType: '',
     services: '',
-    washingPoint: '',
     nickname: '',
     phone: '',
     washDate: '',
@@ -130,7 +125,6 @@ export class AppointmentComponent implements OnInit {
     this.bookingForm = {
       vehicleType: '',
       services: '',
-      washingPoint: '',
       nickname: '',
       phone: '',
       washDate: '',
@@ -151,8 +145,32 @@ export class AppointmentComponent implements OnInit {
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    this.bookingService.createBooking(this.bookingForm).subscribe(
-      (booking) => {
+    const selectedService = this.services.find(
+      (s) => s.name === this.bookingForm.services
+    );
+
+    if (!selectedService) {
+      this.errorMessage = 'Invalid service selected.';
+      this.isSubmitting = false;
+      return;
+    }
+
+    // TODO: Get the actual customer_id from auth service
+    const bookingData = {
+      customer_id: 2, // Hardcoded customer_id
+      service_id: selectedService.id,
+      vehicle_type: this.bookingForm.vehicleType,
+      nickname: this.bookingForm.nickname,
+      phone: this.bookingForm.phone,
+      wash_date: this.bookingForm.washDate,
+      wash_time: this.bookingForm.washTime,
+      payment_type: this.bookingForm.paymentType,
+      price: selectedService.price,
+      notes: this.bookingForm.notes,
+    };
+
+    this.bookingService.createBooking(bookingData).subscribe(
+      (response) => {
         this.isSubmitting = false;
         this.successMessage = 'Booking created successfully!';
         this.loadBookings(); // Refresh the bookings list
@@ -178,11 +196,6 @@ export class AppointmentComponent implements OnInit {
 
     if (!this.bookingForm.services) {
       this.errorMessage = 'Please select a service';
-      return false;
-    }
-
-    if (!this.bookingForm.washingPoint) {
-      this.errorMessage = 'Please select a washing point';
       return false;
     }
 

@@ -37,4 +37,11 @@
   <div class="empty-state" *ngIf="inventoryItems.length === 0">
     <p>No inventory items available</p>
   </div>
+
+  <app-add-inventory-modal
+    *ngIf="showAddModal"
+    (closeModal)="onCloseModal()"
+    (addItem)="onAddItem($event)"
+  >
+  </app-add-inventory-modal>
 </div>

@@ -92,8 +92,6 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
         return 'Dashboard';
       case 'appointments':
         return 'Appointments';
-      case 'wash-services':
-        return 'Wash Services';
       case 'customer-records':
         return 'Customer Records';
       case 'inventory':

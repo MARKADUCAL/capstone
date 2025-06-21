@@ -18,7 +18,6 @@ export class BookingService {
       id: '1',
       vehicleType: 'Sedan',
       services: 'Premium Wash',
-      washingPoint: 'Downtown Location',
       nickname: 'John Doe',
       phone: '(123) 456-7890',
       washDate: '2023-12-15',
@@ -44,36 +43,33 @@ export class BookingService {
     );
   }
 
-  // Create a new booking
-  createBooking(bookingForm: BookingForm): Observable<Booking> {
-    // In a real app, this would call an API endpoint
-    // return this.http.post<Booking>('api/bookings', bookingForm);
-
-    // For now, mock a successful creation
-    const newBooking: Booking = {
-      ...bookingForm,
-      id: uuidv4(),
-      status: BookingStatus.PENDING,
-      dateCreated: new Date().toISOString(),
-      price: this.calculatePrice(bookingForm.services),
-    };
-
-    // Simulate some basic validation
-    if (!bookingForm.nickname || !bookingForm.phone) {
-      return throwError(() => new Error('Name and phone are required'));
-    }
-
-    // Add to mock bookings array (in real app this would be stored in the database)
-    this.mockBookings.push(newBooking);
-
-    return of(newBooking).pipe(
-      delay(800), // Simulate network delay
-      catchError((error) =>
-        throwError(
-          () => new Error('Failed to create booking: ' + error.message)
-        )
+  getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
+    return this.http
+      .get<any>(
+        `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
       )
-    );
+      .pipe(
+        map((response) => response.payload.bookings),
+        catchError((error) => {
+          console.error('Error fetching bookings:', error);
+          return throwError(() => new Error('Failed to load bookings.'));
+        })
+      );
+  }
+
+  // Create a new booking
+  createBooking(bookingData: any): Observable<any> {
+    // In a real app, this would call an API endpoint
+    return this.http
+      .post<any>(`${environment.apiUrl}/create_booking`, bookingData)
+      .pipe(
+        catchError((error) => {
+          console.error('Error creating booking:', error);
+          return throwError(
+            () => new Error('Failed to create booking. Please try again later.')
+          );
+        })
+      );
   }
 
   // Cancel a booking

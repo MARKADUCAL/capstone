@@ -32,7 +32,6 @@ import { ProfileComponent as CustomerProfileComponent } from './components/custo
 // Employee components
 import { DashboardComponent as EmployeeDashboardComponent } from './components/employee/dashboard/dashboard.component';
 import { AppointmentsComponent } from './components/employee/appointments/appointments.component';
-import { WashServicesComponent } from './components/employee/wash-services/wash-services.component';
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
@@ -73,7 +72,6 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: EmployeeDashboardComponent },
       { path: 'appointments', component: AppointmentsComponent },
-      { path: 'wash-services', component: WashServicesComponent },
       { path: 'customer-records', component: CustomerRecordsComponent },
       { path: 'inventory', component: InventoryComponent },
       { path: 'profile', component: EmployeeProfileComponent },
