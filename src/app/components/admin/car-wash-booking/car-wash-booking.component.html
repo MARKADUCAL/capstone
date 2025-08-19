@@ -1,12 +1,16 @@
 <div class="bookings-container">
   <div class="header">
     <div class="header-left">
-      <mat-select [(ngModel)]="selectedStatus" class="status-filter">
-        <mat-option value="All">All</mat-option>
-        <mat-option value="Pending">Pending</mat-option>
-        <mat-option value="Approved">Approved</mat-option>
-        <mat-option value="Rejected">Rejected</mat-option>
-      </mat-select>
+      <mat-form-field appearance="outline" class="status-filter">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Pending">Pending</mat-option>
+          <mat-option value="Approved">Approved</mat-option>
+          <mat-option value="Rejected">Rejected</mat-option>
+          <mat-option value="Completed">Completed</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
     <div class="header-right">
       <button mat-raised-button color="primary" (click)="addSlotBooking()">
