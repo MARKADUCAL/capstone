@@ -77,4 +77,94 @@
     }
   </div>
   }
+
+  <!-- View User Modal -->
+  <div class="modal" [class.show-modal]="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>User Details</h2>
+        <span class="close-btn" (click)="closeViewUserModal()">&times;</span>
+      </div>
+      <div class="modal-body" *ngIf="selectedUser">
+        <div class="user-details-view">
+          <p><strong>Full Name:</strong> {{ selectedUser.name }}</p>
+          <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedUser.phone }}</p>
+          <p>
+            <strong>Registration Date:</strong>
+            {{ selectedUser.registrationDate }}
+          </p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeViewUserModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal" [class.show-modal]="isEditModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit User</h2>
+        <span class="close-btn" (click)="closeEditUserModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form class="user-form" (ngSubmit)="submitEditUserForm()">
+          <div class="form-group">
+            <label for="edit-name">Full Name</label>
+            <input
+              type="text"
+              id="edit-name"
+              name="edit-name"
+              [(ngModel)]="editUserData.name"
+              required
+              placeholder="Enter user name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-email">Email</label>
+            <input
+              type="email"
+              id="edit-email"
+              name="edit-email"
+              [(ngModel)]="editUserData.email"
+              required
+              placeholder="Enter email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-phone">Phone Number</label>
+            <input
+              type="tel"
+              id="edit-phone"
+              name="edit-phone"
+              [(ngModel)]="editUserData.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeEditUserModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

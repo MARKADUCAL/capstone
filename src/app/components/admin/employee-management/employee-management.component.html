@@ -156,4 +156,121 @@
       </div>
     </div>
   </div>
+
+  <!-- View Employee Modal -->
+  <div class="modal" [class.show-modal]="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Employee Details</h2>
+        <span class="close-btn" (click)="closeViewEmployeeModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body" *ngIf="selectedEmployee">
+        <div class="employee-details-view">
+          <div class="employee-avatar-large">
+            {{ getUserInitials(selectedEmployee.name) }}
+          </div>
+          <p><strong>Full Name:</strong> {{ selectedEmployee.name }}</p>
+          <p><strong>Role:</strong> {{ selectedEmployee.role }}</p>
+          <p><strong>Email:</strong> {{ selectedEmployee.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedEmployee.phone }}</p>
+          <p><strong>ID:</strong> {{ selectedEmployee.employeeId }}</p>
+          <p>
+            <strong>Registration Date:</strong>
+            {{ selectedEmployee.registrationDate }}
+          </p>
+          <p><strong>Status:</strong> {{ selectedEmployee.status }}</p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeViewEmployeeModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Employee Modal -->
+  <div class="modal" [class.show-modal]="isEditModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Employee</h2>
+        <span class="close-btn" (click)="closeEditEmployeeModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body">
+        <form class="employee-form" (ngSubmit)="submitEditEmployeeForm()">
+          <div class="form-group">
+            <label for="edit-name">Full Name</label>
+            <input
+              type="text"
+              id="edit-name"
+              name="edit-name"
+              [(ngModel)]="editEmployeeData.name"
+              required
+              placeholder="Enter employee name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-role">Role</label>
+            <select
+              id="edit-role"
+              name="edit-role"
+              [(ngModel)]="editEmployeeData.role"
+              required
+            >
+              <option value="" disabled>Select role</option>
+              <option value="Carwasher">Carwasher</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-phone">Phone Number</label>
+            <input
+              type="tel"
+              id="edit-phone"
+              name="edit-phone"
+              [(ngModel)]="editEmployeeData.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-status">Status</label>
+            <select
+              id="edit-status"
+              name="edit-status"
+              [(ngModel)]="editEmployeeData.status"
+              required
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeEditEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

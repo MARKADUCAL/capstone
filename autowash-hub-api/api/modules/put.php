@@ -150,4 +150,70 @@ class Put {
             );
         }
     }
+
+    public function update_booking_status($data) {
+        // Validate required fields
+        if (!isset($data->id) || empty($data->id)) {
+            return $this->sendPayload(null, "failed", "Booking ID is required", 400);
+        }
+        if (!isset($data->status) || empty($data->status)) {
+            return $this->sendPayload(null, "failed", "Status is required", 400);
+        }
+
+        // Normalize and validate status
+        $allowed = ["Pending", "Approved", "Rejected", "Completed"];
+        $status = ucfirst(strtolower($data->status));
+        if (!in_array($status, $allowed)) {
+            return $this->sendPayload(null, "failed", "Invalid status value", 400);
+        }
+
+        try {
+            // Ensure booking exists
+            $sql = "SELECT COUNT(*) FROM bookings WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->id]);
+            $count = $stmt->fetchColumn();
+            if ($count == 0) {
+                return $this->sendPayload(null, "failed", "Booking not found", 404);
+            }
+
+            // Update status
+            $sql = "UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$status, $data->id]);
+
+            // Return the updated booking row
+            $sql = "SELECT 
+                        b.id,
+                        b.wash_date as washDate,
+                        b.wash_time as washTime,
+                        b.status,
+                        b.price,
+                        b.vehicle_type as vehicleType,
+                        b.payment_type as paymentType,
+                        b.nickname,
+                        TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
+                        s.name as serviceName,
+                        s.description as serviceDescription,
+                        s.duration_minutes as serviceDuration
+                    FROM bookings b
+                    LEFT JOIN services s ON b.service_id = s.id
+                    LEFT JOIN customers c ON b.customer_id = c.id
+                    WHERE b.id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->id]);
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $this->sendPayload([
+                'booking' => $booking
+            ], "success", "Booking status updated successfully", 200);
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to update booking status: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 } 

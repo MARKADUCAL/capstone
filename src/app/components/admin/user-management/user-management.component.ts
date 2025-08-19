@@ -38,6 +38,19 @@ export class UserManagementComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
 
+  // State for view and edit modals
+  selectedUser: User | null = null;
+  isViewModalOpen: boolean = false;
+  isEditModalOpen: boolean = false;
+  editUserData: User = {
+    id: 0,
+    name: '',
+    email: '',
+    phone: '',
+    registrationDate: '',
+    imageUrl: undefined,
+  };
+
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -101,11 +114,31 @@ export class UserManagementComponent implements OnInit {
   }
 
   viewUser(user: User): void {
-    // Implement view user details functionality
+    this.selectedUser = user;
+    this.isViewModalOpen = true;
+  }
+
+  closeViewUserModal(): void {
+    this.isViewModalOpen = false;
+    this.selectedUser = null;
   }
 
   editUser(user: User): void {
-    // Implement edit functionality
+    this.editUserData = { ...user };
+    this.isEditModalOpen = true;
+  }
+
+  closeEditUserModal(): void {
+    this.isEditModalOpen = false;
+  }
+
+  submitEditUserForm(): void {
+    const index = this.users.findIndex((u) => u.id === this.editUserData.id);
+    if (index > -1) {
+      this.users[index] = { ...this.editUserData };
+      this.showNotification('User updated successfully');
+    }
+    this.closeEditUserModal();
   }
 
   deleteUser(user: User): void {

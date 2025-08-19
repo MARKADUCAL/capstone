@@ -16,10 +16,10 @@
     </button>
     <button
       class="filter-btn"
-      [class.active]="currentFilter === 'confirmed'"
-      (click)="setFilter('confirmed')"
+      [class.active]="currentFilter === 'approved'"
+      (click)="setFilter('approved')"
     >
-      Confirmed
+      Approved
     </button>
     <button
       class="filter-btn"
@@ -56,29 +56,33 @@
     <p>No transactions match the current filter.</p>
   </div>
 
-  <div class="transaction-card" *ngFor="let booking of filteredBookings">
-    <p><strong>Date :</strong> {{ booking.washDate | date : "longDate" }}</p>
-    <p><strong>Time :</strong> {{ booking.washTime }}</p>
-    <p><strong>Service Availed :</strong> {{ booking.serviceName }}</p>
-    <p><strong>Amount Paid :</strong> {{ booking.price | currency : "PHP" }}</p>
-    <p><strong>Payment Method :</strong> {{ booking.paymentType }}</p>
-    <p>
-      <strong>Status :</strong>
-      <span
-        [ngClass]="{
-          'status-completed': booking.status === 'completed',
-          'status-in-progress': booking.status === 'confirmed',
-          'status-pending': booking.status === 'pending'
-        }"
-        >{{ booking.status }}</span
-      >
-    </p>
-
-    <div class="buttons">
-      <button class="view-btn" (click)="openViewModal(booking)">View</button>
-      <button class="feedback-btn" (click)="openFeedbackModal()">
-        Feedback
-      </button>
+  <div class="transaction-list-horizontal">
+    <div class="transaction-card" *ngFor="let booking of filteredBookings">
+      <p><strong>Date :</strong> {{ booking.washDate | date : "longDate" }}</p>
+      <p><strong>Time :</strong> {{ booking.washTime }}</p>
+      <p><strong>Service Availed :</strong> {{ booking.serviceName }}</p>
+      <p>
+        <strong>Amount Paid :</strong> {{ booking.price | currency : "PHP" }}
+      </p>
+      <p><strong>Payment Method :</strong> {{ booking.paymentType }}</p>
+      <p>
+        <strong>Status :</strong>
+        <span
+          [ngClass]="{
+            'status-completed': normalizeStatus(booking.status) === 'completed',
+            'status-in-progress':
+              normalizeStatus(booking.status) === 'approved',
+            'status-pending': normalizeStatus(booking.status) === 'pending'
+          }"
+          >{{ displayStatus(booking.status) }}</span
+        >
+      </p>
+      <div class="buttons">
+        <button class="view-btn" (click)="openViewModal(booking)">View</button>
+        <button class="feedback-btn" (click)="openFeedbackModal()">
+          Feedback
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -98,7 +102,17 @@
             <span class="value">#{{ selectedBooking.id }}</span>
           </div>
           <div class="transaction-status">
-            <span class="status-completed">{{ selectedBooking.status }}</span>
+            <span
+              [ngClass]="{
+                'status-completed':
+                  normalizeStatus(selectedBooking.status) === 'completed',
+                'status-in-progress':
+                  normalizeStatus(selectedBooking.status) === 'approved',
+                'status-pending':
+                  normalizeStatus(selectedBooking.status) === 'pending'
+              }"
+              >{{ displayStatus(selectedBooking.status) }}</span
+            >
           </div>
         </div>
 

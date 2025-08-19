@@ -81,6 +81,29 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+
+    if (strpos($request, 'get_all_bookings') !== false) {
+        $result = $get->get_all_bookings();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_booking_count') !== false) {
+        $result = $get->get_booking_count();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_completed_booking_count') !== false) {
+        $result = $get->get_completed_booking_count();
+        echo json_encode($result);
+        exit();
+    }
+    if (strpos($request, 'get_pending_booking_count') !== false) {
+        $result = $get->get_pending_booking_count();
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request
@@ -156,6 +179,12 @@ if ($method === 'PUT') {
     if (strpos($request, 'services') !== false) {
         // Process the service update
         $result = $put->update_service($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_booking_status') !== false) {
+        $result = $put->update_booking_status($data);
         echo json_encode($result);
         exit();
     }

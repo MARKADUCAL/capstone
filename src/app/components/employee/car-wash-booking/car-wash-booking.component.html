@@ -6,16 +6,13 @@
         <mat-option value="Pending">Pending</mat-option>
         <mat-option value="Approved">Approved</mat-option>
         <mat-option value="Rejected">Rejected</mat-option>
+        <mat-option value="Completed">Completed</mat-option>
       </mat-select>
     </div>
     <div class="header-right">
-      <button mat-raised-button color="primary" (click)="addSlotBooking()">
-        <mat-icon>add</mat-icon>
-        Add Slot Booking
-      </button>
-      <button mat-raised-button color="accent" (click)="addBooking()">
-        <mat-icon>add</mat-icon>
-        Add New Booking
+      <button mat-raised-button color="primary" (click)="refreshBookings()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
       </button>
     </div>
   </div>

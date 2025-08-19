@@ -43,6 +43,17 @@ export class BookingService {
     );
   }
 
+  // Admin: Get all bookings
+  getAllBookings(): Observable<any[]> {
+    return this.http.get<any>(`${environment.apiUrl}/get_all_bookings`).pipe(
+      map((response) => response.payload.bookings),
+      catchError((error) => {
+        console.error('Error fetching all bookings:', error);
+        return throwError(() => new Error('Failed to load bookings.'));
+      })
+    );
+  }
+
   getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
     return this.http
       .get<any>(
@@ -149,9 +160,49 @@ export class BookingService {
   }
 
   updateBookingStatus(
-    bookingId: string,
-    status: BookingStatus
-  ): Observable<Booking> {
-    return this.http.patch<Booking>(`${this.apiUrl}/${bookingId}`, { status });
+    bookingId: number | string,
+    status: BookingStatus | 'Pending' | 'Approved' | 'Rejected' | 'Completed'
+  ): Observable<any> {
+    const normalized = this.normalizeStatus(status);
+    return this.http
+      .put<any>(`${environment.apiUrl}/update_booking_status`, {
+        id: bookingId,
+        status: normalized,
+      })
+      .pipe(
+        map((response) => response.payload.booking),
+        catchError((error) => {
+          console.error('Error updating booking status:', error);
+          return throwError(
+            () => new Error('Failed to update booking status.')
+          );
+        })
+      );
+  }
+
+  private normalizeStatus(
+    status: BookingStatus | 'Pending' | 'Approved' | 'Rejected' | 'Completed'
+  ): 'Pending' | 'Approved' | 'Rejected' | 'Completed' {
+    if (
+      status === 'Pending' ||
+      status === 'Approved' ||
+      status === 'Rejected' ||
+      status === 'Completed'
+    ) {
+      return status;
+    }
+
+    switch (status) {
+      case BookingStatus.PENDING:
+        return 'Pending';
+      case BookingStatus.CONFIRMED:
+        return 'Approved';
+      case BookingStatus.COMPLETED:
+        return 'Completed';
+      case BookingStatus.CANCELLED:
+        return 'Rejected';
+      default:
+        return 'Pending';
+    }
   }
 }

@@ -46,7 +46,6 @@ interface CarWashBooking {
 })
 export class CarWashBookingComponent implements OnInit {
   bookings: CarWashBooking[] = [];
-
   selectedStatus: string = 'All';
 
   constructor(
@@ -59,12 +58,8 @@ export class CarWashBookingComponent implements OnInit {
     this.loadBookings();
   }
 
-  addBooking(): void {
-    // Implement add booking functionality
-  }
-
-  addSlotBooking(): void {
-    // Implement add slot booking functionality
+  refreshBookings(): void {
+    this.loadBookings();
   }
 
   approveBooking(booking: CarWashBooking): void {

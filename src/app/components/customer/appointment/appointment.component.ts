@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -71,6 +72,7 @@ export class AppointmentComponent implements OnInit {
   constructor(
     private bookingService: BookingService,
     private serviceService: ServiceService,
+    private route: ActivatedRoute,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -80,6 +82,17 @@ export class AppointmentComponent implements OnInit {
     if (this.isBrowser) {
       this.loadBookings();
       this.loadServices();
+
+      // Check for service query parameter
+      this.route.queryParams.subscribe((params) => {
+        if (params['service']) {
+          // Pre-select the service when navigating from dashboard
+          setTimeout(() => {
+            this.bookingForm.services = params['service'];
+            this.openBookingModal();
+          }, 500); // Small delay to ensure services are loaded
+        }
+      });
     }
   }
 

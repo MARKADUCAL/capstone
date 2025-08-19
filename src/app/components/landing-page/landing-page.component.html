@@ -14,9 +14,6 @@
       <li><a href="#hero" (click)="closeMobileMenu()">Home</a></li>
       <li><a href="#services" (click)="closeMobileMenu()">Services</a></li>
       <li><a href="#pricing" (click)="closeMobileMenu()">Pricing</a></li>
-      <li>
-        <a href="#location-section" (click)="closeMobileMenu()">Location</a>
-      </li>
       <li><a href="#gallery" (click)="closeMobileMenu()">Gallery</a></li>
       <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
     </ul>
@@ -98,37 +95,6 @@
     </div>
     <div class="step-image">
       <img src="assets/step3.png" alt="Step 3: Determine Price" />
-    </div>
-  </div>
-</section>
-
-<!-- Location Section -->
-<section class="location-section" id="location-section">
-  <h2>Location</h2>
-  <div class="location-cards">
-    <div class="location-card">
-      <div class="location-icon">📍</div>
-      <h3>Elite Auto Spa</h3>
-      <p>1234 Sunset Avenue, Downtown, Los Angeles, CA 90012</p>
-      <p>Call: 9876543210</p>
-    </div>
-    <div class="location-card">
-      <div class="location-icon">📍</div>
-      <h3>Sparkle Car Wash</h3>
-      <p>1234 Sunset Avenue, Downtown, Los Angeles, CA 90012</p>
-      <p>Call: 9876543210</p>
-    </div>
-    <div class="location-card">
-      <div class="location-icon">📍</div>
-      <h3>AquaShine Auto Spa</h3>
-      <p>1234 Sunset Avenue, Downtown, Los Angeles, CA 90012</p>
-      <p>Call: 9876543210</p>
-    </div>
-    <div class="location-card">
-      <div class="location-icon">📍</div>
-      <h3>Glide & Shine Car Wash</h3>
-      <p>1234 Sunset Avenue, Downtown, Los Angeles, CA 90012</p>
-      <p>Call: 9876543210</p>
     </div>
   </div>
 </section>
@@ -236,7 +202,6 @@
         <li><a href="#hero">Home</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#location-section">Location</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -275,8 +240,12 @@
       <p>Do you want to proceed with booking?</p>
     </div>
     <div class="modal-footer">
-      <button class="modal-btn modal-btn-ok" (click)="confirmBooking()">OK</button>
-      <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">Cancel</button>
+      <button class="modal-btn modal-btn-ok" (click)="confirmBooking()">
+        OK
+      </button>
+      <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">
+        Cancel
+      </button>
     </div>
   </div>
 </div>

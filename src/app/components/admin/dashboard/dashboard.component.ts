@@ -46,7 +46,7 @@ interface RecentBooking {
 export class DashboardComponent implements OnInit {
   businessStats: BusinessStats = {
     totalCustomers: 0,
-    totalBookings: 150,
+    totalBookings: 0,
     totalEmployees: 8,
     customerSatisfaction: 4.7,
   };
@@ -115,6 +115,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadCustomerCount();
     this.loadEmployeeCount();
+    this.loadBookingCount();
 
     // Only initialize charts if in browser environment
     if (isPlatformBrowser(this.platformId)) {
@@ -164,6 +165,25 @@ export class DashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error fetching employee count:', error);
         // Keep the default value if fetch fails
+      },
+    });
+  }
+
+  private loadBookingCount(): void {
+    this.http.get(`${this.apiUrl}/get_booking_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.businessStats.totalBookings = response.payload.total_bookings;
+        } else {
+          this.businessStats.totalBookings = 0;
+        }
+      },
+      error: () => {
+        this.businessStats.totalBookings = 0;
       },
     });
   }

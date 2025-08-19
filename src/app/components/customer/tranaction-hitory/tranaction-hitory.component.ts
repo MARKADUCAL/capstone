@@ -44,10 +44,30 @@ export class TranactionHitoryComponent implements OnInit {
     if (this.currentFilter === 'all') {
       this.filteredBookings = this.bookings;
     } else {
-      this.filteredBookings = this.bookings.filter(
-        (booking) => booking.status.toLowerCase() === this.currentFilter
-      );
+      this.filteredBookings = this.bookings.filter((booking) => {
+        const normalized = this.normalizeStatus(booking.status);
+        return normalized === this.currentFilter;
+      });
     }
+  }
+
+  displayStatus(status: string): string {
+    const raw = (status ?? '').toString().trim();
+    if (!raw) return 'pending';
+    const s = this.normalizeStatus(raw);
+    return s || 'pending';
+  }
+
+  normalizeStatus(
+    status: string
+  ): 'pending' | 'approved' | 'completed' | 'cancelled' | 'rejected' | string {
+    const s = (status ?? '').toString().trim().toLowerCase();
+    if (s === 'confirmed' || s === 'approved') return 'approved';
+    if (s === 'cancelled' || s === 'canceled' || s === 'rejected')
+      return 'cancelled';
+    if (s === 'completed' || s === 'complete') return 'completed';
+    if (s === 'pending') return 'pending';
+    return s;
   }
 
   loadBookings(): void {
@@ -60,7 +80,16 @@ export class TranactionHitoryComponent implements OnInit {
           this.isLoading = true;
           this.bookingService.getBookingsByCustomerId(customerId).subscribe({
             next: (bookings) => {
-              this.bookings = bookings;
+              // Sort bookings by washDate and washTime descending (newest first)
+              this.bookings = bookings.sort((a: any, b: any) => {
+                const dateA = new Date(
+                  a.washDate + 'T' + (a.washTime || '00:00:00')
+                );
+                const dateB = new Date(
+                  b.washDate + 'T' + (b.washTime || '00:00:00')
+                );
+                return dateB.getTime() - dateA.getTime();
+              });
               this.applyFilter();
               this.isLoading = false;
             },

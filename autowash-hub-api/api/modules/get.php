@@ -153,6 +153,50 @@ class Get extends GlobalMethods {
         }
     }
 
+    public function get_all_bookings() {
+        try {
+            $sql = "SELECT 
+                        b.id,
+                        b.wash_date as washDate,
+                        b.wash_time as washTime,
+                        b.status,
+                        b.price,
+                        b.vehicle_type as vehicleType,
+                        b.payment_type as paymentType,
+                        b.nickname,
+                        TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
+                        s.name as serviceName,
+                        s.description as serviceDescription,
+                        s.duration_minutes as serviceDuration
+                    FROM 
+                        bookings b
+                    LEFT JOIN 
+                        services s ON b.service_id = s.id
+                    LEFT JOIN 
+                        customers c ON b.customer_id = c.id
+                    ORDER BY 
+                        b.wash_date DESC, b.wash_time DESC";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $this->sendPayload(
+                ['bookings' => $bookings],
+                "success",
+                "Bookings retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve bookings: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
     public function get_bookings_by_customer($customerId) {
         try {
             $sql = "SELECT 
@@ -191,6 +235,73 @@ class Get extends GlobalMethods {
                 null,
                 "failed",
                 "Failed to retrieve bookings: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function get_booking_count() {
+        try {
+            $sql = "SELECT COUNT(*) as total_bookings FROM bookings";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $this->sendPayload(
+                ['total_bookings' => $result['total_bookings']],
+                "success",
+                "Booking count retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve booking count: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function get_completed_booking_count() {
+        try {
+            $sql = "SELECT COUNT(*) as completed_bookings FROM bookings WHERE status = 'Completed'";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $this->sendPayload(
+                ['completed_bookings' => $result['completed_bookings']],
+                "success",
+                "Completed booking count retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve completed booking count: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function get_pending_booking_count() {
+        try {
+            $sql = "SELECT COUNT(*) as pending_bookings FROM bookings WHERE status = 'Pending'";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $this->sendPayload(
+                ['pending_bookings' => $result['pending_bookings']],
+                "success",
+                "Pending booking count retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve pending booking count: " . $e->getMessage(),
                 500
             );
         }

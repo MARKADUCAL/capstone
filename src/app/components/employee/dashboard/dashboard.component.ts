@@ -7,6 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { Chart } from 'chart.js/auto';
+import { HttpClient } from '@angular/common/http';
 
 interface Task {
   id: number;
@@ -40,9 +41,9 @@ interface DailyStats {
 })
 export class DashboardComponent implements OnInit {
   dailyStats: DailyStats = {
-    totalBookings: 12,
-    completedTasks: 8,
-    pendingTasks: 4,
+    totalBookings: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
     customerRating: 4.5,
   };
 
@@ -87,9 +88,67 @@ export class DashboardComponent implements OnInit {
 
   private taskChart: Chart | undefined;
   private ratingChart: Chart | undefined;
+  private apiUrl = 'http://localhost/autowash-hub-api/api';
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loadBookingStats();
     this.initializeCharts();
+  }
+
+  private loadBookingStats(): void {
+    // Total Bookings
+    this.http.get(`${this.apiUrl}/get_booking_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.dailyStats.totalBookings = response.payload.total_bookings;
+        } else {
+          this.dailyStats.totalBookings = 0;
+        }
+      },
+      error: () => {
+        this.dailyStats.totalBookings = 0;
+      },
+    });
+    // Completed Bookings
+    this.http.get(`${this.apiUrl}/get_completed_booking_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.dailyStats.completedTasks = response.payload.completed_bookings;
+        } else {
+          this.dailyStats.completedTasks = 0;
+        }
+      },
+      error: () => {
+        this.dailyStats.completedTasks = 0;
+      },
+    });
+    // Pending Bookings
+    this.http.get(`${this.apiUrl}/get_pending_booking_count`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.dailyStats.pendingTasks = response.payload.pending_bookings;
+        } else {
+          this.dailyStats.pendingTasks = 0;
+        }
+      },
+      error: () => {
+        this.dailyStats.pendingTasks = 0;
+      },
+    });
   }
 
   private initializeCharts(): void {

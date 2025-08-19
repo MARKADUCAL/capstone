@@ -41,6 +41,14 @@ export class EmployeeManagementComponent implements OnInit {
   error: string | null = null;
   private apiUrl = environment.apiUrl;
 
+  // Add state for view modal
+  selectedEmployee: Employee | null = null;
+  isViewModalOpen: boolean = false;
+
+  // Add state for edit modal
+  isEditModalOpen = false;
+  editEmployeeData: Employee = this.createEmptyEmployee();
+
   constructor(
     private snackBar: MatSnackBar,
     private http: HttpClient,
@@ -141,7 +149,30 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   editEmployee(employee: Employee): void {
-    // Implement edit functionality
+    this.editEmployeeData = { ...employee };
+    this.isEditModalOpen = true;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeEditEmployeeModal(): void {
+    this.isEditModalOpen = false;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  submitEditEmployeeForm(): void {
+    // Find the employee in the array and update it
+    const index = this.employees.findIndex(
+      (e) => e.id === this.editEmployeeData.id
+    );
+    if (index > -1) {
+      this.employees[index] = { ...this.editEmployeeData };
+      this.showNotification('Employee updated successfully');
+    }
+    this.closeEditEmployeeModal();
   }
 
   deleteEmployee(employee: Employee): void {
@@ -153,7 +184,19 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   viewEmployee(employee: Employee): void {
-    // Implement view employee details functionality
+    this.selectedEmployee = employee;
+    this.isViewModalOpen = true;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeViewEmployeeModal(): void {
+    this.isViewModalOpen = false;
+    this.selectedEmployee = null;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
   getUserInitials(name: string): string {

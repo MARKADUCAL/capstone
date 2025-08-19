@@ -415,3 +415,28 @@ body {
 .status-pending {
   color: #dc3545; /* Red */
 }
+
+.transaction-list-horizontal {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  gap: 16px;
+  padding-bottom: 10px;
+  width: 100%;
+}
+
+.transaction-card {
+  min-width: 350px;
+  max-width: 350px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 480px) {
+  .transaction-card {
+    min-width: 260px;
+    max-width: 260px;
+  }
+  .transaction-list-horizontal {
+    gap: 8px;
+  }
+}

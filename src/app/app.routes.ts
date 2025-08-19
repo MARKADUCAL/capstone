@@ -24,14 +24,14 @@ import { ProfileComponent as AdminProfileComponent } from './components/admin/pr
 import { ServiceManagementComponent } from './components/admin/service-management/service-management.component';
 
 // Customer components
-import { ServicesPricingComponent } from './components/customer/services-pricing/services-pricing.component';
+import { CustomerDashboardComponent } from './components/customer/services-pricing/customer-dashboard.component';
 import { AppointmentComponent } from './components/customer/appointment/appointment.component';
 import { TranactionHitoryComponent } from './components/customer/tranaction-hitory/tranaction-hitory.component';
 import { ProfileComponent as CustomerProfileComponent } from './components/customer/profile/profile.component';
 
 // Employee components
 import { DashboardComponent as EmployeeDashboardComponent } from './components/employee/dashboard/dashboard.component';
-import { AppointmentsComponent } from './components/employee/appointments/appointments.component';
+import { CarWashBookingComponent as EmployeeCarWashBookingComponent } from './components/employee/car-wash-booking/car-wash-booking.component';
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
@@ -71,7 +71,7 @@ export const routes: Routes = [
     component: EmployeeLayoutComponent,
     children: [
       { path: 'dashboard', component: EmployeeDashboardComponent },
-      { path: 'appointments', component: AppointmentsComponent },
+      { path: 'car-wash-booking', component: EmployeeCarWashBookingComponent },
       { path: 'customer-records', component: CustomerRecordsComponent },
       { path: 'inventory', component: InventoryComponent },
       { path: 'profile', component: EmployeeProfileComponent },
@@ -94,7 +94,7 @@ export const routes: Routes = [
       },
       {
         path: 'services',
-        component: ServicesPricingComponent,
+        component: CustomerDashboardComponent,
       },
       { path: 'tranaction-hitory', component: TranactionHitoryComponent },
       { path: '', redirectTo: 'services', pathMatch: 'full' },
