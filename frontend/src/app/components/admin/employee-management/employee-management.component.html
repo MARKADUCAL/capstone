@@ -1,0 +1,276 @@
+<div class="employee-container">
+  <div class="header">
+    <h2>Employee Management</h2>
+    <button mat-raised-button color="primary" (click)="openAddEmployeeModal()">
+      <mat-icon>add</mat-icon>
+      Add New Employee
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading-container">
+    <p>Loading employees...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error) {
+  <div class="error-container">
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadEmployees()">
+      Try Again
+    </button>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && !error && employees.length === 0) {
+  <div class="empty-container">
+    <p>No employees found.</p>
+  </div>
+  }
+
+  <!-- Employees Grid -->
+  @if (!loading && !error && employees.length > 0) {
+  <div class="employee-grid">
+    @for (employee of employees; track employee.id) {
+    <mat-card class="employee-card" [ngClass]="employee.status.toLowerCase()">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <div class="user-avatar-placeholder">
+            {{ getUserInitials(employee.name) }}
+          </div>
+        </div>
+        <mat-card-title>{{ employee.name }}</mat-card-title>
+        <mat-card-subtitle>Role: {{ employee.role }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="employee-details">
+          <p><mat-icon>email</mat-icon> {{ employee.email }}</p>
+          <p><mat-icon>phone</mat-icon> {{ employee.phone }}</p>
+          <p><mat-icon>badge</mat-icon> ID: {{ employee.employeeId }}</p>
+          <p>
+            <mat-icon>calendar_today</mat-icon> {{ employee.registrationDate }}
+          </p>
+          <p>
+            <mat-icon>fiber_manual_record</mat-icon> Status:
+            {{ employee.status }}
+          </p>
+        </div>
+      </mat-card-content>
+
+      <div class="action-buttons">
+        <button class="action-btn view-btn" (click)="viewEmployee(employee)">
+          View
+        </button>
+        <button class="action-btn edit-btn" (click)="editEmployee(employee)">
+          Edit
+        </button>
+        <button
+          class="action-btn delete-btn"
+          (click)="deleteEmployee(employee)"
+        >
+          Delete
+        </button>
+      </div>
+    </mat-card>
+    }
+  </div>
+  }
+
+  <!-- Add Employee Modal -->
+  <div class="modal" [class.show-modal]="isAddModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Employee</h2>
+        <span class="close-btn" (click)="closeAddEmployeeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form class="employee-form" (ngSubmit)="submitEmployeeForm()">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              [(ngModel)]="newEmployee.name"
+              required
+              placeholder="Enter employee name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select
+              id="role"
+              name="role"
+              [(ngModel)]="newEmployee.role"
+              required
+            >
+              <option value="" disabled selected>Select role</option>
+              <option value="Carwasher">Carwasher</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              [(ngModel)]="newEmployee.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              [(ngModel)]="newEmployee.status"
+              required
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeAddEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Employee Modal -->
+  <div class="modal" [class.show-modal]="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Employee Details</h2>
+        <span class="close-btn" (click)="closeViewEmployeeModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body" *ngIf="selectedEmployee">
+        <div class="employee-details-view">
+          <div class="employee-avatar-large">
+            {{ getUserInitials(selectedEmployee.name) }}
+          </div>
+          <p><strong>Full Name:</strong> {{ selectedEmployee.name }}</p>
+          <p><strong>Role:</strong> {{ selectedEmployee.role }}</p>
+          <p><strong>Email:</strong> {{ selectedEmployee.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedEmployee.phone }}</p>
+          <p><strong>ID:</strong> {{ selectedEmployee.employeeId }}</p>
+          <p>
+            <strong>Registration Date:</strong>
+            {{ selectedEmployee.registrationDate }}
+          </p>
+          <p><strong>Status:</strong> {{ selectedEmployee.status }}</p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeViewEmployeeModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Employee Modal -->
+  <div class="modal" [class.show-modal]="isEditModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Employee</h2>
+        <span class="close-btn" (click)="closeEditEmployeeModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body">
+        <form class="employee-form" (ngSubmit)="submitEditEmployeeForm()">
+          <div class="form-group">
+            <label for="edit-name">Full Name</label>
+            <input
+              type="text"
+              id="edit-name"
+              name="edit-name"
+              [(ngModel)]="editEmployeeData.name"
+              required
+              placeholder="Enter employee name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-role">Role</label>
+            <select
+              id="edit-role"
+              name="edit-role"
+              [(ngModel)]="editEmployeeData.role"
+              required
+            >
+              <option value="" disabled>Select role</option>
+              <option value="Carwasher">Carwasher</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Manager">Manager</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-phone">Phone Number</label>
+            <input
+              type="tel"
+              id="edit-phone"
+              name="edit-phone"
+              [(ngModel)]="editEmployeeData.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-status">Status</label>
+            <select
+              id="edit-status"
+              name="edit-status"
+              [(ngModel)]="editEmployeeData.status"
+              required
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeEditEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

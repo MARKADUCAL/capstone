@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/autowash-hub/server/server.mjs",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/dist/autowash-hub/browser/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/autowash-hub/server/server.mjs"
+    }
+  ],
+  "functions": {
+    "dist/autowash-hub/server/server.mjs": {
+      "maxDuration": 30
+    }
+  }
+}

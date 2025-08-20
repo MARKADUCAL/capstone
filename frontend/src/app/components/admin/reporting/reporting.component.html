@@ -1,0 +1,151 @@
+<div class="reporting-container">
+  <div class="header">
+    <h2>Reports & Analytics</h2>
+  </div>
+
+  <!-- Revenue Cards -->
+  <div class="stats-grid">
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Daily Revenue</h3>
+            <p class="stat-value">${{ revenueData.daily }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>calendar_today</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Weekly Revenue</h3>
+            <p class="stat-value">${{ revenueData.weekly }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>date_range</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Monthly Revenue</h3>
+            <p class="stat-value">${{ revenueData.monthly }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Yearly Revenue</h3>
+            <p class="stat-value">${{ revenueData.yearly }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Service Statistics -->
+  <div class="stats-grid">
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>book</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Total Bookings</h3>
+            <p class="stat-value">{{ serviceStats.totalBookings }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card success">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Completion Rate</h3>
+            <p class="stat-value">
+              {{ getCompletionRate() | number : "1.0-1" }}%
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card warning">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>pending</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Pending Bookings</h3>
+            <p class="stat-value">{{ serviceStats.pendingBookings }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card danger">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>cancel</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Cancellation Rate</h3>
+            <p class="stat-value">
+              {{ getCancellationRate() | number : "1.0-1" }}%
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Charts Section -->
+  <mat-tab-group
+    class="charts-container"
+    (selectedTabChange)="onTabChange($event)"
+  >
+    <mat-tab label="Revenue Trend">
+      <div class="chart-wrapper">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Service Distribution">
+      <div class="chart-wrapper">
+        <canvas id="serviceChart"></canvas>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Weekly Bookings">
+      <div class="chart-wrapper">
+        <canvas id="bookingsChart"></canvas>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

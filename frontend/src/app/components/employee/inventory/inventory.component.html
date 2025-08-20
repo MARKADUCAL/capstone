@@ -1,0 +1,47 @@
+<div class="inventory-container">
+  <div class="inventory-header">
+    <h2>Inventory Management</h2>
+    <button class="add-item-btn" (click)="addNewItem()">
+      <span class="plus-icon">+</span> Add Item
+    </button>
+  </div>
+
+  <div class="inventory-grid">
+    <div class="inventory-card" *ngFor="let item of inventoryItems">
+      <div class="card-content">
+        <div class="item-image">
+          <img [src]="item.imageUrl" [alt]="'Image of ' + item.name" />
+        </div>
+        <div class="item-details">
+          <h3>{{ item.name }}</h3>
+          <p class="stock-info">Stock: {{ item.stock }} Available</p>
+        </div>
+        <div class="item-actions">
+          <button class="action-btn details" (click)="showDetails(item)">
+            Details
+          </button>
+          <button class="action-btn edit" (click)="editItem(item)">Edit</button>
+          <button
+            class="action-btn take"
+            (click)="takeItem(item)"
+            [disabled]="item.stock === 0"
+          >
+            Take Item
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state message -->
+  <div class="empty-state" *ngIf="inventoryItems.length === 0">
+    <p>No inventory items available</p>
+  </div>
+
+  <app-add-inventory-modal
+    *ngIf="showAddModal"
+    (closeModal)="onCloseModal()"
+    (addItem)="onAddItem($event)"
+  >
+  </app-add-inventory-modal>
+</div>

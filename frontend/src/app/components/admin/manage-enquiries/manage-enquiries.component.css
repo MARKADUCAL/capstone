@@ -1,0 +1,112 @@
+.enquiries-container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.enquiries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.enquiry-card {
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid #1976d2;
+}
+
+.enquiry-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.enquiry-details {
+  padding: 8px 16px;
+}
+
+.enquiry-details p {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 0;
+  color: #666;
+}
+
+.enquiry-details mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+}
+
+.message {
+  margin: 16px 0 !important;
+}
+
+.message-text {
+  font-style: italic;
+  color: #555;
+  line-height: 1.4;
+}
+
+.received-time {
+  font-size: 0.9rem;
+  color: #888 !important;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px;
+  gap: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .enquiries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  mat-card-actions {
+    flex-direction: column;
+  }
+
+  button[mat-button] {
+    width: 100%;
+  }
+
+  .message-text {
+    display: block;
+    margin-top: 4px;
+  }
+}

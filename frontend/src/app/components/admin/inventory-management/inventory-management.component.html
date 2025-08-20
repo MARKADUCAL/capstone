@@ -1,0 +1,43 @@
+<div class="inventory-container">
+  <div class="header">
+    <h2>Inventory Management</h2>
+    <button mat-raised-button color="primary" (click)="addItem()">
+      <mat-icon>add</mat-icon>
+      Add Item
+    </button>
+  </div>
+
+  <div class="inventory-grid">
+    @for (item of inventoryItems; track item.id) {
+    <mat-card class="inventory-card">
+      <div class="card-content">
+        <div class="item-image">
+          <img [src]="item.imageUrl" [alt]="item.name" />
+        </div>
+        <div class="item-details">
+          <h3>{{ item.name }}</h3>
+          <p class="stock-info">Stock: {{ item.stock }} Available</p>
+          <p class="category">
+            <mat-icon>category</mat-icon> {{ item.category || "General" }}
+          </p>
+          <p class="price">
+            <mat-icon>attach_money</mat-icon> {{ item.price | currency }}
+          </p>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn view-btn" (click)="editItem(item)">
+          View
+        </button>
+        <button class="action-btn edit-btn" (click)="editItem(item)">
+          Edit
+        </button>
+        <button class="action-btn take-btn" (click)="takeItem(item)">
+          Take
+        </button>
+      </div>
+    </mat-card>
+    }
+  </div>
+</div>

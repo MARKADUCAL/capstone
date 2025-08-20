@@ -1,0 +1,148 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="logo-section">
+      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+      <h1 class="logo-title">AutoWash Hub</h1>
+    </div>
+    <div class="form-section">
+      <div class="register-form">
+        <h2>Employee Registration</h2>
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+          <div class="form-group">
+            <input
+              type="text"
+              [(ngModel)]="employee.employee_id"
+              name="employee_id"
+              placeholder="Enter employee ID (e.g., EMP-002)"
+              required
+              #employeeId="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="text"
+              [(ngModel)]="employee.first_name"
+              name="first_name"
+              placeholder="Enter your first name"
+              required
+              #firstName="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="text"
+              [(ngModel)]="employee.last_name"
+              name="last_name"
+              placeholder="Enter your last name"
+              required
+              #lastName="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="email"
+              [(ngModel)]="employee.email"
+              name="email"
+              placeholder="Enter your email address"
+              required
+              pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+              #email="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="tel"
+              [(ngModel)]="employee.phone"
+              name="phone"
+              placeholder="Enter your phone number"
+              required
+              pattern="[0-9]{11}"
+              #phone="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="text"
+              [(ngModel)]="employee.position"
+              name="position"
+              placeholder="Enter your position (e.g., Car Washer, Cashier)"
+              required
+              #position="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="password"
+              [(ngModel)]="employee.password"
+              name="password"
+              placeholder="Create a password (min. 8 characters)"
+              required
+              minlength="8"
+              #password="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              type="password"
+              [(ngModel)]="employee.confirm_password"
+              name="confirm_password"
+              placeholder="Confirm your password"
+              required
+              #confirmPassword="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="terms-container">
+            <div class="terms-checkbox">
+              <input
+                type="checkbox"
+                id="terms"
+                required
+                [(ngModel)]="termsAccepted"
+                name="terms"
+                #terms="ngModel"
+                [disabled]="isLoading"
+              />
+              <label for="terms"
+                >I agree to the <a href="#">Terms & Conditions</a> and
+                <a href="#">Privacy Policy</a></label
+              >
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="!registerForm.form.valid || isLoading"
+            class="sign-up-btn"
+          >
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading">Creating Account...</span>
+          </button>
+
+          <div class="sign-in-link">
+            Already have an account?
+            <a [routerLink]="['/employee']">Sign In</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

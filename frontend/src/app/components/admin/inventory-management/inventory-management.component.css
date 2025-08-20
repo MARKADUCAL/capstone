@@ -1,0 +1,172 @@
+.inventory-container {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.inventory-card {
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-left: 4px solid #2196f3; /* Blue border */
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.inventory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  display: flex;
+}
+
+.item-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-details h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.stock-info {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.category,
+.price {
+  color: #666;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-details mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  color: #666;
+}
+
+/* Action buttons styling */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  text-align: center;
+  min-width: 60px;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+}
+
+.view-btn {
+  background-color: #0000ff; /* Blue */
+}
+
+.edit-btn {
+  background-color: #f0f0f0; /* Light gray */
+  color: #333; /* Dark text for contrast */
+  border: 1px solid #ddd;
+}
+
+.take-btn {
+  background-color: #4caf50; /* Green */
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Keep action buttons horizontal but adjust height */
+  .action-buttons {
+    padding: 8px 0 0;
+  }
+
+  .action-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .card-content {
+    flex-direction: column;
+  }
+
+  .item-image {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 16px;
+  }
+}

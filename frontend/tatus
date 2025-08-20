@@ -1,0 +1,324 @@
+[1mdiff --git a/netlify.toml b/netlify.toml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..1dff404[m
+[1m--- /dev/null[m
+[1m+++ b/netlify.toml[m
+[36m@@ -0,0 +1,14 @@[m
+[32m+[m[32m[build][m
+[32m+[m[32m  command = "npm run build"[m
+[32m+[m[32m  publish = "dist/autowash-hub"[m
+[32m+[m
+[32m+[m[32m[build.environment][m
+[32m+[m[32m  NODE_VERSION = "18"[m
+[32m+[m
+[32m+[m[32m[[plugins]][m
+[32m+[m[32m  package = "@netlify/angular-runtime"[m
+[32m+[m
+[32m+[m[32m[[redirects]][m
+[32m+[m[32m  from = "/*"[m
+[32m+[m[32m  to = "/index.html"[m
+[32m+[m[32m  status = 200[m
+[1mdiff --git a/package.json b/package.json[m
+[1mindex 233029c..6952a8b 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -4,7 +4,7 @@[m
+   "scripts": {[m
+     "ng": "ng",[m
+     "start": "ng serve",[m
+[31m-    "build": "ng build",[m
+[32m+[m[32m    "build": "ng build --configuration production",[m
+     "watch": "ng build --watch --configuration development",[m
+     "test": "ng test",[m
+     "serve:ssr:autowash-hub": "node dist/autowash-hub/server/server.mjs"[m
+[36m@@ -23,6 +23,7 @@[m
+     "@angular/platform-server": "^19.2.0",[m
+     "@angular/router": "^19.2.0",[m
+     "@angular/ssr": "^19.2.4",[m
+[32m+[m[32m    "@netlify/angular-runtime": "^2.2.0",[m
+     "chart.js": "^4.4.9",[m
+     "express": "^4.18.2",[m
+     "ng2-charts": "^8.0.0",[m
+[1mdiff --git a/src/app/components/admin/car-wash-booking/car-wash-booking.component.html b/src/app/components/admin/car-wash-booking/car-wash-booking.component.html[m
+[1mindex 889fe7c..cc9124f 100644[m
+[1m--- a/src/app/components/admin/car-wash-booking/car-wash-booking.component.html[m
+[1m+++ b/src/app/components/admin/car-wash-booking/car-wash-booking.component.html[m
+[36m@@ -1,12 +1,16 @@[m
+ <div class="bookings-container">[m
+   <div class="header">[m
+     <div class="header-left">[m
+[31m-      <mat-select [(ngModel)]="selectedStatus" class="status-filter">[m
+[31m-        <mat-option value="All">All</mat-option>[m
+[31m-        <mat-option value="Pending">Pending</mat-option>[m
+[31m-        <mat-option value="Approved">Approved</mat-option>[m
+[31m-        <mat-option value="Rejected">Rejected</mat-option>[m
+[31m-      </mat-select>[m
+[32m+[m[32m      <mat-form-field appearance="outline" class="status-filter">[m
+[32m+[m[32m        <mat-label>Status</mat-label>[m
+[32m+[m[32m        <mat-select [(ngModel)]="selectedStatus">[m
+[32m+[m[32m          <mat-option value="All">All</mat-option>[m
+[32m+[m[32m          <mat-option value="Pending">Pending</mat-option>[m
+[32m+[m[32m          <mat-option value="Approved">Approved</mat-option>[m
+[32m+[m[32m          <mat-option value="Rejected">Rejected</mat-option>[m
+[32m+[m[32m          <mat-option value="Completed">Completed</mat-option>[m
+[32m+[m[32m        </mat-select>[m
+[32m+[m[32m      </mat-form-field>[m
+     </div>[m
+     <div class="header-right">[m
+       <button mat-raised-button color="primary" (click)="addSlotBooking()">[m
+[1mdiff --git a/src/app/components/admin/car-wash-booking/car-wash-booking.component.ts b/src/app/components/admin/car-wash-booking/car-wash-booking.component.ts[m
+[1mindex 5c267d7..1bcf9d7 100644[m
+[1m--- a/src/app/components/admin/car-wash-booking/car-wash-booking.component.ts[m
+[1m+++ b/src/app/components/admin/car-wash-booking/car-wash-booking.component.ts[m
+[36m@@ -5,6 +5,9 @@[m [mimport { MatCardModule } from '@angular/material/card';[m
+ import { MatButtonModule } from '@angular/material/button';[m
+ import { MatIconModule } from '@angular/material/icon';[m
+ import { MatSelectModule } from '@angular/material/select';[m
+[32m+[m[32mimport { MatFormFieldModule } from '@angular/material/form-field';[m
+[32m+[m[32mimport { MatDividerModule } from '@angular/material/divider';[m
+[32m+[m[32mimport { MatChipsModule } from '@angular/material/chips';[m
+ import { MatSnackBar } from '@angular/material/snack-bar';[m
+ import {[m
+   MatDialog,[m
+[36m@@ -38,6 +41,7 @@[m [minterface CarWashBooking {[m
+     MatButtonModule,[m
+     MatIconModule,[m
+     MatSelectModule,[m
+[32m+[m[32m    MatFormFieldModule,[m
+     HttpClientModule,[m
+     MatDialogModule,[m
+   ],[m
+[36m@@ -170,7 +174,7 @@[m [mexport class CarWashBookingComponent implements OnInit {[m
+ [m
+   private openBookingDialog(booking: CarWashBooking, mode: 'view' | 'edit') {[m
+     const dialogRef = this.dialog.open(BookingDetailsDialogComponent, {[m
+[31m-      width: '420px',[m
+[32m+[m[32m      width: '520px',[m
+       data: { booking: { ...booking }, mode },[m
+     });[m
+ [m
+[36m@@ -206,43 +210,99 @@[m [mexport class CarWashBookingComponent implements OnInit {[m
+     MatDialogModule,[m
+     MatButtonModule,[m
+     MatSelectModule,[m
+[32m+[m[32m    MatIconModule,[m
+[32m+[m[32m    MatFormFieldModule,[m
+[32m+[m[32m    MatDividerModule,[m
+[32m+[m[32m    MatChipsModule,[m
+   ],[m
+   template: `[m
+[31m-    <h2 mat-dialog-title>[m
+[31m-      {{ data.mode === 'view' ? 'View Booking' : 'Edit Booking' }}[m
+[32m+[m[32m    <h2 mat-dialog-title class="dialog-title">[m
+[32m+[m[32m      {{ data.mode === 'view' ? 'Booking Details' : 'Edit Booking' }}[m
+     </h2>[m
+     <div mat-dialog-content class="dialog-content">[m
+[31m-      <div class="row">[m
+[31m-        <strong>Customer:</strong> {{ data.booking.customerName }}[m
+[31m-      </div>[m
+[31m-      <div class="row">[m
+[31m-        <strong>Vehicle:</strong> {{ data.booking.vehicleType }}[m
+[31m-      </div>[m
+[31m-      <div class="row">[m
+[31m-        <strong>Service:</strong>[m
+[31m-        {{ data.booking.serviceType || 'Standard Wash' }}[m
+[31m-      </div>[m
+[31m-      <div class="row">[m
+[31m-        <strong>Price:</strong> {{ data.booking.price | currency }}[m
+[32m+[m[32m      <div class="header-block">[m
+[32m+[m[32m        <div class="avatar">[m
+[32m+[m[32m          {{ (data.booking.customerName || 'C')[0] | uppercase }}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="title-area">[m
+[32m+[m[32m          <div class="customer-name">{{ data.booking.customerName }}</div>[m
+[32m+[m[32m          <div class="subtitle">[m
+[32m+[m[32m            {{ data.booking.serviceType || 'Standard Wash' }}[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <mat-chip-set class="status-chip">[m
+[32m+[m[32m          <mat-chip[m
+[32m+[m[32m            [ngClass]="{[m
+[32m+[m[32m              'status-pending': data.booking.status === 'Pending',[m
+[32m+[m[32m              'status-approved': data.booking.status === 'Approved',[m
+[32m+[m[32m              'status-rejected': data.booking.status === 'Rejected',[m
+[32m+[m[32m              'status-completed': data.booking.status === 'Completed'[m
+[32m+[m[32m            }"[m
+[32m+[m[32m            appearance="outlined"[m
+[32m+[m[32m          >[m
+[32m+[m[32m            <mat-icon inline>{{[m
+[32m+[m[32m              data.booking.status === 'Pending'[m
+[32m+[m[32m                ? 'hourglass_empty'[m
+[32m+[m[32m                : data.booking.status === 'Approved'[m
+[32m+[m[32m                ? 'check_circle'[m
+[32m+[m[32m                : data.booking.status === 'Rejected'[m
+[32m+[m[32m                ? 'cancel'[m
+[32m+[m[32m                : 'done_all'[m
+[32m+[m[32m            }}</mat-icon>[m
+[32m+[m[32m            {{ data.booking.status }}[m
+[32m+[m[32m          </mat-chip>[m
+[32m+[m[32m        </mat-chip-set>[m
+       </div>[m
+[31m-      <div class="row"><strong>Date:</strong> {{ data.booking.date }}</div>[m
+[31m-      <div class="row"><strong>Time:</strong> {{ data.booking.time }}</div>[m
+ [m
+[31m-      <div class="row" *ngIf="data.mode === 'view'">[m
+[31m-        <strong>Status:</strong> {{ data.booking.status }}[m
+[32m+[m[32m      <mat-divider></mat-divider>[m
+[32m+[m
+[32m+[m[32m      <div class="details-grid">[m
+[32m+[m[32m        <div class="detail">[m
+[32m+[m[32m          <mat-icon>calendar_today</mat-icon>[m
+[32m+[m[32m          <div class="detail-text">[m
+[32m+[m[32m            <div class="label">Date</div>[m
+[32m+[m[32m            <div class="value">{{ data.booking.date }}</div>[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="detail">[m
+[32m+[m[32m          <mat-icon>access_time</mat-icon>[m
+[32m+[m[32m          <div class="detail-text">[m
+[32m+[m[32m            <div class="label">Time</div>[m
+[32m+[m[32m            <div class="value">{{ data.booking.time }}</div>[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="detail">[m
+[32m+[m[32m          <mat-icon>directions_car</mat-icon>[m
+[32m+[m[32m          <div class="detail-text">[m
+[32m+[m[32m            <div class="label">Vehicle</div>[m
+[32m+[m[32m            <div class="value">{{ data.booking.vehicleType }}</div>[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="detail">[m
+[32m+[m[32m          <mat-icon>attach_money</mat-icon>[m
+[32m+[m[32m          <div class="detail-text">[m
+[32m+[m[32m            <div class="label">Price</div>[m
+[32m+[m[32m            <div class="value">{{ data.booking.price | currency }}</div>[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+       </div>[m
+ [m
+[31m-      <div class="row" *ngIf="data.mode === 'edit'">[m
+[31m-        <strong>Status:</strong>[m
+[31m-        <mat-select [(ngModel)]="editableStatus">[m
+[31m-          <mat-option value="Pending">Pending</mat-option>[m
+[31m-          <mat-option value="Approved">Approved</mat-option>[m
+[31m-          <mat-option value="Rejected">Rejected</mat-option>[m
+[31m-          <mat-option value="Completed">Completed</mat-option>[m
+[31m-        </mat-select>[m
+[32m+[m[32m      <div class="edit-section" *ngIf="data.mode === 'edit'">[m
+[32m+[m[32m        <mat-divider></mat-divider>[m
+[32m+[m[32m        <div class="form-row">[m
+[32m+[m[32m          <mat-form-field appearance="outline" class="full">[m
+[32m+[m[32m            <mat-label>Status</mat-label>[m
+[32m+[m[32m            <mat-select [(ngModel)]="editableStatus">[m
+[32m+[m[32m              <mat-option value="Pending">Pending</mat-option>[m
+[32m+[m[32m              <mat-option value="Approved">Approved</mat-option>[m
+[32m+[m[32m              <mat-option value="Rejected">Rejected</mat-option>[m
+[32m+[m[32m              <mat-option value="Completed">Completed</mat-option>[m
+[32m+[m[32m            </mat-select>[m
+[32m+[m[32m          </mat-form-field>[m
+[32m+[m[32m        </div>[m
+       </div>[m
+     </div>[m
+[31m-    <div mat-dialog-actions align="end">[m
+[32m+[m[32m    <div mat-dialog-actions align="end" class="actions">[m
+       <button mat-button (click)="onClose()">Close</button>[m
+       <button[m
+         mat-raised-button[m
+[36m@@ -256,14 +316,93 @@[m [mexport class CarWashBookingComponent implements OnInit {[m
+   `,[m
+   styles: [[m
+     `[m
+[31m-      .dialog-content {[m
+[32m+[m[32m      .dialog-title {[m
+[32m+[m[32m        margin: 0;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .header-block {[m
+         display: grid;[m
+[31m-        gap: 10px;[m
+[32m+[m[32m        grid-template-columns: 48px 1fr auto;[m
+[32m+[m[32m        align-items: center;[m
+[32m+[m[32m        gap: 12px;[m
+[32m+[m[32m        margin-bottom: 8px;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .avatar {[m
+[32m+[m[32m        width: 48px;[m
+[32m+[m[32m        height: 48px;[m
+[32m+[m[32m        border-radius: 50%;[m
+[32m+[m[32m        background: #1976d2;[m
+[32m+[m[32m        color: #fff;[m
+[32m+[m[32m        display: flex;[m
+[32m+[m[32m        align-items: center;[m
+[32m+[m[32m        justify-content: center;[m
+[32m+[m[32m        font-weight: 600;[m
+[32m+[m[32m        font-size: 18px;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .title-area {[m
+[32m+[m[32m        display: flex;[m
+[32m+[m[32m        flex-direction: column;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .customer-name {[m
+[32m+[m[32m        font-size: 16px;[m
+[32m+[m[32m        font-weight: 600;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .subtitle {[m
+[32m+[m[32m        font-size: 13px;[m
+[32m+[m[32m        color: #666;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .status-chip :where(mat-chip) {[m
+[32m+[m[32m        font-weight: 600;[m
+       }[m
+[31m-      .row {[m
+[32m+[m[32m      .status-pending {[m
+[32m+[m[32m        color: #ffa000;[m
+[32m+[m[32m        border-color: #ffa000;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .status-approved {[m
+[32m+[m[32m        color: #4caf50;[m
+[32m+[m[32m        border-color: #4caf50;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .status-rejected {[m
+[32m+[m[32m        color: #f44336;[m
+[32m+[m[32m        border-color: #f44336;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .status-completed {[m
+[32m+[m[32m        color: #9c27b0;[m
+[32m+[m[32m        border-color: #9c27b0;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      .details-grid {[m
+[32m+[m[32m        margin-top: 12px;[m
+[32m+[m[32m        display: grid;[m
+[32m+[m[32m        grid-template-columns: 1fr 1fr;[m
+[32m+[m[32m        gap: 12px;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .detail {[m
+         display: flex;[m
+         align-items: center;[m
+[31m-        gap: 8px;[m
+[32m+[m[32m        gap: 10px;[m
+[32m+[m[32m        padding: 6px 0;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .detail mat-icon {[m
+[32m+[m[32m        color: #666;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .detail .label {[m
+[32m+[m[32m        font-size: 12px;[m
+[32m+[m[32m        color: #777;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .detail .value {[m
+[32m+[m[32m        font-size: 14px;[m
+[32m+[m[32m        font-weight: 500;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      .form-row {[m
+[32m+[m[32m        margin-top: 12px;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      .form-row .full {[m
+[32m+[m[32m        width: 100%;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      .actions {[m
+[32m+[m[32m        padding-top: 8px;[m
+       }[m
+     `,[m
+   ],[m

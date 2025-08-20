@@ -1,0 +1,251 @@
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container">
+    <div class="logo">
+      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
+      <span>AutoWash Hub</span>
+    </div>
+    <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <ul class="nav-links" [class.mobile-nav-active]="mobileMenuOpen">
+      <li><a href="#hero" (click)="closeMobileMenu()">Home</a></li>
+      <li><a href="#services" (click)="closeMobileMenu()">Services</a></li>
+      <li><a href="#pricing" (click)="closeMobileMenu()">Pricing</a></li>
+      <li><a href="#gallery" (click)="closeMobileMenu()">Gallery</a></li>
+      <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
+    </ul>
+    <div class="get-started">
+      <a href="/customer" class="btn">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="hero" id="hero">
+  <div class="hero-content">
+    <h2>
+      CARWASHING <br />
+      MADE EASY
+    </h2>
+    <p>
+      AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor
+      carwash specialists offering quality services including body wash,
+      interior vacuum, and more.
+    </p>
+    <a (click)="onBookNowClick()" class="book-now-btn" style="cursor: pointer"
+      >Book Now</a
+    >
+  </div>
+</header>
+
+<!-- Services Section -->
+<section class="services" id="services">
+  <h2>SERVICES WE OFFER</h2>
+  <div class="services-container">
+    <div class="service-item">
+      <img src="assets/basiccarwash.png" alt="Basic Car Wash" />
+      <p>BASIC CAR WASH</p>
+    </div>
+    <div class="service-item">
+      <img src="assets/tireblack.png" alt="Tire Black" />
+      <p>TIRE BLACK</p>
+    </div>
+    <div class="service-item">
+      <img src="assets/bodywax.png" alt="Body Wax" />
+      <p>BODY WAX</p>
+    </div>
+    <div class="service-item">
+      <img src="assets/vacuum.png" alt="Vacuum" />
+      <p>VACUUM</p>
+    </div>
+  </div>
+</section>
+
+<!-- Easy as 123 Section -->
+<section class="easy-steps">
+  <h2>Easy as 123</h2>
+  <div class="steps-container">
+    <div class="step">
+      <h3>1</h3>
+      <p>Identify <br />vehicle type</p>
+    </div>
+    <div class="step">
+      <h3>2</h3>
+      <p>Select <br />Services</p>
+    </div>
+    <div class="step">
+      <h3>3</h3>
+      <p>Determine the price <br />and take it easy!</p>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing" id="pricing">
+  <h2>PRICING</h2>
+  <div class="pricing-steps">
+    <div class="step-image">
+      <img src="assets/step1.png" alt="Step 1: Identify Vehicle Type" />
+    </div>
+    <div class="step-image">
+      <img src="assets/step2.png" alt="Step 2: Select Services" />
+    </div>
+    <div class="step-image">
+      <img src="assets/step3.png" alt="Step 3: Determine Price" />
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="gallery" id="gallery">
+  <h2>GALLERY</h2>
+  <div class="gallery-container">
+    <div class="gallery-item">
+      <img src="assets/car1.png" alt="Car 1" />
+    </div>
+    <div class="gallery-item">
+      <img src="assets/car2.png" alt="Car 2" />
+    </div>
+    <div class="gallery-item">
+      <img src="assets/car3.png" alt="Car 3" />
+    </div>
+    <div class="gallery-item">
+      <img src="assets/car4.png" alt="Car 4" />
+    </div>
+    <div class="gallery-item">
+      <img src="assets/car5.png" alt="Car 5" />
+    </div>
+    <div class="gallery-item">
+      <img src="assets/car6.png" alt="Car 6" />
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact" id="contact">
+  <h2>Contact for any Query</h2>
+  <div class="contact-info">
+    <div class="quick-contact">
+      <h3>Quick Contact Info</h3>
+      <div class="contact-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <p>
+          <strong>Address:</strong> 1234 Sunset Avenue, Downtown, Los Angeles,
+          CA 90012
+        </p>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-clock"></i>
+        <p><strong>Opening Time:</strong> MON - FRI, 8:00am - 9:00pm</p>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-phone"></i>
+        <p><strong>Call Us:</strong> 09123456789</p>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-envelope"></i>
+        <p><strong>Email Us:</strong> Example123email.com</p>
+      </div>
+    </div>
+    <form class="contact-form">
+      <input
+        type="text"
+        class="input-medium"
+        id="yourname"
+        placeholder="Your Name"
+        required
+      />
+      <input
+        type="email"
+        class="input-medium"
+        id="youremail"
+        placeholder="Your Email"
+        required
+      />
+      <input
+        type="text"
+        class="input-small"
+        id="subject"
+        placeholder="Subject"
+        required
+      />
+      <textarea
+        class="input-large"
+        id="message"
+        placeholder="Message"
+        required
+      ></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="use-cases">
+      <h3>Use Cases</h3>
+      <ul>
+        <li><a href="#">Car Owners</a></li>
+        <li><a href="#">Fleet Managers</a></li>
+        <li><a href="#">Auto Dealerships</a></li>
+        <li><a href="#">Rideshare Drivers</a></li>
+        <li><a href="#">Car Rental Companies</a></li>
+      </ul>
+    </div>
+    <div class="quick-links">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="contact-us">
+      <h3>Contact Us</h3>
+      <p>📍 Address: [Your Location]</p>
+      <p>📞 Phone: [Your Contact Number]</p>
+      <p>✉️ Email: [Your Email]</p>
+    </div>
+    <div class="follow-us">
+      <h3>Follow Us</h3>
+      <p>
+        <a href="#">Facebook</a> | <a href="#">Instagram</a> |
+        <a href="#">Twitter</a> |
+        <a href="#">TikTok</a>
+      </p>
+      <a routerLink="/customer" class="booknow-button">Book Now</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>
+      AutoWash Hub © 2025. All rights reserved. | Privacy Policy | Terms of
+      Service
+    </p>
+  </div>
+</footer>
+
+<!-- Custom Modal -->
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h3>AutoWash Hub</h3>
+    </div>
+    <div class="modal-body">
+      <p>Do you want to proceed with booking?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-ok" (click)="confirmBooking()">
+        OK
+      </button>
+      <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

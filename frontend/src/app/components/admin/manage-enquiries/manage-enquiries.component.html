@@ -1,0 +1,47 @@
+<div class="enquiries-container">
+  <div class="header">
+    <h2>Manage Enquiries</h2>
+  </div>
+
+  <div class="enquiries-grid">
+    @for (enquiry of enquiries; track enquiry.id) {
+    <mat-card class="enquiry-card">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <div class="user-avatar-placeholder">
+            {{ getUserInitials(enquiry.name) }}
+          </div>
+        </div>
+        <mat-card-title>{{ enquiry.name }}</mat-card-title>
+        <mat-card-subtitle> Subject: {{ enquiry.subject }} </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="enquiry-details">
+          <p><mat-icon>email</mat-icon> {{ enquiry.email }}</p>
+          <p class="message">
+            <mat-icon>message</mat-icon>
+            <span class="message-text">"{{ enquiry.message }}"</span>
+          </p>
+          <p class="received-time">
+            <mat-icon>schedule</mat-icon>
+            Received: {{ enquiry.receivedDate }} | {{ enquiry.receivedTime }}
+          </p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="viewEnquiry(enquiry)">
+          View
+        </button>
+        <button mat-button color="accent" (click)="replyEnquiry(enquiry)">
+          Reply
+        </button>
+        <button mat-button color="warn" (click)="deleteEnquiry(enquiry)">
+          Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+</div>

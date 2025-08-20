@@ -1,0 +1,67 @@
+<div class="container">
+  <div class="sidebar" [class.active]="sidebarActive">
+    <div class="close-btn" (click)="toggleSidebar()">✕</div>
+    <div class="logo-container">
+      <img src="assets/logo.jpg" alt="Logo" />
+      <h2>AutoWash Hub</h2>
+    </div>
+    <nav class="nav-menu">
+      <a
+        routerLink="/customer-view/services"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="closeSidebarOnMobile()"
+      >
+        <i class="fas fa-tag"></i> Dashboard
+      </a>
+      <a
+        routerLink="/customer-view/appointment"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="closeSidebarOnMobile()"
+      >
+        <i class="fas fa-calendar-alt"></i> Appointment
+      </a>
+      <a
+        routerLink="/customer-view/tranaction-hitory"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="closeSidebarOnMobile()"
+      >
+        <i class="fas fa-history"></i> Transaction History
+      </a>
+    </nav>
+  </div>
+
+  <div
+    class="sidebar-overlay"
+    [class.active]="sidebarActive"
+    (click)="toggleSidebar()"
+  ></div>
+
+  <div class="content">
+    <header class="header">
+      <div class="menu-icon" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </div>
+      <h2 class="page-title">{{ pageTitle }}</h2>
+      <div class="user-info" (clickOutside)="hideDropdown()">
+        <div class="user-avatar-placeholder">{{ userInitials }}</div>
+        <span class="user-name">{{ fullName }}</span>
+        <button class="dropdown-btn" (click)="toggleDropdown()">▼</button>
+        <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
+          <a class="dropdown-item" routerLink="/customer-view/profile">
+            <i class="fas fa-user profile-icon"></i> Profile
+          </a>
+          <a class="dropdown-item" (click)="logout()">
+            <i class="fas fa-sign-out-alt logout-icon"></i> Logout
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

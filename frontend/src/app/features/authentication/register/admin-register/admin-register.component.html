@@ -1,0 +1,155 @@
+<div class="register-container">
+  <div class="register-card">
+    <!-- Logo Section (Left) -->
+    <div class="logo-section">
+      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" class="logo" />
+      <h1 class="logo-title">AutoWash Hub</h1>
+    </div>
+
+    <!-- Register Form Section (Right) -->
+    <div class="form-section">
+      <div class="register-form">
+        <h2>Admin Registration</h2>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+          <div class="form-group">
+            <label for="admin_id">Admin ID</label>
+            <input
+              type="text"
+              id="admin_id"
+              [(ngModel)]="admin.admin_id"
+              name="admin_id"
+              placeholder="Enter admin ID (e.g., ADM-002)"
+              required
+              #adminId="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input
+              type="text"
+              id="first_name"
+              [(ngModel)]="admin.first_name"
+              name="first_name"
+              placeholder="Enter your first name"
+              required
+              #firstName="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input
+              type="text"
+              id="last_name"
+              [(ngModel)]="admin.last_name"
+              name="last_name"
+              placeholder="Enter your last name"
+              required
+              #lastName="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="admin.email"
+              name="email"
+              placeholder="Enter your email"
+              required
+              pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+              #email="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              [(ngModel)]="admin.phone"
+              name="phone"
+              placeholder="Enter your phone number"
+              required
+              pattern="[0-9]{11}"
+              #phone="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="admin.password"
+              name="password"
+              placeholder="Create a password"
+              required
+              minlength="8"
+              #password="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm_password"
+              [(ngModel)]="admin.confirm_password"
+              name="confirm_password"
+              placeholder="Confirm your password"
+              required
+              #confirmPassword="ngModel"
+              [disabled]="isLoading"
+            />
+          </div>
+
+          <div class="terms-container">
+            <label class="terms-checkbox">
+              <input
+                type="checkbox"
+                id="terms"
+                required
+                [(ngModel)]="termsAccepted"
+                name="terms"
+                #terms="ngModel"
+                [disabled]="isLoading"
+              />
+              <span
+                >I agree to the <a href="#">Terms & Conditions</a> and
+                <a href="#">Privacy Policy</a></span
+              >
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="sign-up-btn"
+            [disabled]="!registerForm.form.valid || isLoading"
+          >
+            <span *ngIf="!isLoading">Register</span>
+            <span *ngIf="isLoading">Registering...</span>
+          </button>
+
+          <div class="sign-in-link">
+            Already have an account?
+            <a routerLink="/admin">Login</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

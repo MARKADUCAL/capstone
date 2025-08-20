@@ -1,0 +1,157 @@
+.inventory-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+h2 {
+  color: #333;
+  margin: 0;
+}
+
+.add-item-btn {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.add-item-btn:hover {
+  background-color: #4f46e5;
+}
+
+.plus-icon {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.inventory-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.inventory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.item-image {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8fafc;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.item-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.item-details {
+  margin-bottom: 16px;
+}
+
+.item-details h3 {
+  margin: 0 0 8px 0;
+  color: #1e293b;
+  font-size: 18px;
+}
+
+.stock-info {
+  color: #64748b;
+  margin: 0;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-btn.details {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.action-btn.edit {
+  background-color: #cbd5e1;
+  color: #475569;
+}
+
+.action-btn.take {
+  background-color: #22c55e;
+  color: white;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.action-btn:disabled {
+  background-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .inventory-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .item-actions {
+    flex-direction: column;
+  }
+}

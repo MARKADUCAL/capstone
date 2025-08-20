@@ -1,0 +1,170 @@
+<div class="users-container">
+  <div class="header">
+    <h2>User Management</h2>
+    <button mat-raised-button color="primary" (click)="addUser()">
+      <mat-icon>add</mat-icon>
+      Add New User
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading-container">
+    <p>Loading users...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error) {
+  <div class="error-container">
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadCustomers()">
+      Try Again
+    </button>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && !error && users.length === 0) {
+  <div class="empty-container">
+    <p>No users found.</p>
+  </div>
+  }
+
+  <!-- Users Grid -->
+  @if (!loading && !error && users.length > 0) {
+  <div class="users-grid">
+    @for (user of users; track user.id) {
+    <mat-card class="user-card">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <div class="user-avatar-placeholder">
+            {{ getUserInitials(user.name) }}
+          </div>
+        </div>
+        <mat-card-title>{{ user.name }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="user-details">
+          <p>
+            <mat-icon>email</mat-icon>
+            {{ user.email }}
+          </p>
+          <p>
+            <mat-icon>phone</mat-icon>
+            {{ user.phone }}
+          </p>
+          <p>
+            <mat-icon>calendar_today</mat-icon>
+            {{ user.registrationDate }}
+          </p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="action-buttons">
+        <button class="action-btn view-btn" (click)="viewUser(user)">
+          View
+        </button>
+        <button class="action-btn edit-btn" (click)="editUser(user)">
+          Edit
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteUser(user)">
+          Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+
+  <!-- View User Modal -->
+  <div class="modal" [class.show-modal]="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>User Details</h2>
+        <span class="close-btn" (click)="closeViewUserModal()">&times;</span>
+      </div>
+      <div class="modal-body" *ngIf="selectedUser">
+        <div class="user-details-view">
+          <p><strong>Full Name:</strong> {{ selectedUser.name }}</p>
+          <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedUser.phone }}</p>
+          <p>
+            <strong>Registration Date:</strong>
+            {{ selectedUser.registrationDate }}
+          </p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeViewUserModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal" [class.show-modal]="isEditModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit User</h2>
+        <span class="close-btn" (click)="closeEditUserModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form class="user-form" (ngSubmit)="submitEditUserForm()">
+          <div class="form-group">
+            <label for="edit-name">Full Name</label>
+            <input
+              type="text"
+              id="edit-name"
+              name="edit-name"
+              [(ngModel)]="editUserData.name"
+              required
+              placeholder="Enter user name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-email">Email</label>
+            <input
+              type="email"
+              id="edit-email"
+              name="edit-email"
+              [(ngModel)]="editUserData.email"
+              required
+              placeholder="Enter email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-phone">Phone Number</label>
+            <input
+              type="tel"
+              id="edit-phone"
+              name="edit-phone"
+              [(ngModel)]="editUserData.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeEditUserModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

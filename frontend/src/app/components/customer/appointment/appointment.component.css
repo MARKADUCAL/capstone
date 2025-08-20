@@ -1,0 +1,261 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.available-slots {
+  font-size: 1.2em;
+}
+
+.slot-count {
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.book-now {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.book-now:hover {
+  background-color: #2980b9;
+}
+
+.booking-details {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.client-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1976d2;
+}
+
+.detail-item {
+  margin: 8px 0;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.action-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 500;
+}
+
+.action-button:hover {
+  background-color: #1565c0;
+}
+
+/* Status styles */
+.status-pending {
+  color: #f57c00;
+}
+
+.status-confirmed {
+  color: #43a047;
+}
+
+.status-completed {
+  color: #1976d2;
+}
+
+.status-cancelled {
+  color: #d32f2f;
+}
+
+/* No bookings message */
+.no-bookings {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.booking-modal-container {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  width: 100%;
+}
+
+/* Material Design overrides */
+::ng-deep .mat-form-field {
+  width: 100%;
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  .header {
+    margin-bottom: 15px;
+  }
+
+  .available-slots {
+    font-size: 16px;
+  }
+
+  .slot-count {
+    font-size: 20px;
+  }
+
+  .book-now {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .booking-modal-container {
+    width: 95%;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  form {
+    padding: 15px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .submit-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+}

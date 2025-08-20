@@ -1,0 +1,228 @@
+<div class="admin-pages-container">
+  <h1>Landing Page Content Management</h1>
+
+  <mat-tab-group>
+    <!-- Hero Section -->
+    <mat-tab label="Hero Section">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Hero Content</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hero Title</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.heroTitle"
+              placeholder="Enter hero title"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hero Description</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="content.heroDescription"
+              rows="4"
+              placeholder="Enter hero description"
+            ></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Services Section -->
+    <mat-tab label="Services">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Services</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="services-list">
+            <div
+              *ngFor="let service of content.services; let i = index"
+              class="service-item"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>Service Name</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="service.name"
+                  placeholder="Enter service name"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Image URL</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="service.imageUrl"
+                  placeholder="Enter image URL"
+                />
+              </mat-form-field>
+
+              <button mat-icon-button color="warn" (click)="removeService(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" (click)="addService()">
+            <mat-icon>add</mat-icon> Add Service
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Locations Section -->
+    <mat-tab label="Locations">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Locations</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="locations-list">
+            <div
+              *ngFor="let location of content.locations; let i = index"
+              class="location-item"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>Location Name</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="location.name"
+                  placeholder="Enter location name"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Address</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="location.address"
+                  placeholder="Enter address"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Phone</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="location.phone"
+                  placeholder="Enter phone number"
+                />
+              </mat-form-field>
+
+              <button mat-icon-button color="warn" (click)="removeLocation(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" (click)="addLocation()">
+            <mat-icon>add</mat-icon> Add Location
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Gallery Section -->
+    <mat-tab label="Gallery">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Gallery Images</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="gallery-list">
+            <div
+              *ngFor="let image of content.galleryImages; let i = index"
+              class="gallery-item"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>Image URL</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="image.url"
+                  placeholder="Enter image URL"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Alt Text</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="image.alt"
+                  placeholder="Enter alt text"
+                />
+              </mat-form-field>
+
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="removeGalleryImage(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" (click)="addGalleryImage()">
+            <mat-icon>add</mat-icon> Add Image
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Contact Section -->
+    <mat-tab label="Contact Info">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Contact Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.contactInfo.address"
+              placeholder="Enter address"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Opening Hours</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.contactInfo.openingHours"
+              placeholder="Enter opening hours"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.contactInfo.phone"
+              placeholder="Enter phone number"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.contactInfo.email"
+              placeholder="Enter email"
+            />
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="save-button-container">
+    <button mat-raised-button color="primary" (click)="saveChanges()">
+      <mat-icon>save</mat-icon> Save Changes
+    </button>
+  </div>
+</div>

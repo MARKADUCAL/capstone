@@ -1,0 +1,79 @@
+<div class="bookings-container">
+  <div class="header">
+    <div class="header-left">
+      <mat-select [(ngModel)]="selectedStatus" class="status-filter">
+        <mat-option value="All">All</mat-option>
+        <mat-option value="Pending">Pending</mat-option>
+        <mat-option value="Approved">Approved</mat-option>
+        <mat-option value="Rejected">Rejected</mat-option>
+        <mat-option value="Completed">Completed</mat-option>
+      </mat-select>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="refreshBookings()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="bookings-grid">
+    @for (booking of filterBookings(selectedStatus); track booking.id) {
+    <mat-card class="booking-card" [ngClass]="booking.status.toLowerCase()">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <div class="user-avatar-placeholder">
+            {{ getUserInitials(booking.customerName) }}
+          </div>
+        </div>
+        <mat-card-title>{{ booking.customerName }}</mat-card-title>
+        <mat-card-subtitle>
+          Vehicle Type: {{ booking.vehicleType }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="booking-details">
+          <p><mat-icon>calendar_today</mat-icon> {{ booking.date }}</p>
+          <p><mat-icon>access_time</mat-icon> {{ booking.time }}</p>
+          <p>
+            <mat-icon>local_car_wash</mat-icon>
+            {{ booking.serviceType || "Standard Wash" }}
+          </p>
+          <p>
+            <mat-icon>attach_money</mat-icon> {{ booking.price | currency }}
+          </p>
+        </div>
+      </mat-card-content>
+
+      <div class="action-buttons">
+        <button class="action-btn view-btn" (click)="viewBooking(booking)">
+          View
+        </button>
+        @if (booking.status === 'Pending') {
+        <button
+          class="action-btn approve-btn"
+          (click)="approveBooking(booking)"
+        >
+          Approve
+        </button>
+        <button class="action-btn reject-btn" (click)="rejectBooking(booking)">
+          Reject
+        </button>
+        } @else if (booking.status === 'Approved') {
+        <button
+          class="action-btn complete-btn"
+          (click)="completeBooking(booking)"
+        >
+          Complete
+        </button>
+        } @else {
+        <button class="action-btn edit-btn" (click)="editBooking(booking)">
+          Edit
+        </button>
+        }
+      </div>
+    </mat-card>
+    }
+  </div>
+</div>
