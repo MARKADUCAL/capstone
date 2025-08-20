@@ -1,18 +1,4 @@
-/* Reset styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  width: 100%;
-  overflow-x: hidden;
-}
+/* Landing page specific styles */
 
 /* Navbar Styles */
 .navbar {
@@ -24,14 +10,8 @@ body {
   z-index: 1000;
 }
 
-.container {
-  width: 100%;
+.navbar .container {
   height: 95px;
-  margin: 0 auto; /* Center the container */
-  display: flex;
-  justify-content: space-between; /* Space between items */
-  align-items: center;
-  padding: 0 20px; /* Add padding to the left and right */
 }
 
 /* Logo Styling */
@@ -95,7 +75,7 @@ body {
 
 /* Get Started Button */
 .get-started a {
-  background-color: #5e8b7e; /* Muted green */
+  background-color: #5e8b7e;
   color: white;
   padding: 10px 20px;
   text-decoration: none;

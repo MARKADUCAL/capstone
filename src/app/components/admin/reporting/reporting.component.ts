@@ -1,5 +1,11 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -61,42 +67,50 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private serviceChart: Chart | undefined;
   private bookingsChart: Chart | undefined;
 
-  constructor() {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     // Initialize data only
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.initializeCharts();
+      }, 100);
+    }
   }
 
   onTabChange(event: MatTabChangeEvent): void {
-    setTimeout(() => {
-      // Reinitialize the chart in the selected tab
-      switch (event.index) {
-        case 0:
-          this.initializeRevenueChart();
-          break;
-        case 1:
-          this.initializeServiceChart();
-          break;
-        case 2:
-          this.initializeBookingsChart();
-          break;
-      }
-    }, 100);
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        // Reinitialize the chart in the selected tab
+        switch (event.index) {
+          case 0:
+            this.initializeRevenueChart();
+            break;
+          case 1:
+            this.initializeServiceChart();
+            break;
+          case 2:
+            this.initializeBookingsChart();
+            break;
+        }
+      }, 100);
+    }
   }
 
   private initializeCharts(): void {
-    this.initializeRevenueChart();
-    this.initializeServiceChart();
-    this.initializeBookingsChart();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeRevenueChart();
+      this.initializeServiceChart();
+      this.initializeBookingsChart();
+    }
   }
 
   private initializeRevenueChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     // Revenue Trend Chart
     const revenueCtx = document.getElementById(
       'revenueChart'

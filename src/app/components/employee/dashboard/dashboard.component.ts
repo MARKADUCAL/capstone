@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -90,11 +90,16 @@ export class DashboardComponent implements OnInit {
   private ratingChart: Chart | undefined;
   private apiUrl = 'http://localhost/autowash-hub-api/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
     this.loadBookingStats();
-    this.initializeCharts();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeCharts();
+    }
   }
 
   private loadBookingStats(): void {
@@ -152,6 +157,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private initializeCharts(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     // Task Distribution Chart
     const taskCtx = document.getElementById(
       'taskDistributionChart'
