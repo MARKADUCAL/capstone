@@ -104,6 +104,126 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+
+    if (strpos($request, 'get_revenue_analytics') !== false) {
+        $result = $get->get_revenue_analytics();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_service_distribution') !== false) {
+        $result = $get->get_service_distribution();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_dashboard_summary') !== false) {
+        $result = $get->get_dashboard_summary();
+        echo json_encode($result);
+        exit();
+    }
+
+    // New GET routes for updated database schema
+    if (strpos($request, 'get_vehicle_types') !== false) {
+        $result = $get->get_vehicle_types();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_payment_methods') !== false) {
+        $result = $get->get_payment_methods();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_time_slots') !== false) {
+        $result = $get->get_time_slots();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_available_time_slots') !== false) {
+        if (isset($_GET['date'])) {
+            $date = $_GET['date'];
+            $result = $get->get_available_time_slots($date);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Date parameter is required.']);
+        }
+        exit();
+    }
+
+    if (strpos($request, 'get_promotions') !== false) {
+        $result = $get->get_promotions();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_service_categories') !== false) {
+        $result = $get->get_service_categories();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_customer_feedback') !== false) {
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        $result = $get->get_customer_feedback($limit);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_employee_schedules') !== false) {
+        $employeeId = isset($_GET['employee_id']) ? $_GET['employee_id'] : null;
+        $date = isset($_GET['date']) ? $_GET['date'] : null;
+        $result = $get->get_employee_schedules($employeeId, $date);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_system_settings') !== false) {
+        $result = $get->get_system_settings();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_notifications') !== false) {
+        if (isset($_GET['user_id']) && isset($_GET['user_type'])) {
+            $userId = $_GET['user_id'];
+            $userType = $_GET['user_type'];
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+            $result = $get->get_notifications($userId, $userType, $limit);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'User ID and user type are required.']);
+        }
+        exit();
+    }
+
+    if (strpos($request, 'get_booking_details') !== false) {
+        if (isset($_GET['booking_id'])) {
+            $bookingId = $_GET['booking_id'];
+            $result = $get->get_booking_details($bookingId);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Booking ID is required.']);
+        }
+        exit();
+    }
+
+    if (strpos($request, 'get_booking_history') !== false) {
+        if (isset($_GET['booking_id'])) {
+            $bookingId = $_GET['booking_id'];
+            $result = $get->get_booking_history($bookingId);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Booking ID is required.']);
+        }
+        exit();
+    }
 }
 
 // Handle the request
@@ -158,6 +278,66 @@ if ($method === 'POST') {
         echo json_encode($result);
         exit();
     }
+
+    // New POST routes for updated database schema
+    if (strpos($request, 'add_vehicle_type') !== false) {
+        $result = $post->add_vehicle_type($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_payment_method') !== false) {
+        $result = $post->add_payment_method($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_time_slot') !== false) {
+        $result = $post->add_time_slot($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_promotion') !== false) {
+        $result = $post->add_promotion($data);
+        exit();
+    }
+
+    if (strpos($request, 'add_service_category') !== false) {
+        $result = $post->add_service_category($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_customer_feedback') !== false) {
+        $result = $post->add_customer_feedback($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_employee_schedule') !== false) {
+        $result = $post->add_employee_schedule($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_notification') !== false) {
+        $result = $post->add_notification($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_booking_promotion') !== false) {
+        $result = $post->add_booking_promotion($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_booking_history') !== false) {
+        $result = $post->add_booking_history($data);
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle PUT requests
@@ -185,6 +365,55 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'update_booking_status') !== false) {
         $result = $put->update_booking_status($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // New PUT routes for updated database schema
+    if (strpos($request, 'update_vehicle_type') !== false) {
+        $result = $put->update_vehicle_type($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_payment_method') !== false) {
+        $result = $put->update_payment_method($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_time_slot') !== false) {
+        $result = $put->update_time_slot($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_promotion') !== false) {
+        $result = $put->update_promotion($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_service_category') !== false) {
+        $result = $put->update_service_category($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_employee_schedule') !== false) {
+        $result = $put->update_employee_schedule($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_notification_status') !== false) {
+        $result = $put->update_notification_status($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_system_setting') !== false) {
+        $result = $put->update_system_setting($data);
         echo json_encode($result);
         exit();
     }

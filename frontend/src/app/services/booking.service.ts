@@ -55,15 +55,41 @@ export class BookingService {
   }
 
   getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
+    console.log('Fetching bookings for customer ID:', customerId);
+    console.log(
+      'API URL:',
+      `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
+    );
+
     return this.http
       .get<any>(
         `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
       )
       .pipe(
-        map((response) => response.payload.bookings),
+        map((response) => {
+          console.log('API Response:', response);
+          if (response && response.payload && response.payload.bookings) {
+            return response.payload.bookings;
+          } else {
+            console.warn('Unexpected response structure:', response);
+            return [];
+          }
+        }),
         catchError((error) => {
           console.error('Error fetching bookings:', error);
-          return throwError(() => new Error('Failed to load bookings.'));
+          let errorMessage = 'Failed to load bookings.';
+
+          if (error.status === 404) {
+            errorMessage = 'No bookings found for this customer.';
+          } else if (error.status === 401) {
+            errorMessage = 'Authentication required. Please log in again.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+
+          return throwError(() => new Error(errorMessage));
         })
       );
   }

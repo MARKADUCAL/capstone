@@ -513,7 +513,524 @@ class Post extends GlobalMethods
             return $this->sendPayload(
                 null, 
                 "failed", 
-                "Database error occurred: " . $e->getMessage(), 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    // New methods for the updated database schema
+    public function add_vehicle_type($data) {
+        // Validate required fields
+        if (empty($data->name) || !isset($data->base_price_multiplier)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO vehicle_types (name, description, base_price_multiplier, is_active) 
+                    VALUES (?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->name,
+                $data->description ?? '',
+                $data->base_price_multiplier,
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $vehicleTypeId = $this->pdo->lastInsertId();
+                
+                // Fetch the created vehicle type
+                $sql = "SELECT id, name, description, base_price_multiplier, is_active, created_at 
+                       FROM vehicle_types WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$vehicleTypeId]);
+                $vehicleType = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['vehicle_type' => $vehicleType], 
+                    "success", 
+                    "Vehicle type added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add vehicle type", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Vehicle type creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_payment_method($data) {
+        // Validate required fields
+        if (empty($data->name)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO payment_methods (name, description, is_active) 
+                    VALUES (?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->name,
+                $data->description ?? '',
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $paymentMethodId = $this->pdo->lastInsertId();
+                
+                // Fetch the created payment method
+                $sql = "SELECT id, name, description, is_active, created_at 
+                       FROM payment_methods WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$paymentMethodId]);
+                $paymentMethod = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['payment_method' => $paymentMethod], 
+                    "success", 
+                    "Payment method added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add payment method", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Payment method creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_time_slot($data) {
+        // Validate required fields
+        if (empty($data->start_time) || empty($data->end_time) || !isset($data->max_bookings)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO time_slots (start_time, end_time, max_bookings, is_active) 
+                    VALUES (?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->start_time,
+                $data->end_time,
+                $data->max_bookings,
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $timeSlotId = $this->pdo->lastInsertId();
+                
+                // Fetch the created time slot
+                $sql = "SELECT id, start_time, end_time, max_bookings, is_active, created_at 
+                       FROM time_slots WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$timeSlotId]);
+                $timeSlot = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['time_slot' => $timeSlot], 
+                    "success", 
+                    "Time slot added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add time slot", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Time slot creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_promotion($data) {
+        // Validate required fields
+        if (empty($data->name) || !isset($data->discount_percentage) || empty($data->start_date) || empty($data->end_date)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO promotions (name, description, discount_percentage, start_date, end_date, is_active) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->name,
+                $data->description ?? '',
+                $data->discount_percentage,
+                $data->start_date,
+                $data->end_date,
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $promotionId = $this->pdo->lastInsertId();
+                
+                // Fetch the created promotion
+                $sql = "SELECT id, name, description, discount_percentage, start_date, end_date, is_active, created_at 
+                       FROM promotions WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$promotionId]);
+                $promotion = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['promotion' => $promotion], 
+                    "success", 
+                    "Promotion added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add promotion", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Promotion creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_service_category($data) {
+        // Validate required fields
+        if (empty($data->name)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO service_categories (name, description, is_active) 
+                    VALUES (?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->name,
+                $data->description ?? '',
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $categoryId = $this->pdo->lastInsertId();
+                
+                // Fetch the created category
+                $sql = "SELECT id, name, description, is_active, created_at 
+                       FROM service_categories WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$categoryId]);
+                $category = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['service_category' => $category], 
+                    "success", 
+                    "Service category added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add service category", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Service category creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_customer_feedback($data) {
+        // Validate required fields
+        if (empty($data->booking_id) || empty($data->customer_id) || !isset($data->rating)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        // Validate rating range
+        if ($data->rating < 1 || $data->rating > 5) {
+            return $this->sendPayload(null, "failed", "Rating must be between 1 and 5", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO customer_feedback (booking_id, customer_id, rating, comment, is_public) 
+                    VALUES (?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isPublic = isset($data->is_public) ? ($data->is_public ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->booking_id,
+                $data->customer_id,
+                $data->rating,
+                $data->comment ?? '',
+                $isPublic
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $feedbackId = $this->pdo->lastInsertId();
+                
+                // Fetch the created feedback
+                $sql = "SELECT id, booking_id, customer_id, rating, comment, is_public, created_at 
+                       FROM customer_feedback WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$feedbackId]);
+                $feedback = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['customer_feedback' => $feedback], 
+                    "success", 
+                    "Customer feedback added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add customer feedback", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Customer feedback creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_employee_schedule($data) {
+        // Validate required fields
+        if (empty($data->employee_id) || empty($data->work_date) || empty($data->start_time) || empty($data->end_time)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO employee_schedules (employee_id, work_date, start_time, end_time, is_available) 
+                    VALUES (?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $isAvailable = isset($data->is_available) ? ($data->is_available ? 1 : 0) : 1;
+
+            $statement->execute([
+                $data->employee_id,
+                $data->work_date,
+                $data->start_time,
+                $data->end_time,
+                $isAvailable
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $scheduleId = $this->pdo->lastInsertId();
+                
+                // Fetch the created schedule
+                $sql = "SELECT id, employee_id, work_date, start_time, end_time, is_available, created_at 
+                       FROM employee_schedules WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$scheduleId]);
+                $schedule = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['employee_schedule' => $schedule], 
+                    "success", 
+                    "Employee schedule added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add employee schedule", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Employee schedule creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_notification($data) {
+        // Validate required fields
+        if (empty($data->user_id) || empty($data->user_type) || empty($data->title) || empty($data->message)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO notifications (user_id, user_type, title, message, type) 
+                    VALUES (?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+            $type = $data->type ?? 'info';
+
+            $statement->execute([
+                $data->user_id,
+                $data->user_type,
+                $data->title,
+                $data->message,
+                $type
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $notificationId = $this->pdo->lastInsertId();
+                
+                // Fetch the created notification
+                $sql = "SELECT id, user_id, user_type, title, message, type, is_read, created_at 
+                       FROM notifications WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$notificationId]);
+                $notification = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['notification' => $notification], 
+                    "success", 
+                    "Notification added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add notification", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Notification creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_booking_promotion($data) {
+        // Validate required fields
+        if (empty($data->booking_id) || empty($data->promotion_id) || !isset($data->discount_amount)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO booking_promotions (booking_id, promotion_id, discount_amount) 
+                    VALUES (?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute([
+                $data->booking_id,
+                $data->promotion_id,
+                $data->discount_amount
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $bookingPromotionId = $this->pdo->lastInsertId();
+                
+                // Fetch the created booking promotion
+                $sql = "SELECT id, booking_id, promotion_id, discount_amount, created_at 
+                       FROM booking_promotions WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$bookingPromotionId]);
+                $bookingPromotion = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['booking_promotion' => $bookingPromotion], 
+                    "success", 
+                    "Booking promotion added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add booking promotion", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Booking promotion creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
+                500
+            );
+        }
+    }
+
+    public function add_booking_history($data) {
+        // Validate required fields
+        if (empty($data->booking_id) || empty($data->status_to)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO booking_history (booking_id, status_from, status_to, changed_by, notes) 
+                    VALUES (?, ?, ?, ?, ?)";
+            
+            $statement = $this->pdo->prepare($sql);
+
+            $statement->execute([
+                $data->booking_id,
+                $data->status_from ?? null,
+                $data->status_to,
+                $data->changed_by ?? null,
+                $data->notes ?? null
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $historyId = $this->pdo->lastInsertId();
+                
+                // Fetch the created history record
+                $sql = "SELECT id, booking_id, status_from, status_to, changed_by, notes, created_at 
+                       FROM booking_history WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$historyId]);
+                $history = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                return $this->sendPayload(
+                    ['booking_history' => $history], 
+                    "success", 
+                    "Booking history added successfully", 
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add booking history", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Booking history creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null, 
+                "failed", 
+                "A database error occurred.", 
                 500
             );
         }

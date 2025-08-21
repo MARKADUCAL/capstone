@@ -5,7 +5,11 @@
       <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
       <span>AutoWash Hub</span>
     </div>
-    <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+    <div
+      class="mobile-menu-toggle"
+      [class.active]="mobileMenuOpen"
+      (click)="toggleMobileMenu()"
+    >
       <span></span>
       <span></span>
       <span></span>
@@ -22,6 +26,13 @@
     </div>
   </div>
 </nav>
+
+<!-- Mobile Menu Overlay -->
+<div
+  class="mobile-menu-overlay"
+  [class.active]="mobileMenuOpen"
+  (click)="closeMobileMenu()"
+></div>
 
 <!-- Hero Section -->
 <header class="hero" id="hero">

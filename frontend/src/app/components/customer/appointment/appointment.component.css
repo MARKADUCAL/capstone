@@ -1,261 +1,546 @@
-.container {
+/* Main Container */
+.appointment-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Section */
+.appointment-header {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.page-title i {
+  color: #3498db;
+  font-size: 2.2rem;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.available-slots-card {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
   padding: 20px;
-}
-
-.header {
+  border-radius: 15px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  min-width: 200px;
 }
 
-.available-slots {
-  font-size: 1.2em;
-}
-
-.slot-count {
-  font-weight: bold;
-  color: #1976d2;
-}
-
-.book-now {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  margin-bottom: 20px;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.book-now:hover {
-  background-color: #2980b9;
-}
-
-.booking-details {
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.client-name {
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #1976d2;
-}
-
-.detail-item {
-  margin: 8px 0;
-}
-
-.detail-label {
-  font-weight: 500;
-  color: #666;
-}
-
-.action-buttons {
+.slots-icon {
+  background: rgba(255, 255, 255, 0.2);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.action-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #1976d2;
-  color: white;
-  font-weight: 500;
-}
-
-.action-button:hover {
-  background-color: #1565c0;
-}
-
-/* Status styles */
-.status-pending {
-  color: #f57c00;
-}
-
-.status-confirmed {
-  color: #43a047;
-}
-
-.status-completed {
-  color: #1976d2;
-}
-
-.status-cancelled {
-  color: #d32f2f;
-}
-
-/* No bookings message */
-.no-bookings {
-  text-align: center;
-  padding: 24px;
-  color: #666;
-  font-style: italic;
-}
-
-/* Modal overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  font-size: 1.5rem;
 }
 
-.booking-modal-container {
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
+.slots-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  flex-direction: column;
 }
 
-.logo-title {
+.slots-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.slots-count {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Main Content */
+.appointment-content {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Form Container */
+.form-container {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.form-header h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.form-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 35px;
+}
+
+.section-title {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ecf0f1;
 }
 
-.modal-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.section-title i {
+  color: #3498db;
+  font-size: 1.1rem;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
+/* Form Rows */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Material Design Overrides */
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #bdc3c7;
+  border-radius: 12px;
+}
+
+::ng-deep
+  .mat-form-field-appearance-outline.mat-focused
+  .mat-form-field-outline-thick {
+  color: #3498db;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 12px 0;
+}
+
+::ng-deep .mat-form-field-label {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+::ng-deep .mat-form-field.mat-focused .mat-form-field-label {
+  color: #3498db;
+}
+
+::ng-deep .mat-select-value {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+::ng-deep .mat-option {
+  padding: 12px 16px;
+}
+
+/* Service Options */
+.service-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.service-details {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+/* Messages */
+.messages-container {
+  margin-bottom: 25px;
 }
 
 .message {
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #c62828;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
 }
 
-form {
+.success-message {
+  background: linear-gradient(135deg, #51cf66, #40c057);
+  color: white;
+  box-shadow: 0 4px 15px rgba(81, 207, 102, 0.3);
+}
+
+.message i {
+  font-size: 1.2rem;
+}
+
+/* Submit Button */
+.form-actions {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  color: white !important;
+  padding: 15px 40px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 50px !important;
+  border: none !important;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+  transition: all 0.3s ease !important;
+  min-width: 200px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+}
+
+.submit-button:disabled {
+  opacity: 0.7 !important;
+  transform: none !important;
+}
+
+/* Sidebar */
+.appointment-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 25px;
 }
 
-.form-group {
-  width: 100%;
-}
-
-/* Material Design overrides */
-::ng-deep .mat-form-field {
-  width: 100%;
-}
-
-/* Screen reader only class */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+.sidebar-card {
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Media queries for responsiveness */
-@media (max-width: 480px) {
-  .container {
+.card-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.card-header i {
+  color: #3498db;
+  font-size: 1.2rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+/* Tips List */
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tips-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.tips-list li:last-child {
+  border-bottom: none;
+}
+
+.tips-list i {
+  color: #3498db;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  min-width: 16px;
+}
+
+.tips-list span {
+  color: #5a6c7d;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Hours Info */
+.hours-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.hours-row:last-child {
+  border-bottom: none;
+}
+
+.day {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.time {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .appointment-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .appointment-sidebar {
+    order: -1;
+  }
+
+  .sidebar-card {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .appointment-container {
     padding: 15px;
-    margin: 10px auto;
   }
 
-  .header {
-    margin-bottom: 15px;
+  .appointment-header {
+    padding: 20px;
+    margin-bottom: 20px;
   }
 
-  .available-slots {
-    font-size: 16px;
+  .header-content {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
   }
 
-  .slot-count {
-    font-size: 20px;
+  .page-title {
+    font-size: 2rem;
   }
 
-  .book-now {
-    padding: 10px 20px;
-    font-size: 14px;
+  .available-slots-card {
+    min-width: 180px;
+    padding: 15px;
   }
 
-  .action-buttons {
+  .form-container {
+    padding: 25px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .submit-button {
+    padding: 12px 30px !important;
+    font-size: 1rem !important;
+    min-width: 180px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointment-container {
+    padding: 10px;
+  }
+
+  .appointment-header {
+    padding: 15px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
     flex-direction: column;
     gap: 8px;
   }
 
-  .action-button {
-    width: 100%;
-    padding: 10px;
+  .page-title i {
+    font-size: 1.8rem;
   }
 
-  .booking-modal-container {
-    width: 95%;
+  .available-slots-card {
+    min-width: 150px;
+    padding: 12px;
   }
 
-  .modal-header h2 {
-    font-size: 18px;
+  .slots-count {
+    font-size: 1.5rem;
   }
 
-  form {
+  .form-container {
+    padding: 20px;
+  }
+
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .card-header {
     padding: 15px;
   }
 
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 10px;
-    font-size: 14px;
+  .card-content {
+    padding: 15px;
   }
+}
 
-  .submit-btn {
-    padding: 10px;
-    font-size: 14px;
+/* Animation for form sections */
+.form-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover effects for interactive elements */
+.form-field:hover ::ng-deep .mat-form-field-outline {
+  color: #3498db;
+}
+
+.sidebar-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.submit-button:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Loading animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.fa-spin {
+  animation: spin 1s linear infinite;
 }

@@ -152,68 +152,284 @@ class Put {
     }
 
     public function update_booking_status($data) {
-        // Validate required fields
-        if (!isset($data->id) || empty($data->id)) {
-            return $this->sendPayload(null, "failed", "Booking ID is required", 400);
-        }
-        if (!isset($data->status) || empty($data->status)) {
-            return $this->sendPayload(null, "failed", "Status is required", 400);
-        }
-
-        // Normalize and validate status
-        $allowed = ["Pending", "Approved", "Rejected", "Completed"];
-        $status = ucfirst(strtolower($data->status));
-        if (!in_array($status, $allowed)) {
-            return $this->sendPayload(null, "failed", "Invalid status value", 400);
-        }
-
         try {
-            // Ensure booking exists
-            $sql = "SELECT COUNT(*) FROM bookings WHERE id = ?";
+            $this->pdo->beginTransaction();
+            
+            // Get current status
+            $sql = "SELECT status FROM bookings WHERE id = ?";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->id]);
-            $count = $stmt->fetchColumn();
-            if ($count == 0) {
-                return $this->sendPayload(null, "failed", "Booking not found", 404);
+            $stmt->execute([$data->booking_id]);
+            $currentStatus = $stmt->fetchColumn();
+            
+            if (!$currentStatus) {
+                throw new Exception("Booking not found");
             }
-
-            // Update status
-            $sql = "UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            
+            // Update booking status
+            $sql = "UPDATE bookings 
+                    SET status = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$status, $data->id]);
-
-            // Return the updated booking row
-            $sql = "SELECT 
-                        b.id,
-                        b.wash_date as washDate,
-                        b.wash_time as washTime,
-                        b.status,
-                        b.price,
-                        b.vehicle_type as vehicleType,
-                        b.payment_type as paymentType,
-                        b.nickname,
-                        TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
-                        s.name as serviceName,
-                        s.description as serviceDescription,
-                        s.duration_minutes as serviceDuration
-                    FROM bookings b
-                    LEFT JOIN services s ON b.service_id = s.id
-                    LEFT JOIN customers c ON b.customer_id = c.id
-                    WHERE b.id = ?";
+            $stmt->execute([$data->status, $data->booking_id]);
+            
+            // Add to booking history
+            $sql = "INSERT INTO booking_history (booking_id, status_from, status_to, changed_by, notes) 
+                    VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->id]);
-            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute([
+                $data->booking_id,
+                $currentStatus,
+                $data->status,
+                $data->changed_by ?? 'system',
+                $data->notes ?? null
+            ]);
+            
+            $this->pdo->commit();
+            return $this->sendPayload(null, "success", "Booking status updated successfully", 200);
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
 
-            return $this->sendPayload([
-                'booking' => $booking
-            ], "success", "Booking status updated successfully", 200);
-        } catch (\PDOException $e) {
-            return $this->sendPayload(
-                null,
-                "failed",
-                "Failed to update booking status: " . $e->getMessage(),
-                500
-            );
+    // New update methods for the updated database schema
+    public function update_vehicle_type($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Vehicle type ID is required", 400);
+            }
+            
+            $sql = "UPDATE vehicle_types 
+                    SET name = ?, description = ?, base_price_multiplier = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->name,
+                $data->description ?? '',
+                $data->base_price_multiplier,
+                $isActive,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Vehicle type updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Vehicle type not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_payment_method($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Payment method ID is required", 400);
+            }
+            
+            $sql = "UPDATE payment_methods 
+                    SET name = ?, description = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->name,
+                $data->description ?? '',
+                $isActive,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Payment method updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Payment method not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_time_slot($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Time slot ID is required", 400);
+            }
+            
+            $sql = "UPDATE time_slots 
+                    SET start_time = ?, end_time = ?, max_bookings = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->start_time,
+                $data->end_time,
+                $data->max_bookings,
+                $isActive,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Time slot updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Time slot not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_promotion($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Promotion ID is required", 400);
+            }
+            
+            $sql = "UPDATE promotions 
+                    SET name = ?, description = ?, discount_percentage = ?, start_date = ?, end_date = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->name,
+                $data->description ?? '',
+                $data->discount_percentage,
+                $data->start_date,
+                $data->end_date,
+                $isActive,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Promotion updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Promotion not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_service_category($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Service category ID is required", 400);
+            }
+            
+            $sql = "UPDATE service_categories 
+                    SET name = ?, description = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->name,
+                $data->description ?? '',
+                $isActive,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Service category updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Service category not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_employee_schedule($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Schedule ID is required", 400);
+            }
+            
+            $sql = "UPDATE employee_schedules 
+                    SET work_date = ?, start_time = ?, end_time = ?, is_available = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isAvailable = isset($data->is_available) ? ($data->is_available ? 1 : 0) : 1;
+            
+            $stmt->execute([
+                $data->work_date,
+                $data->start_time,
+                $data->end_time,
+                $isAvailable,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Employee schedule updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Employee schedule not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_notification_status($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Notification ID is required", 400);
+            }
+            
+            $sql = "UPDATE notifications 
+                    SET is_read = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $isRead = isset($data->is_read) ? ($data->is_read ? 1 : 0) : 0;
+            
+            $stmt->execute([
+                $isRead,
+                $data->id
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Notification status updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Notification not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function update_system_setting($data) {
+        try {
+            if (!isset($data->setting_key) || empty($data->setting_key)) {
+                return $this->sendPayload(null, "failed", "Setting key is required", 400);
+            }
+            
+            $sql = "UPDATE system_settings 
+                    SET setting_value = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE setting_key = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $data->setting_value,
+                $data->setting_key
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "System setting updated successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "System setting not found or no changes made", 404);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }
     }
 } 

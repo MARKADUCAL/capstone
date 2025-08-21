@@ -1,114 +1,282 @@
-<form class="booking-form" (ngSubmit)="submitBooking()" autocomplete="off">
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Vehicle Type*</mat-label>
-    <mat-select
-      [(ngModel)]="bookingForm.vehicleType"
-      name="vehicleType"
-      required
-    >
-      <mat-option *ngFor="let type of vehicleTypes" [value]="type">{{
-        type
-      }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Select Services*</mat-label>
-    <mat-select [(ngModel)]="bookingForm.services" name="services" required>
-      <mat-option *ngFor="let service of services" [value]="service.name">
-        {{ service.name }} - ${{ service.price }} ({{
-          service.duration_minutes
-        }}
-        mins)
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Nickname*</mat-label>
-    <input
-      matInput
-      [(ngModel)]="bookingForm.nickname"
-      name="nickname"
-      required
-      placeholder="Enter your nickname"
-    />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Phone Number*</mat-label>
-    <input
-      matInput
-      [(ngModel)]="bookingForm.phone"
-      name="phone"
-      required
-      placeholder="Enter your phone number"
-    />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Wash Date*</mat-label>
-    <input
-      matInput
-      [matDatepicker]="picker"
-      [(ngModel)]="bookingForm.washDate"
-      name="washDate"
-      required
-      placeholder="Select wash date"
-    />
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Wash Time*</mat-label>
-    <input
-      matInput
-      type="time"
-      [(ngModel)]="bookingForm.washTime"
-      name="washTime"
-      required
-      placeholder="Select wash time"
-    />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Payment Type*</mat-label>
-    <mat-select
-      [(ngModel)]="bookingForm.paymentType"
-      name="paymentType"
-      required
-    >
-      <mat-option *ngFor="let type of paymentTypes" [value]="type">{{
-        type
-      }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>Notes</mat-label>
-    <textarea
-      matInput
-      [(ngModel)]="bookingForm.notes"
-      name="notes"
-      rows="2"
-      placeholder="Additional notes (optional)"
-    ></textarea>
-  </mat-form-field>
-
-  <div class="form-actions">
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit"
-      [disabled]="isSubmitting"
-    >
-      Book Now
-    </button>
+<div class="appointment-container">
+  <!-- Header Section -->
+  <div class="appointment-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-calendar-check"></i>
+          Book Your Appointment
+        </h1>
+        <p class="page-subtitle">Schedule your car wash service with ease</p>
+      </div>
+      <div class="header-right">
+        <div class="available-slots-card">
+          <div class="slots-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="slots-info">
+            <span class="slots-label">Available Slots</span>
+            <span class="slots-count">{{ availableSlots }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
-  <mat-hint *ngIf="successMessage" style="color: green">{{
-    successMessage
-  }}</mat-hint>
-</form>
+  <!-- Main Content -->
+  <div class="appointment-content">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Service Details</h2>
+        <p>Fill in the details below to book your car wash appointment</p>
+      </div>
+
+      <form
+        class="booking-form"
+        (ngSubmit)="submitBooking()"
+        autocomplete="off"
+      >
+        <!-- Vehicle and Service Selection -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-car"></i>
+            <span>Vehicle & Service</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Vehicle Type*</mat-label>
+              <mat-select
+                [(ngModel)]="bookingForm.vehicleType"
+                name="vehicleType"
+                required
+              >
+                <mat-option *ngFor="let type of vehicleTypes" [value]="type">
+                  <i class="fas fa-car"></i> {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Select Services*</mat-label>
+              <mat-select
+                [(ngModel)]="bookingForm.services"
+                name="services"
+                required
+              >
+                <mat-option
+                  *ngFor="let service of services"
+                  [value]="service.name"
+                >
+                  <div class="service-option">
+                    <span class="service-name">{{ service.name }}</span>
+                    <span class="service-details"
+                      >${{ service.price }} •
+                      {{ service.duration_minutes }} mins</span
+                    >
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-user"></i>
+            <span>Personal Information</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Nickname*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.nickname"
+                name="nickname"
+                required
+                placeholder="Enter your nickname"
+              />
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Phone Number*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.phone"
+                name="phone"
+                required
+                placeholder="Enter your phone number"
+              />
+              <mat-icon matSuffix>phone</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Schedule</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Wash Date*</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                [(ngModel)]="bookingForm.washDate"
+                name="washDate"
+                required
+                placeholder="Select wash date"
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Wash Time*</mat-label>
+              <input
+                matInput
+                type="time"
+                [(ngModel)]="bookingForm.washTime"
+                name="washTime"
+                required
+                placeholder="Select wash time"
+              />
+              <mat-icon matSuffix>schedule</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-credit-card"></i>
+            <span>Payment</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Payment Type*</mat-label>
+              <mat-select
+                [(ngModel)]="bookingForm.paymentType"
+                name="paymentType"
+                required
+              >
+                <mat-option *ngFor="let type of paymentTypes" [value]="type">
+                  <i class="fas fa-credit-card"></i> {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-sticky-note"></i>
+            <span>Additional Information</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="bookingForm.notes"
+              name="notes"
+              rows="3"
+              placeholder="Any special instructions or additional notes..."
+            ></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-container" *ngIf="errorMessage || successMessage">
+          <div class="message error-message" *ngIf="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ errorMessage }}
+          </div>
+          <div class="message success-message" *ngIf="successMessage">
+            <i class="fas fa-check-circle"></i>
+            {{ successMessage }}
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isSubmitting"
+            class="submit-button"
+          >
+            <i class="fas fa-calendar-plus" *ngIf="!isSubmitting"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+            {{ isSubmitting ? "Booking..." : "Book Appointment" }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sidebar with Tips -->
+    <div class="appointment-sidebar">
+      <div class="sidebar-card">
+        <div class="card-header">
+          <i class="fas fa-lightbulb"></i>
+          <h3>Booking Tips</h3>
+        </div>
+        <div class="card-content">
+          <ul class="tips-list">
+            <li>
+              <i class="fas fa-clock"></i>
+              <span>Book at least 2 hours in advance</span>
+            </li>
+            <li>
+              <i class="fas fa-car"></i>
+              <span>Ensure your vehicle is accessible</span>
+            </li>
+            <li>
+              <i class="fas fa-phone"></i>
+              <span>Keep your phone nearby for updates</span>
+            </li>
+            <li>
+              <i class="fas fa-credit-card"></i>
+              <span>Payment is processed after service completion</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-header">
+          <i class="fas fa-info-circle"></i>
+          <h3>Service Hours</h3>
+        </div>
+        <div class="card-content">
+          <div class="hours-info">
+            <div class="hours-row">
+              <span class="day">Monday - Friday</span>
+              <span class="time">8:00 AM - 6:00 PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="day">Saturday</span>
+              <span class="time">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="day">Sunday</span>
+              <span class="time">10:00 AM - 4:00 PM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

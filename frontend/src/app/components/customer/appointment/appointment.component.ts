@@ -11,6 +11,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import {
   VEHICLE_TYPES,
   PAYMENT_TYPES,
@@ -36,6 +37,7 @@ import { ServiceService, Service } from '../../../services/service.service';
     MatButtonModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatIconModule,
   ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],
