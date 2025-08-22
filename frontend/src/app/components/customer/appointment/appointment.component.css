@@ -164,8 +164,34 @@
   gap: 20px;
 }
 
+.form-row.single-field {
+  grid-template-columns: 1fr;
+}
+
+.form-row.single-field .form-field {
+  max-width: 50%;
+}
+
+/* Form Fields */
 .form-field {
   width: 100%;
+  margin-bottom: 20px;
+}
+
+.form-field input[readonly],
+.form-field input[readonly]:focus {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  border-color: #dee2e6;
+}
+
+.form-field input[readonly]::placeholder {
+  color: #adb5bd;
+}
+
+.form-field input[readonly]:hover {
+  background-color: #f8f9fa;
 }
 
 .full-width {

@@ -71,7 +71,7 @@
                   <div class="service-option">
                     <span class="service-name">{{ service.name }}</span>
                     <span class="service-details"
-                      >${{ service.price }} •
+                      >₱{{ service.price }} •
                       {{ service.duration_minutes }} mins</span
                     >
                   </div>
@@ -86,6 +86,34 @@
           <div class="section-title">
             <i class="fas fa-user"></i>
             <span>Personal Information</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>First Name*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.firstName"
+                name="firstName"
+                required
+                readonly
+                placeholder="Your first name"
+              />
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Last Name*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.lastName"
+                name="lastName"
+                required
+                readonly
+                placeholder="Your last name"
+              />
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
           </div>
 
           <div class="form-row">
@@ -108,7 +136,21 @@
                 [(ngModel)]="bookingForm.phone"
                 name="phone"
                 required
-                placeholder="Enter your phone number"
+                readonly
+                placeholder="Your phone number"
+              />
+              <mat-icon matSuffix>phone</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row single-field">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Additional Phone Number</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.additionalPhone"
+                name="additionalPhone"
+                placeholder="Alternative phone number (optional)"
               />
               <mat-icon matSuffix>phone</mat-icon>
             </mat-form-field>

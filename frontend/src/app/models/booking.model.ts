@@ -1,8 +1,11 @@
 export interface BookingForm {
   vehicleType: string;
   services: string;
+  firstName: string;
+  lastName: string;
   nickname: string;
   phone: string;
+  additionalPhone: string;
   washDate: string;
   washTime: string;
   paymentType: string;

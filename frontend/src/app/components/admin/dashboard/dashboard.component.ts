@@ -170,15 +170,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.http.get(`${this.apiUrl}/get_dashboard_summary`).subscribe({
         next: (response: any) => {
           if (response?.status?.remarks === 'success') {
-            const data = response.payload;
+            const data = response.payload?.dashboard_summary || {};
             this.businessStats = {
-              totalCustomers: data.total_customers || 0,
-              totalBookings: data.total_bookings || 0,
-              totalEmployees: data.total_employees || 0,
-              customerSatisfaction: data.customer_satisfaction || 4.7,
-              totalRevenue: data.total_revenue || 0,
-              completedBookings: data.completed_bookings || 0,
-              pendingBookings: data.pending_bookings || 0,
+              totalCustomers: Number(data.total_customers) || 0,
+              totalBookings: Number(data.total_bookings) || 0,
+              totalEmployees: Number(data.total_employees) || 0,
+              // Keep a sensible default for satisfaction as backend doesn't provide it
+              customerSatisfaction: Number(data.customer_satisfaction) || 4.7,
+              // Backend provides monthly_revenue; keep field for internal use if needed
+              totalRevenue: Number(data.monthly_revenue) || 0,
+              completedBookings: Number(data.completed_bookings) || 0,
+              pendingBookings: Number(data.pending_bookings) || 0,
             };
           }
         },

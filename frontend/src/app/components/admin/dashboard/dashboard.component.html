@@ -78,26 +78,6 @@
 
     <mat-card class="stats-card">
       <mat-card-content>
-        <div class="stats-icon revenue">
-          <mat-icon>attach_money</mat-icon>
-        </div>
-        <div class="stats-info">
-          <h3>Total Revenue</h3>
-          <p class="stats-number">
-            {{ formatCurrency(businessStats.totalRevenue) }}
-          </p>
-          <p class="stats-subtitle">All time earnings</p>
-        </div>
-        <mat-spinner
-          diameter="20"
-          *ngIf="isLoadingStats"
-          class="stats-spinner"
-        ></mat-spinner>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stats-card">
-      <mat-card-content>
         <div class="stats-icon completed">
           <mat-icon>check_circle</mat-icon>
         </div>
@@ -105,24 +85,6 @@
           <h3>Completed</h3>
           <p class="stats-number">{{ businessStats.completedBookings }}</p>
           <p class="stats-subtitle">Finished bookings</p>
-        </div>
-        <mat-spinner
-          diameter="20"
-          *ngIf="isLoadingStats"
-          class="stats-spinner"
-        ></mat-spinner>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stats-card">
-      <mat-card-content>
-        <div class="stats-icon satisfaction">
-          <mat-icon>star</mat-icon>
-        </div>
-        <div class="stats-info">
-          <h3>Customer Satisfaction</h3>
-          <p class="stats-number">{{ businessStats.customerSatisfaction }}</p>
-          <p class="stats-subtitle">Average rating</p>
         </div>
         <mat-spinner
           diameter="20"

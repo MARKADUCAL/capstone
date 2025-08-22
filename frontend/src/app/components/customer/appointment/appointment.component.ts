@@ -51,6 +51,11 @@ export class AppointmentComponent implements OnInit {
   availableSlots = 12;
   isBrowser: boolean;
 
+  // User information
+  userFirstName = '';
+  userLastName = '';
+  userPhone = '';
+
   // Form options
   vehicleTypes = VEHICLE_TYPES;
   services: Service[] = [];
@@ -60,8 +65,11 @@ export class AppointmentComponent implements OnInit {
   bookingForm: BookingForm = {
     vehicleType: '',
     services: '',
+    firstName: '',
+    lastName: '',
     nickname: '',
     phone: '',
+    additionalPhone: '',
     washDate: '',
     washTime: '',
     paymentType: '',
@@ -82,6 +90,7 @@ export class AppointmentComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.isBrowser) {
+      this.loadUserData();
       this.loadBookings();
       this.loadServices();
 
@@ -95,6 +104,30 @@ export class AppointmentComponent implements OnInit {
           }, 500); // Small delay to ensure services are loaded
         }
       });
+    }
+  }
+
+  // Load user data from localStorage
+  loadUserData(): void {
+    if (!this.isBrowser) return;
+
+    const customerDataStr = localStorage.getItem('customer_data');
+    if (customerDataStr) {
+      try {
+        const customerData = JSON.parse(customerDataStr);
+
+        // Set user data properties
+        this.userFirstName = customerData.first_name || '';
+        this.userLastName = customerData.last_name || '';
+        this.userPhone = customerData.mobile_no || customerData.phone || '';
+
+        // Pre-fill the form with user data
+        this.bookingForm.firstName = this.userFirstName;
+        this.bookingForm.lastName = this.userLastName;
+        this.bookingForm.phone = this.userPhone;
+      } catch (error) {
+        console.error('Error parsing customer data:', error);
+      }
     }
   }
 
@@ -140,8 +173,11 @@ export class AppointmentComponent implements OnInit {
     this.bookingForm = {
       vehicleType: '',
       services: '',
+      firstName: this.userFirstName,
+      lastName: this.userLastName,
       nickname: '',
-      phone: '',
+      phone: this.userPhone,
+      additionalPhone: '',
       washDate: '',
       washTime: '',
       paymentType: '',
@@ -175,8 +211,11 @@ export class AppointmentComponent implements OnInit {
       customer_id: 2, // Hardcoded customer_id
       service_id: selectedService.id,
       vehicle_type: this.bookingForm.vehicleType,
+      first_name: this.bookingForm.firstName,
+      last_name: this.bookingForm.lastName,
       nickname: this.bookingForm.nickname,
       phone: this.bookingForm.phone,
+      additional_phone: this.bookingForm.additionalPhone,
       wash_date: this.bookingForm.washDate,
       wash_time: this.bookingForm.washTime,
       payment_type: this.bookingForm.paymentType,
@@ -214,13 +253,23 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
+    if (!this.bookingForm.firstName) {
+      this.errorMessage = 'First name is required';
+      return false;
+    }
+
+    if (!this.bookingForm.lastName) {
+      this.errorMessage = 'Last name is required';
+      return false;
+    }
+
     if (!this.bookingForm.nickname) {
-      this.errorMessage = 'Please enter your name';
+      this.errorMessage = 'Please enter your nickname';
       return false;
     }
 
     if (!this.bookingForm.phone) {
-      this.errorMessage = 'Please enter your phone number';
+      this.errorMessage = 'Phone number is required';
       return false;
     }
 

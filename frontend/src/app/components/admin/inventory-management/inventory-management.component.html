@@ -21,7 +21,8 @@
             <mat-icon>category</mat-icon> {{ item.category || "General" }}
           </p>
           <p class="price">
-            <mat-icon>attach_money</mat-icon> {{ item.price | currency }}
+            <mat-icon>attach_money</mat-icon>
+            {{ item.price | currency : "PHP" }}
           </p>
         </div>
       </div>
