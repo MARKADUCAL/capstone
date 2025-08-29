@@ -6,6 +6,7 @@ import {
   HttpHeaders,
   HttpClientModule,
 } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface Service {
   id: number;
@@ -35,7 +36,7 @@ interface ApiResponse {
 export class ServiceManagementComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
-  private apiUrl = 'http://localhost/autowash-hub-api/api';
+  private apiUrl = environment.apiUrl;
   private isLoading = false;
 
   services: Service[] = [];

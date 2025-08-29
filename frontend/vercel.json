@@ -1,24 +1,22 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/autowash-hub/browser",
+  "framework": "angular",
+  "rewrites": [
     {
-      "src": "dist/autowash-hub/server/server.mjs",
-      "use": "@vercel/node"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/assets/(.*)",
-      "dest": "/dist/autowash-hub/browser/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/autowash-hub/server/server.mjs"
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
-  ],
-  "functions": {
-    "dist/autowash-hub/server/server.mjs": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

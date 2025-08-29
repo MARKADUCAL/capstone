@@ -507,6 +507,82 @@
   background-color: #45a049; /* Darker shade on hover */
 }
 
+.contact-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Success and Error Messages */
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Verification Modal Styles */
+.verification-modal {
+  max-width: 500px;
+}
+
+.verification-modal .modal-body {
+  text-align: center;
+}
+
+.verification-modal .modal-body p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.verification-input {
+  margin: 20px 0;
+}
+
+.verification-code-input {
+  width: 200px;
+  padding: 15px;
+  font-size: 18px;
+  text-align: center;
+  border: 2px solid #4caf91;
+  border-radius: 5px;
+  letter-spacing: 2px;
+}
+
+.verification-code-input:focus {
+  outline: none;
+  border-color: #45a049;
+  box-shadow: 0 0 5px rgba(76, 175, 145, 0.3);
+}
+
+.verification-actions {
+  margin: 15px 0;
+}
+
+.verification-actions .modal-btn {
+  background-color: #6c757d;
+  margin: 0 10px;
+}
+
+.verification-actions .modal-btn:hover {
+  background-color: #5a6268;
+}
+
 /* Contact Form Input Sizes */
 .input-large {
   padding: 15px; /* Increase padding for a spacious feel */

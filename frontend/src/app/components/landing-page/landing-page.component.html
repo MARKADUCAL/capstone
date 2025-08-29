@@ -161,11 +161,25 @@
         <p><strong>Email Us:</strong> Example123email.com</p>
       </div>
     </div>
-    <form class="contact-form">
+    <form
+      class="contact-form"
+      (ngSubmit)="onSubmitContactForm()"
+      #contactFormRef="ngForm"
+    >
+      <!-- Success/Error Messages -->
+      <div *ngIf="contactSuccessMessage" class="success-message">
+        {{ contactSuccessMessage }}
+      </div>
+      <div *ngIf="contactErrorMessage" class="error-message">
+        {{ contactErrorMessage }}
+      </div>
+
       <input
         type="text"
         class="input-medium"
         id="yourname"
+        name="name"
+        [(ngModel)]="contactForm.name"
         placeholder="Your Name"
         required
       />
@@ -173,23 +187,32 @@
         type="email"
         class="input-medium"
         id="youremail"
-        placeholder="Your Email"
+        name="email"
+        [(ngModel)]="contactForm.email"
+        placeholder="Your Email (Gmail only)"
         required
       />
       <input
         type="text"
         class="input-small"
         id="subject"
+        name="subject"
+        [(ngModel)]="contactForm.subject"
         placeholder="Subject"
         required
       />
       <textarea
         class="input-large"
         id="message"
+        name="message"
+        [(ngModel)]="contactForm.message"
         placeholder="Message"
         required
       ></textarea>
-      <button type="submit">Send Message</button>
+      <button type="submit" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">Send Message</span>
+        <span *ngIf="isSubmitting">Sending...</span>
+      </button>
     </form>
   </div>
 </section>
@@ -255,6 +278,49 @@
         OK
       </button>
       <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Gmail Verification Modal -->
+<div class="modal-overlay" *ngIf="showVerificationModal">
+  <div class="custom-modal verification-modal">
+    <div class="modal-header">
+      <h3>Gmail Verification Required</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        We need to verify your Gmail address:
+        <strong>{{ verificationEmail }}</strong>
+      </p>
+      <p>Please check your email for a verification code and enter it below:</p>
+
+      <div class="verification-input">
+        <input
+          type="text"
+          [(ngModel)]="verificationCode"
+          placeholder="Enter 6-digit code"
+          maxlength="6"
+          class="verification-code-input"
+        />
+      </div>
+
+      <div class="verification-actions">
+        <button class="modal-btn modal-btn-ok" (click)="sendVerificationCode()">
+          Resend Code
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-ok" (click)="verifyCode()">
+        Verify & Send
+      </button>
+      <button
+        class="modal-btn modal-btn-cancel"
+        (click)="closeVerificationModal()"
+      >
         Cancel
       </button>
     </div>

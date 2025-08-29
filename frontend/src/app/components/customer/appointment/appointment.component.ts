@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   VEHICLE_TYPES,
   PAYMENT_TYPES,
+  ONLINE_PAYMENT_OPTIONS,
   BookingForm,
   Booking,
   BookingStatus,
@@ -55,11 +56,13 @@ export class AppointmentComponent implements OnInit {
   userFirstName = '';
   userLastName = '';
   userPhone = '';
+  userCustomerId = ''; // Add customer ID property
 
   // Form options
   vehicleTypes = VEHICLE_TYPES;
   services: Service[] = [];
   paymentTypes = PAYMENT_TYPES;
+  onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
 
   // Booking form model
   bookingForm: BookingForm = {
@@ -73,11 +76,30 @@ export class AppointmentComponent implements OnInit {
     washDate: '',
     washTime: '',
     paymentType: '',
+    onlinePaymentOption: '',
     notes: '',
   };
 
   // Customer bookings
   customerBookings: Booking[] = [];
+
+  // Time picker properties
+  showTimePicker = false;
+  manualHour: number | null = null;
+  manualMinute: number | null = null;
+  availableTimeSlots: string[] = [
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+  ];
 
   constructor(
     private bookingService: BookingService,
@@ -91,7 +113,6 @@ export class AppointmentComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadUserData();
-      this.loadBookings();
       this.loadServices();
 
       // Check for service query parameter
@@ -107,6 +128,13 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  // Handle payment type change
+  onPaymentTypeChange(): void {
+    if (this.bookingForm.paymentType !== 'Online Payment') {
+      this.bookingForm.onlinePaymentOption = '';
+    }
+  }
+
   // Load user data from localStorage
   loadUserData(): void {
     if (!this.isBrowser) return;
@@ -115,19 +143,28 @@ export class AppointmentComponent implements OnInit {
     if (customerDataStr) {
       try {
         const customerData = JSON.parse(customerDataStr);
+        console.log('Loaded customer data:', customerData);
 
         // Set user data properties
         this.userFirstName = customerData.first_name || '';
         this.userLastName = customerData.last_name || '';
         this.userPhone = customerData.mobile_no || customerData.phone || '';
+        this.userCustomerId = customerData.id || ''; // Get customer ID
+
+        console.log('Customer ID loaded:', this.userCustomerId);
 
         // Pre-fill the form with user data
         this.bookingForm.firstName = this.userFirstName;
         this.bookingForm.lastName = this.userLastName;
         this.bookingForm.phone = this.userPhone;
+
+        // Load bookings after user data is loaded
+        this.loadBookings();
       } catch (error) {
         console.error('Error parsing customer data:', error);
       }
+    } else {
+      console.warn('No customer data found in localStorage');
     }
   }
 
@@ -145,7 +182,12 @@ export class AppointmentComponent implements OnInit {
 
   // Load customer bookings
   loadBookings(): void {
-    this.bookingService.getBookings().subscribe(
+    if (!this.userCustomerId) {
+      console.warn('Customer ID not available, skipping bookings load');
+      return;
+    }
+
+    this.bookingService.getBookingsByCustomerId(this.userCustomerId).subscribe(
       (bookings) => {
         this.customerBookings = bookings;
       },
@@ -157,6 +199,11 @@ export class AppointmentComponent implements OnInit {
 
   // Open booking modal
   openBookingModal(): void {
+    if (!this.userCustomerId) {
+      this.errorMessage = 'Customer ID not found. Please log in again.';
+      return;
+    }
+
     this.resetForm();
     this.showBookingModal = true;
   }
@@ -181,6 +228,7 @@ export class AppointmentComponent implements OnInit {
       washDate: '',
       washTime: '',
       paymentType: '',
+      onlinePaymentOption: '',
       notes: '',
     };
     this.successMessage = '';
@@ -206,9 +254,15 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
-    // TODO: Get the actual customer_id from auth service
+    // Get the actual customer_id from stored user data
+    if (!this.userCustomerId) {
+      this.errorMessage = 'Customer ID not found. Please log in again.';
+      this.isSubmitting = false;
+      return;
+    }
+
     const bookingData = {
-      customer_id: 2, // Hardcoded customer_id
+      customer_id: this.userCustomerId, // Use actual customer ID from user data
       service_id: selectedService.id,
       vehicle_type: this.bookingForm.vehicleType,
       first_name: this.bookingForm.firstName,
@@ -219,6 +273,7 @@ export class AppointmentComponent implements OnInit {
       wash_date: this.bookingForm.washDate,
       wash_time: this.bookingForm.washTime,
       payment_type: this.bookingForm.paymentType,
+      online_payment_option: this.bookingForm.onlinePaymentOption,
       price: selectedService.price,
       notes: this.bookingForm.notes,
     };
@@ -288,6 +343,14 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
+    if (
+      this.bookingForm.paymentType === 'Online Payment' &&
+      !this.bookingForm.onlinePaymentOption
+    ) {
+      this.errorMessage = 'Please select an online payment method';
+      return false;
+    }
+
     return true;
   }
 
@@ -319,11 +382,25 @@ export class AppointmentComponent implements OnInit {
   // Cancel a booking
   cancelBooking(booking: Booking): void {
     if (confirm(`Are you sure you want to cancel this booking?`)) {
-      this.bookingService.cancelBooking(booking.id).subscribe((success) => {
-        if (success) {
-          this.loadBookings(); // Refresh the bookings list
-        }
-      });
+      const reason = prompt(
+        'Please share a short reason for cancelling (optional):',
+        'Change of plans'
+      );
+
+      this.bookingService
+        .updateBookingStatus(booking.id, 'Cancelled', reason || undefined)
+        .subscribe({
+          next: (result) => {
+            if (result && result.success) {
+              this.loadBookings(); // Refresh the bookings list
+            } else {
+              this.errorMessage = 'Failed to cancel booking.';
+            }
+          },
+          error: () => {
+            this.errorMessage = 'Failed to cancel booking.';
+          },
+        });
     }
   }
 
@@ -339,5 +416,66 @@ export class AppointmentComponent implements OnInit {
       default:
         return 'status-pending';
     }
+  }
+
+  // Time picker methods
+  openTimePicker(): void {
+    this.showTimePicker = true;
+    // Parse current time if exists
+    if (this.bookingForm.washTime) {
+      const [hours, minutes] = this.bookingForm.washTime.split(':');
+      this.manualHour = parseInt(hours);
+      this.manualMinute = parseInt(minutes);
+    }
+  }
+
+  closeTimePicker(event: Event): void {
+    event.stopPropagation();
+    this.showTimePicker = false;
+  }
+
+  updateManualTime(): void {
+    if (this.manualHour !== null && this.manualMinute !== null) {
+      const hour = this.manualHour.toString().padStart(2, '0');
+      const minute = this.manualMinute.toString().padStart(2, '0');
+      this.bookingForm.washTime = `${hour}:${minute}`;
+    }
+  }
+
+  selectTimeSlot(timeSlot: string): void {
+    this.bookingForm.washTime = timeSlot;
+    // Parse the selected time for manual inputs
+    const [hours, minutes] = timeSlot.split(':');
+    this.manualHour = parseInt(hours);
+    this.manualMinute = parseInt(minutes);
+  }
+
+  isTimeSlotSelected(timeSlot: string): boolean {
+    return this.bookingForm.washTime === timeSlot;
+  }
+
+  isTimeSlotAvailable(timeSlot: string): boolean {
+    // In a real app, you would check against actual availability
+    // For now, all slots are available
+    return true;
+  }
+
+  formatTimeSlot(timeSlot: string): string {
+    const [hours, minutes] = timeSlot.split(':');
+    const hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${period}`;
+  }
+
+  setQuickTime(time: string): void {
+    this.bookingForm.washTime = time;
+    const [hours, minutes] = time.split(':');
+    this.manualHour = parseInt(hours);
+    this.manualMinute = parseInt(minutes);
+  }
+
+  confirmTimeSelection(): void {
+    this.showTimePicker = false;
   }
 }

@@ -12,19 +12,24 @@
         </div>
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
           <div class="form-group">
+            <label for="employee_id">Employee ID</label>
             <input
+              id="employee_id"
               type="text"
               [(ngModel)]="employee.employee_id"
               name="employee_id"
-              placeholder="Enter employee ID (e.g., EMP-002)"
+              placeholder="EMP-001"
               required
+              readonly
               #employeeId="ngModel"
               [disabled]="isLoading"
             />
           </div>
 
           <div class="form-group">
+            <label for="first_name">First Name</label>
             <input
+              id="first_name"
               type="text"
               [(ngModel)]="employee.first_name"
               name="first_name"
@@ -33,10 +38,17 @@
               #firstName="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="firstName.invalid && firstName.touched"
+              >First name is required</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="last_name">Last Name</label>
             <input
+              id="last_name"
               type="text"
               [(ngModel)]="employee.last_name"
               name="last_name"
@@ -45,10 +57,17 @@
               #lastName="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="lastName.invalid && lastName.touched"
+              >Last name is required</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="email">Email</label>
             <input
+              id="email"
               type="email"
               [(ngModel)]="employee.email"
               name="email"
@@ -58,23 +77,37 @@
               #email="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="email.invalid && email.touched"
+              >Please enter a valid email address</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="phone">Phone Number</label>
             <input
+              id="phone"
               type="tel"
               [(ngModel)]="employee.phone"
               name="phone"
-              placeholder="Enter your phone number"
+              placeholder="Enter your phone number (11 digits)"
               required
               pattern="[0-9]{11}"
               #phone="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="phone.invalid && phone.touched"
+              >Please enter a valid 11-digit phone number</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="position">Position</label>
             <input
+              id="position"
               type="text"
               [(ngModel)]="employee.position"
               name="position"
@@ -83,10 +116,17 @@
               #position="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="position.invalid && position.touched"
+              >Position is required</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="password">Password</label>
             <input
+              id="password"
               type="password"
               [(ngModel)]="employee.password"
               name="password"
@@ -96,10 +136,17 @@
               #password="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="password.invalid && password.touched"
+              >Password must be at least 8 characters long</small
+            >
           </div>
 
           <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
             <input
+              id="confirm_password"
               type="password"
               [(ngModel)]="employee.confirm_password"
               name="confirm_password"
@@ -108,10 +155,23 @@
               #confirmPassword="ngModel"
               [disabled]="isLoading"
             />
+            <small
+              class="validation-error"
+              *ngIf="confirmPassword.invalid && confirmPassword.touched"
+              >Please confirm your password</small
+            >
+            <small
+              class="validation-error"
+              *ngIf="
+                employee.password !== employee.confirm_password &&
+                confirmPassword.touched
+              "
+              >Passwords do not match</small
+            >
           </div>
 
           <div class="terms-container">
-            <div class="terms-checkbox">
+            <label class="terms-checkbox">
               <input
                 type="checkbox"
                 id="terms"
@@ -121,11 +181,16 @@
                 #terms="ngModel"
                 [disabled]="isLoading"
               />
-              <label for="terms"
-                >I agree to the <a href="#">Terms & Conditions</a> and
-                <a href="#">Privacy Policy</a></label
+              <span>
+                I agree to the <a href="#">Terms & Conditions</a> and
+                <a href="#">Privacy Policy</a></span
               >
-            </div>
+            </label>
+            <small
+              class="validation-error"
+              *ngIf="terms.invalid && terms.touched"
+              >You must accept the terms and conditions</small
+            >
           </div>
 
           <button

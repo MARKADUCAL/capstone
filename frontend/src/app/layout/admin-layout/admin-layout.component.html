@@ -64,6 +64,14 @@
       </li>
       <li>
         <a
+          routerLink="/admin-view/feedback-management"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-comments"></i> Customer Feedback</a
+        >
+      </li>
+      <li>
+        <a
           routerLink="/admin-view/reporting"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"

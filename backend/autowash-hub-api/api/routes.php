@@ -1,7 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Production-safe: disable verbose error output on public hosting
+// (Some free hosts flag ini_set/error_reporting as dangerous)
 
 require_once "./config/env.php";
 loadEnv(__DIR__ . '/.env');
@@ -14,7 +13,25 @@ require_once "./modules/put.php";
 require_once "./config/database.php";
 
 // CORS headers
-header('Access-Control-Allow-Origin: http://localhost:4200');
+// Allow only known frontend origins (add your deployed domains below)
+$allowedOrigins = [
+    'http://localhost:4200',
+    'https://autowash-hub.vercel.app',
+    'https://markaducal.github.io',
+    // Add your GitHub Pages domain, e.g.:
+    // 'https://<your-username>.github.io',
+    // or custom domain serving the Angular app
+];
+
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+if (in_array($origin, $allowedOrigins, true)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else if ($origin === '') {
+    // Non-CORS request (same-origin or direct), do nothing
+} else {
+    // Optionally, you can echo a small JSON error for disallowed origins in debug
+}
+
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
@@ -22,6 +39,11 @@ header('Access-Control-Allow-Credentials: true');
 // Get the request method and endpoint
 $method = $_SERVER['REQUEST_METHOD'];
 $request = $_SERVER['REQUEST_URI'];
+
+// Handle rewritten URLs from .htaccess
+if (isset($_GET['request'])) {
+    $request = '/' . $_GET['request'];
+}
 
 // Create database connection
 $connection = new Connection();
@@ -58,6 +80,12 @@ if ($method === 'GET') {
         exit();
     }
     
+    if (strpos($request, 'get_customer_id_sequence') !== false) {
+        $result = $post->get_customer_id_sequence();
+        echo json_encode($result);
+        exit();
+    }
+    
     if (strpos($request, 'get_all_employees') !== false) {
         $result = $get->get_all_employees();
         echo json_encode($result);
@@ -84,6 +112,19 @@ if ($method === 'GET') {
 
     if (strpos($request, 'get_all_bookings') !== false) {
         $result = $get->get_all_bookings();
+        echo json_encode($result);
+        exit();
+    }
+
+    // Inventory routes
+    if (strpos($request, 'get_inventory_requests') !== false) {
+        $result = $get->get_inventory_requests();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_inventory') !== false) {
+        $result = $get->get_inventory();
         echo json_encode($result);
         exit();
     }
@@ -123,6 +164,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_contact_enquiries') !== false) {
+        $result = $get->get_contact_enquiries();
+        echo json_encode($result);
+        exit();
+    }
+
     // New GET routes for updated database schema
     if (strpos($request, 'get_vehicle_types') !== false) {
         $result = $get->get_vehicle_types();
@@ -154,11 +201,7 @@ if ($method === 'GET') {
         exit();
     }
 
-    if (strpos($request, 'get_promotions') !== false) {
-        $result = $get->get_promotions();
-        echo json_encode($result);
-        exit();
-    }
+
 
     if (strpos($request, 'get_service_categories') !== false) {
         $result = $get->get_service_categories();
@@ -187,19 +230,7 @@ if ($method === 'GET') {
         exit();
     }
 
-    if (strpos($request, 'get_notifications') !== false) {
-        if (isset($_GET['user_id']) && isset($_GET['user_type'])) {
-            $userId = $_GET['user_id'];
-            $userType = $_GET['user_type'];
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
-            $result = $get->get_notifications($userId, $userType, $limit);
-            echo json_encode($result);
-        } else {
-            http_response_code(400);
-            echo json_encode(['message' => 'User ID and user type are required.']);
-        }
-        exit();
-    }
+
 
     if (strpos($request, 'get_booking_details') !== false) {
         if (isset($_GET['booking_id'])) {
@@ -221,6 +252,18 @@ if ($method === 'GET') {
         } else {
             http_response_code(400);
             echo json_encode(['message' => 'Booking ID is required.']);
+        }
+        exit();
+    }
+
+    if (strpos($request, 'get_bookings_by_employee') !== false) {
+        if (isset($_GET['employee_id'])) {
+            $employeeId = $_GET['employee_id'];
+            $result = $get->get_bookings_by_employee($employeeId);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Employee ID is required.']);
         }
         exit();
     }
@@ -298,10 +341,7 @@ if ($method === 'POST') {
         exit();
     }
 
-    if (strpos($request, 'add_promotion') !== false) {
-        $result = $post->add_promotion($data);
-        exit();
-    }
+
 
     if (strpos($request, 'add_service_category') !== false) {
         $result = $post->add_service_category($data);
@@ -321,17 +361,40 @@ if ($method === 'POST') {
         exit();
     }
 
-    if (strpos($request, 'add_notification') !== false) {
-        $result = $post->add_notification($data);
+    if (strpos($request, 'submit_contact') !== false) {
+        $result = $post->submit_contact($data);
         echo json_encode($result);
         exit();
     }
 
-    if (strpos($request, 'add_booking_promotion') !== false) {
-        $result = $post->add_booking_promotion($data);
+    if (strpos($request, 'update_contact_status') !== false) {
+        $result = $post->update_contact_status($data);
         echo json_encode($result);
         exit();
     }
+
+    // Inventory create
+    if (strpos($request, 'add_inventory_item') !== false) {
+        $result = $post->add_inventory_item($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Inventory request
+    if (strpos($request, 'add_inventory_request') !== false) {
+        $result = $post->add_inventory_request($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Take inventory item for employee
+    if (strpos($request, 'take_inventory_item') !== false) {
+        $result = $post->take_inventory_item($data);
+        echo json_encode($result);
+        exit();
+    }
+
+
 
     if (strpos($request, 'add_booking_history') !== false) {
         $result = $post->add_booking_history($data);
@@ -342,8 +405,13 @@ if ($method === 'POST') {
 
 // Handle PUT requests
 if ($method === 'PUT') {
+    // Debug logging
+    error_log("PUT request received: " . $request);
+    error_log("Request method: " . $method);
+    
     // Get PUT data
     $data = json_decode(file_get_contents("php://input"));
+    error_log("PUT data received: " . json_encode($data));
     
     // Check for JWT token for protected routes
     $headers = getallheaders();
@@ -352,6 +420,12 @@ if ($method === 'PUT') {
     if (strpos($request, 'update_customer_profile') !== false) {
         // Process the update
         $result = $put->update_customer_profile($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_employee') !== false) {
+        $result = $put->update_employee($data);
         echo json_encode($result);
         exit();
     }
@@ -364,8 +438,25 @@ if ($method === 'PUT') {
     }
 
     if (strpos($request, 'update_booking_status') !== false) {
+        error_log("Processing update_booking_status request");
         $result = $put->update_booking_status($data);
+        error_log("update_booking_status result: " . json_encode($result));
         echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'assign_employee_to_booking') !== false) {
+        error_log("Processing assign_employee_to_booking request");
+        $result = $put->assign_employee_to_booking($data);
+        error_log("assign_employee_to_booking result: " . json_encode($result));
+        echo json_encode($result);
+        exit();
+    }
+    
+    // Test endpoint to verify routing
+    if (strpos($request, 'test_put') !== false) {
+        error_log("Test PUT endpoint reached");
+        echo json_encode(['status' => 'success', 'message' => 'PUT routing is working', 'request' => $request]);
         exit();
     }
 
@@ -388,11 +479,7 @@ if ($method === 'PUT') {
         exit();
     }
 
-    if (strpos($request, 'update_promotion') !== false) {
-        $result = $put->update_promotion($data);
-        echo json_encode($result);
-        exit();
-    }
+
 
     if (strpos($request, 'update_service_category') !== false) {
         $result = $put->update_service_category($data);
@@ -406,11 +493,21 @@ if ($method === 'PUT') {
         exit();
     }
 
-    if (strpos($request, 'update_notification_status') !== false) {
-        $result = $put->update_notification_status($data);
+    // Inventory update
+    if (strpos($request, 'update_inventory_item') !== false) {
+        $result = $put->update_inventory_item($data);
         echo json_encode($result);
         exit();
     }
+
+    // Inventory request update
+    if (strpos($request, 'update_inventory_request') !== false) {
+        $result = $put->update_inventory_request($data);
+        echo json_encode($result);
+        exit();
+    }
+
+
 
     if (strpos($request, 'update_system_setting') !== false) {
         $result = $put->update_system_setting($data);
@@ -427,6 +524,38 @@ if ($method === 'DELETE') {
     
     if (strpos($request, 'services') !== false && is_numeric($id)) {
         $result = $post->delete_service($id);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'customers') !== false && is_numeric($id)) {
+        $result = $post->delete_customer($id);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'employees') !== false && is_numeric($id)) {
+        $result = $post->delete_employee($id);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'bookings') !== false && is_numeric($id)) {
+        $result = $post->delete_booking($id);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Inventory delete
+    if (strpos($request, 'inventory') !== false && is_numeric($id)) {
+        $result = $post->delete_inventory_item($id);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Contact enquiry delete
+    if (strpos($request, 'delete_contact_enquiry') !== false && is_numeric($id)) {
+        $result = $post->delete_contact_enquiry($id);
         echo json_encode($result);
         exit();
     }

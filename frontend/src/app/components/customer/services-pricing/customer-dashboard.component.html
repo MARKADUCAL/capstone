@@ -154,16 +154,31 @@
         <h3>{{ service.name }}</h3>
         <p class="service-description">{{ service.description }}</p>
         <div class="service-details">
-          <span class="price">{{ formatPrice(service.price) }}</span>
+          <span
+            class="price"
+            [ngClass]="{
+              'price-not-set': !service.price || service.price <= 0
+            }"
+          >
+            {{ formatPrice(service.price) }}
+          </span>
           <span class="duration">{{
             formatDuration(service.duration_minutes)
           }}</span>
         </div>
+        <div *ngIf="!service.price || service.price <= 0" class="price-warning">
+          <small>⚠️ Contact admin to set pricing</small>
+        </div>
         <button
           class="btn-book"
           (click)="navigateToAppointmentWithService(service.name)"
+          [disabled]="!service.price || service.price <= 0"
         >
-          Book Now
+          {{
+            !service.price || service.price <= 0
+              ? "Pricing Required"
+              : "Book Now"
+          }}
         </button>
       </div>
     </div>

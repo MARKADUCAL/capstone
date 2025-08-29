@@ -1,11 +1,45 @@
 <div class="enquiries-container">
   <div class="header">
-    <h2>Manage Enquiries</h2>
+    <h2>Manage Contact Enquiries</h2>
+    <p>View and manage messages from the contact form</p>
   </div>
 
-  <div class="enquiries-grid">
-    @for (enquiry of enquiries; track enquiry.id) {
-    <mat-card class="enquiry-card">
+  <!-- Status Filter -->
+  <div class="filter-section">
+    <mat-form-field appearance="outline">
+      <mat-label>Filter by Status</mat-label>
+      <mat-select [(ngModel)]="selectedStatus">
+        <mat-option value="all">All Enquiries</mat-option>
+        <mat-option value="new">New (Unread)</mat-option>
+        <mat-option value="read">Read</mat-option>
+        <mat-option value="replied">Replied</mat-option>
+        <mat-option value="archived">Archived</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+    <p>Loading enquiries...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error-state">
+    <mat-icon class="error-icon">error</mat-icon>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Enquiries Grid -->
+  <div
+    class="enquiries-grid"
+    *ngIf="!isLoading && getFilteredEnquiries().length > 0"
+  >
+    @for (enquiry of getFilteredEnquiries(); track enquiry.id) {
+    <mat-card
+      class="enquiry-card"
+      [class.status-new]="enquiry.status === 'new'"
+    >
       <mat-card-header>
         <div mat-card-avatar>
           <div class="user-avatar-placeholder">
@@ -13,35 +47,93 @@
           </div>
         </div>
         <mat-card-title>{{ enquiry.name }}</mat-card-title>
-        <mat-card-subtitle> Subject: {{ enquiry.subject }} </mat-card-subtitle>
+        <mat-card-subtitle>
+          <span class="subject">{{ enquiry.subject }}</span>
+          <span
+            class="status-badge"
+            [style.background-color]="getStatusColor(enquiry.status)"
+          >
+            <mat-icon>{{ getStatusIcon(enquiry.status) }}</mat-icon>
+            {{ enquiry.status | titlecase }}
+          </span>
+        </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
         <div class="enquiry-details">
-          <p><mat-icon>email</mat-icon> {{ enquiry.email }}</p>
+          <p class="email">
+            <mat-icon>email</mat-icon>
+            <a href="mailto:{{ enquiry.email }}">{{ enquiry.email }}</a>
+          </p>
           <p class="message">
             <mat-icon>message</mat-icon>
             <span class="message-text">"{{ enquiry.message }}"</span>
           </p>
           <p class="received-time">
             <mat-icon>schedule</mat-icon>
-            Received: {{ enquiry.receivedDate }} | {{ enquiry.receivedTime }}
+            Received: {{ formatDate(enquiry.created_at) }}
           </p>
         </div>
       </mat-card-content>
 
       <mat-card-actions>
         <button mat-button color="primary" (click)="viewEnquiry(enquiry)">
-          View
+          <mat-icon>visibility</mat-icon> View
         </button>
         <button mat-button color="accent" (click)="replyEnquiry(enquiry)">
-          Reply
+          <mat-icon>reply</mat-icon> Reply
         </button>
         <button mat-button color="warn" (click)="deleteEnquiry(enquiry)">
-          Delete
+          <mat-icon>delete</mat-icon> Delete
         </button>
       </mat-card-actions>
+
+      <!-- Status Management -->
+      <div class="status-actions">
+        <span class="status-label">Update Status:</span>
+        <button
+          mat-button
+          size="small"
+          [class.active]="enquiry.status === 'new'"
+          (click)="updateEnquiryStatus(enquiry, 'new')"
+        >
+          New
+        </button>
+        <button
+          mat-button
+          size="small"
+          [class.active]="enquiry.status === 'read'"
+          (click)="updateEnquiryStatus(enquiry, 'read')"
+        >
+          Read
+        </button>
+        <button
+          mat-button
+          size="small"
+          [class.active]="enquiry.status === 'replied'"
+          (click)="updateEnquiryStatus(enquiry, 'replied')"
+        >
+          Replied
+        </button>
+        <button
+          mat-button
+          size="small"
+          [class.active]="enquiry.status === 'archived'"
+          (click)="updateEnquiryStatus(enquiry, 'archived')"
+        >
+          Archive
+        </button>
+      </div>
     </mat-card>
     }
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading && getFilteredEnquiries().length === 0"
+    class="empty-state"
+  >
+    <mat-icon class="empty-icon">inbox</mat-icon>
+    <p>No enquiries found for the selected status.</p>
   </div>
 </div>

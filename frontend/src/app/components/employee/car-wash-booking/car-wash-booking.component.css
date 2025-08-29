@@ -2,10 +2,89 @@
   padding: 20px;
 }
 
+/* Loading State */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.loading-spinner {
+  text-align: center;
+}
+
+.loading-spinner p {
+  margin-top: 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Error State */
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
+.error-card {
+  max-width: 400px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 48px;
+  color: #f44336;
+  margin-bottom: 16px;
+}
+
+.error-card h3 {
+  color: #f44336;
+  margin-bottom: 8px;
+}
+
+.error-card p {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+/* No Bookings State */
+.no-bookings-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
+.no-bookings-card {
+  max-width: 400px;
+  text-align: center;
+}
+
+.no-bookings-icon {
+  font-size: 48px;
+  color: #9e9e9e;
+  margin-bottom: 16px;
+}
+
+.no-bookings-card h3 {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.no-bookings-card p {
+  color: #999;
+  margin-bottom: 16px;
+}
+
+/* Header Styles */
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 16px;
@@ -13,8 +92,15 @@
 
 .header-left {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header-subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .header-right {
@@ -22,9 +108,15 @@
   gap: 12px;
 }
 
-.header h2 {
+.header-left h2 {
   margin: 0;
   color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.header-right button {
+  margin-left: 12px;
 }
 
 .status-filter {
@@ -38,11 +130,12 @@
 }
 
 .booking-card {
-  border-radius: 8px;
+  border-radius: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
   margin-bottom: 10px;
   padding-bottom: 8px;
+  border: 1px solid #eef2f7;
 }
 
 .booking-card:hover {
@@ -89,30 +182,132 @@
   color: #666;
 }
 
+/* New header layout for card */
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: linear-gradient(180deg, #f9fafb, #f3f4f6);
+  border-bottom: 1px solid #eef2f7;
+}
+
+.card-top .left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-block .customer {
+  font-weight: 700;
+  color: #111827;
+}
+
+.title-block .sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #e5e7eb;
+}
+
+.status-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.status-chip.status-pending {
+  background: #fff7ed;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.status-chip.status-approved {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.status-chip.status-rejected {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.status-chip.status-completed {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.info.price {
+  font-weight: 700;
+}
+
 /* Action buttons styling */
 .action-buttons {
   display: flex;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 12px 16px 16px;
   gap: 8px;
+  align-items: center;
 }
 
 .action-btn {
   flex: 1;
-  padding: 8px 16px;
+  padding: 10px 14px;
   border: none;
-  border-radius: 4px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-weight: 600;
   color: white;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
   text-align: center;
   min-width: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .action-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .action-btn:active {
@@ -120,25 +315,59 @@
 }
 
 .view-btn {
-  background-color: #0000ff; /* Blue */
+  background-color: #3b82f6; /* Blue */
 }
 
-.edit-btn {
-  background-color: #f0f0f0; /* Light gray */
-  color: #333; /* Dark text for contrast */
-  border: 1px solid #ddd;
+.done-btn {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
 }
 
-.approve-btn {
-  background-color: #4caf50; /* Green */
+.done-btn:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
 }
 
-.reject-btn {
-  background-color: #f44336; /* Red */
+/* Status badges for non-actionable states */
+.completed-badge,
+.pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
 }
 
-.complete-btn {
-  background-color: #9c27b0; /* Purple */
+.completed-badge {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.completed-badge mat-icon {
+  color: #7c3aed;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.pending-badge {
+  background: #fff7ed;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.pending-badge mat-icon {
+  color: #d97706;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Status-based styling */
@@ -181,10 +410,19 @@
   /* Keep action buttons horizontal but adjust height */
   .action-buttons {
     padding: 8px 16px 12px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .action-btn {
-    padding: 6px 10px;
+    padding: 10px 12px;
     font-size: 13px;
+    width: 100%;
+  }
+
+  .completed-badge,
+  .pending-badge {
+    width: 100%;
+    justify-content: center;
   }
 }

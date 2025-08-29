@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +16,15 @@ export interface User {
   phone: string;
   registrationDate: string;
   imageUrl?: string;
+}
+
+interface NewUser {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirm_password: string;
 }
 
 @Component({
@@ -51,10 +60,16 @@ export class UserManagementComponent implements OnInit {
     imageUrl: undefined,
   };
 
+  // State for add user modal
+  isAddModalOpen: boolean = false;
+  newUser: NewUser = this.createEmptyUser();
+  isSubmitting: boolean = false;
+
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -110,7 +125,82 @@ export class UserManagementComponent implements OnInit {
   }
 
   addUser(): void {
-    // Implement add user functionality
+    this.newUser = this.createEmptyUser();
+    this.isAddModalOpen = true;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeAddUserModal(): void {
+    this.isAddModalOpen = false;
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  submitAddUserForm(): void {
+    if (this.validateUserForm()) {
+      this.isSubmitting = true;
+
+      const userData = {
+        first_name: this.newUser.first_name,
+        last_name: this.newUser.last_name,
+        email: this.newUser.email,
+        phone: this.newUser.phone,
+        password: this.newUser.password,
+      };
+
+      this.http.post(`${this.apiUrl}/register_customer`, userData).subscribe({
+        next: (response: any) => {
+          this.isSubmitting = false;
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            this.showNotification('Customer created successfully');
+            this.closeAddUserModal();
+            this.loadCustomers(); // Reload the list
+          } else {
+            this.showNotification(
+              response?.status?.message || 'Failed to create customer'
+            );
+          }
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          console.error('Error creating customer:', error);
+          this.showNotification('Error creating customer. Please try again.');
+        },
+      });
+    } else {
+      this.showNotification('Please fill all required fields correctly');
+    }
+  }
+
+  private validateUserForm(): boolean {
+    return !!(
+      this.newUser.first_name &&
+      this.newUser.last_name &&
+      this.newUser.email &&
+      this.newUser.phone &&
+      this.newUser.password &&
+      this.newUser.confirm_password &&
+      this.newUser.password === this.newUser.confirm_password &&
+      this.newUser.password.length >= 6
+    );
+  }
+
+  private createEmptyUser(): NewUser {
+    return {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirm_password: '',
+    };
   }
 
   viewUser(user: User): void {
@@ -133,20 +223,71 @@ export class UserManagementComponent implements OnInit {
   }
 
   submitEditUserForm(): void {
-    const index = this.users.findIndex((u) => u.id === this.editUserData.id);
-    if (index > -1) {
-      this.users[index] = { ...this.editUserData };
-      this.showNotification('User updated successfully');
-    }
-    this.closeEditUserModal();
+    // Split full name into first and last name for API
+    const [first_name, ...rest] = (this.editUserData.name || '').split(' ');
+    const last_name = rest.join(' ').trim();
+
+    const payload: any = {
+      id: this.editUserData.id,
+      first_name: first_name || this.editUserData.name,
+      last_name: last_name || '',
+      email: this.editUserData.email,
+      phone: this.editUserData.phone,
+    };
+
+    this.http.put(`${this.apiUrl}/update_customer_profile`, payload).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          const index = this.users.findIndex(
+            (u) => u.id === this.editUserData.id
+          );
+          if (index > -1) {
+            this.users[index] = { ...this.editUserData };
+          }
+          this.showNotification('User updated successfully');
+        } else {
+          this.showNotification(
+            response?.status?.message || 'Failed to update user'
+          );
+        }
+        this.closeEditUserModal();
+      },
+      error: (error) => {
+        console.error('Error updating user:', error);
+        this.showNotification('Error updating user. Please try again.');
+        this.closeEditUserModal();
+      },
+    });
   }
 
   deleteUser(user: User): void {
-    const index = this.users.findIndex((u) => u.id === user.id);
-    if (index > -1) {
-      this.users.splice(index, 1);
-      this.showNotification('User deleted successfully');
-    }
+    this.http.delete(`${this.apiUrl}/customers/${user.id}`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          const index = this.users.findIndex((u) => u.id === user.id);
+          if (index > -1) {
+            this.users.splice(index, 1);
+          }
+          this.showNotification('User deleted successfully');
+        } else {
+          this.showNotification(
+            response?.status?.message || 'Failed to delete user'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting user:', error);
+        this.showNotification('Error deleting user. Please try again.');
+      },
+    });
   }
 
   getUserInitials(name: string): string {

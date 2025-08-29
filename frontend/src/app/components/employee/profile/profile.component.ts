@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface EmployeeProfile {
   id: number;
@@ -44,7 +45,7 @@ export class ProfileComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
 
-  private apiUrl = 'http://localhost/autowash-hub-api/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private router: Router) {}
 

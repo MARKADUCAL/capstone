@@ -78,23 +78,6 @@ h1 {
   color: #2c3e50;
 }
 
-/* Charts Section */
-.charts-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.chart-card {
-  border-radius: 12px;
-}
-
-.chart-card mat-card-content {
-  padding: 20px;
-  height: 300px;
-}
-
 /* Tasks Table */
 .tasks-card {
   border-radius: 12px;
@@ -147,10 +130,6 @@ h1 {
     gap: 16px;
   }
 
-  .charts-container {
-    grid-template-columns: 1fr;
-  }
-
   .stats-icon {
     width: 50px;
     height: 50px;
@@ -169,7 +148,6 @@ h1 {
 
 /* Animation */
 .stats-card,
-.chart-card,
 .tasks-card {
   animation: fadeIn 0.5s ease-out;
 }

@@ -9,6 +9,7 @@ export interface BookingForm {
   washDate: string;
   washTime: string;
   paymentType: string;
+  onlinePaymentOption?: string;
   notes: string;
 }
 
@@ -20,13 +21,25 @@ export interface Booking extends BookingForm {
   serviceName?: string;
   serviceDescription?: string;
   serviceDuration?: number;
+  assignedEmployeeId?: number;
+  assignedEmployeeName?: string;
+  // Add the actual properties returned by the backend API
+  assigned_employee_id?: number;
+  employee_first_name?: string;
+  employee_last_name?: string;
+  employee_position?: string;
+  // Rejection reason for rejected bookings
+  rejectionReason?: string;
+  rejection_reason?: string;
 }
 
 export enum BookingStatus {
   PENDING = 'pending',
+  APPROVED = 'approved',
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  REJECTED = 'rejected',
 }
 
 export interface CarWashService {
@@ -55,12 +68,9 @@ export const VEHICLE_TYPES = [
   'Commercial Vehicle',
 ];
 
-export const PAYMENT_TYPES = [
-  'Cash on Delivery',
-  'Credit/Debit Card',
-  'Mobile Payment',
-  'Online Banking',
-];
+export const PAYMENT_TYPES = ['Cash', 'Online Payment'];
+
+export const ONLINE_PAYMENT_OPTIONS = ['GCash', 'PayMaya'];
 
 export const WASHING_POINTS = [
   {
@@ -111,3 +121,20 @@ export const CAR_WASH_SERVICES = [
     price: 9.99,
   },
 ];
+
+export interface EmployeeAssignment {
+  bookingId: number;
+  employeeId: number;
+  employeeName: string;
+}
+
+export interface Employee {
+  id: number;
+  name: string;
+  role: string;
+  phone: string;
+  email: string;
+  status: 'Active' | 'Inactive';
+  employeeId?: string;
+  registrationDate?: string;
+}

@@ -23,6 +23,10 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "public"
               }
             ],
             "styles": [
@@ -34,10 +38,14 @@
             "outputMode": "server",
             "ssr": {
               "entry": "src/server.ts"
+            },
+            "optimization": {
+              "fonts": false
             }
           },
           "configurations": {
             "production": {
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
@@ -46,8 +54,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kB",
-                  "maximumError": "15kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "25kB"
                 }
               ],
               "outputHashing": "all"

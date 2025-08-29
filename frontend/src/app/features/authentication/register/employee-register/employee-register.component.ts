@@ -1,8 +1,9 @@
-import { Component, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, PLATFORM_ID, Inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-employee-register',
@@ -12,7 +13,7 @@ import { Router, RouterModule } from '@angular/router';
   styleUrl: './employee-register.component.css',
   host: { ngSkipHydration: 'true' },
 })
-export class EmployeeRegisterComponent {
+export class EmployeeRegisterComponent implements OnInit {
   employee = {
     employee_id: '',
     first_name: '',
@@ -37,10 +38,65 @@ export class EmployeeRegisterComponent {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
+  ngOnInit(): void {
+    this.prefillNextEmployeeId();
+  }
+
+  private prefillNextEmployeeId(): void {
+    // Fetch all employees and compute the smallest available ID (EMP-XXX)
+    this.http.get<any>(`${environment.apiUrl}/get_all_employees`).subscribe({
+      next: (response) => {
+        const employees = response?.payload?.employees || [];
+
+        // Build a set of used numeric identifiers
+        const usedNumbers = new Set<number>();
+        for (const emp of employees) {
+          const numeric =
+            typeof emp.id === 'number' && emp.id > 0
+              ? emp.id
+              : this.parseEmployeeIdNumber(emp.employee_id);
+          if (numeric > 0) usedNumbers.add(numeric);
+        }
+
+        // Find the smallest missing positive integer starting from 1
+        let candidate = 1;
+        while (usedNumbers.has(candidate)) {
+          candidate += 1;
+        }
+
+        this.employee.employee_id = this.formatEmployeeId(candidate);
+      },
+      error: () => {
+        // Fallback to first ID if request fails
+        if (!this.employee.employee_id) {
+          this.employee.employee_id = this.formatEmployeeId(1);
+        }
+      },
+    });
+  }
+
+  private parseEmployeeIdNumber(employeeId: string): number {
+    if (!employeeId || typeof employeeId !== 'string') return 0;
+    const match = employeeId.match(/EMP-(\d{1,})$/i);
+    return match ? parseInt(match[1], 10) : 0;
+  }
+
+  private formatEmployeeId(n: number): string {
+    return `EMP-${n.toString().padStart(3, '0')}`;
+  }
+
   onSubmit(): void {
     // Reset error message
     this.errorMessage = '';
     this.isLoading = true;
+
+    // For debug without leaking secrets
+    console.log('Employee registration submitted:', {
+      ...this.employee,
+      password: '[REDACTED]',
+      confirm_password: '[REDACTED]',
+      termsAccepted: this.termsAccepted,
+    });
 
     // Add terms validation
     if (!this.termsAccepted) {
@@ -71,6 +127,20 @@ export class EmployeeRegisterComponent {
       return;
     }
 
+    // Password length validation
+    if (this.employee.password.length < 8) {
+      this.errorMessage = 'Password must be at least 8 characters long';
+      this.isLoading = false;
+      return;
+    }
+
+    // Phone number validation (11 digits)
+    if (!/^\d{11}$/.test(this.employee.phone)) {
+      this.errorMessage = 'Phone number must be exactly 11 digits';
+      this.isLoading = false;
+      return;
+    }
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.employee.email)) {
@@ -89,12 +159,15 @@ export class EmployeeRegisterComponent {
       position: this.employee.position,
     };
 
+    console.log('Sending employee registration to API:', {
+      ...registrationData,
+      password: '[REDACTED]',
+    });
+
     this.http
-      .post(
-        'http://localhost/autowash-hub-api/api/register_employee',
-        registrationData,
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+      .post(`${environment.apiUrl}/register_employee`, registrationData, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

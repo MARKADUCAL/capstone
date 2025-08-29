@@ -425,6 +425,38 @@
   color: #6c757d;
 }
 
+/* Price warning styles */
+.price-not-set {
+  color: #dc3545 !important;
+  font-weight: bold;
+}
+
+.price-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 8px 0;
+  text-align: center;
+  color: #856404;
+}
+
+.price-warning small {
+  font-size: 0.85em;
+}
+
+/* Disabled button styles */
+.btn-book:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-book:disabled:hover {
+  background-color: #6c757d;
+  transform: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {

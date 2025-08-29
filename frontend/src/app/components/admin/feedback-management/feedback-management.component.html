@@ -1,0 +1,362 @@
+<div class="feedback-management-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">💬</div>
+      <div class="header-text">
+        <h1>Customer Feedback Management</h1>
+        <p>Review and analyze customer feedback and ratings</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ feedbackList.length }}</span>
+        <span class="stat-label">Total Feedback</span>
+      </div>
+      <button
+        class="refresh-btn"
+        (click)="refreshData()"
+        [disabled]="isLoading"
+      >
+        <span class="refresh-icon">🔄</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        <span class="tab-icon">📋</span>
+        <span class="tab-text">All</span>
+        <span class="tab-count">{{ getFilterCount("all") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'positive'"
+        (click)="setFilter('positive')"
+      >
+        <span class="tab-icon">⭐</span>
+        <span class="tab-text">Positive (4-5)</span>
+        <span class="tab-count">{{ getFilterCount("positive") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'neutral'"
+        (click)="setFilter('neutral')"
+      >
+        <span class="tab-icon">⭐</span>
+        <span class="tab-text">Neutral (3)</span>
+        <span class="tab-count">{{ getFilterCount("neutral") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'negative'"
+        (click)="setFilter('negative')"
+      >
+        <span class="tab-icon">⭐</span>
+        <span class="tab-text">Negative (1-2)</span>
+        <span class="tab-count">{{ getFilterCount("negative") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'public'"
+        (click)="setFilter('public')"
+      >
+        <span class="tab-icon">🌐</span>
+        <span class="tab-text">Public</span>
+        <span class="tab-count">{{ getFilterCount("public") }}</span>
+      </button>
+    </div>
+
+    <!-- Search and Rating Filter -->
+    <div class="filter-controls">
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search feedback, customer names, or services..."
+          (keyup.enter)="onSearch()"
+          class="search-input"
+        />
+        <button class="search-btn" (click)="onSearch()">
+          <span class="search-icon">🔍</span>
+        </button>
+      </div>
+
+      <div class="rating-filter">
+        <label for="rating-filter">Filter by Rating:</label>
+        <select
+          id="rating-filter"
+          [(ngModel)]="ratingFilter"
+          (change)="setRatingFilter(ratingFilter)"
+          class="rating-select"
+        >
+          <option value="0">All Ratings</option>
+          <option value="5">5 Stars</option>
+          <option value="4">4 Stars</option>
+          <option value="3">3 Stars</option>
+          <option value="2">2 Stars</option>
+          <option value="1">1 Star</option>
+        </select>
+      </div>
+
+      <button class="clear-filters-btn" (click)="clearFilters()">
+        <span class="clear-icon">🗑️</span>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading customer feedback...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Oops! Something went wrong</h3>
+    <p>{{ errorMessage }}</p>
+    <button class="retry-btn" (click)="loadFeedback()">
+      <span class="retry-icon">🔄</span>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading && !errorMessage && filteredFeedback.length === 0"
+    class="empty-state"
+  >
+    <div class="empty-icon">📭</div>
+    <h3>No Feedback Found</h3>
+    <p>
+      No customer feedback matches the current filters. Try adjusting your
+      search criteria.
+    </p>
+  </div>
+
+  <!-- Feedback Grid -->
+  <div
+    *ngIf="!isLoading && !errorMessage && filteredFeedback.length > 0"
+    class="feedback-grid"
+  >
+    <div
+      class="feedback-card"
+      *ngFor="let feedback of getPaginatedFeedback(); trackBy: trackByFeedback"
+    >
+      <div class="card-header">
+        <div class="rating-display">
+          <div class="stars">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              class="star"
+              [class.filled]="star <= feedback.rating"
+            >
+              ⭐
+            </span>
+          </div>
+          <span class="rating-text">{{ getRatingText(feedback.rating) }}</span>
+        </div>
+        <div class="feedback-meta">
+          <span class="feedback-date">{{
+            formatDate(feedback.created_at || "")
+          }}</span>
+          <span class="feedback-id">#{{ feedback.id }}</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="customer-info">
+          <div class="customer-avatar">
+            {{ (feedback.customer_name || "Customer").charAt(0).toUpperCase() }}
+          </div>
+          <div class="customer-details">
+            <h4 class="customer-name">
+              {{ feedback.customer_name || "Anonymous Customer" }}
+            </h4>
+            <p class="service-name">
+              {{ feedback.service_name || "Car Wash Service" }}
+            </p>
+          </div>
+        </div>
+
+        <div class="feedback-content">
+          <p class="feedback-comment" *ngIf="feedback.comment">
+            "{{ feedback.comment }}"
+          </p>
+          <p class="no-comment" *ngIf="!feedback.comment">
+            <em>No comment provided</em>
+          </p>
+        </div>
+
+        <div class="feedback-stats">
+          <div class="stat-item">
+            <span class="stat-label">Booking ID:</span>
+            <span class="stat-value">#{{ feedback.booking_id }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Visibility:</span>
+            <span
+              class="stat-value"
+              [ngClass]="feedback.is_public ? 'public' : 'private'"
+            >
+              {{ feedback.is_public ? "Public" : "Private" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn view-btn" (click)="openViewModal(feedback)">
+          <span class="btn-icon">👁️</span>
+          View Details
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="pagination-container">
+    <div class="pagination-info">
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <span>{{ filteredFeedback.length }} feedback items</span>
+    </div>
+
+    <div class="pagination-controls">
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+      >
+        ← Previous
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of [1, 2, 3, 4, 5]"
+          class="page-btn"
+          [class.active]="page === currentPage"
+          [class.visible]="page <= totalPages"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Detail Modal -->
+<div
+  class="modal-overlay"
+  [class.show]="isViewModalOpen"
+  (click)="closeViewModal()"
+>
+  <div
+    class="modal-container feedback-detail-modal"
+    (click)="$event.stopPropagation()"
+    *ngIf="selectedFeedback"
+  >
+    <div class="modal-header">
+      <div class="modal-title">
+        <h2>Feedback Details</h2>
+        <span class="feedback-id">#{{ selectedFeedback.id }}</span>
+      </div>
+      <button class="close-btn" (click)="closeViewModal()">
+        <span class="close-icon">✕</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="feedback-overview">
+        <div class="rating-summary">
+          <div class="stars-large">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              class="star-large"
+              [class.filled]="star <= selectedFeedback.rating"
+            >
+              ⭐
+            </span>
+          </div>
+          <h3>{{ getRatingText(selectedFeedback.rating) }}</h3>
+          <p class="rating-description">
+            {{
+              selectedFeedback.rating >= 4
+                ? "Excellent service experience"
+                : selectedFeedback.rating === 3
+                ? "Good service with room for improvement"
+                : "Service needs improvement"
+            }}
+          </p>
+        </div>
+
+        <div class="feedback-details">
+          <div class="detail-row">
+            <span class="label">Customer:</span>
+            <span class="value">{{
+              selectedFeedback.customer_name || "Anonymous Customer"
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Service:</span>
+            <span class="value">{{
+              selectedFeedback.service_name || "Car Wash Service"
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Booking ID:</span>
+            <span class="value">#{{ selectedFeedback.booking_id }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Submitted:</span>
+            <span class="value">{{
+              formatDate(selectedFeedback.created_at || "")
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Visibility:</span>
+            <span
+              class="value"
+              [ngClass]="selectedFeedback.is_public ? 'public' : 'private'"
+            >
+              {{ selectedFeedback.is_public ? "Public" : "Private" }}
+            </span>
+          </div>
+        </div>
+
+        <div class="feedback-comment-section">
+          <h4>Customer Comment</h4>
+          <div class="comment-content" *ngIf="selectedFeedback.comment">
+            <p>"{{ selectedFeedback.comment }}"</p>
+          </div>
+          <div class="no-comment" *ngIf="!selectedFeedback.comment">
+            <p><em>No comment provided by the customer</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn secondary" (click)="closeViewModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

@@ -191,8 +191,136 @@
                 name="washTime"
                 required
                 placeholder="Select wash time"
+                (click)="openTimePicker()"
+                readonly
+                class="time-input-field"
               />
-              <mat-icon matSuffix>schedule</mat-icon>
+              <mat-icon
+                matSuffix
+                class="time-picker-icon"
+                (click)="openTimePicker()"
+                >schedule</mat-icon
+              >
+
+              <!-- Custom Time Picker Overlay -->
+              <div
+                class="time-picker-overlay"
+                *ngIf="showTimePicker"
+                (click)="closeTimePicker($event)"
+              >
+                <div
+                  class="time-picker-panel"
+                  (click)="$event.stopPropagation()"
+                >
+                  <div class="time-picker-header">
+                    <h3>Select Wash Time</h3>
+                    <button
+                      class="close-btn"
+                      type="button"
+                      title="Close time picker"
+                      aria-label="Close time picker"
+                      (click)="closeTimePicker($event)"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+
+                  <!-- Manual Time Input -->
+                  <div class="manual-time-section">
+                    <label>Or enter time manually:</label>
+                    <div class="manual-time-inputs">
+                      <input
+                        type="number"
+                        min="0"
+                        max="23"
+                        [(ngModel)]="manualHour"
+                        placeholder="HH"
+                        class="time-input-hour"
+                        (input)="updateManualTime()"
+                      />
+                      <span class="time-separator">:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        [(ngModel)]="manualMinute"
+                        placeholder="MM"
+                        class="time-input-minute"
+                        (input)="updateManualTime()"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Available Time Slots -->
+                  <div class="time-slots-section">
+                    <label>Available Time Slots:</label>
+                    <div class="time-slots-grid">
+                      <button
+                        *ngFor="let slot of availableTimeSlots"
+                        class="time-slot-btn"
+                        [class.selected]="isTimeSlotSelected(slot)"
+                        (click)="selectTimeSlot(slot)"
+                        [disabled]="!isTimeSlotAvailable(slot)"
+                        type="button"
+                      >
+                        {{ formatTimeSlot(slot) }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Quick Time Buttons -->
+                  <div class="quick-time-section">
+                    <label>Quick Selection:</label>
+                    <div class="quick-time-buttons">
+                      <button
+                        class="quick-time-btn"
+                        (click)="setQuickTime('09:00')"
+                        type="button"
+                      >
+                        9:00 AM
+                      </button>
+                      <button
+                        class="quick-time-btn"
+                        (click)="setQuickTime('12:00')"
+                        type="button"
+                      >
+                        12:00 PM
+                      </button>
+                      <button
+                        class="quick-time-btn"
+                        (click)="setQuickTime('15:00')"
+                        type="button"
+                      >
+                        3:00 PM
+                      </button>
+                      <button
+                        class="quick-time-btn"
+                        (click)="setQuickTime('17:00')"
+                        type="button"
+                      >
+                        5:00 PM
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="time-picker-actions">
+                    <button
+                      class="btn-cancel"
+                      (click)="closeTimePicker($event)"
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      class="btn-confirm"
+                      (click)="confirmTimeSelection()"
+                      type="button"
+                    >
+                      Confirm Time
+                    </button>
+                  </div>
+                </div>
+              </div>
             </mat-form-field>
           </div>
         </div>
@@ -205,15 +333,45 @@
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
+            <mat-form-field
+              appearance="outline"
+              class="form-field payment-type-field"
+            >
               <mat-label>Payment Type*</mat-label>
               <mat-select
                 [(ngModel)]="bookingForm.paymentType"
                 name="paymentType"
                 required
+                (selectionChange)="onPaymentTypeChange()"
               >
                 <mat-option *ngFor="let type of paymentTypes" [value]="type">
                   <i class="fas fa-credit-card"></i> {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Online Payment Sub-options -->
+          <div
+            class="form-row online-payment-options"
+            *ngIf="bookingForm.paymentType === 'Online Payment'"
+          >
+            <div class="online-payment-header">
+              <i class="fas fa-mobile-alt"></i>
+              <span>Select Payment Method</span>
+            </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Payment Method*</mat-label>
+              <mat-select
+                [(ngModel)]="bookingForm.onlinePaymentOption"
+                name="onlinePaymentOption"
+                required
+              >
+                <mat-option
+                  *ngFor="let option of onlinePaymentOptions"
+                  [value]="option"
+                >
+                  <i class="fas fa-mobile-alt"></i> {{ option }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -233,8 +391,9 @@
               matInput
               [(ngModel)]="bookingForm.notes"
               name="notes"
-              rows="3"
+              rows="10"
               placeholder="Any special instructions or additional notes..."
+              class="notes-textarea"
             ></textarea>
           </mat-form-field>
         </div>

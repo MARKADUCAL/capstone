@@ -1,12 +1,23 @@
 <div class="inventory-container">
   <div class="inventory-header">
     <h2>Inventory Management</h2>
-    <button class="add-item-btn" (click)="addNewItem()">
-      <span class="plus-icon">+</span> Add Item
-    </button>
+    <p class="subtitle">View available stock and request items</p>
   </div>
 
-  <div class="inventory-grid">
+  <!-- Loading state -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading inventory...</p>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-container" *ngIf="error && !loading">
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="loadInventory()">Retry</button>
+  </div>
+
+  <!-- Inventory grid -->
+  <div class="inventory-grid" *ngIf="!loading && !error">
     <div class="inventory-card" *ngFor="let item of inventoryItems">
       <div class="card-content">
         <div class="item-image">
@@ -14,19 +25,29 @@
         </div>
         <div class="item-details">
           <h3>{{ item.name }}</h3>
-          <p class="stock-info">Stock: {{ item.stock }} Available</p>
+          <p class="stock-info">
+            Stock: {{ item.stock }} Available
+            <span
+              class="stock-status"
+              [style.color]="getStockStatus(item.stock).color"
+            >
+              ({{ getStockStatus(item.stock).status }})
+            </span>
+          </p>
+          <p class="category" *ngIf="item.category">
+            Category: {{ item.category }}
+          </p>
         </div>
         <div class="item-actions">
           <button class="action-btn details" (click)="showDetails(item)">
             Details
           </button>
-          <button class="action-btn edit" (click)="editItem(item)">Edit</button>
           <button
-            class="action-btn take"
-            (click)="takeItem(item)"
+            class="action-btn request"
+            (click)="requestItem(item)"
             [disabled]="item.stock === 0"
           >
-            Take Item
+            Request Item
           </button>
         </div>
       </div>
@@ -34,14 +55,19 @@
   </div>
 
   <!-- Empty state message -->
-  <div class="empty-state" *ngIf="inventoryItems.length === 0">
+  <div
+    class="empty-state"
+    *ngIf="!loading && !error && inventoryItems.length === 0"
+  >
     <p>No inventory items available</p>
   </div>
 
-  <app-add-inventory-modal
-    *ngIf="showAddModal"
-    (closeModal)="onCloseModal()"
-    (addItem)="onAddItem($event)"
+  <!-- Request Modal -->
+  <app-request-inventory-modal
+    *ngIf="showRequestModal"
+    [selectedItem]="selectedItem"
+    (closeModal)="onCloseRequestModal()"
+    (requestSubmitted)="onRequestSubmitted($event)"
   >
-  </app-add-inventory-modal>
+  </app-request-inventory-modal>
 </div>

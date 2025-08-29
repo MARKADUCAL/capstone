@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-register',
@@ -90,7 +91,7 @@ export class AdminRegisterComponent {
 
     this.http
       .post(
-        'http://localhost/autowash-hub-api/api/register_admin',
+        `${environment.apiUrl}/register_admin`,
         registrationData,
         { headers: { 'Content-Type': 'application/json' } }
       )

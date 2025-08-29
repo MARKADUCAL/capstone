@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-login',
@@ -50,11 +51,7 @@ export class AdminLoginComponent {
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
 
     this.http
-      .post(
-        'http://localhost/autowash-hub-api/api/login_admin',
-        this.loginData,
-        { headers }
-      )
+      .post(`${environment.apiUrl}/login_admin`, this.loginData, { headers })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

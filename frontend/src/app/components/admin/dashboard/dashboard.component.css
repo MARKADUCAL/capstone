@@ -182,67 +182,6 @@
   transform: translateY(-50%);
 }
 
-/* Charts Section */
-.charts-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.chart-card {
-  border-radius: 16px;
-  height: 450px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.chart-card mat-card-content {
-  padding: 20px;
-  height: calc(100% - 80px);
-  position: relative;
-}
-
-.chart-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.chart-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #666;
-}
-
-.chart-loading p {
-  margin-top: 16px;
-  font-size: 14px;
-}
-
-.chart-spinner {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-}
-
-canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.chart-card mat-card-header {
-  padding: 20px 20px 0;
-}
-
 /* Bookings Table */
 .bookings-card {
   border-radius: 16px;
@@ -380,12 +319,6 @@ mat-card-title {
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .charts-container {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 16px;
@@ -404,15 +337,6 @@ mat-card-title {
   .stats-container {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
-  }
-
-  .charts-container {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .chart-card {
-    height: 350px;
   }
 
   .stats-icon {
@@ -467,15 +391,10 @@ mat-card-title {
   .stats-number {
     font-size: 20px;
   }
-
-  .chart-card {
-    height: 300px;
-  }
 }
 
 /* Animation */
 .stats-card,
-.chart-card,
 .bookings-card {
   animation: fadeInUp 0.6s ease-out;
 }
@@ -549,7 +468,6 @@ mat-card-title {
 /* Smooth transitions for all interactive elements */
 button,
 .stats-card,
-.chart-card,
 .bookings-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -575,7 +493,6 @@ button:focus-visible,
   }
 
   .stats-card,
-  .chart-card,
   .bookings-card {
     break-inside: avoid;
     box-shadow: none;

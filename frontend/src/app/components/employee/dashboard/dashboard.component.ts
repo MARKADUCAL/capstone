@@ -6,8 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
-import { Chart } from 'chart.js/auto';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface Task {
   id: number;
@@ -86,9 +86,7 @@ export class DashboardComponent implements OnInit {
     'actions',
   ];
 
-  private taskChart: Chart | undefined;
-  private ratingChart: Chart | undefined;
-  private apiUrl = 'http://localhost/autowash-hub-api/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -97,9 +95,6 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBookingStats();
-    if (isPlatformBrowser(this.platformId)) {
-      this.initializeCharts();
-    }
   }
 
   private loadBookingStats(): void {
@@ -154,86 +149,6 @@ export class DashboardComponent implements OnInit {
         this.dailyStats.pendingTasks = 0;
       },
     });
-  }
-
-  private initializeCharts(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    // Task Distribution Chart
-    const taskCtx = document.getElementById(
-      'taskDistributionChart'
-    ) as HTMLCanvasElement;
-    if (taskCtx) {
-      this.taskChart = new Chart(taskCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Completed', 'Pending'],
-          datasets: [
-            {
-              data: [
-                this.dailyStats.completedTasks,
-                this.dailyStats.pendingTasks,
-              ],
-              backgroundColor: [
-                'rgba(76, 175, 80, 0.8)',
-                'rgba(255, 152, 0, 0.8)',
-              ],
-              borderColor: '#ffffff',
-              borderWidth: 2,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'bottom',
-            },
-          },
-        },
-      });
-    }
-
-    // Performance Chart
-    const perfCtx = document.getElementById(
-      'performanceChart'
-    ) as HTMLCanvasElement;
-    if (perfCtx) {
-      this.ratingChart = new Chart(perfCtx, {
-        type: 'line',
-        data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-          datasets: [
-            {
-              label: 'Customer Ratings',
-              data: [4.3, 4.5, 4.2, 4.8, 4.5],
-              borderColor: '#1976d2',
-              backgroundColor: 'rgba(25, 118, 210, 0.1)',
-              fill: true,
-              tension: 0.4,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 5,
-              ticks: {
-                stepSize: 1,
-              },
-            },
-          },
-          plugins: {
-            legend: {
-              display: true,
-              position: 'bottom',
-            },
-          },
-        },
-      });
-    }
   }
 
   updateTaskStatus(taskId: number, newStatus: string): void {

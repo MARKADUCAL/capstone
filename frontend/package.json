@@ -8,8 +8,7 @@
     "build:ssr": "ng build --configuration production && ng run autowash-hub:server:production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:autowash-hub": "node dist/autowash-hub/server/server.mjs",
-    "vercel-build": "npm run build:ssr"
+    "serve:ssr:autowash-hub": "node dist/autowash-hub/server/server.mjs"
   },
   "private": true,
   "dependencies": {
@@ -27,7 +26,6 @@
     "@angular/ssr": "^19.2.4",
     "chart.js": "^4.4.9",
     "express": "^4.18.2",
-    "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

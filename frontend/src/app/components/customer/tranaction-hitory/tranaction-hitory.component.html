@@ -1,49 +1,138 @@
-<div class="container">
-  <div class="filter-buttons">
-    <button
-      class="filter-btn"
-      [class.active]="currentFilter === 'all'"
-      (click)="setFilter('all')"
-    >
-      All
-    </button>
-    <button
-      class="filter-btn"
-      [class.active]="currentFilter === 'pending'"
-      (click)="setFilter('pending')"
-    >
-      Pending
-    </button>
-    <button
-      class="filter-btn"
-      [class.active]="currentFilter === 'approved'"
-      (click)="setFilter('approved')"
-    >
-      Approved
-    </button>
-    <button
-      class="filter-btn"
-      [class.active]="currentFilter === 'completed'"
-      (click)="setFilter('completed')"
-    >
-      Completed
-    </button>
-  </div>
-  <div *ngIf="isLoading" class="loading-indicator">
-    <p>Loading transactions...</p>
+<div class="transaction-history-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">📊</div>
+      <div class="header-text">
+        <h1>Transaction History</h1>
+        <p>View and manage your car wash bookings</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ bookings.length }}</span>
+        <span class="stat-label">Total Bookings</span>
+      </div>
+      <button
+        class="refresh-btn"
+        (click)="loadBookings()"
+        [disabled]="isLoading"
+      >
+        <span class="refresh-icon">🔄</span>
+        Refresh
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        <span class="tab-icon">📋</span>
+        <span class="tab-text">All</span>
+        <span class="tab-count">{{ bookings.length }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'pending'"
+        (click)="setFilter('pending')"
+      >
+        <span class="tab-icon">⏳</span>
+        <span class="tab-text">Pending</span>
+        <span class="tab-count">{{ getFilterCount("pending") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'approved'"
+        (click)="setFilter('approved')"
+      >
+        <span class="tab-icon">✅</span>
+        <span class="tab-text">Approved</span>
+        <span class="tab-count">{{ getFilterCount("approved") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'completed'"
+        (click)="setFilter('completed')"
+      >
+        <span class="tab-icon">🎉</span>
+        <span class="tab-text">Completed</span>
+        <span class="tab-count">{{ getFilterCount("completed") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'cancelled'"
+        (click)="setFilter('cancelled')"
+      >
+        <span class="tab-icon">❌</span>
+        <span class="tab-text">Cancelled</span>
+        <span class="tab-count">{{ getFilterCount("cancelled") }}</span>
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'rejected'"
+        (click)="setFilter('rejected')"
+      >
+        <span class="tab-icon">🚫</span>
+        <span class="tab-text">Rejected</span>
+        <span class="tab-count">{{ getFilterCount("rejected") }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading your transactions...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Oops! Something went wrong</h3>
     <p>{{ errorMessage }}</p>
+    <button class="retry-btn" (click)="loadBookings()">
+      <span class="retry-icon">🔄</span>
+      Try Again
+    </button>
   </div>
 
+  <!-- Success State -->
+  <div *ngIf="successMessage" class="success-container">
+    <div class="success-icon">✅</div>
+    <h3>Success!</h3>
+    <p>{{ successMessage }}</p>
+    <p class="success-note">
+      Your booking list has been refreshed with the latest data.
+    </p>
+    <button class="close-btn" (click)="clearSuccessMessage()">
+      <span class="close-icon">✕</span>
+      Close
+    </button>
+  </div>
+
+  <!-- Empty State -->
   <div
     *ngIf="!isLoading && !errorMessage && bookings.length === 0"
-    class="no-transactions"
+    class="empty-state"
   >
-    <p>You have no past transactions.</p>
+    <div class="empty-icon">📭</div>
+    <h3>No Transactions Yet</h3>
+    <p>
+      You haven't made any car wash bookings yet. Book your first service to get
+      started!
+    </p>
+    <button class="book-now-btn">
+      <span class="book-icon">🚗</span>
+      Book Now
+    </button>
   </div>
 
+  <!-- No Filter Results -->
   <div
     *ngIf="
       !isLoading &&
@@ -51,102 +140,249 @@
       bookings.length > 0 &&
       filteredBookings.length === 0
     "
-    class="no-transactions"
+    class="empty-state"
   >
-    <p>No transactions match the current filter.</p>
+    <div class="empty-icon">🔍</div>
+    <h3>No Results Found</h3>
+    <p>
+      No transactions match the current filter. Try selecting a different
+      filter.
+    </p>
   </div>
 
-  <div class="transaction-list-horizontal">
-    <div class="transaction-card" *ngFor="let booking of filteredBookings">
-      <p><strong>Date :</strong> {{ booking.washDate | date : "longDate" }}</p>
-      <p><strong>Time :</strong> {{ booking.washTime }}</p>
-      <p><strong>Service Availed :</strong> {{ booking.serviceName }}</p>
-      <p>
-        <strong>Amount Paid :</strong> {{ booking.price | currency : "PHP" }}
-      </p>
-      <p><strong>Payment Method :</strong> {{ booking.paymentType }}</p>
-      <p>
-        <strong>Status :</strong>
-        <span
-          [ngClass]="{
-            'status-completed': normalizeStatus(booking.status) === 'completed',
-            'status-in-progress':
-              normalizeStatus(booking.status) === 'approved',
-            'status-pending': normalizeStatus(booking.status) === 'pending'
-          }"
-          >{{ displayStatus(booking.status) }}</span
+  <!-- Transaction Cards -->
+  <div
+    *ngIf="!isLoading && !errorMessage && filteredBookings.length > 0"
+    class="transactions-grid"
+  >
+    <div
+      class="transaction-card"
+      *ngFor="let booking of filteredBookings; trackBy: trackByBooking"
+    >
+      <div class="card-header">
+        <div class="booking-id">
+          <span class="id-label">{{ booking.serviceName }}</span>
+          <!-- Feedback indicator for completed bookings -->
+          <div
+            *ngIf="canSubmitFeedback(booking) && hasFeedback(booking)"
+            class="feedback-indicator"
+            title="Feedback submitted"
+          >
+            ✅ Feedback Submitted
+          </div>
+        </div>
+        <div
+          class="status-badge"
+          [ngClass]="'status-' + normalizeStatus(booking.status)"
         >
-      </p>
-      <div class="buttons">
-        <button class="view-btn" (click)="openViewModal(booking)">View</button>
-        <button class="feedback-btn" (click)="openFeedbackModal()">
-          Feedback
+          <span class="status-icon">{{
+            getStatusIcon(normalizeStatus(booking.status))
+          }}</span>
+          {{ displayStatus(booking.status) }}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="service-info">
+          <div class="service-icon">🚿</div>
+          <div class="service-details">
+            <h4 class="service-name">{{ booking.serviceName }}</h4>
+            <p class="service-description" *ngIf="booking.serviceDescription">
+              {{ booking.serviceDescription }}
+            </p>
+          </div>
+        </div>
+
+        <div class="booking-details">
+          <div class="detail-row">
+            <div class="detail-item">
+              <span class="detail-icon">📅</span>
+              <span class="detail-label">Date</span>
+              <span class="detail-value">{{
+                booking.washDate | date : "MMM dd, yyyy"
+              }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-icon">⏰</span>
+              <span class="detail-label">Time</span>
+              <span class="detail-value">{{
+                formatTime(booking.washTime)
+              }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <span class="detail-icon">🚗</span>
+              <span class="detail-label">Vehicle</span>
+              <span class="detail-value">{{
+                booking.vehicleType || "Car"
+              }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-icon">💳</span>
+              <span class="detail-label">Payment</span>
+              <span class="detail-value">{{ booking.paymentType }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <span class="detail-icon">👤</span>
+              <span class="detail-label">Assigned To</span>
+              <span
+                class="detail-value"
+                [ngClass]="{
+                  'pending-assignment': !hasEmployeeAssigned(booking),
+                  'assigned-employee': hasEmployeeAssigned(booking)
+                }"
+              >
+                {{ getEmployeeInfo(booking) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-section">
+          <div class="price-amount">
+            <span class="currency">₱</span>
+            <span class="amount">{{ booking.price }}</span>
+          </div>
+          <span class="price-label">Total Amount</span>
+        </div>
+
+        <!-- Rejection Reason Section (only for rejected bookings) -->
+        <div
+          class="rejection-section"
+          *ngIf="booking.status === 'rejected' && getRejectionReason(booking)"
+        >
+          <div class="rejection-header">
+            <span class="rejection-icon">🚫</span>
+            <span class="rejection-title">Rejection Reason</span>
+          </div>
+          <div class="rejection-content">
+            {{ getRejectionReason(booking) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn view-btn" (click)="openViewModal(booking)">
+          <span class="btn-icon">👁️</span>
+          View Details
         </button>
+        <button
+          *ngIf="canCancelBooking(booking)"
+          class="action-btn cancel-btn"
+          (click)="openCancelModal(booking)"
+        >
+          <span class="btn-icon">❌</span>
+          Cancel Booking
+        </button>
+        <button
+          *ngIf="canSubmitFeedback(booking)"
+          class="action-btn feedback-btn"
+          (click)="openFeedbackModal(booking)"
+          [disabled]="hasFeedback(booking)"
+          [title]="
+            hasFeedback(booking)
+              ? 'You have already submitted feedback for this booking'
+              : 'Click to leave feedback for this completed service'
+          "
+        >
+          <span class="btn-icon">{{ hasFeedback(booking) ? "✅" : "💬" }}</span>
+          {{ hasFeedback(booking) ? "Feedback Submitted" : "Leave Feedback" }}
+        </button>
+        <div *ngIf="!canSubmitFeedback(booking)" class="feedback-disabled">
+          <span class="feedback-icon">⏳</span>
+          <span class="feedback-text">Complete to leave feedback</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- View Transaction Modal -->
-<div class="modal" [class.show-modal]="isViewModalOpen">
-  <div class="modal-content transaction-modal" *ngIf="selectedBooking">
+<!-- Enhanced View Transaction Modal -->
+<div
+  class="modal-overlay"
+  [class.show]="isViewModalOpen"
+  (click)="closeViewModal()"
+>
+  <div
+    class="modal-container"
+    (click)="$event.stopPropagation()"
+    *ngIf="selectedBooking"
+  >
     <div class="modal-header">
-      <h2>Transaction Details</h2>
-      <span class="close-btn" (click)="closeViewModal()">&times;</span>
+      <div class="modal-title">
+        <h2>Transaction Details</h2>
+        <span class="transaction-id">{{ selectedBooking.serviceName }}</span>
+      </div>
+      <button class="close-btn" (click)="closeViewModal()">
+        <span class="close-icon">✕</span>
+      </button>
     </div>
+
     <div class="modal-body">
-      <div class="transaction-detail">
-        <div class="transaction-header">
-          <div class="transaction-id">
-            <span class="label">Transaction ID:</span>
-            <span class="value">#{{ selectedBooking.id }}</span>
-          </div>
-          <div class="transaction-status">
-            <span
-              [ngClass]="{
-                'status-completed':
-                  normalizeStatus(selectedBooking.status) === 'completed',
-                'status-in-progress':
-                  normalizeStatus(selectedBooking.status) === 'approved',
-                'status-pending':
-                  normalizeStatus(selectedBooking.status) === 'pending'
-              }"
-              >{{ displayStatus(selectedBooking.status) }}</span
-            >
+      <div
+        class="status-banner"
+        [ngClass]="'status-' + normalizeStatus(selectedBooking.status)"
+      >
+        <div class="status-content">
+          <span class="status-icon-large">{{
+            getStatusIcon(normalizeStatus(selectedBooking.status))
+          }}</span>
+          <div class="status-info">
+            <h3>{{ displayStatus(selectedBooking.status) }}</h3>
+            <p>
+              {{
+                getStatusDescription(normalizeStatus(selectedBooking.status))
+              }}
+            </p>
           </div>
         </div>
+      </div>
 
-        <div class="detail-section">
-          <div class="detail-item">
-            <div class="detail-icon"><i class="calendar-icon">📅</i></div>
-            <div class="detail-content">
-              <span class="label">Date</span>
+      <div class="details-grid">
+        <div class="detail-card">
+          <div class="detail-header">
+            <span class="detail-icon">📅</span>
+            <h4>Booking Information</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Date:</span>
               <span class="value">{{
-                selectedBooking.washDate | date : "longDate"
+                selectedBooking.washDate | date : "EEEE, MMMM dd, yyyy"
+              }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Time:</span>
+              <span class="value">{{
+                formatTime(selectedBooking.washTime)
+              }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Vehicle Type:</span>
+              <span class="value">{{
+                selectedBooking.vehicleType || "Car"
               }}</span>
             </div>
           </div>
-          <div class="detail-item">
-            <div class="detail-icon"><i class="time-icon">⏱️</i></div>
-            <div class="detail-content">
-              <span class="label">Time</span>
-              <span class="value">{{ selectedBooking.washTime }}</span>
-            </div>
-          </div>
         </div>
 
-        <div class="detail-section">
-          <div class="detail-item">
-            <div class="detail-icon"><i class="service-icon">🚿</i></div>
-            <div class="detail-content">
-              <span class="label">Service Availed</span>
+        <div class="detail-card">
+          <div class="detail-header">
+            <span class="detail-icon">🚿</span>
+            <h4>Service Details</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Service:</span>
               <span class="value">{{ selectedBooking.serviceName }}</span>
             </div>
-          </div>
-          <div class="detail-item full-width">
-            <div class="detail-icon"><i class="description-icon">📋</i></div>
-            <div class="detail-content">
-              <span class="label">Service Description</span>
+            <div class="detail-row" *ngIf="selectedBooking.serviceDescription">
+              <span class="label">Description:</span>
               <span class="value">{{
                 selectedBooking.serviceDescription
               }}</span>
@@ -154,68 +390,252 @@
           </div>
         </div>
 
-        <div class="detail-section">
-          <div class="detail-item">
-            <div class="detail-icon"><i class="payment-icon">💵</i></div>
-            <div class="detail-content">
-              <span class="label">Amount Paid</span>
+        <div class="detail-card">
+          <div class="detail-header">
+            <span class="detail-icon">👤</span>
+            <h4>Employee Assignment</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Assigned To:</span>
+              <span
+                class="value"
+                [ngClass]="{
+                  'pending-assignment': !hasEmployeeAssigned(selectedBooking),
+                  'assigned-employee': hasEmployeeAssigned(selectedBooking)
+                }"
+              >
+                {{ getEmployeeInfo(selectedBooking) }}
+              </span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="hasEmployeeAssigned(selectedBooking)"
+            >
+              <span class="label">Employee ID:</span>
               <span class="value">{{
-                selectedBooking.price | currency : "PHP"
+                selectedBooking.assigned_employee_id
               }}</span>
             </div>
           </div>
-          <div class="detail-item">
-            <div class="detail-icon"><i class="method-icon">💳</i></div>
-            <div class="detail-content">
-              <span class="label">Payment Method</span>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-header">
+            <span class="detail-icon">💳</span>
+            <h4>Payment Information</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Amount:</span>
+              <span class="value price">{{
+                selectedBooking.price | currency : "PHP"
+              }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Method:</span>
               <span class="value">{{ selectedBooking.paymentType }}</span>
             </div>
           </div>
         </div>
 
-        <div class="detail-section">
-          <div class="detail-item">
-            <div class="detail-icon"><i class="staff-icon">👤</i></div>
-            <div class="detail-content">
-              <span class="label">Vehicle Type</span>
-              <span class="value">{{ selectedBooking.vehicleType }}</span>
+        <!-- Rejection Reason Card (only for rejected bookings) -->
+        <div
+          class="detail-card rejection-card"
+          *ngIf="
+            selectedBooking.status === 'rejected' &&
+            getRejectionReason(selectedBooking)
+          "
+        >
+          <div class="detail-header">
+            <span class="detail-icon">🚫</span>
+            <h4>Rejection Information</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Reason:</span>
+              <span class="value rejection-reason">{{
+                getRejectionReason(selectedBooking)
+              }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn secondary" (click)="closeViewModal()">
+        Close
+      </button>
+      <button class="modal-btn primary" (click)="openFeedbackModal()">
+        <span class="btn-icon">💬</span>
+        Leave Feedback
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- Feedback Modal -->
-<div class="modal" [class.show-modal]="isFeedbackModalOpen">
-  <div class="modal-content feedback-modal">
+<!-- Enhanced Feedback Modal -->
+<div
+  class="modal-overlay"
+  [class.show]="isFeedbackModalOpen"
+  (click)="closeFeedbackModal()"
+>
+  <div
+    class="modal-container feedback-modal"
+    (click)="$event.stopPropagation()"
+  >
     <div class="modal-header">
-      <h2>Leave Feedback</h2>
-      <span class="close-btn" (click)="closeFeedbackModal()">&times;</span>
+      <div class="modal-title">
+        <h2>Share Your Experience</h2>
+        <p>We'd love to hear about your car wash service</p>
+      </div>
+      <button class="close-btn" (click)="closeFeedbackModal()">
+        <span class="close-icon">✕</span>
+      </button>
     </div>
+
     <div class="modal-body">
-      <div class="rating-container">
-        <p>How would you rate our service?</p>
-        <div class="stars">
-          <span
-            class="star"
+      <div class="rating-section">
+        <h3>How would you rate our service?</h3>
+        <div class="star-rating">
+          <button
+            class="star-btn"
             *ngFor="let star of [1, 2, 3, 4, 5]"
             [class.active]="star <= currentRating"
             (click)="setRating(star)"
           >
-            <i class="star-icon">★</i>
-          </span>
+            <span class="star-icon">★</span>
+          </button>
         </div>
         <p class="rating-text">{{ getRatingText() }}</p>
       </div>
-      <div class="feedback-form">
+
+      <div class="feedback-section">
+        <label for="feedback-text">Tell us more about your experience:</label>
         <textarea
-          placeholder="Tell us about your experience..."
-          rows="5"
+          id="feedback-text"
+          [(ngModel)]="feedbackComment"
+          placeholder="Share your thoughts, suggestions, or any issues you encountered..."
+          rows="4"
+          class="feedback-textarea"
         ></textarea>
-        <button class="submit-feedback-btn">Submit Feedback</button>
       </div>
+
+      <!-- Feedback Messages -->
+      <div *ngIf="feedbackSuccessMessage" class="feedback-success">
+        <div class="success-icon">✅</div>
+        <p>{{ feedbackSuccessMessage }}</p>
+      </div>
+
+      <div *ngIf="feedbackErrorMessage" class="feedback-error">
+        <div class="error-icon">⚠️</div>
+        <p>{{ feedbackErrorMessage }}</p>
+        <button class="clear-btn" (click)="clearFeedbackMessages()">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn secondary" (click)="closeFeedbackModal()">
+        Cancel
+      </button>
+      <button
+        class="modal-btn primary submit-btn"
+        [disabled]="currentRating === 0 || isSubmittingFeedback"
+        (click)="submitFeedback()"
+      >
+        <span class="btn-icon" *ngIf="!isSubmittingFeedback">📤</span>
+        <span class="btn-icon" *ngIf="isSubmittingFeedback">⏳</span>
+        {{ isSubmittingFeedback ? "Submitting..." : "Submit Feedback" }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Booking Confirmation Modal -->
+<div
+  class="modal-overlay"
+  [class.show]="isCancelModalOpen"
+  (click)="closeCancelModal()"
+>
+  <div
+    class="modal-container cancel-modal"
+    (click)="$event.stopPropagation()"
+    *ngIf="bookingToCancel"
+  >
+    <div class="modal-header">
+      <div class="modal-title">
+        <h2>Cancel Booking</h2>
+        <p>Are you sure you want to cancel this booking?</p>
+      </div>
+      <button class="close-btn" (click)="closeCancelModal()">
+        <span class="close-icon">✕</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="cancel-warning">
+        <div class="warning-icon">⚠️</div>
+        <h3>This action cannot be undone</h3>
+        <p>
+          Once cancelled, this booking will be permanently removed from your
+          transaction history.
+        </p>
+      </div>
+
+      <div class="booking-summary">
+        <h4>Booking Details:</h4>
+        <div class="summary-item">
+          <span class="label">Service:</span>
+          <span class="value">{{ bookingToCancel.serviceName }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Date:</span>
+          <span class="value">{{
+            bookingToCancel.washDate | date : "MMM dd, yyyy"
+          }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Time:</span>
+          <span class="value">{{ formatTime(bookingToCancel.washTime) }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Amount:</span>
+          <span class="value">₱ {{ bookingToCancel.price }}</span>
+        </div>
+      </div>
+
+      <!-- Reason for cancellation -->
+      <div class="cancel-reason">
+        <h4>Reason for cancelling (optional)</h4>
+        <textarea
+          [(ngModel)]="cancelReason"
+          placeholder="E.g., Change of plans, not available at this time"
+          rows="3"
+          class="cancel-reason-textarea"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        class="modal-btn secondary"
+        (click)="closeCancelModal()"
+        [disabled]="isCancelling"
+      >
+        Keep Booking
+      </button>
+      <button
+        class="modal-btn danger"
+        (click)="cancelBooking()"
+        [disabled]="isCancelling"
+      >
+        <span class="btn-icon" *ngIf="!isCancelling">❌</span>
+        <span class="btn-icon" *ngIf="isCancelling">⏳</span>
+        {{ isCancelling ? "Cancelling..." : "Cancel Booking" }}
+      </button>
     </div>
   </div>
 </div>

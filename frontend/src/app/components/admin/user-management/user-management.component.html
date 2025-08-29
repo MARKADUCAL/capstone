@@ -1,16 +1,16 @@
 <div class="users-container">
   <div class="header">
-    <h2>User Management</h2>
+    <h2>Customer Management</h2>
     <button mat-raised-button color="primary" (click)="addUser()">
       <mat-icon>add</mat-icon>
-      Add New User
+      Add New Customer
     </button>
   </div>
 
   <!-- Loading State -->
   @if (loading) {
   <div class="loading-container">
-    <p>Loading users...</p>
+    <p>Loading customers...</p>
   </div>
   }
 
@@ -27,54 +27,70 @@
   <!-- Empty State -->
   @if (!loading && !error && users.length === 0) {
   <div class="empty-container">
-    <p>No users found.</p>
+    <p>No customers found.</p>
   </div>
   }
 
-  <!-- Users Grid -->
+  <!-- Customers Table -->
   @if (!loading && !error && users.length > 0) {
-  <div class="users-grid">
-    @for (user of users; track user.id) {
-    <mat-card class="user-card">
-      <mat-card-header>
-        <div mat-card-avatar>
-          <div class="user-avatar-placeholder">
-            {{ getUserInitials(user.name) }}
-          </div>
-        </div>
-        <mat-card-title>{{ user.name }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="user-details">
-          <p>
-            <mat-icon>email</mat-icon>
-            {{ user.email }}
-          </p>
-          <p>
-            <mat-icon>phone</mat-icon>
-            {{ user.phone }}
-          </p>
-          <p>
-            <mat-icon>calendar_today</mat-icon>
+  <div class="table-container">
+    <table class="customer-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Registration Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+        <tr>
+          <td class="customer-id" data-label="ID">{{ user.id }}</td>
+          <td class="customer-name" data-label="Name">
+            <div class="name-cell">
+              <div class="user-avatar-small">
+                {{ getUserInitials(user.name) }}
+              </div>
+              <span>{{ user.name }}</span>
+            </div>
+          </td>
+          <td class="customer-email" data-label="Email">{{ user.email }}</td>
+          <td class="customer-phone" data-label="Phone">{{ user.phone }}</td>
+          <td class="customer-date" data-label="Registered">
             {{ user.registrationDate }}
-          </p>
-        </div>
-      </mat-card-content>
-
-      <mat-card-actions class="action-buttons">
-        <button class="action-btn view-btn" (click)="viewUser(user)">
-          View
-        </button>
-        <button class="action-btn edit-btn" (click)="editUser(user)">
-          Edit
-        </button>
-        <button class="action-btn delete-btn" (click)="deleteUser(user)">
-          Delete
-        </button>
-      </mat-card-actions>
-    </mat-card>
-    }
+          </td>
+          <td class="customer-actions" data-label="Actions">
+            <div class="action-buttons">
+              <button
+                class="action-btn view-btn"
+                (click)="viewUser(user)"
+                title="View Details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button
+                class="action-btn edit-btn"
+                (click)="editUser(user)"
+                title="Edit Customer"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                class="action-btn delete-btn"
+                (click)="deleteUser(user)"
+                title="Delete Customer"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
   </div>
   }
 
@@ -82,7 +98,7 @@
   <div class="modal" [class.show-modal]="isViewModalOpen">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>User Details</h2>
+        <h2>Customer Details</h2>
         <span class="close-btn" (click)="closeViewUserModal()">&times;</span>
       </div>
       <div class="modal-body" *ngIf="selectedUser">
@@ -112,7 +128,7 @@
   <div class="modal" [class.show-modal]="isEditModalOpen">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Edit User</h2>
+        <h2>Edit Customer</h2>
         <span class="close-btn" (click)="closeEditUserModal()">&times;</span>
       </div>
       <div class="modal-body">
@@ -125,7 +141,7 @@
               name="edit-name"
               [(ngModel)]="editUserData.name"
               required
-              placeholder="Enter user name"
+              placeholder="Enter customer name"
             />
           </div>
 
@@ -162,6 +178,107 @@
               Cancel
             </button>
             <button type="submit" class="save-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal" [class.show-modal]="isAddModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Customer</h2>
+        <span class="close-btn" (click)="closeAddUserModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form class="user-form" (ngSubmit)="submitAddUserForm()">
+          <div class="form-group">
+            <label for="first-name">First Name *</label>
+            <input
+              type="text"
+              id="first-name"
+              name="first-name"
+              [(ngModel)]="newUser.first_name"
+              required
+              placeholder="Enter first name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="last-name">Last Name *</label>
+            <input
+              type="text"
+              id="last-name"
+              name="last-name"
+              [(ngModel)]="newUser.last_name"
+              required
+              placeholder="Enter last name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="newUser.email"
+              required
+              placeholder="Enter email address"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              [(ngModel)]="newUser.phone"
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="newUser.password"
+              required
+              placeholder="Enter password (min 6 characters)"
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              [(ngModel)]="newUser.confirm_password"
+              required
+              placeholder="Confirm password"
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeAddUserModal()"
+              [disabled]="isSubmitting"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="save-btn" [disabled]="isSubmitting">
+              {{ isSubmitting ? "Creating..." : "Create Customer" }}
+            </button>
           </div>
         </form>
       </div>

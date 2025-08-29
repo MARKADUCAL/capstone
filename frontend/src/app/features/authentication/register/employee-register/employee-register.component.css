@@ -92,6 +92,11 @@ html {
   margin: 0 auto;
 }
 
+/* Ensure the first field (Employee ID) has breathing room so its label is visible */
+.register-form .form-group:first-child {
+  margin-top: 10px;
+}
+
 .register-form h2 {
   font-size: 24px;
   font-weight: 600;

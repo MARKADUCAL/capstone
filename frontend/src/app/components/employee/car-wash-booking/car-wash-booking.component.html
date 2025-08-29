@@ -1,76 +1,123 @@
 <div class="bookings-container">
   <div class="header">
     <div class="header-left">
-      <mat-select [(ngModel)]="selectedStatus" class="status-filter">
-        <mat-option value="All">All</mat-option>
-        <mat-option value="Pending">Pending</mat-option>
-        <mat-option value="Approved">Approved</mat-option>
-        <mat-option value="Rejected">Rejected</mat-option>
-        <mat-option value="Completed">Completed</mat-option>
-      </mat-select>
+      <h2>My Assigned Car Wash Bookings</h2>
+      <p class="header-subtitle">
+        View and complete your assigned car wash bookings
+      </p>
     </div>
     <div class="header-right">
-      <button mat-raised-button color="primary" (click)="refreshBookings()">
+      <button mat-raised-button color="accent" (click)="refreshBookings()">
         <mat-icon>refresh</mat-icon>
         Refresh
       </button>
     </div>
   </div>
 
-  <div class="bookings-grid">
-    @for (booking of filterBookings(selectedStatus); track booking.id) {
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your assigned bookings...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon class="error-icon">error</mat-icon>
+        <h3>Error Loading Bookings</h3>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="refreshBookings()">
+          Try Again
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- No Bookings State -->
+  <div
+    *ngIf="!loading && !error && bookings.length === 0"
+    class="no-bookings-container"
+  >
+    <mat-card class="no-bookings-card">
+      <mat-card-content>
+        <mat-icon class="no-bookings-icon">assignment</mat-icon>
+        <h3>No Assigned Bookings</h3>
+        <p>
+          You don't have any car wash bookings assigned to you yet. Check back
+          later!
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Bookings Grid -->
+  <div *ngIf="!loading && !error && bookings.length > 0" class="bookings-grid">
+    @for (booking of bookings; track booking.id) {
     <mat-card class="booking-card" [ngClass]="booking.status.toLowerCase()">
-      <mat-card-header>
-        <div mat-card-avatar>
-          <div class="user-avatar-placeholder">
-            {{ getUserInitials(booking.customerName) }}
+      <div class="card-top">
+        <div class="left">
+          <div class="avatar" title="Customer">
+            <div class="user-avatar-placeholder">
+              {{ getUserInitials(booking.customerName) }}
+            </div>
+          </div>
+          <div class="title-block">
+            <div class="customer">{{ booking.customerName }}</div>
+            <div class="sub">Vehicle • {{ booking.vehicleType }}</div>
           </div>
         </div>
-        <mat-card-title>{{ booking.customerName }}</mat-card-title>
-        <mat-card-subtitle>
-          Vehicle Type: {{ booking.vehicleType }}
-        </mat-card-subtitle>
-      </mat-card-header>
+        <div class="right">
+          <span
+            class="status-chip"
+            [ngClass]="'status-' + booking.status.toLowerCase()"
+          >
+            <span class="dot"></span>
+            {{ booking.status }}
+          </span>
+        </div>
+      </div>
 
-      <mat-card-content>
-        <div class="booking-details">
-          <p><mat-icon>calendar_today</mat-icon> {{ booking.date }}</p>
-          <p><mat-icon>access_time</mat-icon> {{ booking.time }}</p>
-          <p>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info">
+            <mat-icon>calendar_today</mat-icon> {{ booking.date }}
+          </div>
+          <div class="info">
+            <mat-icon>access_time</mat-icon> {{ booking.time }}
+          </div>
+          <div class="info">
             <mat-icon>local_car_wash</mat-icon>
             {{ booking.serviceType || "Standard Wash" }}
-          </p>
-          <p>
+          </div>
+          <div class="info price">
             <mat-icon>attach_money</mat-icon> {{ booking.price | currency }}
-          </p>
+          </div>
         </div>
-      </mat-card-content>
+      </div>
 
       <div class="action-buttons">
         <button class="action-btn view-btn" (click)="viewBooking(booking)">
-          View
+          <mat-icon>visibility</mat-icon>
+          View Details
         </button>
-        @if (booking.status === 'Pending') {
-        <button
-          class="action-btn approve-btn"
-          (click)="approveBooking(booking)"
-        >
-          Approve
+        @if (booking.status === 'Approved') {
+        <button class="action-btn done-btn" (click)="markAsDone(booking)">
+          <mat-icon>done_all</mat-icon>
+          Mark as Done
         </button>
-        <button class="action-btn reject-btn" (click)="rejectBooking(booking)">
-          Reject
-        </button>
-        } @else if (booking.status === 'Approved') {
-        <button
-          class="action-btn complete-btn"
-          (click)="completeBooking(booking)"
-        >
-          Complete
-        </button>
+        } @else if (booking.status === 'Completed') {
+        <div class="completed-badge">
+          <mat-icon>check_circle</mat-icon>
+          Completed
+        </div>
         } @else {
-        <button class="action-btn edit-btn" (click)="editBooking(booking)">
-          Edit
-        </button>
+        <div class="pending-badge">
+          <mat-icon>schedule</mat-icon>
+          Awaiting Approval
+        </div>
         }
       </div>
     </mat-card>

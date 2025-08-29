@@ -138,10 +138,16 @@ export class CustomerDashboardComponent implements OnInit {
 
     this.serviceService.getAllServices().subscribe({
       next: (services) => {
-        // Filter only active services
-        this.availableServices = services.filter(
-          (service) => service.is_active
-        );
+        // Filter only active services and ensure proper data types
+        this.availableServices = services
+          .filter((service) => service.is_active)
+          .map((service) => ({
+            ...service,
+            price: this.parsePrice(service.price),
+            duration_minutes:
+              parseInt(service.duration_minutes.toString()) || 0,
+          }));
+
         this.servicesLoading = false;
       },
       error: (error) => {
@@ -150,6 +156,25 @@ export class CustomerDashboardComponent implements OnInit {
         this.servicesLoading = false;
       },
     });
+  }
+
+  // Helper method to parse price data and ensure it's a number
+  private parsePrice(price: any): number {
+    if (price === null || price === undefined || price === '') {
+      return 0;
+    }
+
+    // Convert to number
+    const numPrice =
+      typeof price === 'string' ? parseFloat(price) : Number(price);
+
+    // Check if it's a valid number
+    if (isNaN(numPrice)) {
+      console.warn('Invalid price value:', price, 'type:', typeof price);
+      return 0;
+    }
+
+    return numPrice;
   }
 
   navigateToAppointment(): void {
@@ -249,26 +274,35 @@ export class CustomerDashboardComponent implements OnInit {
 
   formatTime(timeString: string): string {
     if (!timeString) return '';
-    
+
     // Parse the time string (assuming format like "11:11:00")
     const [hours, minutes] = timeString.split(':');
     const hour = parseInt(hours);
     const minute = parseInt(minutes);
-    
+
     // Convert to 12-hour format
     const period = hour >= 12 ? 'pm' : 'am';
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    
+
     // Format with leading zero for minutes if needed
     const displayMinute = minute.toString().padStart(2, '0');
-    
+
     return `${displayHour}:${displayMinute}${period}`;
   }
 
   formatPrice(price: number): string {
-    if (typeof price !== 'number' || isNaN(price)) {
-      return '₱0.00';
+    if (price === null || price === undefined) {
+      return 'Price not set';
     }
+
+    if (typeof price !== 'number' || isNaN(price)) {
+      return 'Price not set';
+    }
+
+    if (price <= 0) {
+      return 'Price not set';
+    }
+
     return `₱${price.toFixed(2)}`;
   }
 

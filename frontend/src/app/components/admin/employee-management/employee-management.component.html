@@ -31,52 +31,85 @@
   </div>
   }
 
-  <!-- Employees Grid -->
+  <!-- Employees Table -->
   @if (!loading && !error && employees.length > 0) {
-  <div class="employee-grid">
-    @for (employee of employees; track employee.id) {
-    <mat-card class="employee-card" [ngClass]="employee.status.toLowerCase()">
-      <mat-card-header>
-        <div mat-card-avatar>
-          <div class="user-avatar-placeholder">
-            {{ getUserInitials(employee.name) }}
-          </div>
-        </div>
-        <mat-card-title>{{ employee.name }}</mat-card-title>
-        <mat-card-subtitle>Role: {{ employee.role }}</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="employee-details">
-          <p><mat-icon>email</mat-icon> {{ employee.email }}</p>
-          <p><mat-icon>phone</mat-icon> {{ employee.phone }}</p>
-          <p><mat-icon>badge</mat-icon> ID: {{ employee.employeeId }}</p>
-          <p>
-            <mat-icon>calendar_today</mat-icon> {{ employee.registrationDate }}
-          </p>
-          <p>
-            <mat-icon>fiber_manual_record</mat-icon> Status:
-            {{ employee.status }}
-          </p>
-        </div>
-      </mat-card-content>
-
-      <div class="action-buttons">
-        <button class="action-btn view-btn" (click)="viewEmployee(employee)">
-          View
-        </button>
-        <button class="action-btn edit-btn" (click)="editEmployee(employee)">
-          Edit
-        </button>
-        <button
-          class="action-btn delete-btn"
-          (click)="deleteEmployee(employee)"
-        >
-          Delete
-        </button>
-      </div>
-    </mat-card>
-    }
+  <div class="table-container">
+    <table class="employee-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Registration Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (employee of employees; track employee.id) {
+        <tr>
+          <td class="employee-id" data-label="ID">
+            {{ employee.employeeId || "N/A" }}
+          </td>
+          <td class="employee-name" data-label="Name">
+            <div class="name-cell">
+              <div class="user-avatar-small">
+                {{ getUserInitials(employee.name) }}
+              </div>
+              <span>{{ employee.name }}</span>
+            </div>
+          </td>
+          <td class="employee-email" data-label="Email">
+            {{ employee.email }}
+          </td>
+          <td class="employee-phone" data-label="Phone">
+            {{ employee.phone }}
+          </td>
+          <td class="employee-role" data-label="Role">
+            <span class="role-badge">{{ employee.role }}</span>
+          </td>
+          <td class="employee-status" data-label="Status">
+            <span
+              class="status-badge"
+              [ngClass]="employee.status.toLowerCase()"
+            >
+              {{ employee.status }}
+            </span>
+          </td>
+          <td class="employee-date" data-label="Registered">
+            {{ employee.registrationDate }}
+          </td>
+          <td class="employee-actions" data-label="Actions">
+            <div class="action-buttons">
+              <button
+                class="action-btn view-btn"
+                (click)="viewEmployee(employee)"
+                title="View Details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button
+                class="action-btn edit-btn"
+                (click)="editEmployee(employee)"
+                title="Edit Employee"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                class="action-btn delete-btn"
+                (click)="deleteEmployee(employee)"
+                title="Delete Employee"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
   </div>
   }
 
@@ -90,35 +123,55 @@
       <div class="modal-body">
         <form class="employee-form" (ngSubmit)="submitEmployeeForm()">
           <div class="form-group">
-            <label for="name">Full Name</label>
+            <label for="employee-id">Employee ID *</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              [(ngModel)]="newEmployee.name"
+              id="employee-id"
+              name="employee-id"
+              [(ngModel)]="newEmployee.employee_id"
               required
-              placeholder="Enter employee name"
+              placeholder="Enter employee ID (e.g., EMP-001)"
             />
           </div>
 
           <div class="form-group">
-            <label for="role">Role</label>
-            <select
-              id="role"
-              name="role"
-              [(ngModel)]="newEmployee.role"
+            <label for="first-name">First Name *</label>
+            <input
+              type="text"
+              id="first-name"
+              name="first-name"
+              [(ngModel)]="newEmployee.first_name"
               required
-            >
-              <option value="" disabled selected>Select role</option>
-              <option value="Carwasher">Carwasher</option>
-              <option value="Supervisor">Supervisor</option>
-              <option value="Cashier">Cashier</option>
-              <option value="Manager">Manager</option>
-            </select>
+              placeholder="Enter first name"
+            />
           </div>
 
           <div class="form-group">
-            <label for="phone">Phone Number</label>
+            <label for="last-name">Last Name *</label>
+            <input
+              type="text"
+              id="last-name"
+              name="last-name"
+              [(ngModel)]="newEmployee.last_name"
+              required
+              placeholder="Enter last name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="newEmployee.email"
+              required
+              placeholder="Enter email address"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
             <input
               type="tel"
               id="phone"
@@ -130,16 +183,45 @@
           </div>
 
           <div class="form-group">
-            <label for="status">Status</label>
+            <label for="position">Position *</label>
             <select
-              id="status"
-              name="status"
-              [(ngModel)]="newEmployee.status"
+              id="position"
+              name="position"
+              [(ngModel)]="newEmployee.position"
               required
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="" disabled selected>Select position</option>
+              <option value="Carwasher">Carwasher</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Manager">Manager</option>
             </select>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="newEmployee.password"
+              required
+              placeholder="Enter password (min 6 characters)"
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              [(ngModel)]="newEmployee.confirm_password"
+              required
+              placeholder="Confirm password"
+              minlength="6"
+            />
           </div>
 
           <div class="form-actions">
@@ -147,10 +229,13 @@
               type="button"
               class="cancel-btn"
               (click)="closeAddEmployeeModal()"
+              [disabled]="isSubmitting"
             >
               Cancel
             </button>
-            <button type="submit" class="save-btn">Save Employee</button>
+            <button type="submit" class="save-btn" [disabled]="isSubmitting">
+              {{ isSubmitting ? "Creating..." : "Save Employee" }}
+            </button>
           </div>
         </form>
       </div>

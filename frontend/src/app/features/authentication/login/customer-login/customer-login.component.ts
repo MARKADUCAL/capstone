@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-customer-login',
@@ -20,7 +21,7 @@ export class CustomerLoginComponent implements OnInit {
   };
   errorMessage = '';
   isLoading = false;
-  apiBaseUrl = 'http://localhost/autowash-hub-api/api'; // Default fallback URL
+  apiBaseUrl = environment.apiUrl; // Use environment configuration
 
   constructor(
     private http: HttpClient,
@@ -29,19 +30,9 @@ export class CustomerLoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Only access window when in browser environment
-    if (isPlatformBrowser(this.platformId)) {
-      // Dynamically determine the API base URL
-      const host = window.location.hostname;
-      if (host === 'localhost' || host === '127.0.0.1') {
-        // For local development
-        this.apiBaseUrl = 'http://localhost/autowash-hub-api/api';
-      } else {
-        // For production environment - adjust as needed
-        this.apiBaseUrl = window.location.origin + '/autowash-hub-api/api';
-      }
-      console.log('API Base URL:', this.apiBaseUrl);
-    }
+    // Use environment configuration for API URL
+    this.apiBaseUrl = environment.apiUrl;
+    console.log('API Base URL:', this.apiBaseUrl);
   }
 
   onSubmit() {
@@ -63,7 +54,11 @@ export class CustomerLoginComponent implements OnInit {
 
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
 
-    console.log('Attempting login with:', this.loginData);
+    // Avoid logging sensitive data like raw passwords
+    console.log('Attempting login with:', {
+      email: this.loginData.email,
+      password: '********',
+    });
 
     this.http
       .post(`${this.apiBaseUrl}/login_customer`, this.loginData, { headers })

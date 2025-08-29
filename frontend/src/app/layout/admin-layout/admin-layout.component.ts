@@ -104,6 +104,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         return 'Reports';
       case 'pages':
         return 'Pages';
+      case 'feedback-management':
+        return 'Customer Feedback';
       case 'profile':
         return 'Profile';
       default:

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-employee-login',
@@ -51,7 +52,7 @@ export class EmployeeLoginComponent {
 
     this.http
       .post(
-        'http://localhost/autowash-hub-api/api/login_employee',
+        `${environment.apiUrl}/login_employee`,
         this.loginData,
         { headers }
       )
