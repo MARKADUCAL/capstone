@@ -104,11 +104,7 @@ if ($method === 'GET') {
         exit();
     }
     
-    if (strpos($request, 'services') !== false) {
-        $result = $get->get_all_services();
-        echo json_encode($result);
-        exit();
-    }
+
 
     if (strpos($request, 'get_all_bookings') !== false) {
         $result = $get->get_all_bookings();
@@ -198,6 +194,19 @@ if ($method === 'GET') {
             http_response_code(400);
             echo json_encode(['message' => 'Date parameter is required.']);
         }
+        exit();
+    }
+
+    // Pricing GET routes
+    if (strpos($request, 'get_all_pricing') !== false) {
+        $result = $get->get_all_pricing();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_pricing_matrix') !== false) {
+        $result = $get->get_pricing_matrix();
+        echo json_encode($result);
         exit();
     }
 
@@ -310,11 +319,7 @@ if ($method === 'POST') {
         exit();
     }
     
-    if (strpos($request, 'services') !== false) {
-        $result = $post->add_service($data);
-        echo json_encode($result);
-        exit();
-    }
+
 
     if (strpos($request, 'create_booking') !== false) {
         $result = $post->create_booking($data);
@@ -338,6 +343,41 @@ if ($method === 'POST') {
     if (strpos($request, 'add_time_slot') !== false) {
         $result = $post->add_time_slot($data);
         echo json_encode($result);
+        exit();
+    }
+
+    // Pricing management routes
+    if (strpos($request, 'create_pricing_table') !== false) {
+        $result = $post->create_pricing_table();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'add_pricing_entry') !== false) {
+        $result = $post->add_pricing_entry($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'get_pricing') !== false) {
+        if (isset($_GET['vehicle_type']) && isset($_GET['service_package'])) {
+            $result = $post->get_pricing($_GET['vehicle_type'], $_GET['service_package']);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Vehicle type and service package are required.']);
+        }
+        exit();
+    }
+
+    if (strpos($request, 'delete_pricing_entry') !== false) {
+        if (isset($_GET['id'])) {
+            $result = $post->delete_pricing_entry($_GET['id']);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Pricing entry ID is required.']);
+        }
         exit();
     }
 
@@ -430,12 +470,7 @@ if ($method === 'PUT') {
         exit();
     }
     
-    if (strpos($request, 'services') !== false) {
-        // Process the service update
-        $result = $put->update_service($data);
-        echo json_encode($result);
-        exit();
-    }
+
 
     if (strpos($request, 'update_booking_status') !== false) {
         error_log("Processing update_booking_status request");
@@ -475,6 +510,19 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'update_time_slot') !== false) {
         $result = $put->update_time_slot($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Pricing PUT routes
+    if (strpos($request, 'update_pricing_entry') !== false) {
+        $result = $put->update_pricing_entry($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'toggle_pricing_status') !== false) {
+        $result = $put->toggle_pricing_status($data);
         echo json_encode($result);
         exit();
     }
@@ -522,11 +570,7 @@ if ($method === 'DELETE') {
     $parts = explode('/', $request);
     $id = end($parts);
     
-    if (strpos($request, 'services') !== false && is_numeric($id)) {
-        $result = $post->delete_service($id);
-        echo json_encode($result);
-        exit();
-    }
+
     
     if (strpos($request, 'customers') !== false && is_numeric($id)) {
         $result = $post->delete_customer($id);

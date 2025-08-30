@@ -50,6 +50,7 @@
                 [(ngModel)]="bookingForm.vehicleType"
                 name="vehicleType"
                 required
+                (selectionChange)="onVehicleTypeChange()"
               >
                 <mat-option *ngFor="let type of vehicleTypes" [value]="type">
                   <i class="fas fa-car"></i> {{ type }}
@@ -63,21 +64,29 @@
                 [(ngModel)]="bookingForm.services"
                 name="services"
                 required
+                (selectionChange)="onServiceChange()"
               >
                 <mat-option
-                  *ngFor="let service of services"
-                  [value]="service.name"
+                  *ngFor="let service of servicePackages"
+                  [value]="service"
                 >
                   <div class="service-option">
-                    <span class="service-name">{{ service.name }}</span>
-                    <span class="service-details"
-                      >₱{{ service.price }} •
-                      {{ service.duration_minutes }} mins</span
-                    >
+                    <span class="service-name">{{ service }}</span>
                   </div>
                 </mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+
+          <!-- Price Display -->
+          <div class="price-display" *ngIf="selectedPrice">
+            <div class="price-card">
+              <div class="price-header">
+                <i class="fas fa-tag"></i>
+                <span>Calculated Price</span>
+              </div>
+              <div class="price-amount">₱{{ selectedPrice }}</div>
+            </div>
           </div>
         </div>
 
@@ -429,6 +438,114 @@
 
     <!-- Sidebar with Tips -->
     <div class="appointment-sidebar">
+      <!-- Pricing Guide -->
+      <div class="sidebar-card pricing-guide">
+        <div class="card-header">
+          <i class="fas fa-calculator"></i>
+          <h3>PRICING GUIDE</h3>
+        </div>
+        <div class="card-content">
+          <!-- Step 1: Vehicle Types -->
+          <div class="pricing-step">
+            <h4>Step 1: Identify Vehicle Type</h4>
+            <div class="vehicle-types-list">
+              <div class="vehicle-type-item">
+                <span class="vehicle-code">S:</span>
+                <span class="vehicle-desc"
+                  >Small Hatchbacks (e.g., wigo, picanto, eon)</span
+                >
+              </div>
+              <div class="vehicle-type-item">
+                <span class="vehicle-code">M:</span>
+                <span class="vehicle-desc"
+                  >Small Hatchbacks | Sedan | Coupes (e.g., rio, accent, city,
+                  vios, civic)</span
+                >
+              </div>
+              <div class="vehicle-type-item">
+                <span class="vehicle-code">L:</span>
+                <span class="vehicle-desc"
+                  >MPVs | AUVs | Compact SUVs (e.g., rav4, avanza, ecosport,
+                  cx3)</span
+                >
+              </div>
+              <div class="vehicle-type-item">
+                <span class="vehicle-code">XL:</span>
+                <span class="vehicle-desc"
+                  >SUVs | Full SUVs | Pick-ups (e.g., trailblazer, hilux,
+                  ranger, fortuner)</span
+                >
+              </div>
+              <div class="vehicle-type-item">
+                <span class="vehicle-code">XXL:</span>
+                <span class="vehicle-desc"
+                  >Modified Vehicles | Big SUVs (e.g., land cruiser, patrol,
+                  prado)</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Service Packages -->
+          <div class="pricing-step">
+            <h4>Step 2: Select Services</h4>
+            <div class="service-packages-list">
+              <div class="service-package-item">
+                <span class="service-code">1:</span>
+                <span class="service-desc">Body Wash</span>
+              </div>
+              <div class="service-package-item">
+                <span class="service-code">1.5:</span>
+                <span class="service-desc">Body Wash, Tire Black</span>
+              </div>
+              <div class="service-package-item">
+                <span class="service-code">2:</span>
+                <span class="service-desc">Body Wash, Tire Black, Vacuum</span>
+              </div>
+              <div class="service-package-item">
+                <span class="service-code">3:</span>
+                <span class="service-desc"
+                  >Body Wash, Body Wax, Tire Black</span
+                >
+              </div>
+              <div class="service-package-item">
+                <span class="service-code">4:</span>
+                <span class="service-desc"
+                  >Body Wash, Body Wax, Tire Black, Vacuum</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Pricing Table -->
+          <div class="pricing-step">
+            <h4>Step 3: Determine Price</h4>
+            <div class="pricing-table">
+              <div class="pricing-header">
+                <div class="header-cell">Vehicle</div>
+                <div class="header-cell">1</div>
+                <div class="header-cell">1.5</div>
+                <div class="header-cell">2</div>
+                <div class="header-cell">3</div>
+                <div class="header-cell">4</div>
+              </div>
+              <div
+                class="pricing-row"
+                *ngFor="let vehicleCode of vehicleTypeCodes"
+              >
+                <div class="vehicle-cell">{{ vehicleCode }}</div>
+                <div
+                  class="price-cell"
+                  *ngFor="let serviceCode of serviceCodes"
+                >
+                  ₱{{ pricingTable[vehicleCode][serviceCode] }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="sidebar-card">
         <div class="card-header">
           <i class="fas fa-lightbulb"></i>

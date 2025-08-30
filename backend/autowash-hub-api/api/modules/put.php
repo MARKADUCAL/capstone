@@ -210,80 +210,7 @@ class Put {
         }
     }
     
-    public function update_service($data) {
-        // Validate required fields
-        if (!isset($data->id) || empty($data->id)) {
-            return $this->sendPayload(null, "failed", "Service ID is required", 400);
-        }
-        
-        if (empty($data->name) || empty($data->price) || empty($data->duration_minutes) || empty($data->category)) {
-            return $this->sendPayload(null, "failed", "Missing required fields", 400);
-        }
 
-        try {
-            // Check if service exists
-            $sql = "SELECT COUNT(*) FROM services WHERE id = ?";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->id]);
-            $count = $stmt->fetchColumn();
-            
-            if ($count == 0) {
-                return $this->sendPayload(null, "failed", "Service not found", 404);
-            }
-            
-            // Update service
-            $sql = "UPDATE services 
-                   SET name = ?, 
-                       description = ?, 
-                       price = ?, 
-                       duration_minutes = ?, 
-                       category = ?, 
-                       is_active = ?,
-                       updated_at = CURRENT_TIMESTAMP
-                   WHERE id = ?";
-            
-            $stmt = $this->pdo->prepare($sql);
-            
-            // Set is_active to 1 if true, 0 if false
-            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
-            
-            $stmt->execute([
-                $data->name,
-                $data->description ?? '',
-                $data->price,
-                $data->duration_minutes,
-                $data->category,
-                $isActive,
-                $data->id
-            ]);
-            
-            if ($stmt->rowCount() > 0) {
-                // Fetch the updated service
-                $sql = "SELECT id, name, description, price, duration_minutes, category, is_active, created_at, updated_at 
-                       FROM services WHERE id = ?";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([$data->id]);
-                $service = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['service' => $service], 
-                    "success", 
-                    "Service updated successfully", 
-                    200
-                );
-            } else {
-                return $this->sendPayload(null, "failed", "No changes made to the service", 200);
-            }
-        } catch (\PDOException $e) {
-            error_log("Service update error: " . $e->getMessage());
-            return $this->sendPayload(
-                null, 
-                "failed", 
-                "Database error occurred: " . $e->getMessage(), 
-                500
-            );
-        }
-    }
 
     public function update_booking_status($data) {
         try {
@@ -676,6 +603,107 @@ class Put {
                 return $this->sendPayload(null, "success", "Inventory request updated", 200);
             }
             return $this->sendPayload(null, "failed", "Request not found or no changes", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update pricing entry
+     */
+    public function update_pricing_entry($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Pricing entry ID is required", 400);
+            }
+
+            $updates = [];
+            $values = [];
+
+            // Build dynamic update set
+            $fieldsMap = [
+                'vehicle_type' => 'vehicle_type',
+                'service_package' => 'service_package',
+                'price' => 'price',
+                'is_active' => 'is_active'
+            ];
+
+            foreach ($fieldsMap as $inputKey => $column) {
+                if (isset($data->$inputKey)) {
+                    $updates[] = "$column = ?";
+                    $values[] = $data->$inputKey;
+                }
+            }
+
+            if (empty($updates)) {
+                return $this->sendPayload(null, "failed", "No fields provided to update", 400);
+            }
+
+            $values[] = $data->id;
+
+            $sql = "UPDATE pricing SET " . implode(", ", $updates) . ", updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+
+            if ($stmt->rowCount() > 0) {
+                // Return updated pricing entry
+                $stmtGet = $this->pdo->prepare("SELECT * FROM pricing WHERE id = ?");
+                $stmtGet->execute([$data->id]);
+                $pricing = $stmtGet->fetch(PDO::FETCH_ASSOC);
+                return $this->sendPayload(['pricing' => $pricing], "success", "Pricing entry updated successfully", 200);
+            }
+
+            // Check if record exists
+            $stmtGet = $this->pdo->prepare("SELECT * FROM pricing WHERE id = ?");
+            $stmtGet->execute([$data->id]);
+            $pricing = $stmtGet->fetch(PDO::FETCH_ASSOC);
+            if ($pricing) {
+                return $this->sendPayload(['pricing' => $pricing], "success", "No changes made", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Pricing entry not found", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Toggle pricing entry status
+     */
+    public function toggle_pricing_status($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Pricing entry ID is required", 400);
+            }
+
+            // Get current status
+            $sqlGet = "SELECT is_active FROM pricing WHERE id = ?";
+            $stmtGet = $this->pdo->prepare($sqlGet);
+            $stmtGet->execute([$data->id]);
+            $current = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
+            if (!$current) {
+                return $this->sendPayload(null, "failed", "Pricing entry not found", 404);
+            }
+
+            // Toggle status
+            $newStatus = $current['is_active'] ? 0 : 1;
+            
+            $sql = "UPDATE pricing SET is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$newStatus, $data->id]);
+
+            if ($stmt->rowCount() > 0) {
+                $statusText = $newStatus ? "activated" : "deactivated";
+                return $this->sendPayload(
+                    ['is_active' => $newStatus], 
+                    "success", 
+                    "Pricing entry $statusText successfully", 
+                    200
+                );
+            }
+
+            return $this->sendPayload(null, "failed", "Failed to update pricing entry status", 400);
         } catch (Exception $e) {
             return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }

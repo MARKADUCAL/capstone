@@ -128,56 +128,33 @@ class Get extends GlobalMethods {
         }
     }
     
-    public function get_all_services() {
-        try {
-            $sql = "SELECT id, name, description, price, duration_minutes, category, is_active, created_at, updated_at 
-                   FROM services 
-                   ORDER BY id DESC";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute();
-            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            return $this->sendPayload(
-                ['services' => $services],
-                "success",
-                "Services retrieved successfully",
-                200
-            );
-        } catch (\PDOException $e) {
-            return $this->sendPayload(
-                null,
-                "failed",
-                "Failed to retrieve services: " . $e->getMessage(),
-                500
-            );
-        }
-    }
+
 
     public function get_all_bookings() {
         try {
             $sql = "SELECT 
                         b.id,
-                        b.wash_date as washDate,
-                        b.wash_time as washTime,
-                        b.status,
-                        b.price,
-                        b.vehicle_type as vehicleType,
-                        b.payment_type as paymentType,
-                        b.notes,
+                        b.customer_id,
+                        b.vehicle_type,
+                        b.service_package,
                         b.nickname,
+                        b.phone,
+                        b.wash_date,
+                        b.wash_time,
+                        b.payment_type,
+                        b.price,
+                        b.notes,
+                        b.status,
                         b.assigned_employee_id,
-                        b.created_at as dateCreated,
-                        TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
-                        c.first_name as firstName,
-                        c.last_name as lastName,
-                        c.phone,
-                        s.name as serviceName,
-                        s.description as serviceDescription,
-                        s.duration_minutes as serviceDuration,
+                        b.created_at,
+                        b.updated_at,
+                        c.first_name,
+                        c.last_name,
+                        c.email,
+                        c.phone as customer_phone,
                         e.first_name as employee_first_name,
                         e.last_name as employee_last_name,
                         e.position as employee_position,
-                        TRIM(CONCAT(COALESCE(e.first_name,''), ' ', COALESCE(e.last_name,''))) as assigned_employee_name,
                         CASE 
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Rejection reason:%' 
                             THEN TRIM(SUBSTRING_INDEX(b.notes, 'Rejection reason:', -1))
@@ -189,8 +166,6 @@ class Get extends GlobalMethods {
                         END as rejection_reason
                     FROM 
                         bookings b
-                    LEFT JOIN 
-                        services s ON b.service_id = s.id
                     LEFT JOIN 
                         customers c ON b.customer_id = c.id
                     LEFT JOIN 
@@ -227,12 +202,10 @@ class Get extends GlobalMethods {
                         b.status,
                         b.price,
                         b.vehicle_type as vehicleType,
+                        b.service_package as servicePackage,
                         b.payment_type as paymentType,
                         b.notes,
                         b.assigned_employee_id,
-                        s.name as serviceName,
-                        s.description as serviceDescription,
-                        s.duration_minutes as serviceDuration,
                         e.first_name as employee_first_name,
                         e.last_name as employee_last_name,
                         e.position as employee_position,
@@ -247,8 +220,6 @@ class Get extends GlobalMethods {
                         END as rejection_reason
                     FROM 
                         bookings b
-                    JOIN 
-                        services s ON b.service_id = s.id
                     LEFT JOIN 
                         employees e ON b.assigned_employee_id = e.id
                     WHERE 
@@ -288,9 +259,7 @@ class Get extends GlobalMethods {
                         b.payment_type as paymentType,
                         b.notes,
                         b.assigned_employee_id,
-                        s.name as serviceName,
-                        s.description as serviceDescription,
-                        s.duration_minutes as serviceDuration,
+                        b.service_package as servicePackage,
                         TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
                         CASE 
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Rejection reason:%' 
@@ -303,8 +272,6 @@ class Get extends GlobalMethods {
                         END as rejection_reason
                     FROM 
                         bookings b
-                    JOIN 
-                        services s ON b.service_id = s.id
                     LEFT JOIN 
                         customers c ON b.customer_id = c.id
                     WHERE 
@@ -752,8 +719,6 @@ class Get extends GlobalMethods {
                         customers c ON cf.customer_id = c.id
                     JOIN 
                         bookings b ON cf.booking_id = b.id
-                    JOIN 
-                        services s ON b.service_id = s.id
                     WHERE 
                         cf.is_public = 1
                     ORDER BY 
@@ -885,8 +850,6 @@ class Get extends GlobalMethods {
                         bookings b
                     JOIN 
                         customers c ON b.customer_id = c.id
-                    JOIN 
-                        services s ON b.service_id = s.id
                     WHERE 
                         b.id = ?";
             
@@ -989,6 +952,71 @@ class Get extends GlobalMethods {
                 null,
                 "failed",
                 "Failed to retrieve contact enquiries: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    /**
+     * Get all pricing entries
+     */
+    public function get_all_pricing() {
+        try {
+            $sql = "SELECT * FROM pricing ORDER BY vehicle_type, service_package";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['pricing' => $pricing],
+                "success",
+                "Pricing data retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve pricing data: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    /**
+     * Get pricing matrix in a structured format
+     */
+    public function get_pricing_matrix() {
+        try {
+            $sql = "SELECT * FROM pricing WHERE is_active = 1 ORDER BY vehicle_type, service_package";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Structure the data as a matrix
+            $matrix = [];
+            foreach ($pricing as $entry) {
+                $vehicleType = $entry['vehicle_type'];
+                $servicePackage = $entry['service_package'];
+                $price = $entry['price'];
+                
+                if (!isset($matrix[$vehicleType])) {
+                    $matrix[$vehicleType] = [];
+                }
+                $matrix[$vehicleType][$servicePackage] = $price;
+            }
+            
+            return $this->sendPayload(
+                ['pricing_matrix' => $matrix],
+                "success",
+                "Pricing matrix retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve pricing matrix: " . $e->getMessage(),
                 500
             );
         }

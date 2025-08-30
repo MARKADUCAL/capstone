@@ -1028,9 +1028,9 @@ class Post extends GlobalMethods
 
             empty($data->customer_id) || 
 
-            empty($data->service_id) || 
-
             empty($data->vehicle_type) || 
+
+            empty($data->service_package) || 
 
             empty($data->nickname) || 
 
@@ -1040,15 +1040,27 @@ class Post extends GlobalMethods
 
             empty($data->wash_time) || 
 
-            empty($data->payment_type) ||
-
-            !isset($data->price)
+            empty($data->payment_type)
 
         ) {
 
             return $this->sendPayload(null, "failed", "Missing required booking fields", 400);
 
         }
+
+
+
+        // Get pricing for the selected vehicle type and service package
+
+        $pricingResult = $this->get_pricing($data->vehicle_type, $data->service_package);
+
+        if ($pricingResult['status']['remarks'] !== 'success') {
+
+            return $this->sendPayload(null, "failed", "Invalid vehicle type or service package combination", 400);
+
+        }
+
+        $price = $pricingResult['payload']['price'];
 
 
 
@@ -1082,7 +1094,7 @@ class Post extends GlobalMethods
 
             
 
-            $sql = "INSERT INTO bookings (id, customer_id, service_id, vehicle_type, nickname, phone, wash_date, wash_time, payment_type, price, notes, status, created_at, updated_at) 
+            $sql = "INSERT INTO bookings (id, customer_id, vehicle_type, service_package, nickname, phone, wash_date, wash_time, payment_type, price, notes, status, created_at, updated_at) 
 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
 
@@ -1098,9 +1110,9 @@ class Post extends GlobalMethods
 
                 $data->customer_id,
 
-                $data->service_id,
-
                 $data->vehicle_type,
+
+                $data->service_package,
 
                 $data->nickname,
 
@@ -1112,7 +1124,7 @@ class Post extends GlobalMethods
 
                 $paymentTypeString,
 
-                $data->price,
+                $price,
 
                 $data->notes ?? null,
 
@@ -1364,117 +1376,7 @@ class Post extends GlobalMethods
 
 
 
-    public function add_service($data) {
 
-        // Validate required fields
-
-        if (empty($data->name) || empty($data->price) || empty($data->duration_minutes) || empty($data->category)) {
-
-            return $this->sendPayload(null, "failed", "Missing required fields", 400);
-
-        }
-
-
-
-        try {
-
-            // Prepare the SQL query to insert a new service
-
-            $sql = "INSERT INTO services (name, description, price, duration_minutes, category, is_active) 
-
-                    VALUES (?, ?, ?, ?, ?, ?)";
-
-            
-
-            $statement = $this->pdo->prepare($sql);
-
-            
-
-            // Set is_active to 1 if true, 0 if false
-
-            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
-
-
-
-            $statement->execute([
-
-                $data->name,
-
-                $data->description ?? '',
-
-                $data->price,
-
-                $data->duration_minutes,
-
-                $data->category,
-
-                $isActive
-
-            ]);
-
-
-
-            if ($statement->rowCount() > 0) {
-
-                // Get the newly created service ID
-
-                $serviceId = $this->pdo->lastInsertId();
-
-                
-
-                // Fetch the created service
-
-                $sql = "SELECT id, name, description, price, duration_minutes, category, is_active, created_at, updated_at 
-
-                       FROM services WHERE id = ?";
-
-                $stmt = $this->pdo->prepare($sql);
-
-                $stmt->execute([$serviceId]);
-
-                $service = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                
-
-                return $this->sendPayload(
-
-                    ['service' => $service], 
-
-                    "success", 
-
-                    "Service added successfully", 
-
-                    200
-
-                );
-
-            } else {
-
-                return $this->sendPayload(null, "failed", "Failed to add service", 400);
-
-            }
-
-
-
-        } catch (\PDOException $e) {
-
-            error_log("Service creation error: " . $e->getMessage());
-
-            return $this->sendPayload(
-
-                null, 
-
-                "failed", 
-
-                "A database error occurred.", 
-
-                500
-
-            );
-
-        }
-
-    }
 
 
 
@@ -2528,81 +2430,7 @@ class Post extends GlobalMethods
 
     
 
-    public function delete_service($id) {
 
-        // Validate service ID
-
-        if (!is_numeric($id) || $id <= 0) {
-
-            return $this->sendPayload(null, "failed", "Invalid service ID", 400);
-
-        }
-
-
-
-        try {
-
-            // Check if the service exists
-
-            $sql = "SELECT COUNT(*) FROM services WHERE id = ?";
-
-            $statement = $this->pdo->prepare($sql);
-
-            $statement->execute([$id]);
-
-            $count = $statement->fetchColumn();
-
-
-
-            if ($count == 0) {
-
-                return $this->sendPayload(null, "failed", "Service not found", 404);
-
-            }
-
-            
-
-            // Delete the service
-
-            $sql = "DELETE FROM services WHERE id = ?";
-
-            $statement = $this->pdo->prepare($sql);
-
-            $statement->execute([$id]);
-
-
-
-            if ($statement->rowCount() > 0) {
-
-                return $this->sendPayload(null, "success", "Service deleted successfully", 200);
-
-            } else {
-
-                return $this->sendPayload(null, "failed", "Failed to delete service", 400);
-
-            }
-
-
-
-        } catch (\PDOException $e) {
-
-            error_log("Service deletion error: " . $e->getMessage());
-
-            return $this->sendPayload(
-
-                null, 
-
-                "failed", 
-
-                "Database error occurred: " . $e->getMessage(), 
-
-                500
-
-            );
-
-        }
-
-	}
 
 
 
@@ -3077,6 +2905,173 @@ class Post extends GlobalMethods
                 "Database error occurred: " . $e->getMessage(),
                 500
             );
+        }
+    }
+
+    /**
+     * Create pricing table and initialize with default pricing structure
+     */
+    public function create_pricing_table() {
+        try {
+            // Create pricing table if it doesn't exist
+            $sql = "CREATE TABLE IF NOT EXISTS pricing (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                vehicle_type VARCHAR(10) NOT NULL,
+                service_package VARCHAR(10) NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                is_active TINYINT(1) DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_vehicle_service (vehicle_type, service_package)
+            )";
+            
+            $this->pdo->exec($sql);
+            
+            // Check if pricing data already exists
+            $checkSql = "SELECT COUNT(*) as count FROM pricing";
+            $stmt = $this->pdo->prepare($checkSql);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            
+            if ($result['count'] == 0) {
+                // Initialize with default pricing from the image
+                $defaultPricing = [
+                    ['S', '1', 140],
+                    ['S', '1.5', 170],
+                    ['S', '2', 260],
+                    ['S', '3', 270],
+                    ['S', '4', 360],
+                    ['M', '1', 160],
+                    ['M', '1.5', 190],
+                    ['M', '2', 300],
+                    ['M', '3', 310],
+                    ['M', '4', 420],
+                    ['L', '1', 180],
+                    ['L', '1.5', 230],
+                    ['L', '2', 370],
+                    ['L', '3', 390],
+                    ['L', '4', 520],
+                    ['XL', '1', 230],
+                    ['XL', '1.5', 290],
+                    ['XL', '2', 440],
+                    ['XL', '3', 460],
+                    ['XL', '4', 610],
+                    ['XXL', '1', 250],
+                    ['XXL', '1.5', 320],
+                    ['XXL', '2', 480],
+                    ['XXL', '3', 510],
+                    ['XXL', '4', 670]
+                ];
+                
+                $insertSql = "INSERT INTO pricing (vehicle_type, service_package, price) VALUES (?, ?, ?)";
+                $stmt = $this->pdo->prepare($insertSql);
+                
+                foreach ($defaultPricing as $pricing) {
+                    $stmt->execute($pricing);
+                }
+                
+                return $this->sendPayload(null, "success", "Pricing table created and initialized with default data", 201);
+            } else {
+                return $this->sendPayload(null, "success", "Pricing table already exists with data", 200);
+            }
+            
+        } catch (\PDOException $e) {
+            error_log("Pricing table creation error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "Failed to create pricing table: " . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Add a new pricing entry
+     */
+    public function add_pricing_entry($data) {
+        if (empty($data->vehicle_type) || empty($data->service_package) || !isset($data->price)) {
+            return $this->sendPayload(null, "failed", "Missing required pricing fields", 400);
+        }
+        
+        try {
+            $sql = "INSERT INTO pricing (vehicle_type, service_package, price, is_active) 
+                    VALUES (?, ?, ?, ?) 
+                    ON DUPLICATE KEY UPDATE 
+                    price = VALUES(price), 
+                    is_active = VALUES(is_active),
+                    updated_at = CURRENT_TIMESTAMP";
+            
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([
+                $data->vehicle_type,
+                $data->service_package,
+                $data->price,
+                isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1
+            ]);
+            
+            if ($statement->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Pricing entry added/updated successfully", 201);
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add pricing entry", 400);
+            }
+            
+        } catch (\PDOException $e) {
+            error_log("Pricing entry creation error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "Database error occurred", 500);
+        }
+    }
+
+    /**
+     * Get pricing for a specific vehicle type and service package
+     */
+    public function get_pricing($vehicleType, $servicePackage) {
+        try {
+            $sql = "SELECT * FROM pricing WHERE vehicle_type = ? AND service_package = ? AND is_active = 1";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$vehicleType, $servicePackage]);
+            
+            $result = $statement->fetch();
+            
+            if ($result) {
+                return $this->sendPayload($result, "success", "Pricing found", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Pricing not found", 404);
+            }
+            
+        } catch (\PDOException $e) {
+            error_log("Get pricing error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "Database error occurred", 500);
+        }
+    }
+
+    /**
+     * Delete pricing entry
+     */
+    public function delete_pricing_entry($id) {
+        try {
+            if (!$id || $id <= 0) {
+                return $this->sendPayload(null, "failed", "Valid pricing entry ID is required", 400);
+            }
+
+            // Check if pricing entry exists
+            $checkSql = "SELECT id FROM pricing WHERE id = ?";
+            $checkStmt = $this->pdo->prepare($checkSql);
+            $checkStmt->execute([$id]);
+            
+            if (!$checkStmt->fetch()) {
+                return $this->sendPayload(null, "failed", "Pricing entry not found", 404);
+            }
+
+            // Delete the pricing entry
+            $sql = "DELETE FROM pricing WHERE id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$id]);
+
+            if ($statement->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Pricing entry deleted successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to delete pricing entry", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Delete pricing entry error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "Database error occurred", 500);
         }
     }
 

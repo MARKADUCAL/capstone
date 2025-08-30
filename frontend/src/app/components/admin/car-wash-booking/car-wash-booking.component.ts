@@ -17,7 +17,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { Employee } from '../../../models/booking.model';
@@ -139,7 +139,6 @@ export class RejectionDialogComponent {
     MatSelectModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    HttpClientModule,
     MatDialogModule,
     MatInputModule,
   ],

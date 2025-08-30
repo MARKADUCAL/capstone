@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -14,11 +14,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import {
   VEHICLE_TYPES,
+  VEHICLE_TYPE_CODES,
+  SERVICE_PACKAGES,
+  SERVICE_CODES,
+  PRICING_TABLE,
   PAYMENT_TYPES,
   ONLINE_PAYMENT_OPTIONS,
   BookingForm,
   Booking,
   BookingStatus,
+  PricingInfo,
 } from '../../../models/booking.model';
 import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
@@ -29,7 +34,6 @@ import { ServiceService, Service } from '../../../services/service.service';
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule,
     MatStepperModule,
     MatInputModule,
     MatDatepickerModule,
@@ -60,9 +64,15 @@ export class AppointmentComponent implements OnInit {
 
   // Form options
   vehicleTypes = VEHICLE_TYPES;
-  services: Service[] = [];
+  vehicleTypeCodes = VEHICLE_TYPE_CODES;
+  servicePackages = SERVICE_PACKAGES;
+  serviceCodes = SERVICE_CODES;
   paymentTypes = PAYMENT_TYPES;
   onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
+
+  // Pricing
+  pricingTable = PRICING_TABLE;
+  selectedPrice: number | null = null;
 
   // Booking form model
   bookingForm: BookingForm = {
@@ -113,7 +123,6 @@ export class AppointmentComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadUserData();
-      this.loadServices();
 
       // Check for service query parameter
       this.route.queryParams.subscribe((params) => {
@@ -121,11 +130,45 @@ export class AppointmentComponent implements OnInit {
           // Pre-select the service when navigating from dashboard
           setTimeout(() => {
             this.bookingForm.services = params['service'];
-            this.openBookingModal();
+            this.calculatePrice();
           }, 500); // Small delay to ensure services are loaded
         }
       });
     }
+  }
+
+  // Get vehicle type code from full description
+  getVehicleTypeCode(vehicleType: string): string {
+    const index = this.vehicleTypes.indexOf(vehicleType);
+    return index >= 0 ? this.vehicleTypeCodes[index] : '';
+  }
+
+  // Get service code from full description
+  getServiceCode(service: string): string {
+    const index = this.servicePackages.indexOf(service);
+    return index >= 0 ? this.serviceCodes[index] : '';
+  }
+
+  // Calculate price based on vehicle type and service
+  calculatePrice(): void {
+    const vehicleCode = this.getVehicleTypeCode(this.bookingForm.vehicleType);
+    const serviceCode = this.getServiceCode(this.bookingForm.services);
+
+    if (vehicleCode && serviceCode && this.pricingTable[vehicleCode]) {
+      this.selectedPrice = this.pricingTable[vehicleCode][serviceCode] || null;
+    } else {
+      this.selectedPrice = null;
+    }
+  }
+
+  // Handle vehicle type change
+  onVehicleTypeChange(): void {
+    this.calculatePrice();
+  }
+
+  // Handle service change
+  onServiceChange(): void {
+    this.calculatePrice();
   }
 
   // Handle payment type change
@@ -166,18 +209,6 @@ export class AppointmentComponent implements OnInit {
     } else {
       console.warn('No customer data found in localStorage');
     }
-  }
-
-  // Load services from API
-  loadServices(): void {
-    this.serviceService.getAllServices().subscribe(
-      (services) => {
-        this.services = services;
-      },
-      (error) => {
-        this.errorMessage = 'Failed to load services: ' + error.message;
-      }
-    );
   }
 
   // Load customer bookings
@@ -244,12 +275,12 @@ export class AppointmentComponent implements OnInit {
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    const selectedService = this.services.find(
-      (s) => s.name === this.bookingForm.services
-    );
+    // Calculate price based on vehicle type and service
+    this.calculatePrice();
 
-    if (!selectedService) {
-      this.errorMessage = 'Invalid service selected.';
+    if (!this.selectedPrice) {
+      this.errorMessage =
+        'Unable to calculate price. Please check your selections.';
       this.isSubmitting = false;
       return;
     }
@@ -261,10 +292,16 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
+    // Extract vehicle type code (e.g., 'S' from 'S - Small Hatchbacks...')
+    const vehicleTypeCode = this.bookingForm.vehicleType.split(' - ')[0];
+
+    // Extract service package code (e.g., '1' from '1 - Body Wash')
+    const servicePackageCode = this.bookingForm.services.split(' - ')[0];
+
     const bookingData = {
       customer_id: this.userCustomerId, // Use actual customer ID from user data
-      service_id: selectedService.id,
-      vehicle_type: this.bookingForm.vehicleType,
+      vehicle_type: vehicleTypeCode,
+      service_package: servicePackageCode,
       first_name: this.bookingForm.firstName,
       last_name: this.bookingForm.lastName,
       nickname: this.bookingForm.nickname,
@@ -274,7 +311,6 @@ export class AppointmentComponent implements OnInit {
       wash_time: this.bookingForm.washTime,
       payment_type: this.bookingForm.paymentType,
       online_payment_option: this.bookingForm.onlinePaymentOption,
-      price: selectedService.price,
       notes: this.bookingForm.notes,
     };
 

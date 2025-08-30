@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { isPlatformBrowser } from '@angular/common';
 import { InventoryHistoryComponent } from '../inventory-history/inventory-history.component';
@@ -29,7 +29,6 @@ interface InventoryItem {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule,
     InventoryHistoryComponent,
     InventoryRequestsComponent,
   ],

@@ -1,20 +1,26 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpClientModule,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
-interface Service {
-  id: number;
-  name: string;
-  description: string;
+interface PricingEntry {
+  id?: number;
+  vehicleType: string;
+  servicePackage: string;
   price: number;
-  duration: number; // in minutes
-  category: string;
+  isActive: boolean;
+}
+
+interface VehicleType {
+  code: string;
+  description: string;
+  isActive: boolean;
+}
+
+interface ServicePackage {
+  code: string;
+  description: string;
   isActive: boolean;
 }
 
@@ -29,7 +35,7 @@ interface ApiResponse {
 @Component({
   selector: 'app-service-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './service-management.component.html',
   styleUrl: './service-management.component.css',
 })
@@ -39,21 +45,100 @@ export class ServiceManagementComponent implements OnInit {
   private apiUrl = environment.apiUrl;
   private isLoading = false;
 
-  services: Service[] = [];
-  categories: string[] = [
-    'Basic Wash',
-    'Premium Wash',
-    'Detailing',
-    'Additional Services',
+  // Vehicle Types from the image
+  vehicleTypes: VehicleType[] = [
+    {
+      code: 'S',
+      description: 'SMALL HATCHBACKS [wigo, picanto, eon, etc.]',
+      isActive: true,
+    },
+    {
+      code: 'M',
+      description:
+        'SMALL HATCHBACKS | SEDAN | COUPES [rio, accent, city, vios, civic, etc.]',
+      isActive: true,
+    },
+    {
+      code: 'L',
+      description:
+        'MPVs | AUVs | COMPACT SUVs [rav4, avanza, ecosport, cx3, etc.]',
+      isActive: true,
+    },
+    {
+      code: 'XL',
+      description:
+        'SUVs | FULL SUVs | PICK-UPS [trailblazer, hilux, ranger, fortuner, etc.]',
+      isActive: true,
+    },
+    {
+      code: 'XXL',
+      description:
+        'MODIFIED VEHICLES | BIG SUVs [land cruiser, patrol, prado, etc.]',
+      isActive: true,
+    },
   ];
 
-  newService: Service = {
-    id: 0,
-    name: '',
-    description: '',
+  // Service Packages from the image
+  servicePackages: ServicePackage[] = [
+    { code: '1', description: 'BODY WASH', isActive: true },
+    { code: '1.5', description: 'BODY WASH, TIRE BLACK', isActive: true },
+    { code: '2', description: 'BODY WASH, TIRE BLACK, VACUUM', isActive: true },
+    {
+      code: '3',
+      description: 'BODY WASH, BODY WAX, TIRE BLACK',
+      isActive: true,
+    },
+    {
+      code: '4',
+      description: 'BODY WASH, BODY WAX, TIRE BLACK, VACUUM',
+      isActive: true,
+    },
+  ];
+
+  // Pricing table based on the image
+  pricingTable: { [key: string]: { [key: string]: number } } = {
+    S: {
+      '1': 140,
+      '1.5': 170,
+      '2': 260,
+      '3': 270,
+      '4': 360,
+    },
+    M: {
+      '1': 160,
+      '1.5': 190,
+      '2': 300,
+      '3': 310,
+      '4': 420,
+    },
+    L: {
+      '1': 180,
+      '1.5': 230,
+      '2': 370,
+      '3': 390,
+      '4': 520,
+    },
+    XL: {
+      '1': 230,
+      '1.5': 290,
+      '2': 440,
+      '3': 460,
+      '4': 610,
+    },
+    XXL: {
+      '1': 250,
+      '1.5': 320,
+      '2': 480,
+      '3': 510,
+      '4': 670,
+    },
+  };
+
+  pricingEntries: PricingEntry[] = [];
+  newPricingEntry: PricingEntry = {
+    vehicleType: '',
+    servicePackage: '',
     price: 0,
-    duration: 0,
-    category: '',
     isActive: true,
   };
 
@@ -67,10 +152,10 @@ export class ServiceManagementComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadServices();
+    this.loadPricingEntries();
   }
 
-  loadServices(): void {
+  loadPricingEntries(): void {
     this.isLoading = true;
 
     if (this.isBrowser) {
@@ -82,50 +167,40 @@ export class ServiceManagementComponent implements OnInit {
         );
 
         this.http
-          .get<ApiResponse>(`${this.apiUrl}/services`, { headers })
+          .get<ApiResponse>(`${this.apiUrl}/get_all_pricing`, { headers })
           .subscribe({
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
                 if (
                   response.payload &&
-                  Array.isArray(response.payload.services)
+                  Array.isArray(response.payload.pricing)
                 ) {
-                  // Map the database services to our Service interface
-                  this.services = response.payload.services.map((s: any) => ({
-                    id: s.id,
-                    name: s.name,
-                    description: s.description || '',
-                    price: parseFloat(s.price),
-                    duration: s.duration_minutes,
-                    category: s.category || 'Basic Wash', // Default category if not in DB
-                    isActive: s.is_active === 1 || s.is_active === true,
-                  }));
-
-                  // Update currentId
-                  if (this.services.length > 0) {
-                    this.currentId = Math.max(
-                      ...this.services.map((s) => s.id),
-                      0
-                    );
-                  }
-                } else {
-                  this.showAlert(
-                    'No services found or invalid data format',
-                    'warning'
+                  this.pricingEntries = response.payload.pricing.map(
+                    (p: any) => ({
+                      id: p.id,
+                      vehicleType: p.vehicle_type,
+                      servicePackage: p.service_package,
+                      price: parseFloat(p.price),
+                      isActive: p.is_active === 1 || p.is_active === true,
+                    })
                   );
+                } else {
+                  // If no pricing data exists, create default entries
+                  this.createDefaultPricingEntries();
                 }
               } else {
                 this.showAlert(
-                  response.status?.message || 'Failed to load services',
+                  response.status?.message || 'Failed to load pricing',
                   'error'
                 );
               }
             },
             error: (error) => {
-              console.error('Error loading services:', error);
+              console.error('Error loading pricing:', error);
               this.isLoading = false;
-              this.showAlert('Error loading services from the server', 'error');
+              // Create default entries if API fails
+              this.createDefaultPricingEntries();
             },
           });
       } else {
@@ -133,13 +208,26 @@ export class ServiceManagementComponent implements OnInit {
         this.showAlert('Authentication token not found', 'warning');
       }
     } else {
-      // In server environment (SSR), we can't make HTTP requests
       this.isLoading = false;
     }
   }
 
-  addService(): void {
-    if (this.validateService()) {
+  createDefaultPricingEntries(): void {
+    this.pricingEntries = [];
+    this.vehicleTypes.forEach((vehicle) => {
+      this.servicePackages.forEach((service) => {
+        this.pricingEntries.push({
+          vehicleType: vehicle.code,
+          servicePackage: service.code,
+          price: this.pricingTable[vehicle.code][service.code] || 0,
+          isActive: true,
+        });
+      });
+    });
+  }
+
+  addPricingEntry(): void {
+    if (this.validatePricingEntry()) {
       this.isLoading = true;
 
       if (this.isBrowser) {
@@ -149,86 +237,83 @@ export class ServiceManagementComponent implements OnInit {
             .set('Content-Type', 'application/json')
             .set('Authorization', `Bearer ${token}`);
 
-          // Prepare data for API
-          const serviceData = {
-            name: this.newService.name,
-            description: this.newService.description,
-            price: this.newService.price,
-            duration_minutes: this.newService.duration,
-            category: this.newService.category,
-            is_active: this.newService.isActive ? 1 : 0,
+          const pricingData = {
+            vehicle_type: this.newPricingEntry.vehicleType,
+            service_package: this.newPricingEntry.servicePackage,
+            price: this.newPricingEntry.price,
+            is_active: this.newPricingEntry.isActive ? 1 : 0,
           };
 
           this.http
-            .post<ApiResponse>(`${this.apiUrl}/services`, serviceData, {
-              headers,
-            })
+            .post<ApiResponse>(
+              `${this.apiUrl}/add_pricing_entry`,
+              pricingData,
+              {
+                headers,
+              }
+            )
             .subscribe({
               next: (response) => {
                 this.isLoading = false;
                 if (response.status && response.status.remarks === 'success') {
-                  // If API returns the created service with ID
-                  if (response.payload && response.payload.service) {
-                    const createdService = response.payload.service;
-
-                    // Map to our Service interface
-                    const newService: Service = {
-                      id: createdService.id,
-                      name: createdService.name,
-                      description: createdService.description || '',
-                      price: parseFloat(createdService.price),
-                      duration: createdService.duration_minutes,
-                      category: createdService.category || 'Basic Wash',
+                  if (response.payload && response.payload.pricing) {
+                    const createdEntry = response.payload.pricing;
+                    const newEntry: PricingEntry = {
+                      id: createdEntry.id,
+                      vehicleType: createdEntry.vehicle_type,
+                      servicePackage: createdEntry.service_package,
+                      price: parseFloat(createdEntry.price),
                       isActive:
-                        createdService.is_active === 1 ||
-                        createdService.is_active === true,
+                        createdEntry.is_active === 1 ||
+                        createdEntry.is_active === true,
                     };
 
-                    this.services.push(newService);
-                    if (newService.id > this.currentId) {
-                      this.currentId = newService.id;
-                    }
+                    this.pricingEntries.push(newEntry);
                   }
 
                   this.resetForm();
-                  this.showAlert('Service added successfully!', 'success');
-                  this.loadServices(); // Refresh the list
+                  this.showAlert(
+                    'Pricing entry added successfully!',
+                    'success'
+                  );
+                  this.loadPricingEntries();
                 } else {
                   this.showAlert(
-                    response.status?.message || 'Failed to add service',
+                    response.status?.message || 'Failed to add pricing entry',
                     'error'
                   );
                 }
               },
               error: (error) => {
                 this.isLoading = false;
-                console.error('Error adding service:', error);
+                console.error('Error adding pricing entry:', error);
                 this.showAlert(
-                  'Error adding service to database. Please try again.',
+                  'Error adding pricing entry to database. Please try again.',
                   'error'
                 );
               },
             });
         } else {
-          // No token
           this.isLoading = false;
           this.showAlert('Authentication token not found', 'warning');
         }
       } else {
-        // In server environment (shouldn't normally reach here)
         this.isLoading = false;
-        this.showAlert('Cannot add services in server environment', 'error');
+        this.showAlert(
+          'Cannot add pricing entries in server environment',
+          'error'
+        );
       }
     }
   }
 
-  editService(service: Service): void {
+  editPricingEntry(entry: PricingEntry): void {
     this.editMode = true;
-    this.newService = { ...service };
+    this.newPricingEntry = { ...entry };
   }
 
-  updateService(): void {
-    if (this.validateService()) {
+  updatePricingEntry(): void {
+    if (this.validatePricingEntry()) {
       this.isLoading = true;
 
       if (this.isBrowser) {
@@ -238,53 +323,59 @@ export class ServiceManagementComponent implements OnInit {
             .set('Content-Type', 'application/json')
             .set('Authorization', `Bearer ${token}`);
 
-          // Prepare data for API
-          const serviceData = {
-            id: this.newService.id,
-            name: this.newService.name,
-            description: this.newService.description,
-            price: this.newService.price,
-            duration_minutes: this.newService.duration,
-            category: this.newService.category,
-            is_active: this.newService.isActive ? 1 : 0,
+          const pricingData = {
+            id: this.newPricingEntry.id,
+            vehicle_type: this.newPricingEntry.vehicleType,
+            service_package: this.newPricingEntry.servicePackage,
+            price: this.newPricingEntry.price,
+            is_active: this.newPricingEntry.isActive ? 1 : 0,
           };
 
           this.http
-            .put<ApiResponse>(`${this.apiUrl}/services`, serviceData, {
-              headers,
-            })
+            .put<ApiResponse>(
+              `${this.apiUrl}/update_pricing_entry`,
+              pricingData,
+              {
+                headers,
+              }
+            )
             .subscribe({
               next: (response) => {
                 this.isLoading = false;
                 if (response.status && response.status.remarks === 'success') {
-                  this.showAlert('Service updated successfully!', 'success');
+                  this.showAlert(
+                    'Pricing entry updated successfully!',
+                    'success'
+                  );
                   this.resetForm();
                   this.editMode = false;
-                  this.loadServices(); // Refresh the list
+                  this.loadPricingEntries();
                 } else {
                   this.showAlert(
-                    response.status?.message || 'Failed to update service',
+                    response.status?.message ||
+                      'Failed to update pricing entry',
                     'error'
                   );
                 }
               },
               error: (error) => {
-                console.error('Error updating service:', error);
+                console.error('Error updating pricing entry:', error);
                 this.isLoading = false;
-                this.showAlert('Failed to update service', 'error');
+                this.showAlert('Failed to update pricing entry', 'error');
               },
             });
         } else {
-          // No token
           this.isLoading = false;
           this.showAlert('Authentication token not found', 'warning');
           this.resetForm();
           this.editMode = false;
         }
       } else {
-        // Server environment
         this.isLoading = false;
-        this.showAlert('Cannot update services in server environment', 'error');
+        this.showAlert(
+          'Cannot update pricing entries in server environment',
+          'error'
+        );
         this.resetForm();
         this.editMode = false;
       }
@@ -292,17 +383,15 @@ export class ServiceManagementComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    console.log('confirmDelete called with id:', id);
     this.deleteId = id;
     this.showModal = true;
-    this.modalMessage = 'Are you sure you want to delete this service?';
+    this.modalMessage = 'Are you sure you want to delete this pricing entry?';
     this.modalType = 'delete';
   }
 
-  deleteService(): void {
-    console.log('Attempting to delete service with ID:', this.deleteId);
+  deletePricingEntry(): void {
     if (!this.deleteId || this.deleteId === 0) {
-      this.showAlert('Invalid service ID for deletion.', 'error');
+      this.showAlert('Invalid pricing entry ID for deletion.', 'error');
       return;
     }
     this.isLoading = true;
@@ -315,46 +404,53 @@ export class ServiceManagementComponent implements OnInit {
           .set('Authorization', `Bearer ${token}`);
 
         this.http
-          .delete<ApiResponse>(`${this.apiUrl}/services/${this.deleteId}`, {
-            headers,
-          })
+          .get<ApiResponse>(
+            `${this.apiUrl}/delete_pricing_entry?id=${this.deleteId}`,
+            {
+              headers,
+            }
+          )
           .subscribe({
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
                 this.closeModal();
-                this.showAlert('Service deleted successfully!', 'success');
-                this.loadServices(); // Refresh the list
+                this.showAlert(
+                  'Pricing entry deleted successfully!',
+                  'success'
+                );
+                this.loadPricingEntries();
               } else {
                 this.showAlert(
-                  response.status?.message || 'Failed to delete service',
+                  response.status?.message || 'Failed to delete pricing entry',
                   'error'
                 );
                 this.closeModal();
               }
             },
             error: (error) => {
-              console.error('Error deleting service:', error);
+              console.error('Error deleting pricing entry:', error);
               this.isLoading = false;
               this.closeModal();
-              this.showAlert('Failed to delete service', 'error');
+              this.showAlert('Failed to delete pricing entry', 'error');
             },
           });
       } else {
-        // No token
         this.isLoading = false;
         this.closeModal();
         this.showAlert('Authentication token not found', 'warning');
       }
     } else {
-      // Server environment
       this.isLoading = false;
       this.closeModal();
-      this.showAlert('Cannot delete services in server environment', 'error');
+      this.showAlert(
+        'Cannot delete pricing entries in server environment',
+        'error'
+      );
     }
   }
 
-  toggleStatus(service: Service): void {
+  toggleStatus(entry: PricingEntry): void {
     if (this.isBrowser) {
       const token = localStorage.getItem('admin_token');
       if (token) {
@@ -363,61 +459,54 @@ export class ServiceManagementComponent implements OnInit {
           .set('Content-Type', 'application/json')
           .set('Authorization', `Bearer ${token}`);
 
-        // Toggle status in API
-        const updatedStatus = !service.isActive;
-        const serviceData = {
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          price: service.price,
-          duration_minutes: service.duration,
-          category: service.category,
+        const updatedStatus = !entry.isActive;
+        const pricingData = {
+          id: entry.id,
+          vehicle_type: entry.vehicleType,
+          service_package: entry.servicePackage,
+          price: entry.price,
           is_active: updatedStatus ? 1 : 0,
         };
 
         this.http
-          .put<ApiResponse>(`${this.apiUrl}/services`, serviceData, { headers })
+          .put<ApiResponse>(`${this.apiUrl}/pricing`, pricingData, { headers })
           .subscribe({
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
-                service.isActive = updatedStatus;
-                const status = service.isActive ? 'activated' : 'deactivated';
-                this.showAlert(`Service ${status} successfully!`, 'info');
+                entry.isActive = updatedStatus;
+                const status = entry.isActive ? 'activated' : 'deactivated';
+                this.showAlert(`Pricing entry ${status} successfully!`, 'info');
               } else {
                 this.showAlert(
-                  response.status?.message || 'Failed to update service status',
+                  response.status?.message ||
+                    'Failed to update pricing entry status',
                   'error'
                 );
               }
             },
             error: (error) => {
               this.isLoading = false;
-              console.error('Error updating service status:', error);
-              this.showAlert('Failed to update service status', 'error');
+              console.error('Error updating pricing entry status:', error);
+              this.showAlert('Failed to update pricing entry status', 'error');
             },
           });
       } else {
-        // No token
         this.showAlert('Authentication token not found', 'warning');
       }
     } else {
-      // In server environment
       this.showAlert(
-        'Cannot update service status in server environment',
+        'Cannot update pricing entry status in server environment',
         'error'
       );
     }
   }
 
   resetForm(): void {
-    this.newService = {
-      id: 0,
-      name: '',
-      description: '',
+    this.newPricingEntry = {
+      vehicleType: '',
+      servicePackage: '',
       price: 0,
-      duration: 0,
-      category: '',
       isActive: true,
     };
   }
@@ -427,13 +516,11 @@ export class ServiceManagementComponent implements OnInit {
     this.resetForm();
   }
 
-  validateService(): boolean {
+  validatePricingEntry(): boolean {
     if (
-      !this.newService.name ||
-      !this.newService.description ||
-      !this.newService.category ||
-      this.newService.price <= 0 ||
-      this.newService.duration <= 0
+      !this.newPricingEntry.vehicleType ||
+      !this.newPricingEntry.servicePackage ||
+      this.newPricingEntry.price <= 0
     ) {
       this.showAlert(
         'Please fill all required fields with valid values.',
@@ -442,6 +529,16 @@ export class ServiceManagementComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  getVehicleTypeDescription(code: string): string {
+    const vehicle = this.vehicleTypes.find((v) => v.code === code);
+    return vehicle ? vehicle.description : code;
+  }
+
+  getServicePackageDescription(code: string): string {
+    const service = this.servicePackages.find((s) => s.code === code);
+    return service ? service.description : code;
   }
 
   showAlert(message: string, type: string): void {

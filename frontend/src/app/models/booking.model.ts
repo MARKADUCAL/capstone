@@ -57,16 +57,69 @@ export interface WashingPoint {
 }
 
 export const VEHICLE_TYPES = [
-  'Sedan',
-  'SUV',
-  'Truck',
-  'Van',
-  'Motorcycle',
-  'Crossover',
-  'Hatchback',
-  'Luxury Vehicle',
-  'Commercial Vehicle',
+  'S - Small Hatchbacks (e.g., wigo, picanto, eon)',
+  'M - Small Hatchbacks | Sedan | Coupes (e.g., rio, accent, city, vios, civic)',
+  'L - MPVs | AUVs | Compact SUVs (e.g., rav4, avanza, ecosport, cx3)',
+  'XL - SUVs | Full SUVs | Pick-ups (e.g., trailblazer, hilux, ranger, fortuner)',
+  'XXL - Modified Vehicles | Big SUVs (e.g., land cruiser, patrol, prado)',
 ];
+
+export const VEHICLE_TYPE_CODES = ['S', 'M', 'L', 'XL', 'XXL'];
+
+export const SERVICE_PACKAGES = [
+  '1 - Body Wash',
+  '1.5 - Body Wash, Tire Black',
+  '2 - Body Wash, Tire Black, Vacuum',
+  '3 - Body Wash, Body Wax, Tire Black',
+  '4 - Body Wash, Body Wax, Tire Black, Vacuum',
+];
+
+export const SERVICE_CODES = ['1', '1.5', '2', '3', '4'];
+
+// Pricing table based on the image
+export const PRICING_TABLE: { [key: string]: { [key: string]: number } } = {
+  S: {
+    '1': 140,
+    '1.5': 170,
+    '2': 260,
+    '3': 270,
+    '4': 360,
+  },
+  M: {
+    '1': 160,
+    '1.5': 190,
+    '2': 300,
+    '3': 310,
+    '4': 420,
+  },
+  L: {
+    '1': 180,
+    '1.5': 230,
+    '2': 370,
+    '3': 390,
+    '4': 520,
+  },
+  XL: {
+    '1': 230,
+    '1.5': 290,
+    '2': 440,
+    '3': 460,
+    '4': 610,
+  },
+  XXL: {
+    '1': 250,
+    '1.5': 320,
+    '2': 480,
+    '3': 510,
+    '4': 670,
+  },
+};
+
+export interface PricingInfo {
+  vehicleType: string;
+  servicePackage: string;
+  price: number;
+}
 
 export const PAYMENT_TYPES = ['Cash', 'Online Payment'];
 

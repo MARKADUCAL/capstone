@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
 interface Employee {
@@ -39,7 +39,6 @@ interface NewEmployee {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule,
   ],
   templateUrl: './employee-management.component.html',
   styleUrl: './employee-management.component.css',

@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { HttpClientModule } from '@angular/common/http';
+
 import {
   ContactService,
   ContactEnquiry,
@@ -34,7 +34,6 @@ interface Enquiry {
     MatIconModule,
     MatSelectModule,
     MatFormFieldModule,
-    HttpClientModule,
   ],
   templateUrl: './manage-enquiries.component.html',
   styleUrl: './manage-enquiries.component.css',

@@ -2,12 +2,12 @@ import { Component, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+
 import { ContactService, ContactForm } from '../../services/contact.service';
 
 @Component({
   selector: 'app-landing-page',
-  imports: [RouterModule, CommonModule, FormsModule, HttpClientModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css',
 })

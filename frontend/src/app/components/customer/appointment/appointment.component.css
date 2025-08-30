@@ -1550,3 +1550,183 @@
     margin-bottom: 12px;
   }
 }
+
+/* Price Display */
+.price-display {
+  margin-top: 1.5rem;
+}
+
+.price-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.price-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.price-header i {
+  margin-right: 0.5rem;
+}
+
+.price-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Pricing Guide Styles */
+.pricing-guide {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #667eea;
+}
+
+.pricing-guide .card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.pricing-step {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.pricing-step:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.pricing-step h4 {
+  color: #495057;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.pricing-step h4::before {
+  content: "→";
+  margin-right: 0.5rem;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.vehicle-types-list,
+.service-packages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vehicle-type-item,
+.service-package-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.vehicle-code,
+.service-code {
+  font-weight: 700;
+  color: #667eea;
+  min-width: 30px;
+  font-size: 0.9rem;
+}
+
+.vehicle-desc,
+.service-desc {
+  font-size: 0.85rem;
+  color: #495057;
+  line-height: 1.4;
+}
+
+/* Pricing Table */
+.pricing-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.8rem;
+}
+
+.pricing-header {
+  display: grid;
+  grid-template-columns: 1fr repeat(5, 1fr);
+  background: #667eea;
+  color: white;
+  font-weight: 600;
+}
+
+.header-cell {
+  padding: 0.5rem;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-cell:last-child {
+  border-right: none;
+}
+
+.pricing-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(5, 1fr);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.pricing-row:last-child {
+  border-bottom: none;
+}
+
+.vehicle-cell {
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  background: #f8f9fa;
+  color: #495057;
+  border-right: 1px solid #dee2e6;
+}
+
+.price-cell {
+  padding: 0.5rem;
+  text-align: center;
+  color: #495057;
+  border-right: 1px solid #dee2e6;
+  font-weight: 500;
+}
+
+.price-cell:last-child {
+  border-right: none;
+}
+
+/* Responsive adjustments for pricing guide */
+@media (max-width: 768px) {
+  .pricing-table {
+    font-size: 0.7rem;
+  }
+
+  .header-cell,
+  .vehicle-cell,
+  .price-cell {
+    padding: 0.3rem;
+  }
+
+  .vehicle-desc,
+  .service-desc {
+    font-size: 0.8rem;
+  }
+}

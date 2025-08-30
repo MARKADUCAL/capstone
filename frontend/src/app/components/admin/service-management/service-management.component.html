@@ -1,87 +1,86 @@
 <div class="service-management-container">
   <div class="service-header">
-    <h2>Service Management</h2>
-    <p>Add, edit, or manage services offered by your car wash business</p>
+    <h2>Pricing Management</h2>
+    <p>
+      Manage vehicle types, service packages, and pricing matrix for your car
+      wash business
+    </p>
   </div>
 
   <div class="content-container">
     <div class="form-container">
       <div class="form-header">
-        <h3>{{ editMode ? "Edit Service" : "Add New Service" }}</h3>
-      </div>
-
-      <div class="form-group">
-        <label for="serviceName">Service Name*</label>
-        <input
-          type="text"
-          id="serviceName"
-          [(ngModel)]="newService.name"
-          placeholder="e.g. Premium Wash"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description*</label>
-        <textarea
-          id="description"
-          [(ngModel)]="newService.description"
-          placeholder="Describe the service..."
-          rows="3"
-          required
-        ></textarea>
+        <h3>{{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}</h3>
       </div>
 
       <div class="form-row">
         <div class="form-group half">
-          <label for="price">Price (₱)*</label>
-          <input
-            type="number"
-            id="price"
-            [(ngModel)]="newService.price"
-            min="0"
-            step="0.01"
+          <label for="vehicleType">Vehicle Type*</label>
+          <select
+            id="vehicleType"
+            [(ngModel)]="newPricingEntry.vehicleType"
             required
-          />
+          >
+            <option value="" disabled selected>Select vehicle type</option>
+            <option *ngFor="let vehicle of vehicleTypes" [value]="vehicle.code">
+              {{ vehicle.code }} - {{ vehicle.description }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group half">
-          <label for="duration">Duration (minutes)*</label>
-          <input
-            type="number"
-            id="duration"
-            [(ngModel)]="newService.duration"
-            min="1"
+          <label for="servicePackage">Service Package*</label>
+          <select
+            id="servicePackage"
+            [(ngModel)]="newPricingEntry.servicePackage"
             required
-          />
+          >
+            <option value="" disabled selected>Select service package</option>
+            <option
+              *ngFor="let service of servicePackages"
+              [value]="service.code"
+            >
+              {{ service.code }} - {{ service.description }}
+            </option>
+          </select>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="category">Category*</label>
-        <select id="category" [(ngModel)]="newService.category" required>
-          <option value="" disabled selected>Select a category</option>
-          <option *ngFor="let category of categories" [value]="category">
-            {{ category }}
-          </option>
-        </select>
+        <label for="price">Price (₱)*</label>
+        <input
+          type="number"
+          id="price"
+          [(ngModel)]="newPricingEntry.price"
+          min="0"
+          step="0.01"
+          required
+        />
       </div>
 
       <div class="form-group checkbox">
         <input
           type="checkbox"
           id="isActive"
-          [(ngModel)]="newService.isActive"
+          [(ngModel)]="newPricingEntry.isActive"
         />
         <label for="isActive">Active (available for booking)</label>
       </div>
 
       <div class="form-actions">
-        <button *ngIf="!editMode" class="btn-primary" (click)="addService()">
-          Add Service
+        <button
+          *ngIf="!editMode"
+          class="btn-primary"
+          (click)="addPricingEntry()"
+        >
+          Add Pricing Entry
         </button>
-        <button *ngIf="editMode" class="btn-primary" (click)="updateService()">
-          Update Service
+        <button
+          *ngIf="editMode"
+          class="btn-primary"
+          (click)="updatePricingEntry()"
+        >
+          Update Pricing Entry
         </button>
         <button *ngIf="editMode" class="btn-secondary" (click)="cancelEdit()">
           Cancel
@@ -89,11 +88,70 @@
       </div>
     </div>
 
-    <div class="services-list">
+    <!-- Pricing Matrix Display -->
+    <div class="pricing-matrix-container">
+      <div class="matrix-header">
+        <h3>Pricing Matrix</h3>
+        <p>
+          Current pricing structure for all vehicle types and service packages
+        </p>
+      </div>
+
+      <div class="pricing-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Vehicle Type</th>
+              <th>Service 1</th>
+              <th>Service 1.5</th>
+              <th>Service 2</th>
+              <th>Service 3</th>
+              <th>Service 4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let vehicle of vehicleTypes">
+              <td class="vehicle-cell">
+                <strong>{{ vehicle.code }}</strong>
+                <div class="vehicle-desc">{{ vehicle.description }}</div>
+              </td>
+              <td *ngFor="let service of servicePackages" class="price-cell">
+                <div class="price-amount">
+                  ₱{{ pricingTable[vehicle.code][service.code] }}
+                </div>
+                <div class="price-actions">
+                  <button
+                    class="btn-icon edit"
+                    (click)="
+                      editPricingEntry({
+                        vehicleType: vehicle.code,
+                        servicePackage: service.code,
+                        price: pricingTable[vehicle.code][service.code],
+                        isActive: true
+                      })
+                    "
+                    title="Edit Price"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Individual Pricing Entries List -->
+    <div class="pricing-entries-list">
       <div class="list-header">
-        <h3>Services List</h3>
+        <h3>Pricing Entries</h3>
         <div class="search-container">
-          <input type="text" placeholder="Search services..." #searchInput />
+          <input
+            type="text"
+            placeholder="Search pricing entries..."
+            #searchInput
+          />
         </div>
       </div>
 
@@ -102,64 +160,72 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Category</th>
+              <th>Vehicle Type</th>
+              <th>Service Package</th>
               <th>Price</th>
-              <th>Duration</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              *ngFor="let service of services"
-              [class.inactive]="!service.isActive"
+              *ngFor="let entry of pricingEntries"
+              [class.inactive]="!entry.isActive"
             >
-              <td>{{ service.id }}</td>
-              <td>{{ service.name }}</td>
-              <td>{{ service.category }}</td>
-              <td>₱{{ service.price }}</td>
-              <td>{{ service.duration }} mins</td>
+              <td>{{ entry.id || "N/A" }}</td>
+              <td>
+                <strong>{{ entry.vehicleType }}</strong>
+                <div class="entry-desc">
+                  {{ getVehicleTypeDescription(entry.vehicleType) }}
+                </div>
+              </td>
+              <td>
+                <strong>{{ entry.servicePackage }}</strong>
+                <div class="entry-desc">
+                  {{ getServicePackageDescription(entry.servicePackage) }}
+                </div>
+              </td>
+              <td class="price-display">₱{{ entry.price }}</td>
               <td>
                 <span
                   class="status-badge"
-                  [class.active]="service.isActive"
-                  [class.inactive]="!service.isActive"
+                  [class.active]="entry.isActive"
+                  [class.inactive]="!entry.isActive"
                 >
-                  {{ service.isActive ? "Active" : "Inactive" }}
+                  {{ entry.isActive ? "Active" : "Inactive" }}
                 </span>
               </td>
               <td class="actions-cell">
                 <button
                   class="btn-icon edit"
-                  (click)="editService(service)"
+                  (click)="editPricingEntry(entry)"
                   title="Edit"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
                 <button
                   class="btn-icon toggle"
-                  (click)="toggleStatus(service)"
-                  title="{{ service.isActive ? 'Deactivate' : 'Activate' }}"
+                  (click)="toggleStatus(entry)"
+                  title="{{ entry.isActive ? 'Deactivate' : 'Activate' }}"
                 >
                   <i
                     class="fas"
-                    [class.fa-toggle-on]="service.isActive"
-                    [class.fa-toggle-off]="!service.isActive"
+                    [class.fa-toggle-on]="entry.isActive"
+                    [class.fa-toggle-off]="!entry.isActive"
                   ></i>
                 </button>
                 <button
                   class="btn-icon delete"
-                  (click)="confirmDelete(service.id)"
+                  (click)="confirmDelete(entry.id || 0)"
                   title="Delete"
                 >
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
-            <tr *ngIf="services.length === 0">
-              <td colspan="7" class="no-data">
-                No services found. Add your first service!
+            <tr *ngIf="pricingEntries.length === 0">
+              <td colspan="6" class="no-data">
+                No pricing entries found. Add your first pricing entry!
               </td>
             </tr>
           </tbody>
@@ -186,7 +252,7 @@
       <button
         *ngIf="modalType === 'delete'"
         class="btn-danger"
-        (click)="deleteService()"
+        (click)="deletePricingEntry()"
       >
         Delete
       </button>

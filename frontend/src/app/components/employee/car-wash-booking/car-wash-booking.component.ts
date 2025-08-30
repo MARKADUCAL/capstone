@@ -14,11 +14,7 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { Inject } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpClientModule,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
@@ -46,7 +42,6 @@ interface CarWashBooking {
     MatIconModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    HttpClientModule,
     MatDialogModule,
   ],
   templateUrl: './car-wash-booking.component.html',
