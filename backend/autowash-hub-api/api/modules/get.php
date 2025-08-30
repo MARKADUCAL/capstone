@@ -156,6 +156,22 @@ class Get extends GlobalMethods {
                         e.last_name as employee_last_name,
                         e.position as employee_position,
                         CASE 
+                            WHEN b.service_package = '1' THEN 'Body Wash'
+                            WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
+                            WHEN b.service_package = '2' THEN 'Body Wash + Tire Black + Vacuum'
+                            WHEN b.service_package = '3' THEN 'Body Wash + Body Wax + Tire Black'
+                            WHEN b.service_package = '4' THEN 'Body Wash + Body Wax + Tire Black + Vacuum'
+                            ELSE CONCAT('Package ', b.service_package)
+                        END as serviceName,
+                        CASE 
+                            WHEN b.service_package = '1' THEN 'Basic exterior wash with hand drying'
+                            WHEN b.service_package = '1.5' THEN 'Exterior wash with tire black application'
+                            WHEN b.service_package = '2' THEN 'Exterior wash, tire black, and interior vacuum'
+                            WHEN b.service_package = '3' THEN 'Exterior wash with wax and tire black'
+                            WHEN b.service_package = '4' THEN 'Complete wash with wax, tire black, and vacuum'
+                            ELSE 'Car wash service'
+                        END as serviceDescription,
+                        CASE 
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Rejection reason:%' 
                             THEN TRIM(SUBSTRING_INDEX(b.notes, 'Rejection reason:', -1))
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Customer reason:%' 
@@ -210,6 +226,22 @@ class Get extends GlobalMethods {
                         e.last_name as employee_last_name,
                         e.position as employee_position,
                         CASE 
+                            WHEN b.service_package = '1' THEN 'Body Wash'
+                            WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
+                            WHEN b.service_package = '2' THEN 'Body Wash + Tire Black + Vacuum'
+                            WHEN b.service_package = '3' THEN 'Body Wash + Body Wax + Tire Black'
+                            WHEN b.service_package = '4' THEN 'Body Wash + Body Wax + Tire Black + Vacuum'
+                            ELSE CONCAT('Package ', b.service_package)
+                        END as serviceName,
+                        CASE 
+                            WHEN b.service_package = '1' THEN 'Basic exterior wash with hand drying'
+                            WHEN b.service_package = '1.5' THEN 'Exterior wash with tire black application'
+                            WHEN b.service_package = '2' THEN 'Exterior wash, tire black, and interior vacuum'
+                            WHEN b.service_package = '3' THEN 'Exterior wash with wax and tire black'
+                            WHEN b.service_package = '4' THEN 'Complete wash with wax, tire black, and vacuum'
+                            ELSE 'Car wash service'
+                        END as serviceDescription,
+                        CASE 
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Rejection reason:%' 
                             THEN TRIM(SUBSTRING_INDEX(b.notes, 'Rejection reason:', -1))
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Customer reason:%' 
@@ -261,6 +293,22 @@ class Get extends GlobalMethods {
                         b.assigned_employee_id,
                         b.service_package as servicePackage,
                         TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
+                        CASE 
+                            WHEN b.service_package = '1' THEN 'Body Wash'
+                            WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
+                            WHEN b.service_package = '2' THEN 'Body Wash + Tire Black + Vacuum'
+                            WHEN b.service_package = '3' THEN 'Body Wash + Body Wax + Tire Black'
+                            WHEN b.service_package = '4' THEN 'Body Wash + Body Wax + Tire Black + Vacuum'
+                            ELSE CONCAT('Package ', b.service_package)
+                        END as serviceName,
+                        CASE 
+                            WHEN b.service_package = '1' THEN 'Basic exterior wash with hand drying'
+                            WHEN b.service_package = '1.5' THEN 'Exterior wash with tire black application'
+                            WHEN b.service_package = '2' THEN 'Exterior wash, tire black, and interior vacuum'
+                            WHEN b.service_package = '3' THEN 'Exterior wash with wax and tire black'
+                            WHEN b.service_package = '4' THEN 'Complete wash with wax, tire black, and vacuum'
+                            ELSE 'Car wash service'
+                        END as serviceDescription,
                         CASE 
                             WHEN b.status = 'Rejected' AND b.notes LIKE '%Rejection reason:%' 
                             THEN TRIM(SUBSTRING_INDEX(b.notes, 'Rejection reason:', -1))

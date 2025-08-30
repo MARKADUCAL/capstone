@@ -161,7 +161,7 @@
     >
       <div class="card-header">
         <div class="booking-id">
-          <span class="id-label">{{ booking.serviceName }}</span>
+          <span class="id-label">{{ getServiceName(booking) }}</span>
           <!-- Feedback indicator for completed bookings -->
           <div
             *ngIf="canSubmitFeedback(booking) && hasFeedback(booking)"
@@ -186,9 +186,9 @@
         <div class="service-info">
           <div class="service-icon">🚿</div>
           <div class="service-details">
-            <h4 class="service-name">{{ booking.serviceName }}</h4>
-            <p class="service-description" *ngIf="booking.serviceDescription">
-              {{ booking.serviceDescription }}
+            <h4 class="service-name">{{ getServiceName(booking) }}</h4>
+            <p class="service-description">
+              {{ getServiceDescription(booking) }}
             </p>
           </div>
         </div>
@@ -316,7 +316,9 @@
     <div class="modal-header">
       <div class="modal-title">
         <h2>Transaction Details</h2>
-        <span class="transaction-id">{{ selectedBooking.serviceName }}</span>
+        <span class="transaction-id">{{
+          getServiceName(selectedBooking)
+        }}</span>
       </div>
       <button class="close-btn" (click)="closeViewModal()">
         <span class="close-icon">✕</span>
@@ -379,12 +381,12 @@
           <div class="detail-content">
             <div class="detail-row">
               <span class="label">Service:</span>
-              <span class="value">{{ selectedBooking.serviceName }}</span>
+              <span class="value">{{ getServiceName(selectedBooking) }}</span>
             </div>
-            <div class="detail-row" *ngIf="selectedBooking.serviceDescription">
+            <div class="detail-row">
               <span class="label">Description:</span>
               <span class="value">{{
-                selectedBooking.serviceDescription
+                getServiceDescription(selectedBooking)
               }}</span>
             </div>
           </div>
@@ -589,7 +591,7 @@
         <h4>Booking Details:</h4>
         <div class="summary-item">
           <span class="label">Service:</span>
-          <span class="value">{{ bookingToCancel.serviceName }}</span>
+          <span class="value">{{ getServiceName(bookingToCancel) }}</span>
         </div>
         <div class="summary-item">
           <span class="label">Date:</span>

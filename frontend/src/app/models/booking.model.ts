@@ -1,6 +1,7 @@
 export interface BookingForm {
   vehicleType: string;
   services: string;
+  servicePackage?: string;
   firstName: string;
   lastName: string;
   nickname: string;
@@ -21,6 +22,7 @@ export interface Booking extends BookingForm {
   serviceName?: string;
   serviceDescription?: string;
   serviceDuration?: number;
+  servicePackage?: string;
   assignedEmployeeId?: number;
   assignedEmployeeName?: string;
   // Add the actual properties returned by the backend API

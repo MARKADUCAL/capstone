@@ -119,6 +119,45 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return s;
   }
 
+  getServiceName(booking: any): string {
+    // If serviceName is provided by the backend, use it
+    if (booking.serviceName) {
+      return booking.serviceName;
+    }
+
+    // Otherwise, generate service name from servicePackage
+    const packageMap: { [key: string]: string } = {
+      '1': 'Body Wash',
+      '1.5': 'Body Wash + Tire Black',
+      '2': 'Body Wash + Tire Black + Vacuum',
+      '3': 'Body Wash + Body Wax + Tire Black',
+      '4': 'Body Wash + Body Wax + Tire Black + Vacuum',
+    };
+
+    return (
+      packageMap[booking.servicePackage] ||
+      `Package ${booking.servicePackage || 'Unknown'}`
+    );
+  }
+
+  getServiceDescription(booking: any): string {
+    // If serviceDescription is provided by the backend, use it
+    if (booking.serviceDescription) {
+      return booking.serviceDescription;
+    }
+
+    // Otherwise, generate description from servicePackage
+    const descriptionMap: { [key: string]: string } = {
+      '1': 'Basic exterior wash with hand drying',
+      '1.5': 'Exterior wash with tire black application',
+      '2': 'Exterior wash, tire black, and interior vacuum',
+      '3': 'Exterior wash with wax and tire black',
+      '4': 'Complete wash with wax, tire black, and vacuum',
+    };
+
+    return descriptionMap[booking.servicePackage] || 'Car wash service';
+  }
+
   loadBookings(): void {
     if (this.isBrowser) {
       console.log('Loading bookings...');
@@ -167,7 +206,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
                   console.log(
                     `Booking ${index + 1}: ID=${booking.id}, Status=${
                       booking.status
-                    }, Service=${booking.serviceName}`
+                    }, Service=${this.getServiceName(booking)}`
                   );
                 });
               },
@@ -508,7 +547,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (booking.rejection_reason) {
       return booking.rejection_reason;
     }
-    
+
     // Fallback: check notes field for rejection reason
     if (booking.status === 'rejected' && booking.notes) {
       const notes = booking.notes;
@@ -523,7 +562,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       // If no prefix found but status is rejected, return the entire notes
       return notes.trim();
     }
-    
+
     return null;
   }
 
