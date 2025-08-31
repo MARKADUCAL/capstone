@@ -25,7 +25,7 @@ import { ServiceManagementComponent } from './components/admin/service-managemen
 import { FeedbackManagementComponent } from './components/admin/feedback-management/feedback-management.component';
 
 // Customer components
-import { CustomerDashboardComponent } from './components/customer/services-pricing/customer-dashboard.component';
+import { ServicesPricingComponent } from './components/customer/services-pricing/services-pricing.component';
 import { AppointmentComponent } from './components/customer/appointment/appointment.component';
 import { TranactionHitoryComponent } from './components/customer/tranaction-hitory/tranaction-hitory.component';
 import { ProfileComponent as CustomerProfileComponent } from './components/customer/profile/profile.component';
@@ -96,7 +96,7 @@ export const routes: Routes = [
       },
       {
         path: 'services',
-        component: CustomerDashboardComponent,
+        component: ServicesPricingComponent,
       },
       { path: 'tranaction-hitory', component: TranactionHitoryComponent },
       { path: '', redirectTo: 'services', pathMatch: 'full' },

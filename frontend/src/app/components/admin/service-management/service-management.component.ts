@@ -43,7 +43,7 @@ export class ServiceManagementComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private apiUrl = environment.apiUrl;
-  private isLoading = false;
+  public isLoading = false;
 
   // Vehicle Types from the image
   vehicleTypes: VehicleType[] = [
@@ -148,11 +148,43 @@ export class ServiceManagementComponent implements OnInit {
   modalMessage = '';
   modalType = '';
   deleteId = 0;
+  searchTerm = '';
+  filteredPricingEntries: PricingEntry[] = [];
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadPricingEntries();
+  }
+
+  onSearchChange(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.filterPricingEntries();
+  }
+
+  filterPricingEntries(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredPricingEntries = [...this.pricingEntries];
+    } else {
+      const search = this.searchTerm.toLowerCase();
+      this.filteredPricingEntries = this.pricingEntries.filter((entry) => {
+        const vehicleDesc = this.getVehicleTypeDescription(
+          entry.vehicleType
+        ).toLowerCase();
+        const serviceDesc = this.getServicePackageDescription(
+          entry.servicePackage
+        ).toLowerCase();
+        const price = entry.price.toString();
+
+        return (
+          vehicleDesc.includes(search) ||
+          serviceDesc.includes(search) ||
+          price.includes(search) ||
+          entry.vehicleType.toLowerCase().includes(search) ||
+          entry.servicePackage.toLowerCase().includes(search)
+        );
+      });
+    }
   }
 
   loadPricingEntries(): void {
@@ -185,6 +217,7 @@ export class ServiceManagementComponent implements OnInit {
                       isActive: p.is_active === 1 || p.is_active === true,
                     })
                   );
+                  this.filterPricingEntries(); // Apply initial filter after loading
                 } else {
                   // If no pricing data exists, create default entries
                   this.createDefaultPricingEntries();
@@ -224,6 +257,7 @@ export class ServiceManagementComponent implements OnInit {
         });
       });
     });
+    this.filterPricingEntries(); // Apply initial filter after creating default entries
   }
 
   addPricingEntry(): void {
@@ -269,6 +303,7 @@ export class ServiceManagementComponent implements OnInit {
                     };
 
                     this.pricingEntries.push(newEntry);
+                    this.filterPricingEntries(); // Re-filter after adding
                   }
 
                   this.resetForm();
@@ -350,6 +385,7 @@ export class ServiceManagementComponent implements OnInit {
                   this.resetForm();
                   this.editMode = false;
                   this.loadPricingEntries();
+                  this.filterPricingEntries(); // Re-filter after updating
                 } else {
                   this.showAlert(
                     response.status?.message ||
@@ -404,8 +440,9 @@ export class ServiceManagementComponent implements OnInit {
           .set('Authorization', `Bearer ${token}`);
 
         this.http
-          .get<ApiResponse>(
-            `${this.apiUrl}/delete_pricing_entry?id=${this.deleteId}`,
+          .post<ApiResponse>(
+            `${this.apiUrl}/delete_pricing_entry`,
+            { id: this.deleteId },
             {
               headers,
             }
@@ -420,6 +457,7 @@ export class ServiceManagementComponent implements OnInit {
                   'success'
                 );
                 this.loadPricingEntries();
+                this.filterPricingEntries(); // Re-filter after deleting
               } else {
                 this.showAlert(
                   response.status?.message || 'Failed to delete pricing entry',
@@ -469,7 +507,11 @@ export class ServiceManagementComponent implements OnInit {
         };
 
         this.http
-          .put<ApiResponse>(`${this.apiUrl}/pricing`, pricingData, { headers })
+          .put<ApiResponse>(
+            `${this.apiUrl}/toggle_pricing_status`,
+            pricingData,
+            { headers }
+          )
           .subscribe({
             next: (response) => {
               this.isLoading = false;
@@ -477,6 +519,7 @@ export class ServiceManagementComponent implements OnInit {
                 entry.isActive = updatedStatus;
                 const status = entry.isActive ? 'activated' : 'deactivated';
                 this.showAlert(`Pricing entry ${status} successfully!`, 'info');
+                this.filterPricingEntries(); // Re-filter after status change
               } else {
                 this.showAlert(
                   response.status?.message ||

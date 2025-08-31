@@ -18,8 +18,7 @@
       </div>
     </div>
     <p class="welcome-description">
-      View our comprehensive car wash service pricing based on your vehicle type
-      and service package.
+      View our comprehensive car wash service pricing based on your vehicle type and service package.
     </p>
     <button class="btn-primary" (click)="navigateToAppointment()">
       Book a Service Now
@@ -77,7 +76,7 @@
     <!-- Pricing Matrix -->
     <div class="pricing-section">
       <h3>Pricing Matrix</h3>
-
+      
       <!-- Loading State -->
       <div *ngIf="loading" class="loading-state">
         <div class="loading-spinner"></div>
@@ -99,10 +98,7 @@
             <thead>
               <tr>
                 <th class="vehicle-header">Vehicle Type</th>
-                <th
-                  *ngFor="let package of servicePackages"
-                  class="package-header"
-                >
+                <th *ngFor="let package of servicePackages" class="package-header">
                   <div class="package-title">Package {{ package.code }}</div>
                   <div class="package-desc">{{ package.description }}</div>
                 </th>
@@ -120,22 +116,11 @@
                   </div>
                   <button
                     class="btn-book-service"
-                    (click)="
-                      navigateToAppointmentWithPackage(
-                        vehicle.code,
-                        package.code
-                      )
-                    "
+                    (click)="navigateToAppointmentWithPackage(vehicle.code, package.code)"
                     [disabled]="!isPriceAvailable(vehicle.code, package.code)"
-                    [ngClass]="{
-                      disabled: !isPriceAvailable(vehicle.code, package.code)
-                    }"
+                    [ngClass]="{ 'disabled': !isPriceAvailable(vehicle.code, package.code) }"
                   >
-                    {{
-                      isPriceAvailable(vehicle.code, package.code)
-                        ? "Book Now"
-                        : "Unavailable"
-                    }}
+                    {{ isPriceAvailable(vehicle.code, package.code) ? 'Book Now' : 'Unavailable' }}
                   </button>
                 </td>
               </tr>

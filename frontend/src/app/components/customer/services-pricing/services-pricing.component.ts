@@ -19,8 +19,8 @@ interface PricingMatrix {
 @Component({
   selector: 'app-services-pricing',
   imports: [CommonModule],
-  templateUrl: './customer-dashboard.component.html',
-  styleUrl: './customer-dashboard.component.css',
+  templateUrl: './services-pricing.component.html',
+  styleUrl: './services-pricing.component.css',
   standalone: true,
 })
 export class ServicesPricingComponent implements OnInit {
@@ -206,6 +206,6 @@ export class ServicesPricingComponent implements OnInit {
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
     const price = this.pricingMatrix[vehicleType]?.[servicePackage];
-    return price && price > 0;
+    return typeof price === 'number' && price > 0;
   }
 }

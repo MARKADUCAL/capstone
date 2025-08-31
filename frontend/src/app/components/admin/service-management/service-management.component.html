@@ -72,17 +72,26 @@
           *ngIf="!editMode"
           class="btn-primary"
           (click)="addPricingEntry()"
+          [disabled]="isLoading"
         >
-          Add Pricing Entry
+          <span *ngIf="!isLoading">Add Pricing Entry</span>
+          <span *ngIf="isLoading">Adding...</span>
         </button>
         <button
           *ngIf="editMode"
           class="btn-primary"
           (click)="updatePricingEntry()"
+          [disabled]="isLoading"
         >
-          Update Pricing Entry
+          <span *ngIf="!isLoading">Update Pricing Entry</span>
+          <span *ngIf="isLoading">Updating...</span>
         </button>
-        <button *ngIf="editMode" class="btn-secondary" (click)="cancelEdit()">
+        <button
+          *ngIf="editMode"
+          class="btn-secondary"
+          (click)="cancelEdit()"
+          [disabled]="isLoading"
+        >
           Cancel
         </button>
       </div>
@@ -150,7 +159,8 @@
           <input
             type="text"
             placeholder="Search pricing entries..."
-            #searchInput
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
           />
         </div>
       </div>
@@ -169,7 +179,7 @@
           </thead>
           <tbody>
             <tr
-              *ngFor="let entry of pricingEntries"
+              *ngFor="let entry of filteredPricingEntries"
               [class.inactive]="!entry.isActive"
             >
               <td>{{ entry.id || "N/A" }}</td>
@@ -200,6 +210,7 @@
                   class="btn-icon edit"
                   (click)="editPricingEntry(entry)"
                   title="Edit"
+                  [disabled]="isLoading"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
@@ -207,6 +218,7 @@
                   class="btn-icon toggle"
                   (click)="toggleStatus(entry)"
                   title="{{ entry.isActive ? 'Deactivate' : 'Activate' }}"
+                  [disabled]="isLoading"
                 >
                   <i
                     class="fas"
@@ -218,12 +230,32 @@
                   class="btn-icon delete"
                   (click)="confirmDelete(entry.id || 0)"
                   title="Delete"
+                  [disabled]="isLoading"
                 >
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
-            <tr *ngIf="pricingEntries.length === 0">
+            <tr *ngIf="isLoading">
+              <td colspan="6" class="loading-data">
+                <div class="loading-spinner">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  Loading pricing entries...
+                </div>
+              </td>
+            </tr>
+            <tr
+              *ngIf="
+                !isLoading &&
+                filteredPricingEntries.length === 0 &&
+                pricingEntries.length > 0
+              "
+            >
+              <td colspan="6" class="no-data">
+                No pricing entries match your search criteria.
+              </td>
+            </tr>
+            <tr *ngIf="!isLoading && pricingEntries.length === 0">
               <td colspan="6" class="no-data">
                 No pricing entries found. Add your first pricing entry!
               </td>
@@ -253,8 +285,10 @@
         *ngIf="modalType === 'delete'"
         class="btn-danger"
         (click)="deletePricingEntry()"
+        [disabled]="isLoading"
       >
-        Delete
+        <span *ngIf="!isLoading">Delete</span>
+        <span *ngIf="isLoading">Deleting...</span>
       </button>
       <button
         *ngIf="modalType === 'delete'"
