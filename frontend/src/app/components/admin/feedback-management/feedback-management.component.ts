@@ -51,10 +51,16 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = null;
 
+    console.log('🔄 Loading feedback...');
+
     this.subscription.add(
       this.feedbackService.getAllFeedback(100).subscribe({
         next: (feedback) => {
           console.log('✅ Feedback loaded successfully:', feedback);
+          console.log('📊 Feedback count:', feedback.length);
+          if (feedback.length > 0) {
+            console.log('🔍 First feedback item:', feedback[0]);
+          }
           this.feedbackList = feedback;
           this.applyFilters();
           this.calculatePagination();
@@ -62,6 +68,7 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Error loading feedback:', error);
+          console.error('🚨 Error details:', error);
           this.errorMessage = error.message || 'Failed to load feedback.';
           this.isLoading = false;
         },

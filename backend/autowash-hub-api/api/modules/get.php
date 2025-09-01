@@ -754,21 +754,27 @@ class Get extends GlobalMethods {
         try {
             $sql = "SELECT 
                         cf.id,
+                        cf.booking_id,
+                        cf.customer_id,
                         cf.rating,
                         cf.comment,
                         cf.is_public,
                         cf.created_at,
-                        c.first_name,
-                        c.last_name,
-                        s.name as service_name
+                        CONCAT(c.first_name, ' ', c.last_name) as customer_name,
+                        CASE 
+                            WHEN b.service_package = '1' THEN 'Body Wash'
+                            WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
+                            WHEN b.service_package = '2' THEN 'Body Wash + Tire Black + Vacuum'
+                            WHEN b.service_package = '3' THEN 'Body Wash + Body Wax + Tire Black'
+                            WHEN b.service_package = '4' THEN 'Body Wash + Body Wax + Tire Black + Vacuum'
+                            ELSE CONCAT('Package ', b.service_package)
+                        END as service_name
                     FROM 
                         customer_feedback cf
                     JOIN 
                         customers c ON cf.customer_id = c.id
                     JOIN 
                         bookings b ON cf.booking_id = b.id
-                    WHERE 
-                        cf.is_public = 1
                     ORDER BY 
                         cf.created_at DESC
                     LIMIT ?";

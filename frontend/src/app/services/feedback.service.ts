@@ -72,6 +72,10 @@ export class FeedbackService {
   getAllFeedback(limit: number = 50): Observable<CustomerFeedback[]> {
     console.log('🔧 Service: getAllFeedback called');
     console.log('📊 Limit:', limit);
+    console.log(
+      '🌐 API URL:',
+      `${this.apiUrl}/get_customer_feedback?limit=${limit}`
+    );
 
     return this.http
       .get<any>(`${this.apiUrl}/get_customer_feedback?limit=${limit}`)
@@ -87,6 +91,10 @@ export class FeedbackService {
             response.payload.customer_feedback
           ) {
             console.log('✅ Feedback retrieved successfully');
+            console.log(
+              '📊 Feedback array:',
+              response.payload.customer_feedback
+            );
             return response.payload.customer_feedback;
           } else {
             console.log('❌ Failed to retrieve feedback:', response);
