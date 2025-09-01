@@ -28,7 +28,7 @@ interface CarWashBooking {
   vehicleType: string;
   date: string;
   time: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
   serviceType?: string;
   price?: number;
   imageUrl?: string;
@@ -313,6 +313,7 @@ export class CarWashBookingComponent implements OnInit {
               | 'Pending'
               | 'Approved'
               | 'Rejected'
+              | 'Done'
               | 'Completed',
             serviceType: b.serviceName ?? 'Standard Wash',
             price: b.price ? Number(b.price) : undefined,
@@ -1078,7 +1079,7 @@ export class CarWashBookingComponent implements OnInit {
   ],
 })
 export class BookingDetailsDialogComponent {
-  editableStatus: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+  editableStatus: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
 
   constructor(
     public dialogRef: MatDialogRef<BookingDetailsDialogComponent>,

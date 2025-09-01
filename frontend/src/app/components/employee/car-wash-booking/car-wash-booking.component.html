@@ -108,6 +108,11 @@
           <mat-icon>done_all</mat-icon>
           Mark as Done
         </button>
+        } @else if (booking.status === 'Done') {
+        <div class="done-badge">
+          <mat-icon>check_circle</mat-icon>
+          Done - Awaiting Admin Review
+        </div>
         } @else if (booking.status === 'Completed') {
         <div class="completed-badge">
           <mat-icon>check_circle</mat-icon>

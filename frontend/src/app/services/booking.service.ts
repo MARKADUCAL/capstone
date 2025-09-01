@@ -219,6 +219,7 @@ export class BookingService {
       | 'Pending'
       | 'Approved'
       | 'Rejected'
+      | 'Done'
       | 'Completed'
       | 'Cancelled',
     reason?: string
@@ -361,13 +362,15 @@ export class BookingService {
       | 'Pending'
       | 'Approved'
       | 'Rejected'
+      | 'Done'
       | 'Completed'
       | 'Cancelled'
-  ): 'Pending' | 'Approved' | 'Rejected' | 'Completed' | 'Cancelled' {
+  ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' | 'Cancelled' {
     if (
       status === 'Pending' ||
       status === 'Approved' ||
       status === 'Rejected' ||
+      status === 'Done' ||
       status === 'Completed' ||
       status === 'Cancelled'
     ) {
@@ -379,6 +382,8 @@ export class BookingService {
         return 'Pending';
       case BookingStatus.CONFIRMED:
         return 'Approved';
+      case BookingStatus.DONE:
+        return 'Done';
       case BookingStatus.COMPLETED:
         return 'Completed';
       case BookingStatus.CANCELLED:

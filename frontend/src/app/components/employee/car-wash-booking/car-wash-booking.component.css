@@ -333,7 +333,8 @@
 
 /* Status badges for non-actionable states */
 .completed-badge,
-.pending-badge {
+.pending-badge,
+.done-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -365,6 +366,19 @@
 
 .pending-badge mat-icon {
   color: #d97706;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.done-badge {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+.done-badge mat-icon {
+  color: #0369a1;
   font-size: 16px;
   width: 16px;
   height: 16px;
@@ -421,7 +435,8 @@
   }
 
   .completed-badge,
-  .pending-badge {
+  .pending-badge,
+  .done-badge {
     width: 100%;
     justify-content: center;
   }

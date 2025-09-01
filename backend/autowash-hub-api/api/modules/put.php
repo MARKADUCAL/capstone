@@ -249,6 +249,7 @@ class Put {
                 'pending' => 'Pending',
                 'approved' => 'Approved',
                 'rejected' => 'Rejected',
+                'done' => 'Done',
                 'completed' => 'Completed',
                 'cancelled' => 'Cancelled',
                 'canceled' => 'Cancelled',

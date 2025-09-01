@@ -143,6 +143,11 @@
           Reject
         </button>
         } @else if (booking.status === 'Approved') {
+        <div class="approved-badge">
+          <mat-icon>check_circle</mat-icon>
+          Approved - Awaiting Employee
+        </div>
+        } @else if (booking.status === 'Done') {
         <button
           class="action-btn complete-btn"
           (click)="completeBooking(booking)"

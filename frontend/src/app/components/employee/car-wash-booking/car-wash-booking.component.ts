@@ -25,7 +25,7 @@ interface CarWashBooking {
   vehicleType: string;
   date: string;
   time: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
   serviceType?: string;
   price?: number;
   imageUrl?: string;
@@ -100,19 +100,17 @@ export class CarWashBookingComponent implements OnInit {
 
   markAsDone(booking: CarWashBooking): void {
     const prev = booking.status;
-    booking.status = 'Completed';
-    this.bookingService.updateBookingStatus(booking.id, 'Completed').subscribe({
+    booking.status = 'Done';
+    this.bookingService.updateBookingStatus(booking.id, 'Done').subscribe({
       next: () => {
         this.showNotification(
-          'Car wash completed successfully! Admin has been notified.'
+          'Car wash marked as done! Admin will review and complete the booking.'
         );
         this.loadBookings(); // Refresh the list to show updated status
       },
       error: (err) => {
         booking.status = prev;
-        this.showNotification(
-          err.message || 'Failed to mark booking as completed'
-        );
+        this.showNotification(err.message || 'Failed to mark booking as done');
       },
     });
   }
@@ -144,16 +142,17 @@ export class CarWashBookingComponent implements OnInit {
 
   private normalizeStatus(
     status: string
-  ): 'Pending' | 'Approved' | 'Rejected' | 'Completed' {
+  ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' {
     const normalized = status?.toLowerCase().trim();
 
     switch (normalized) {
       case 'approved':
       case 'approve':
         return 'Approved';
+      case 'done':
+        return 'Done';
       case 'completed':
       case 'complete':
-      case 'done':
         return 'Completed';
       case 'rejected':
       case 'reject':
