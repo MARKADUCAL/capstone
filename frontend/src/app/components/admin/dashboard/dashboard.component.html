@@ -154,33 +154,6 @@
                   <mat-icon>visibility</mat-icon>
                   <span>View Details</span>
                 </button>
-                <button
-                  mat-menu-item
-                  (click)="updateBookingStatus(booking.id, 'Completed')"
-                  *ngIf="booking.status !== 'Completed'"
-                >
-                  <mat-icon>check_circle</mat-icon>
-                  <span>Mark as Completed</span>
-                </button>
-                <button
-                  mat-menu-item
-                  (click)="updateBookingStatus(booking.id, 'In Progress')"
-                  *ngIf="booking.status === 'Pending'"
-                >
-                  <mat-icon>play_arrow</mat-icon>
-                  <span>Start Service</span>
-                </button>
-                <button
-                  mat-menu-item
-                  (click)="updateBookingStatus(booking.id, 'Cancelled')"
-                  *ngIf="
-                    booking.status !== 'Cancelled' &&
-                    booking.status !== 'Completed'
-                  "
-                >
-                  <mat-icon>cancel</mat-icon>
-                  <span>Cancel Booking</span>
-                </button>
               </mat-menu>
             </td>
           </ng-container>

@@ -14,16 +14,17 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-import { Subject, timer, interval } from 'rxjs';
-import { takeUntil, catchError, switchMap } from 'rxjs/operators';
+import { Subject, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { BookingDetailsDialog } from './booking-details-dialog.component';
 
 interface BusinessStats {
   totalCustomers: number;
   totalBookings: number;
   totalEmployees: number;
-  customerSatisfaction: number;
   totalRevenue: number;
   completedBookings: number;
   pendingBookings: number;
@@ -36,8 +37,6 @@ interface RecentBooking {
   status: string;
   amount: number;
   date: string;
-  vehicleType: string;
-  paymentType: string;
 }
 
 @Component({
@@ -53,6 +52,7 @@ interface RecentBooking {
     MatMenuModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -62,7 +62,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     totalCustomers: 0,
     totalBookings: 0,
     totalEmployees: 0,
-    customerSatisfaction: 4.7,
     totalRevenue: 0,
     completedBookings: 0,
     pendingBookings: 0,
@@ -93,7 +92,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -112,7 +112,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadDashboardData(): void {
+  loadDashboardData(): void {
     this.isLoading = true;
     this.isLoadingStats = true;
     this.isLoadingBookings = true;
@@ -139,8 +139,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
               totalBookings: Number(data.total_bookings) || 0,
               totalEmployees: Number(data.total_employees) || 0,
               // Keep a sensible default for satisfaction as backend doesn't provide it
-              customerSatisfaction: Number(data.customer_satisfaction) || 4.7,
-              // Backend provides monthly_revenue; keep field for internal use if needed
               totalRevenue: Number(data.monthly_revenue) || 0,
               completedBookings: Number(data.completed_bookings) || 0,
               pendingBookings: Number(data.pending_bookings) || 0,
@@ -262,21 +260,70 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           if (response?.status?.remarks === 'success') {
             const bookings = response.payload.bookings || [];
-            this.recentBookings = bookings.slice(0, 10).map((booking: any) => ({
-              id: booking.id,
-              customerName: booking.customerName || 'Unknown Customer',
-              service: booking.serviceName || 'Unknown Service',
-              status: booking.status || 'Pending',
-              amount: booking.price || 0,
-              date: booking.washDate || 'Unknown Date',
-              vehicleType: booking.vehicleType || 'Unknown',
-              paymentType: booking.paymentType || 'Unknown',
-            }));
+            console.log('API Response - Bookings:', bookings); // Debug log
+
+            this.recentBookings = bookings.slice(0, 10).map((booking: any) => {
+              console.log('Processing booking:', booking); // Debug log for each booking
+
+              // Get customer name from firstname and lastname
+              let customerName = 'Unknown Customer';
+
+              // Debug: Log firstname and lastname fields
+              console.log('Customer name fields:', {
+                firstname: booking.firstname,
+                lastname: booking.lastname,
+                first_name: booking.first_name,
+                last_name: booking.last_name,
+              });
+
+              // Combine firstname and lastname
+              const firstName = booking.firstname || booking.first_name || '';
+              const lastName = booking.lastname || booking.last_name || '';
+              customerName = `${firstName} ${lastName}`.trim();
+
+              // If no name found, try fallback fields
+              if (!customerName || customerName === '') {
+                if (
+                  booking.customer_name ||
+                  booking.customerName ||
+                  booking.name
+                ) {
+                  customerName =
+                    booking.customer_name ||
+                    booking.customerName ||
+                    booking.name;
+                } else if (booking.customer?.name || booking.user?.name) {
+                  customerName = booking.customer?.name || booking.user?.name;
+                } else {
+                  customerName = 'Unknown Customer';
+                }
+              }
+
+              console.log('Final customer name:', customerName);
+
+              return {
+                id: booking.id,
+                customerName: customerName,
+                service:
+                  booking.service_name ||
+                  booking.serviceName ||
+                  booking.service ||
+                  'Unknown Service',
+                status: booking.status || 'Pending',
+                amount: booking.price || booking.amount || 0,
+                date:
+                  booking.wash_date ||
+                  booking.washDate ||
+                  booking.date ||
+                  booking.booking_date ||
+                  'Unknown Date',
+              };
+            });
 
             // Calculate total revenue
             this.businessStats.totalRevenue = bookings.reduce(
               (total: number, booking: any) => {
-                return total + (booking.price || 0);
+                return total + (booking.price || booking.amount || 0);
               },
               0
             );
@@ -327,14 +374,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   viewBookingDetails(bookingId: number): void {
-    // TODO: Implement booking details view
-    console.log('View booking details:', bookingId);
-    this.showInfo('Booking details feature coming soon!');
-  }
-
-  refreshDashboard(): void {
-    this.loadDashboardData();
-    this.showSuccess('Dashboard refreshed successfully');
+    const booking = this.recentBookings.find((b) => b.id === bookingId);
+    if (booking) {
+      // Create a simple dialog to show booking details
+      const dialogRef = this.dialog.open(BookingDetailsDialog, {
+        width: '500px',
+        data: booking,
+      });
+    }
   }
 
   private showSuccess(message: string): void {
@@ -376,5 +423,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  // Helper method to get status icon
+  getStatusIcon(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'check_circle';
+      case 'pending':
+        return 'schedule';
+      case 'in progress':
+        return 'play_arrow';
+      case 'cancelled':
+        return 'cancel';
+      default:
+        return 'info';
+    }
   }
 }
