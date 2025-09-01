@@ -95,21 +95,12 @@ export class AppointmentComponent implements OnInit {
 
   // Time picker properties
   showTimePicker = false;
-  manualHour: number | null = null;
-  manualMinute: number | null = null;
-  availableTimeSlots: string[] = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-  ];
+  selectedHour = 12;
+  selectedMinute = '00';
+  selectedPeriod = 'AM';
+  availableHours: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  availableMinutes: string[] = ['00', '15', '30', '45'];
+  availablePeriods: string[] = ['AM', 'PM'];
 
   constructor(
     private bookingService: BookingService,
@@ -459,9 +450,14 @@ export class AppointmentComponent implements OnInit {
     this.showTimePicker = true;
     // Parse current time if exists
     if (this.bookingForm.washTime) {
-      const [hours, minutes] = this.bookingForm.washTime.split(':');
-      this.manualHour = parseInt(hours);
-      this.manualMinute = parseInt(minutes);
+      const timeParts = this.bookingForm.washTime.split(':');
+      if (timeParts.length === 2) {
+        const hour = parseInt(timeParts[0]);
+        const minute = parseInt(timeParts[1]);
+        this.selectedHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        this.selectedMinute = minute.toString().padStart(2, '0');
+        this.selectedPeriod = hour >= 12 ? 'PM' : 'AM';
+      }
     }
   }
 
@@ -470,48 +466,32 @@ export class AppointmentComponent implements OnInit {
     this.showTimePicker = false;
   }
 
-  updateManualTime(): void {
-    if (this.manualHour !== null && this.manualMinute !== null) {
-      const hour = this.manualHour.toString().padStart(2, '0');
-      const minute = this.manualMinute.toString().padStart(2, '0');
-      this.bookingForm.washTime = `${hour}:${minute}`;
-    }
+  selectHour(hour: number): void {
+    this.selectedHour = hour;
   }
 
-  selectTimeSlot(timeSlot: string): void {
-    this.bookingForm.washTime = timeSlot;
-    // Parse the selected time for manual inputs
-    const [hours, minutes] = timeSlot.split(':');
-    this.manualHour = parseInt(hours);
-    this.manualMinute = parseInt(minutes);
+  selectMinute(minute: string): void {
+    this.selectedMinute = minute;
   }
 
-  isTimeSlotSelected(timeSlot: string): boolean {
-    return this.bookingForm.washTime === timeSlot;
-  }
-
-  isTimeSlotAvailable(timeSlot: string): boolean {
-    // In a real app, you would check against actual availability
-    // For now, all slots are available
-    return true;
-  }
-
-  formatTimeSlot(timeSlot: string): string {
-    const [hours, minutes] = timeSlot.split(':');
-    const hour = parseInt(hours);
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minutes} ${period}`;
-  }
-
-  setQuickTime(time: string): void {
-    this.bookingForm.washTime = time;
-    const [hours, minutes] = time.split(':');
-    this.manualHour = parseInt(hours);
-    this.manualMinute = parseInt(minutes);
+  selectPeriod(period: string): void {
+    this.selectedPeriod = period;
   }
 
   confirmTimeSelection(): void {
+    // Convert 12-hour format to 24-hour format
+    let hour24 = this.selectedHour;
+    if (this.selectedPeriod === 'PM' && this.selectedHour !== 12) {
+      hour24 += 12;
+    } else if (this.selectedPeriod === 'AM' && this.selectedHour === 12) {
+      hour24 = 0;
+    }
+
+    // Format time as HH:MM
+    const formattedHour = hour24.toString().padStart(2, '0');
+    const formattedMinute = this.selectedMinute.toString().padStart(2, '0');
+
+    this.bookingForm.washTime = `${formattedHour}:${formattedMinute}`;
     this.showTimePicker = false;
   }
 }
