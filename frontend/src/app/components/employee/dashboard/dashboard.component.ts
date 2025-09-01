@@ -6,8 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { TaskDetailsDialog } from './task-details-dialog.component';
 
 interface Task {
   id: number;
@@ -90,6 +92,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
+    private dialog: MatDialog,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -156,6 +159,22 @@ export class DashboardComponent implements OnInit {
     if (task) {
       task.status = newStatus;
       // TODO: Update backend
+    }
+  }
+
+  viewTaskDetails(taskId: number): void {
+    const task = this.upcomingTasks.find((t) => t.id === taskId);
+    if (task) {
+      const dialogRef = this.dialog.open(TaskDetailsDialog, {
+        width: '600px',
+        data: task,
+        disableClose: false,
+        autoFocus: false,
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        console.log('Task details dialog closed');
+      });
     }
   }
 }
