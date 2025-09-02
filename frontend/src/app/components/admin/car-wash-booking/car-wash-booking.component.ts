@@ -165,14 +165,6 @@ export class CarWashBookingComponent implements OnInit {
     this.loadEmployees();
   }
 
-  addBooking(): void {
-    // Implement add booking functionality
-  }
-
-  addSlotBooking(): void {
-    // Implement add slot booking functionality
-  }
-
   approveBooking(booking: CarWashBooking): void {
     // Open employee assignment dialog instead of directly approving
     const dialogRef = this.dialog.open(EmployeeAssignmentDialogComponent, {

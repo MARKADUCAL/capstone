@@ -21,6 +21,7 @@
           <th>Service</th>
           <th>Date</th>
           <th>Time</th>
+          <th>Rating</th>
           <th>Status</th>
           <th>View</th>
         </tr>
@@ -33,6 +34,28 @@
           <td>{{ booking.date | date : "MMM d, y" }}</td>
           <td>{{ booking.time }}</td>
           <td>
+            <div
+              class="rating-display"
+              *ngIf="booking.averageRating !== undefined"
+            >
+              <div
+                class="star-icon"
+                [style.color]="getStarColor(booking.averageRating)"
+              >
+                ★
+              </div>
+              <span class="rating-value">{{
+                getStarRating(booking.averageRating)
+              }}</span>
+              <span class="rating-count" *ngIf="booking.totalRatings"
+                >({{ booking.totalRatings }})</span
+              >
+            </div>
+            <span class="no-rating" *ngIf="booking.averageRating === undefined"
+              >—</span
+            >
+          </td>
+          <td>
             <span class="status-badge" [class]="booking.status.toLowerCase()">
               {{ booking.status }}
             </span>
@@ -44,7 +67,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredBookings.length === 0">
-          <td colspan="7" class="no-records">No booking records found</td>
+          <td colspan="8" class="no-records">No booking records found</td>
         </tr>
       </tbody>
     </table>
@@ -103,6 +126,31 @@
             <div class="info-item">
               <div class="info-label">Vehicle Type:</div>
               <div class="info-value">{{ raw.vehicleType || "—" }}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="info-card" *ngIf="sb.averageRating !== undefined">
+          <div class="card-title">
+            <span class="dot">⭐</span> Customer Rating
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Average Rating:</div>
+              <div class="info-value rating-display">
+                <div
+                  class="star-icon"
+                  [style.color]="getStarColor(sb.averageRating)"
+                >
+                  ★
+                </div>
+                <span class="rating-value">{{
+                  getStarRating(sb.averageRating)
+                }}</span>
+                <span class="rating-count" *ngIf="sb.totalRatings"
+                  >({{ sb.totalRatings }} reviews)</span
+                >
+              </div>
             </div>
           </div>
         </section>

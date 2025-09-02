@@ -50,6 +50,34 @@ h2 {
   background-color: #f9f9f9;
 }
 
+/* Rating display styles */
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.star-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.rating-count {
+  color: #666;
+  font-size: 11px;
+}
+
+.no-rating {
+  color: #999;
+  font-style: italic;
+}
+
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
