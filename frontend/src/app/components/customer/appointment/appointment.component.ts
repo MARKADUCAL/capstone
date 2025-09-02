@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatInputModule } from '@angular/material/input';
@@ -18,7 +19,6 @@ import {
   VEHICLE_TYPE_CODES,
   SERVICE_PACKAGES,
   SERVICE_CODES,
-  PRICING_TABLE,
   PAYMENT_TYPES,
   ONLINE_PAYMENT_OPTIONS,
   BookingForm,
@@ -72,10 +72,8 @@ export class AppointmentComponent implements OnInit {
   onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
 
   // Pricing
-  pricingTable = PRICING_TABLE;
   selectedPrice: number | null = null;
-  pricingMatrix: any = {}; // New property to store pricing matrix
-  apiUrl: string = 'http://localhost:3000/api'; // Placeholder for API URL
+  pricingMatrix: any = {}; // Property to store pricing matrix from database
 
   // Booking form model
   bookingForm: BookingForm = {
@@ -136,18 +134,23 @@ export class AppointmentComponent implements OnInit {
   // Load pricing data from database
   loadPricingData(): void {
     if (this.isBrowser) {
-      this.http.get<any>(`${this.apiUrl}/get_pricing_matrix`).subscribe({
+      console.log(
+        'Loading pricing data from:',
+        `${environment.apiUrl}/get_pricing_matrix`
+      );
+      this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
         next: (response) => {
-          if (response.status && response.status.success) {
-            this.pricingMatrix = response.payload || {};
+          console.log('Raw API response:', response);
+          if (response.status && response.status.remarks === 'success') {
+            this.pricingMatrix = response.payload.pricing_matrix || {};
+            console.log('Loaded pricing matrix:', this.pricingMatrix);
           } else {
-            // Fallback to default pricing if API fails
+            console.error('Failed to load pricing matrix:', response);
             this.pricingMatrix = {};
           }
         },
         error: (error) => {
           console.error('Error loading pricing matrix:', error);
-          // Fallback to default pricing
           this.pricingMatrix = {};
         },
       });
@@ -156,22 +159,41 @@ export class AppointmentComponent implements OnInit {
 
   // Get vehicle type code from full description
   getVehicleTypeCode(vehicleType: string): string {
+    if (!vehicleType) return '';
     const index = this.vehicleTypes.indexOf(vehicleType);
-    return index >= 0 ? this.vehicleTypeCodes[index] : '';
+    if (index >= 0) {
+      return this.vehicleTypeCodes[index];
+    }
+    // Fallback: try to extract code from the string
+    const match = vehicleType.match(/^([A-Z]+)\s*-\s*/);
+    return match ? match[1] : '';
   }
 
   // Get service code from full description
   getServiceCode(service: string): string {
+    if (!service) return '';
     const index = this.servicePackages.indexOf(service);
-    return index >= 0 ? this.serviceCodes[index] : '';
+    if (index >= 0) {
+      return this.serviceCodes[index];
+    }
+    // Fallback: try to extract code from the string
+    const match = service.match(/^([0-9.]+)\s*-\s*/);
+    return match ? match[1] : '';
   }
 
   // Calculate price based on vehicle type and service
   calculatePrice(): void {
+    console.log(
+      'Calculating price for:',
+      this.bookingForm.vehicleType,
+      this.bookingForm.services
+    );
     const vehicleCode = this.getVehicleTypeCode(this.bookingForm.vehicleType);
     const serviceCode = this.getServiceCode(this.bookingForm.services);
+    console.log('Extracted codes:', vehicleCode, serviceCode);
+    console.log('Current pricing matrix:', this.pricingMatrix);
 
-    // First try to get price from database pricing matrix
+    // Get price from database pricing matrix
     if (
       vehicleCode &&
       serviceCode &&
@@ -179,12 +201,21 @@ export class AppointmentComponent implements OnInit {
       this.pricingMatrix[vehicleCode][serviceCode]
     ) {
       this.selectedPrice = this.pricingMatrix[vehicleCode][serviceCode];
-    }
-    // Fallback to hardcoded pricing table if database price not available
-    else if (vehicleCode && serviceCode && this.pricingTable[vehicleCode]) {
-      this.selectedPrice = this.pricingTable[vehicleCode][serviceCode] || null;
+      console.log(
+        `Price for ${vehicleCode} - ${serviceCode}: ${this.selectedPrice}`
+      );
     } else {
       this.selectedPrice = null;
+      console.log(`No price found for ${vehicleCode} - ${serviceCode}`);
+      console.log('Available vehicle codes:', Object.keys(this.pricingMatrix));
+      if (this.pricingMatrix[vehicleCode]) {
+        console.log(
+          'Available service codes for',
+          vehicleCode,
+          ':',
+          Object.keys(this.pricingMatrix[vehicleCode])
+        );
+      }
     }
   }
 

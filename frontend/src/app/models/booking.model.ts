@@ -79,45 +79,6 @@ export const SERVICE_PACKAGES = [
 
 export const SERVICE_CODES = ['1', '1.5', '2', '3', '4'];
 
-// Pricing table based on the image
-export const PRICING_TABLE: { [key: string]: { [key: string]: number } } = {
-  S: {
-    '1': 140,
-    '1.5': 170,
-    '2': 260,
-    '3': 270,
-    '4': 360,
-  },
-  M: {
-    '1': 160,
-    '1.5': 190,
-    '2': 300,
-    '3': 310,
-    '4': 420,
-  },
-  L: {
-    '1': 180,
-    '1.5': 230,
-    '2': 370,
-    '3': 390,
-    '4': 520,
-  },
-  XL: {
-    '1': 230,
-    '1.5': 290,
-    '2': 440,
-    '3': 460,
-    '4': 610,
-  },
-  XXL: {
-    '1': 250,
-    '1.5': 320,
-    '2': 480,
-    '3': 510,
-    '4': 670,
-  },
-};
-
 export interface PricingInfo {
   vehicleType: string;
   servicePackage: string;

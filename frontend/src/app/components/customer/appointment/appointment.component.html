@@ -506,7 +506,7 @@
                   class="price-cell"
                   *ngFor="let serviceCode of serviceCodes"
                 >
-                  ₱{{ pricingTable[vehicleCode][serviceCode] }}
+                  ₱{{ pricingMatrix[vehicleCode]?.[serviceCode] || 'N/A' }}
                 </div>
               </div>
             </div>

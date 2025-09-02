@@ -62,14 +62,8 @@ export class ServicesPricingComponent implements OnInit {
     { code: '4', description: 'Body Wash, Body Wax, Tire Black, Vacuum' },
   ];
 
-  // Default pricing matrix (fallback)
-  defaultPricingMatrix: PricingMatrix = {
-    S: { '1': 140, '1.5': 170, '2': 260, '3': 270, '4': 360 },
-    M: { '1': 160, '1.5': 190, '2': 300, '3': 310, '4': 420 },
-    L: { '1': 180, '1.5': 230, '2': 370, '3': 390, '4': 520 },
-    XL: { '1': 230, '1.5': 290, '2': 440, '3': 460, '4': 610 },
-    XXL: { '1': 250, '1.5': 320, '2': 480, '3': 510, '4': 670 },
-  };
+  // Empty pricing matrix (will be populated from database)
+  defaultPricingMatrix: PricingMatrix = {};
 
   pricingMatrix: PricingMatrix = {};
   pricingEntries: PricingEntry[] = [];
@@ -117,20 +111,21 @@ export class ServicesPricingComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    // Try to load from the new pricing API first
+    // Load pricing from database
     this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
       next: (response) => {
-        if (response.status && response.status.success) {
-          this.pricingMatrix = response.payload || this.defaultPricingMatrix;
+        if (response.status && response.status.remarks === 'success') {
+          this.pricingMatrix = response.payload.pricing_matrix || {};
+          console.log('Loaded pricing matrix:', this.pricingMatrix);
         } else {
-          this.pricingMatrix = this.defaultPricingMatrix;
+          console.error('Failed to load pricing matrix:', response);
+          this.pricingMatrix = {};
         }
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading pricing matrix:', error);
-        // Fallback to default pricing
-        this.pricingMatrix = this.defaultPricingMatrix;
+        this.pricingMatrix = {};
         this.loading = false;
       },
     });
