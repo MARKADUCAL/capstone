@@ -89,16 +89,20 @@ export class EmployeeManagementComponent implements OnInit {
           response.payload.employees
         ) {
           // Transform the data from the API to match the Employee interface
-          this.employees = response.payload.employees.map((employee: any) => ({
-            id: employee.id,
-            employeeId: employee.employee_id,
-            name: `${employee.first_name} ${employee.last_name}`,
-            email: employee.email,
-            phone: employee.phone || 'N/A',
-            role: employee.position || 'Employee',
-            status: 'Active', // Default to active since we don't have a status in the DB
-            registrationDate: this.formatDate(employee.created_at),
-          }));
+          this.employees = response.payload.employees.map((employee: any) => {
+            const derivedStatus =
+              localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
+            return {
+              id: employee.id,
+              employeeId: employee.employee_id,
+              name: `${employee.first_name} ${employee.last_name}`,
+              email: employee.email,
+              phone: employee.phone || 'N/A',
+              role: employee.position || 'Employee',
+              status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
+              registrationDate: this.formatDate(employee.created_at),
+            };
+          });
         } else {
           this.error = 'Failed to load employees';
           this.showNotification('Failed to load employees');
@@ -203,7 +207,10 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   submitEditEmployeeForm(): void {
-    // Prepare payload for API
+    // Compare with original to avoid backend 404 when only status changed
+    const original = this.employees.find(
+      (e) => e.id === this.editEmployeeData.id
+    );
     const [first_name, ...rest] = (this.editEmployeeData.name || '').split(' ');
     const last_name = rest.join(' ').trim();
 
@@ -214,6 +221,31 @@ export class EmployeeManagementComponent implements OnInit {
       phone: this.editEmployeeData.phone,
       position: this.editEmployeeData.role,
     };
+
+    const profileChanged =
+      !!original &&
+      (original.name !== this.editEmployeeData.name ||
+        original.role !== this.editEmployeeData.role ||
+        original.phone !== this.editEmployeeData.phone);
+
+    if (!profileChanged) {
+      // Persist status locally and exit early
+      try {
+        localStorage.setItem(
+          `employeeStatus:${this.editEmployeeData.id}`,
+          this.editEmployeeData.status
+        );
+      } catch {}
+
+      // Reflect status change in local list
+      if (original) {
+        original.status = this.editEmployeeData.status;
+      }
+
+      this.showNotification('Saved status');
+      this.closeEditEmployeeModal();
+      return;
+    }
 
     this.http.put(`${this.apiUrl}/update_employee`, payload).subscribe({
       next: (response: any) => {
@@ -229,6 +261,13 @@ export class EmployeeManagementComponent implements OnInit {
           if (index > -1) {
             this.employees[index] = { ...this.editEmployeeData };
           }
+          // Persist status locally so other screens can respect it
+          try {
+            localStorage.setItem(
+              `employeeStatus:${this.editEmployeeData.id}`,
+              this.editEmployeeData.status
+            );
+          } catch {}
           this.showNotification('Employee updated successfully');
         } else {
           this.showNotification(
@@ -239,7 +278,27 @@ export class EmployeeManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating employee:', error);
-        this.showNotification('Error updating employee. Please try again.');
+        if (error?.status === 404) {
+          // Backend returns 404 when rowCount is 0 (no DB changes)
+          // We already know profile changed, but if DB didn't update, still persist status and reflect UI
+          try {
+            localStorage.setItem(
+              `employeeStatus:${this.editEmployeeData.id}`,
+              this.editEmployeeData.status
+            );
+          } catch {}
+          const idx = this.employees.findIndex(
+            (e) => e.id === this.editEmployeeData.id
+          );
+          if (idx > -1) {
+            this.employees[idx].status = this.editEmployeeData.status;
+          }
+          this.showNotification(
+            'No profile changes saved. Status updated locally.'
+          );
+        } else {
+          this.showNotification('Error updating employee. Please try again.');
+        }
         this.closeEditEmployeeModal();
       },
     });
