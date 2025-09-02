@@ -43,6 +43,15 @@
           <p class="category">
             <mat-icon>category</mat-icon> {{ item.category || "General" }}
           </p>
+          <!-- Show taken information if item has been taken -->
+          <div class="taken-info" *ngIf="item.isTaken">
+            <p class="taken-status">
+              <mat-icon>check_circle</mat-icon> Taken by {{ item.takenBy }}
+            </p>
+            <p class="taken-date" *ngIf="item.takenDate">
+              {{ item.takenDate | date : "MMM d, y" }}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -53,7 +62,15 @@
         <button class="action-btn edit-btn" (click)="editItem(item)">
           Edit
         </button>
-        <button class="action-btn take-btn" (click)="takeItem(item)">
+        <!-- Show "Done" status instead of "Take Item" button for taken items -->
+        <div class="done-status" *ngIf="item.isTaken">
+          <span class="done-badge">Done</span>
+        </div>
+        <button
+          class="action-btn take-btn"
+          (click)="takeItem(item)"
+          *ngIf="!item.isTaken"
+        >
           Take
         </button>
         <button class="action-btn delete-btn" (click)="deleteItem(item)">
@@ -220,6 +237,18 @@
               {{ selectedItem.category || "General" }}
             </p>
             <p><strong>Stock:</strong> {{ selectedItem.stock }}</p>
+            <!-- Show taken information in view modal -->
+            <div *ngIf="selectedItem.isTaken" class="taken-details">
+              <p>
+                <strong>Status:</strong>
+                <span class="done-status-text">Taken</span>
+              </p>
+              <p><strong>Taken by:</strong> {{ selectedItem.takenBy }}</p>
+              <p *ngIf="selectedItem.takenDate">
+                <strong>Taken on:</strong>
+                {{ selectedItem.takenDate | date : "MMM d, y" }}
+              </p>
+            </div>
           </div>
         </div>
         <div class="form-actions">

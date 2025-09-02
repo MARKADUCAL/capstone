@@ -125,6 +125,13 @@ if ($method === 'GET') {
         exit();
     }
 
+    // Get inventory history
+    if (strpos($request, 'get_inventory_history') !== false) {
+        $result = $get->get_inventory_history();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_inventory') !== false) {
         $result = $get->get_inventory();
         echo json_encode($result);

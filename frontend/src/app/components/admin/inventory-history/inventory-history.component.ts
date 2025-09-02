@@ -280,71 +280,25 @@ export class InventoryHistoryComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // For now, we'll use a mock implementation since we don't have a backend endpoint for history
-    // In a real implementation, you would call: this.inventoryService.getInventoryHistory()
-    setTimeout(() => {
-      this.loading = false;
-      this.historyItems = this.getMockHistoryData();
-    }, 1000);
-  }
-
-  private getMockHistoryData(): InventoryHistoryItem[] {
-    return [
-      {
-        id: 1,
-        action_type: 'ADD',
-        item_name: 'Car Wash Soap',
-        quantity: 50,
-        user_name: 'Admin User',
-        action_date: '2024-01-15T10:30:00',
-        notes: 'Initial stock addition',
-        previous_stock: 0,
-        new_stock: 50,
+    this.inventoryService.getInventoryHistory().subscribe({
+      next: (history) => {
+        this.loading = false;
+        this.historyItems = history.map((item: any) => ({
+          id: item.id,
+          action_type: item.action_type,
+          item_name: item.item_name,
+          quantity: item.quantity,
+          user_name: item.employee_name,
+          action_date: item.action_date,
+          notes: item.notes,
+          previous_stock: item.previous_stock,
+          new_stock: item.new_stock,
+        }));
       },
-      {
-        id: 2,
-        action_type: 'TAKE',
-        item_name: 'Car Wash Soap',
-        quantity: 5,
-        user_name: 'John Employee',
-        action_date: '2024-01-16T14:20:00',
-        notes: 'Used for car wash service',
-        previous_stock: 50,
-        new_stock: 45,
+      error: (err) => {
+        this.loading = false;
+        this.error = 'Error loading inventory history. Please try again later.';
       },
-      {
-        id: 3,
-        action_type: 'UPDATE',
-        item_name: 'Microfiber Cloths',
-        quantity: 100,
-        user_name: 'Admin User',
-        action_date: '2024-01-17T09:15:00',
-        notes: 'Updated stock count after inventory check',
-        previous_stock: 75,
-        new_stock: 100,
-      },
-      {
-        id: 4,
-        action_type: 'REQUEST',
-        item_name: 'Tire Shine',
-        quantity: 10,
-        user_name: 'Sarah Employee',
-        action_date: '2024-01-18T16:45:00',
-        notes: 'Request for upcoming detailing service',
-        previous_stock: 20,
-        new_stock: 20,
-      },
-      {
-        id: 5,
-        action_type: 'DELETE',
-        item_name: 'Expired Wax',
-        quantity: 0,
-        user_name: 'Admin User',
-        action_date: '2024-01-19T11:00:00',
-        notes: 'Removed expired product',
-        previous_stock: 15,
-        new_stock: 0,
-      },
-    ];
+    });
   }
 }

@@ -2033,6 +2033,22 @@ class Post extends GlobalMethods
         }
 
         try {
+            // Ensure inventory_history table exists
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS inventory_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                item_id INT NOT NULL,
+                item_name VARCHAR(255) NOT NULL,
+                quantity INT NOT NULL,
+                employee_id VARCHAR(50) NOT NULL,
+                employee_name VARCHAR(255) NOT NULL,
+                action_type ENUM('add', 'update', 'delete', 'take', 'request') NOT NULL,
+                action_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                notes TEXT,
+                previous_stock INT NULL,
+                new_stock INT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
             // Start transaction
             $this->pdo->beginTransaction();
 
@@ -2058,17 +2074,21 @@ class Post extends GlobalMethods
             $stmtUpdate->execute([$data->quantity, $data->item_id]);
 
             // Create inventory history record
-            $sqlHistory = "INSERT INTO inventory_history (item_id, item_name, quantity, employee_id, employee_name, action_type, action_date, notes) 
-                          VALUES (?, ?, ?, ?, ?, 'taken', CURRENT_TIMESTAMP, ?)";
+            $sqlHistory = "INSERT INTO inventory_history (item_id, item_name, quantity, employee_id, employee_name, action_type, action_date, notes, previous_stock, new_stock) 
+                          VALUES (?, ?, ?, ?, ?, 'take', CURRENT_TIMESTAMP, ?, ?, ?)";
             $stmtHistory = $this->pdo->prepare($sqlHistory);
             $notes = "Item taken by admin for employee: " . $data->employee_name;
+            $previousStock = $item['stock'];
+            $newStock = $item['stock'] - $data->quantity;
             $stmtHistory->execute([
                 $data->item_id,
                 $this->getItemName($data->item_id),
                 $data->quantity,
                 $data->employee_id,
                 $data->employee_name,
-                $notes
+                $notes,
+                $previousStock,
+                $newStock
             ]);
 
             // Commit transaction

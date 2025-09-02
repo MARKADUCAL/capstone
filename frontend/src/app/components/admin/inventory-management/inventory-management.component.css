@@ -448,3 +448,88 @@
   color: #6c757d;
   margin-top: 0.25rem;
 }
+
+/* Taken information styles */
+.taken-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #e8f5e9;
+  border-radius: 6px;
+  border-left: 3px solid #4caf50;
+}
+
+.taken-status {
+  margin: 0;
+  color: #2e7d32;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.taken-status mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.taken-date {
+  margin: 4px 0 0 0;
+  color: #666;
+  font-size: 12px;
+}
+
+/* Done status badge */
+.done-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.done-badge {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  cursor: default;
+}
+
+/* Taken details in view modal */
+.taken-details {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #4caf50;
+}
+
+.done-status-text {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .taken-info {
+    padding: 6px 10px;
+  }
+
+  .taken-status {
+    font-size: 12px;
+  }
+
+  .taken-date {
+    font-size: 11px;
+  }
+
+  .done-badge {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+}

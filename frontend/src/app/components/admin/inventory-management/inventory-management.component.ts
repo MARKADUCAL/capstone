@@ -18,6 +18,9 @@ interface InventoryItem {
   imageUrl: string;
   stock: number;
   category?: string;
+  isTaken?: boolean;
+  takenBy?: string;
+  takenDate?: string;
 }
 
 @Component({
@@ -78,6 +81,9 @@ export class InventoryManagementComponent implements OnInit {
               category: i.category || 'General',
             })
           );
+
+          // Load inventory requests to check which items have been taken
+          this.loadInventoryRequests();
         } else {
           this.error = response?.status?.message || 'Failed to load inventory';
           this.showNotification(this.error ?? 'Failed to load inventory');
@@ -87,6 +93,33 @@ export class InventoryManagementComponent implements OnInit {
         this.loading = false;
         this.error = 'Error loading inventory';
         this.showNotification(this.error || 'Error loading inventory');
+      },
+    });
+  }
+
+  private loadInventoryRequests(): void {
+    this.inventoryService.getInventoryRequests().subscribe({
+      next: (requests) => {
+        // Update inventory items with taken status
+        this.inventoryItems = this.inventoryItems.map((item) => {
+          const completedRequest = requests.find(
+            (request) =>
+              request.item_id === item.id && request.status === 'completed'
+          );
+
+          if (completedRequest) {
+            return {
+              ...item,
+              isTaken: true,
+              takenBy: completedRequest.employee_name,
+              takenDate: completedRequest.request_date,
+            };
+          }
+          return item;
+        });
+      },
+      error: (err) => {
+        console.error('Error loading inventory requests:', err);
       },
     });
   }
@@ -235,6 +268,12 @@ export class InventoryManagementComponent implements OnInit {
   }
 
   takeItem(item: InventoryItem): void {
+    // Don't allow taking items that are already taken
+    if (item.isTaken) {
+      this.showNotification('This item has already been taken');
+      return;
+    }
+
     // Show a modal to input employee details and quantity
     this.selectedItem = item;
     this.isTakeItemModalOpen = true;
@@ -265,6 +304,13 @@ export class InventoryManagementComponent implements OnInit {
       return;
     }
 
+    console.log('Submitting take item form:', {
+      itemId: this.selectedItem.id,
+      quantity: quantity,
+      employeeId: employeeId,
+      employeeName: employeeName,
+    });
+
     // Call the service to take item for employee
     this.inventoryService
       .takeItemForEmployee(
@@ -275,18 +321,43 @@ export class InventoryManagementComponent implements OnInit {
       )
       .subscribe({
         next: (response: any) => {
+          console.log('Take item response:', response);
           if (response?.status?.remarks === 'success') {
             this.showNotification(`Item taken for ${employeeName}`);
             this.closeTakeItemModal();
+
+            // Update the item status locally
+            const itemIndex = this.inventoryItems.findIndex(
+              (item) => item.id === this.selectedItem?.id
+            );
+            if (itemIndex !== -1) {
+              this.inventoryItems[itemIndex] = {
+                ...this.inventoryItems[itemIndex],
+                isTaken: true,
+                takenBy: employeeName,
+                takenDate: new Date().toISOString(),
+              };
+            }
+
             this.loadInventory(); // Reload to update stock
           } else {
+            console.error('Take item failed:', response);
             this.showNotification(
               response?.status?.message || 'Failed to take item'
             );
           }
         },
         error: (err) => {
-          this.showNotification('Error taking item for employee');
+          console.error('Take item error:', err);
+          console.error('Error details:', {
+            status: err.status,
+            statusText: err.statusText,
+            error: err.error,
+            message: err.message,
+          });
+          this.showNotification(
+            'Error taking item for employee. Please try again.'
+          );
         },
       });
   }

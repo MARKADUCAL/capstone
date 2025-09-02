@@ -71,6 +71,18 @@ export class InventoryService {
     );
   }
 
+  // Get inventory history
+  getInventoryHistory(): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}/get_inventory_history`).pipe(
+      map((response) => {
+        if (response?.status?.remarks === 'success') {
+          return response.payload?.inventory_history || [];
+        }
+        return [];
+      })
+    );
+  }
+
   // Add new inventory item (admin only)
   addInventoryItem(item: Partial<InventoryItem>): Observable<any> {
     return this.http.post(`${this.apiUrl}/add_inventory_item`, item);

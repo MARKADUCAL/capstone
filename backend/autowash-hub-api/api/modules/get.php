@@ -583,7 +583,7 @@ class Get extends GlobalMethods {
                 quantity INT NOT NULL,
                 employee_id VARCHAR(50) NOT NULL,
                 employee_name VARCHAR(255) NOT NULL,
-                status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+                status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
                 request_date DATE NOT NULL,
                 notes TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -607,6 +607,46 @@ class Get extends GlobalMethods {
                 ['inventory_requests' => []],
                 "failed",
                 "Failed to retrieve inventory requests: " . $e->getMessage(),
+                200
+            );
+        }
+    }
+
+    public function get_inventory_history() {
+        try {
+            // Ensure inventory_history table exists
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS inventory_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                item_id INT NOT NULL,
+                item_name VARCHAR(255) NOT NULL,
+                quantity INT NOT NULL,
+                employee_id VARCHAR(50) NOT NULL,
+                employee_name VARCHAR(255) NOT NULL,
+                action_type ENUM('add', 'update', 'delete', 'take', 'request') NOT NULL,
+                action_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                notes TEXT,
+                previous_stock INT NULL,
+                new_stock INT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            $sql = "SELECT id, item_id, item_name, quantity, employee_id, employee_name, action_type, action_date, notes, previous_stock, new_stock, created_at 
+                    FROM inventory_history ORDER BY created_at DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $this->sendPayload(
+                ['inventory_history' => $history],
+                "success",
+                "Inventory history retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                ['inventory_history' => []],
+                "failed",
+                "Failed to retrieve inventory history: " . $e->getMessage(),
                 200
             );
         }
