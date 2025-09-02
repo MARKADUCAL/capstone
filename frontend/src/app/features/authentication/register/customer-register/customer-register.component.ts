@@ -105,11 +105,9 @@ export class CustomerRegisterComponent {
     });
 
     this.http
-      .post(
-        `${environment.apiUrl}/register_customer`,
-        registrationData,
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+      .post(`${environment.apiUrl}/register_customer`, registrationData, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
