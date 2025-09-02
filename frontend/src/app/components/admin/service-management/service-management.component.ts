@@ -95,44 +95,31 @@ export class ServiceManagementComponent implements OnInit {
     },
   ];
 
-  // Pricing table based on the image
-  pricingTable: { [key: string]: { [key: string]: number } } = {
-    S: {
-      '1': 140,
-      '1.5': 170,
-      '2': 260,
-      '3': 270,
-      '4': 360,
-    },
-    M: {
-      '1': 160,
-      '1.5': 190,
-      '2': 300,
-      '3': 310,
-      '4': 420,
-    },
-    L: {
-      '1': 180,
-      '1.5': 230,
-      '2': 370,
-      '3': 390,
-      '4': 520,
-    },
-    XL: {
-      '1': 230,
-      '1.5': 290,
-      '2': 440,
-      '3': 460,
-      '4': 610,
-    },
-    XXL: {
-      '1': 250,
-      '1.5': 320,
-      '2': 480,
-      '3': 510,
-      '4': 670,
-    },
-  };
+  // Dynamic pricing matrix built from database data
+  get pricingMatrix(): { [key: string]: { [key: string]: number } } {
+    const matrix: { [key: string]: { [key: string]: number } } = {};
+
+    // Initialize matrix with default values
+    this.vehicleTypes.forEach((vehicle) => {
+      matrix[vehicle.code] = {};
+      this.servicePackages.forEach((service) => {
+        matrix[vehicle.code][service.code] = 0;
+      });
+    });
+
+    // Populate matrix with actual database values
+    this.pricingEntries.forEach((entry) => {
+      if (
+        entry.isActive &&
+        matrix[entry.vehicleType] &&
+        matrix[entry.vehicleType][entry.servicePackage] !== undefined
+      ) {
+        matrix[entry.vehicleType][entry.servicePackage] = entry.price;
+      }
+    });
+
+    return matrix;
+  }
 
   pricingEntries: PricingEntry[] = [];
   newPricingEntry: PricingEntry = {
@@ -164,26 +151,38 @@ export class ServiceManagementComponent implements OnInit {
 
   filterPricingEntries(): void {
     if (!this.searchTerm.trim()) {
-      this.filteredPricingEntries = [...this.pricingEntries];
+      this.filteredPricingEntries = [...this.pricingEntries].sort((a, b) => {
+        // Sort by ID number in ascending order
+        const idA = a.id || 0;
+        const idB = b.id || 0;
+        return idA - idB;
+      });
     } else {
       const search = this.searchTerm.toLowerCase();
-      this.filteredPricingEntries = this.pricingEntries.filter((entry) => {
-        const vehicleDesc = this.getVehicleTypeDescription(
-          entry.vehicleType
-        ).toLowerCase();
-        const serviceDesc = this.getServicePackageDescription(
-          entry.servicePackage
-        ).toLowerCase();
-        const price = entry.price.toString();
+      this.filteredPricingEntries = this.pricingEntries
+        .filter((entry) => {
+          const vehicleDesc = this.getVehicleTypeDescription(
+            entry.vehicleType
+          ).toLowerCase();
+          const serviceDesc = this.getServicePackageDescription(
+            entry.servicePackage
+          ).toLowerCase();
+          const price = entry.price.toString();
 
-        return (
-          vehicleDesc.includes(search) ||
-          serviceDesc.includes(search) ||
-          price.includes(search) ||
-          entry.vehicleType.toLowerCase().includes(search) ||
-          entry.servicePackage.toLowerCase().includes(search)
-        );
-      });
+          return (
+            vehicleDesc.includes(search) ||
+            serviceDesc.includes(search) ||
+            price.includes(search) ||
+            entry.vehicleType.toLowerCase().includes(search) ||
+            entry.servicePackage.toLowerCase().includes(search)
+          );
+        })
+        .sort((a, b) => {
+          // Sort filtered results by ID number in ascending order
+          const idA = a.id || 0;
+          const idB = b.id || 0;
+          return idA - idB;
+        });
     }
   }
 
@@ -252,7 +251,7 @@ export class ServiceManagementComponent implements OnInit {
         this.pricingEntries.push({
           vehicleType: vehicle.code,
           servicePackage: service.code,
-          price: this.pricingTable[vehicle.code][service.code] || 0,
+          price: 0, // Default price, will be populated from database
           isActive: true,
         });
       });
@@ -343,8 +342,31 @@ export class ServiceManagementComponent implements OnInit {
   }
 
   editPricingEntry(entry: PricingEntry): void {
-    this.editMode = true;
-    this.newPricingEntry = { ...entry };
+    console.log('Editing entry:', entry);
+
+    // If the entry doesn't have an ID, try to find the existing entry
+    if (!entry.id) {
+      const existingEntry = this.pricingEntries.find(
+        (e) =>
+          e.vehicleType === entry.vehicleType &&
+          e.servicePackage === entry.servicePackage
+      );
+      if (existingEntry) {
+        console.log('Found existing entry:', existingEntry);
+        this.editMode = true;
+        this.newPricingEntry = { ...existingEntry };
+      } else {
+        console.log('No existing entry found, creating new one');
+        // If no existing entry found, this will be treated as a new entry
+        this.editMode = false;
+        this.newPricingEntry = { ...entry };
+      }
+    } else {
+      this.editMode = true;
+      this.newPricingEntry = { ...entry };
+    }
+
+    console.log('newPricingEntry after edit:', this.newPricingEntry);
   }
 
   updatePricingEntry(): void {
@@ -358,6 +380,13 @@ export class ServiceManagementComponent implements OnInit {
             .set('Content-Type', 'application/json')
             .set('Authorization', `Bearer ${token}`);
 
+          // If we don't have an ID, this should be treated as a new entry
+          if (!this.newPricingEntry.id) {
+            console.log('No ID found, treating as new entry');
+            this.addPricingEntry();
+            return;
+          }
+
           const pricingData = {
             id: this.newPricingEntry.id,
             vehicle_type: this.newPricingEntry.vehicleType,
@@ -365,6 +394,10 @@ export class ServiceManagementComponent implements OnInit {
             price: this.newPricingEntry.price,
             is_active: this.newPricingEntry.isActive ? 1 : 0,
           };
+
+          // Debug logging
+          console.log('Sending pricing data:', pricingData);
+          console.log('newPricingEntry:', this.newPricingEntry);
 
           this.http
             .put<ApiResponse>(
@@ -376,6 +409,7 @@ export class ServiceManagementComponent implements OnInit {
             )
             .subscribe({
               next: (response) => {
+                console.log('Update response:', response);
                 this.isLoading = false;
                 if (response.status && response.status.remarks === 'success') {
                   this.showAlert(
@@ -396,6 +430,12 @@ export class ServiceManagementComponent implements OnInit {
               },
               error: (error) => {
                 console.error('Error updating pricing entry:', error);
+                console.error('Error details:', {
+                  status: error.status,
+                  statusText: error.statusText,
+                  error: error.error,
+                  message: error.message,
+                });
                 this.isLoading = false;
                 this.showAlert('Failed to update pricing entry', 'error');
               },

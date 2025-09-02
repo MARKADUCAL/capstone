@@ -126,7 +126,7 @@
               </td>
               <td *ngFor="let service of servicePackages" class="price-cell">
                 <div class="price-amount">
-                  ₱{{ pricingTable[vehicle.code][service.code] }}
+                  ₱{{ pricingMatrix[vehicle.code][service.code] }}
                 </div>
                 <div class="price-actions">
                   <button
@@ -135,7 +135,7 @@
                       editPricingEntry({
                         vehicleType: vehicle.code,
                         servicePackage: service.code,
-                        price: pricingTable[vehicle.code][service.code],
+                        price: pricingMatrix[vehicle.code][service.code],
                         isActive: true
                       })
                     "

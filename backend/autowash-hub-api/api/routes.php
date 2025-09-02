@@ -12,6 +12,12 @@ require_once "./modules/post.php";
 require_once "./modules/put.php";
 require_once "./config/database.php";
 
+// Manually include JWT library to ensure it's loaded
+require_once "./vendor/firebase/php-jwt/JWT.php";
+
+// Import JWT for token validation
+use Firebase\JWT\JWT;
+
 // CORS headers
 // Allow only known frontend origins (add your deployed domains below)
 $allowedOrigins = [
@@ -450,8 +456,11 @@ if ($method === 'PUT') {
     error_log("Request method: " . $method);
     
     // Get PUT data
-    $data = json_decode(file_get_contents("php://input"));
-    error_log("PUT data received: " . json_encode($data));
+    $rawData = file_get_contents("php://input");
+    error_log("Raw PUT data: " . $rawData);
+    
+    $data = json_decode($rawData);
+    error_log("Decoded PUT data: " . json_encode($data));
     
     // Check for JWT token for protected routes
     $headers = getallheaders();
@@ -516,13 +525,79 @@ if ($method === 'PUT') {
 
     // Pricing PUT routes
     if (strpos($request, 'update_pricing_entry') !== false) {
+        error_log("Processing update_pricing_entry request");
+        error_log("Data for update_pricing_entry: " . json_encode($data));
+        
+        // Validate JWT token for admin access
+        if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+            error_log("Missing or invalid Authorization header");
+            http_response_code(401);
+            echo json_encode(['status' => 'failed', 'message' => 'Authentication required']);
+            exit();
+        }
+        
+        $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
+        try {
+            $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+            $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+            
+            // Check if token is for admin
+            if ($decoded->aud !== 'admin') {
+                error_log("Token is not for admin access");
+                http_response_code(403);
+                echo json_encode(['status' => 'failed', 'message' => 'Admin access required']);
+                exit();
+            }
+            
+            error_log("JWT validation successful for admin: " . $decoded->data->email);
+        } catch (Exception $e) {
+            error_log("JWT validation failed: " . $e->getMessage());
+            http_response_code(401);
+            echo json_encode(['status' => 'failed', 'message' => 'Invalid token']);
+            exit();
+        }
+        
         $result = $put->update_pricing_entry($data);
+        error_log("update_pricing_entry result: " . json_encode($result));
         echo json_encode($result);
         exit();
     }
 
     if (strpos($request, 'toggle_pricing_status') !== false) {
+        error_log("Processing toggle_pricing_status request");
+        error_log("Data for toggle_pricing_status: " . json_encode($data));
+        
+        // Validate JWT token for admin access
+        if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+            error_log("Missing or invalid Authorization header");
+            http_response_code(401);
+            echo json_encode(['status' => 'failed', 'message' => 'Authentication required']);
+            exit();
+        }
+        
+        $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
+        try {
+            $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+            $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+            
+            // Check if token is for admin
+            if ($decoded->aud !== 'admin') {
+                error_log("Token is not for admin access");
+                http_response_code(403);
+                echo json_encode(['status' => 'failed', 'message' => 'Admin access required']);
+                exit();
+            }
+            
+            error_log("JWT validation successful for admin: " . $decoded->data->email);
+        } catch (Exception $e) {
+            error_log("JWT validation failed: " . $e->getMessage());
+            http_response_code(401);
+            echo json_encode(['status' => 'failed', 'message' => 'Invalid token']);
+            exit();
+        }
+        
         $result = $put->toggle_pricing_status($data);
+        error_log("toggle_pricing_status result: " . json_encode($result));
         echo json_encode($result);
         exit();
     }

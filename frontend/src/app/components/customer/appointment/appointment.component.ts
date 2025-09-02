@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatInputModule } from '@angular/material/input';
@@ -73,6 +74,8 @@ export class AppointmentComponent implements OnInit {
   // Pricing
   pricingTable = PRICING_TABLE;
   selectedPrice: number | null = null;
+  pricingMatrix: any = {}; // New property to store pricing matrix
+  apiUrl: string = 'http://localhost:3000/api'; // Placeholder for API URL
 
   // Booking form model
   bookingForm: BookingForm = {
@@ -106,6 +109,7 @@ export class AppointmentComponent implements OnInit {
     private bookingService: BookingService,
     private serviceService: ServiceService,
     private route: ActivatedRoute,
+    private http: HttpClient,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -114,6 +118,7 @@ export class AppointmentComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadUserData();
+      this.loadPricingData(); // Load pricing data from database
 
       // Check for service query parameter
       this.route.queryParams.subscribe((params) => {
@@ -124,6 +129,27 @@ export class AppointmentComponent implements OnInit {
             this.calculatePrice();
           }, 500); // Small delay to ensure services are loaded
         }
+      });
+    }
+  }
+
+  // Load pricing data from database
+  loadPricingData(): void {
+    if (this.isBrowser) {
+      this.http.get<any>(`${this.apiUrl}/get_pricing_matrix`).subscribe({
+        next: (response) => {
+          if (response.status && response.status.success) {
+            this.pricingMatrix = response.payload || {};
+          } else {
+            // Fallback to default pricing if API fails
+            this.pricingMatrix = {};
+          }
+        },
+        error: (error) => {
+          console.error('Error loading pricing matrix:', error);
+          // Fallback to default pricing
+          this.pricingMatrix = {};
+        },
       });
     }
   }
@@ -145,7 +171,17 @@ export class AppointmentComponent implements OnInit {
     const vehicleCode = this.getVehicleTypeCode(this.bookingForm.vehicleType);
     const serviceCode = this.getServiceCode(this.bookingForm.services);
 
-    if (vehicleCode && serviceCode && this.pricingTable[vehicleCode]) {
+    // First try to get price from database pricing matrix
+    if (
+      vehicleCode &&
+      serviceCode &&
+      this.pricingMatrix[vehicleCode] &&
+      this.pricingMatrix[vehicleCode][serviceCode]
+    ) {
+      this.selectedPrice = this.pricingMatrix[vehicleCode][serviceCode];
+    }
+    // Fallback to hardcoded pricing table if database price not available
+    else if (vehicleCode && serviceCode && this.pricingTable[vehicleCode]) {
       this.selectedPrice = this.pricingTable[vehicleCode][serviceCode] || null;
     } else {
       this.selectedPrice = null;

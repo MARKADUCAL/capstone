@@ -614,7 +614,10 @@ class Put {
      */
     public function update_pricing_entry($data) {
         try {
+            error_log("update_pricing_entry called with data: " . json_encode($data));
+            
             if (!isset($data->id) || empty($data->id)) {
+                error_log("Pricing entry ID is missing or empty");
                 return $this->sendPayload(null, "failed", "Pricing entry ID is required", 400);
             }
 
@@ -636,13 +639,20 @@ class Put {
                 }
             }
 
+            error_log("Updates to be made: " . json_encode($updates));
+            error_log("Values: " . json_encode($values));
+
             if (empty($updates)) {
+                error_log("No fields provided to update");
                 return $this->sendPayload(null, "failed", "No fields provided to update", 400);
             }
 
             $values[] = $data->id;
 
             $sql = "UPDATE pricing SET " . implode(", ", $updates) . ", updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            error_log("SQL query: " . $sql);
+            error_log("Final values: " . json_encode($values));
+            
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($values);
 
@@ -651,6 +661,7 @@ class Put {
                 $stmtGet = $this->pdo->prepare("SELECT * FROM pricing WHERE id = ?");
                 $stmtGet->execute([$data->id]);
                 $pricing = $stmtGet->fetch(PDO::FETCH_ASSOC);
+                error_log("Update successful, returning: " . json_encode($pricing));
                 return $this->sendPayload(['pricing' => $pricing], "success", "Pricing entry updated successfully", 200);
             }
 
@@ -659,11 +670,14 @@ class Put {
             $stmtGet->execute([$data->id]);
             $pricing = $stmtGet->fetch(PDO::FETCH_ASSOC);
             if ($pricing) {
+                error_log("Record exists but no changes made");
                 return $this->sendPayload(['pricing' => $pricing], "success", "No changes made", 200);
             }
 
+            error_log("Pricing entry not found");
             return $this->sendPayload(null, "failed", "Pricing entry not found", 404);
         } catch (Exception $e) {
+            error_log("Exception in update_pricing_entry: " . $e->getMessage());
             return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }
     }
