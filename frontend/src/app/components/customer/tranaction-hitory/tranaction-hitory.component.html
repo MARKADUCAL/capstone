@@ -254,7 +254,10 @@
         <!-- Rejection Reason Section (only for rejected bookings) -->
         <div
           class="rejection-section"
-          *ngIf="booking.status === 'rejected' && getRejectionReason(booking)"
+          *ngIf="
+            normalizeStatus(booking.status) === 'rejected' &&
+            getRejectionReason(booking)
+          "
         >
           <div class="rejection-header">
             <span class="rejection-icon">🚫</span>
@@ -445,7 +448,7 @@
         <div
           class="detail-card rejection-card"
           *ngIf="
-            selectedBooking.status === 'rejected' &&
+            normalizeStatus(selectedBooking.status) === 'rejected' &&
             getRejectionReason(selectedBooking)
           "
         >
@@ -468,10 +471,6 @@
     <div class="modal-footer">
       <button class="modal-btn secondary" (click)="closeViewModal()">
         Close
-      </button>
-      <button class="modal-btn primary" (click)="openFeedbackModal()">
-        <span class="btn-icon">💬</span>
-        Leave Feedback
       </button>
     </div>
   </div>
