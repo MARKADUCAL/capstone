@@ -2,7 +2,11 @@
 <nav class="navbar">
   <div class="container">
     <div class="logo">
-      <img src="assets/logo.jpg" alt="AutoWash Hub Logo" />
+      <img
+        src="assets/logo.jpg"
+        alt="AutoWash Hub Logo"
+        title="AutoWash Hub Logo"
+      />
       <span>AutoWash Hub</span>
     </div>
     <div
@@ -35,20 +39,20 @@
 ></div>
 
 <!-- Hero Section -->
-<header class="hero" id="hero">
+<header
+  class="hero"
+  id="hero"
+  [ngStyle]="{ 'background-image': 'url(' + content.heroBackgroundUrl + ')' }"
+>
   <div class="hero-content">
     <h2>
-      CARWASHING <br />
-      MADE EASY
+      {{ content.heroTitle.split(" ").slice(0, 1).join(" ") }} <br />
+      {{ content.heroTitle.split(" ").slice(1).join(" ") || "" }}
     </h2>
     <p>
-      AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor
-      carwash specialists offering quality services including body wash,
-      interior vacuum, and more.
+      {{ content.heroDescription }}
     </p>
-    <a (click)="onBookNowClick()" class="book-now-btn" style="cursor: pointer"
-      >Book Now</a
-    >
+    <a (click)="onBookNowClick()" class="book-now-btn">Book Now</a>
   </div>
 </header>
 
@@ -56,21 +60,9 @@
 <section class="services" id="services">
   <h2>SERVICES WE OFFER</h2>
   <div class="services-container">
-    <div class="service-item">
-      <img src="assets/basiccarwash.png" alt="Basic Car Wash" />
-      <p>BASIC CAR WASH</p>
-    </div>
-    <div class="service-item">
-      <img src="assets/tireblack.png" alt="Tire Black" />
-      <p>TIRE BLACK</p>
-    </div>
-    <div class="service-item">
-      <img src="assets/bodywax.png" alt="Body Wax" />
-      <p>BODY WAX</p>
-    </div>
-    <div class="service-item">
-      <img src="assets/vacuum.png" alt="Vacuum" />
-      <p>VACUUM</p>
+    <div class="service-item" *ngFor="let s of content.services">
+      <img [src]="s.imageUrl" [alt]="s.name" [title]="s.name" />
+      <p>{{ s.name }}</p>
     </div>
   </div>
 </section>
@@ -99,13 +91,25 @@
   <h2>PRICING</h2>
   <div class="pricing-steps">
     <div class="step-image">
-      <img src="assets/step1.png" alt="Step 1: Identify Vehicle Type" />
+      <img
+        src="assets/step1.png"
+        alt="Step 1: Identify Vehicle Type"
+        title="Step 1: Identify Vehicle Type"
+      />
     </div>
     <div class="step-image">
-      <img src="assets/step2.png" alt="Step 2: Select Services" />
+      <img
+        src="assets/step2.png"
+        alt="Step 2: Select Services"
+        title="Step 2: Select Services"
+      />
     </div>
     <div class="step-image">
-      <img src="assets/step3.png" alt="Step 3: Determine Price" />
+      <img
+        src="assets/step3.png"
+        alt="Step 3: Determine Price"
+        title="Step 3: Determine Price"
+      />
     </div>
   </div>
 </section>
@@ -114,23 +118,8 @@
 <section class="gallery" id="gallery">
   <h2>GALLERY</h2>
   <div class="gallery-container">
-    <div class="gallery-item">
-      <img src="assets/car1.png" alt="Car 1" />
-    </div>
-    <div class="gallery-item">
-      <img src="assets/car2.png" alt="Car 2" />
-    </div>
-    <div class="gallery-item">
-      <img src="assets/car3.png" alt="Car 3" />
-    </div>
-    <div class="gallery-item">
-      <img src="assets/car4.png" alt="Car 4" />
-    </div>
-    <div class="gallery-item">
-      <img src="assets/car5.png" alt="Car 5" />
-    </div>
-    <div class="gallery-item">
-      <img src="assets/car6.png" alt="Car 6" />
+    <div class="gallery-item" *ngFor="let g of content.galleryImages">
+      <img [src]="g.url" [alt]="g.alt" [title]="g.alt" />
     </div>
   </div>
 </section>
@@ -143,22 +132,21 @@
       <h3>Quick Contact Info</h3>
       <div class="contact-item">
         <i class="fas fa-map-marker-alt"></i>
-        <p>
-          <strong>Address:</strong> 1234 Sunset Avenue, Downtown, Los Angeles,
-          CA 90012
-        </p>
+        <p><strong>Address:</strong> {{ content.contactInfo.address }}</p>
       </div>
       <div class="contact-item">
         <i class="fas fa-clock"></i>
-        <p><strong>Opening Time:</strong> MON - FRI, 8:00am - 9:00pm</p>
+        <p>
+          <strong>Opening Time:</strong> {{ content.contactInfo.openingHours }}
+        </p>
       </div>
       <div class="contact-item">
         <i class="fas fa-phone"></i>
-        <p><strong>Call Us:</strong> 09123456789</p>
+        <p><strong>Call Us:</strong> {{ content.contactInfo.phone }}</p>
       </div>
       <div class="contact-item">
         <i class="fas fa-envelope"></i>
-        <p><strong>Email Us:</strong> Example123email.com</p>
+        <p><strong>Email Us:</strong> {{ content.contactInfo.email }}</p>
       </div>
     </div>
     <form
@@ -242,24 +230,24 @@
     </div>
     <div class="contact-us">
       <h3>Contact Us</h3>
-      <p>📍 Address: [Your Location]</p>
-      <p>📞 Phone: [Your Contact Number]</p>
-      <p>✉️ Email: [Your Email]</p>
+      <p>📍 Address: {{ content.footer.address }}</p>
+      <p>📞 Phone: {{ content.footer.phone }}</p>
+      <p>✉️ Email: {{ content.footer.email }}</p>
     </div>
     <div class="follow-us">
       <h3>Follow Us</h3>
       <p>
-        <a href="#">Facebook</a> | <a href="#">Instagram</a> |
-        <a href="#">Twitter</a> |
-        <a href="#">TikTok</a>
+        <a [href]="content.footer.facebook" target="_blank">Facebook</a> |
+        <a [href]="content.footer.instagram" target="_blank">Instagram</a> |
+        <a [href]="content.footer.twitter" target="_blank">Twitter</a> |
+        <a [href]="content.footer.tiktok" target="_blank">TikTok</a>
       </p>
       <a routerLink="/customer" class="booknow-button">Book Now</a>
     </div>
   </div>
   <div class="footer-bottom">
     <p>
-      AutoWash Hub © 2025. All rights reserved. | Privacy Policy | Terms of
-      Service
+      {{ content.footer.copyright }}
     </p>
   </div>
 </footer>

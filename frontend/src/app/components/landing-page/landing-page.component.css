@@ -151,7 +151,7 @@
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
   height: 960px; /* Full viewport height */
-  background: url("/assets/homebackground.png") no-repeat center center;
+  background: no-repeat center center;
   background-size: cover;
   padding: 0 20px; /* Add horizontal padding */
 }

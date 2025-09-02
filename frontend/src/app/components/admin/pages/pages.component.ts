@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -29,9 +30,20 @@ interface GalleryImage {
 interface LandingPageContent {
   heroTitle: string;
   heroDescription: string;
+  heroBackgroundUrl: string;
   services: Service[];
   galleryImages: GalleryImage[];
   contactInfo: ContactInfo;
+  footer: {
+    address: string;
+    phone: string;
+    email: string;
+    copyright: string;
+    facebook: string;
+    instagram: string;
+    twitter: string;
+    tiktok: string;
+  };
 }
 
 @Component({
@@ -56,6 +68,7 @@ export class PagesComponent implements OnInit {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
       'AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor carwash specialists offering quality services including body wash, interior vacuum, and more.',
+    heroBackgroundUrl: 'assets/homebackground.png',
     services: [
       { name: 'BASIC CAR WASH', imageUrl: 'assets/basiccarwash.png' },
       { name: 'TIRE BLACK', imageUrl: 'assets/tireblack.png' },
@@ -77,12 +90,71 @@ export class PagesComponent implements OnInit {
       phone: '09123456789',
       email: 'Example123email.com',
     },
+    footer: {
+      address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
+      phone: '09123456789',
+      email: 'info@autowashhub.com',
+      copyright:
+        'AutoWash Hub © 2025. All rights reserved. | Privacy Policy | Terms of Service',
+      facebook: '#',
+      instagram: '#',
+      twitter: '#',
+      tiktok: '#',
+    },
   };
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
-    // Load content from backend service (to be implemented)
+    if (isPlatformBrowser(this.platformId)) {
+      const raw = localStorage.getItem('landingPageContent');
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          this.content = {
+            heroTitle: parsed.heroTitle ?? this.content.heroTitle,
+            heroDescription:
+              parsed.heroDescription ?? this.content.heroDescription,
+            heroBackgroundUrl:
+              parsed.heroBackgroundUrl ?? this.content.heroBackgroundUrl,
+            services: Array.isArray(parsed.services)
+              ? parsed.services
+              : this.content.services,
+            galleryImages: Array.isArray(parsed.galleryImages)
+              ? parsed.galleryImages
+              : this.content.galleryImages,
+            contactInfo: {
+              address:
+                parsed.contactInfo?.address ?? this.content.contactInfo.address,
+              openingHours:
+                parsed.contactInfo?.openingHours ??
+                this.content.contactInfo.openingHours,
+              phone:
+                parsed.contactInfo?.phone ?? this.content.contactInfo.phone,
+              email:
+                parsed.contactInfo?.email ?? this.content.contactInfo.email,
+            },
+            footer: {
+              address: parsed.footer?.address ?? this.content.footer.address,
+              phone: parsed.footer?.phone ?? this.content.footer.phone,
+              email: parsed.footer?.email ?? this.content.footer.email,
+              copyright:
+                parsed.footer?.copyright ?? this.content.footer.copyright,
+              facebook: parsed.footer?.facebook ?? this.content.footer.facebook,
+              instagram:
+                parsed.footer?.instagram ?? this.content.footer.instagram,
+              twitter: parsed.footer?.twitter ?? this.content.footer.twitter,
+              tiktok: parsed.footer?.tiktok ?? this.content.footer.tiktok,
+            },
+          };
+        } catch {
+          // ignore malformed storage
+        }
+      }
+    }
   }
 
   addService(): void {
@@ -102,9 +174,60 @@ export class PagesComponent implements OnInit {
   }
 
   saveChanges(): void {
-    // TODO: Implement save to backend service
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('landingPageContent', JSON.stringify(this.content));
+    }
     this.snackBar.open('Changes saved successfully!', 'Close', {
       duration: 3000,
     });
+  }
+
+  onHeroBackgroundSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        this.content.heroBackgroundUrl = result;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Image upload helpers
+  onServiceImageSelected(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        this.content.services[index].imageUrl = result;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onGalleryImageSelected(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        this.content.galleryImages[index].url = result;
+      }
+    };
+    reader.readAsDataURL(file);
   }
 }

@@ -9,6 +9,29 @@
           <mat-card-title>Hero Content</mat-card-title>
         </mat-card-header>
         <mat-card-content>
+          <div style="margin-bottom: 16px">
+            <label for="heroBg">Hero Background Image</label>
+            <input
+              id="heroBg"
+              type="file"
+              accept="image/*"
+              (change)="onHeroBackgroundSelected($event)"
+            />
+            <div *ngIf="content.heroBackgroundUrl" style="margin-top: 8px">
+              <small>Preview:</small>
+              <img
+                [src]="content.heroBackgroundUrl"
+                alt="Hero background preview"
+                style="
+                  display: block;
+                  max-width: 320px;
+                  border-radius: 8px;
+                  margin-top: 4px;
+                "
+              />
+            </div>
+          </div>
+
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Hero Title</mat-label>
             <input
@@ -43,6 +66,16 @@
               *ngFor="let service of content.services; let i = index"
               class="service-item"
             >
+              <div>
+                <label for="serviceImg{{ i }}">Upload Image</label>
+                <input
+                  id="serviceImg{{ i }}"
+                  type="file"
+                  accept="image/*"
+                  (change)="onServiceImageSelected(i, $event)"
+                />
+              </div>
+
               <mat-form-field appearance="outline">
                 <mat-label>Service Name</mat-label>
                 <input
@@ -86,6 +119,16 @@
               *ngFor="let image of content.galleryImages; let i = index"
               class="gallery-item"
             >
+              <div>
+                <label for="galleryImg{{ i }}">Upload Image</label>
+                <input
+                  id="galleryImg{{ i }}"
+                  type="file"
+                  accept="image/*"
+                  (change)="onGalleryImageSelected(i, $event)"
+                />
+              </div>
+
               <mat-form-field appearance="outline">
                 <mat-label>Image URL</mat-label>
                 <input
@@ -163,6 +206,91 @@
               placeholder="Enter email"
             />
           </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Footer Section -->
+    <mat-tab label="Footer">
+      <mat-card class="content-card">
+        <mat-card-header>
+          <mat-card-title>Footer Content</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Footer Address</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.address"
+              placeholder="Enter footer address"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Footer Phone</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.phone"
+              placeholder="Enter footer phone"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Footer Email</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.email"
+              placeholder="Enter footer email"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Copyright Text</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.copyright"
+              placeholder="Enter copyright text"
+            />
+          </mat-form-field>
+
+          <div class="services-list">
+            <mat-form-field appearance="outline">
+              <mat-label>Facebook URL</mat-label>
+              <input
+                matInput
+                [(ngModel)]="content.footer.facebook"
+                placeholder="https://facebook.com/yourpage"
+                title="Facebook URL"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Instagram URL</mat-label>
+              <input
+                matInput
+                [(ngModel)]="content.footer.instagram"
+                placeholder="https://instagram.com/yourpage"
+                title="Instagram URL"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Twitter URL</mat-label>
+              <input
+                matInput
+                [(ngModel)]="content.footer.twitter"
+                placeholder="https://twitter.com/yourpage"
+                title="Twitter URL"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>TikTok URL</mat-label>
+              <input
+                matInput
+                [(ngModel)]="content.footer.tiktok"
+                placeholder="https://tiktok.com/@yourpage"
+                title="TikTok URL"
+              />
+            </mat-form-field>
+          </div>
         </mat-card-content>
       </mat-card>
     </mat-tab>
