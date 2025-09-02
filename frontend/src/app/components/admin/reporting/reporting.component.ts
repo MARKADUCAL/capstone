@@ -17,6 +17,11 @@ import {
   registerables,
 } from 'chart.js';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import {
+  ReportingService,
+  RevenuePoint,
+  ServiceDistributionItem,
+} from '../../../services/reporting.service';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -50,27 +55,39 @@ interface ServiceStats {
 })
 export class ReportingComponent implements OnInit, AfterViewInit {
   revenueData: RevenueData = {
-    daily: 1250,
-    weekly: 8750,
-    monthly: 35000,
-    yearly: 420000,
+    daily: 0,
+    weekly: 0,
+    monthly: 0,
+    yearly: 0,
   };
 
   serviceStats: ServiceStats = {
-    totalBookings: 150,
-    completedBookings: 120,
-    cancelledBookings: 10,
-    pendingBookings: 20,
+    totalBookings: 0,
+    completedBookings: 0,
+    cancelledBookings: 0,
+    pendingBookings: 0,
   };
 
   private revenueChart: Chart | undefined;
   private serviceChart: Chart | undefined;
   private bookingsChart: Chart | undefined;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  // Data from API for charts
+  private revenueLabels: string[] = [];
+  private revenueValues: number[] = [];
+  private serviceLabels: string[] = [];
+  private serviceCounts: number[] = [];
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private reportingService: ReportingService
+  ) {}
 
   ngOnInit(): void {
-    // Initialize data only
+    // Fetch live data
+    this.loadDashboardSummary();
+    this.loadRevenueAnalytics();
+    this.loadServiceDistribution();
   }
 
   ngAfterViewInit(): void {
@@ -108,6 +125,38 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private loadDashboardSummary(): void {
+    this.reportingService.getDashboardSummary().subscribe((summary) => {
+      if (!summary) return;
+      this.serviceStats.totalBookings = Number(summary.total_bookings) || 0;
+      this.serviceStats.completedBookings =
+        Number(summary.completed_bookings) || 0;
+      this.serviceStats.pendingBookings = Number(summary.pending_bookings) || 0;
+      // Cancellation not provided directly; keep as 0 for now
+      this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
+    });
+  }
+
+  private loadRevenueAnalytics(): void {
+    this.reportingService.getRevenueAnalytics().subscribe((points) => {
+      this.revenueLabels = points.map((p) => p.month);
+      this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+      if (isPlatformBrowser(this.platformId)) {
+        setTimeout(() => this.initializeRevenueChart(), 0);
+      }
+    });
+  }
+
+  private loadServiceDistribution(): void {
+    this.reportingService.getServiceDistribution().subscribe((items) => {
+      this.serviceLabels = items.map((i) => i.service_name);
+      this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
+      if (isPlatformBrowser(this.platformId)) {
+        setTimeout(() => this.initializeServiceChart(), 0);
+      }
+    });
+  }
+
   private initializeRevenueChart(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -122,11 +171,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.revenueChart = new Chart(revenueCtx, {
         type: 'line',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          labels: this.revenueLabels.length
+            ? this.revenueLabels
+            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
           datasets: [
             {
               label: 'Monthly Revenue',
-              data: [65000, 59000, 80000, 81000, 56000, 75000],
+              data: this.revenueValues.length
+                ? this.revenueValues
+                : [65000, 59000, 80000, 81000, 56000, 75000],
               fill: true,
               tension: 0.4,
               borderColor: '#1976d2',
@@ -196,15 +249,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.serviceChart = new Chart(serviceCtx, {
         type: 'pie',
         data: {
-          labels: [
-            'Basic Wash',
-            'Premium Wash',
-            'Full Service',
-            'Interior Clean',
-          ],
+          labels: this.serviceLabels.length
+            ? this.serviceLabels
+            : ['Basic Wash', 'Premium Wash', 'Full Service', 'Interior Clean'],
           datasets: [
             {
-              data: [30, 25, 25, 20],
+              data: this.serviceCounts.length
+                ? this.serviceCounts
+                : [30, 25, 25, 20],
               backgroundColor: [
                 'rgba(25, 118, 210, 0.8)',
                 'rgba(76, 175, 80, 0.8)',
