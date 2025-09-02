@@ -22,7 +22,6 @@ h1 {
 
 /* Services Section */
 .services-list,
-.locations-list,
 .gallery-list {
   display: flex;
   flex-direction: column;
@@ -31,7 +30,6 @@ h1 {
 }
 
 .service-item,
-.location-item,
 .gallery-item {
   display: flex;
   gap: 16px;
@@ -43,14 +41,12 @@ h1 {
 }
 
 .service-item mat-form-field,
-.location-item mat-form-field,
 .gallery-item mat-form-field {
   flex: 1;
 }
 
 /* Delete button positioning */
 .service-item button,
-.location-item button,
 .gallery-item button {
   position: absolute;
   top: 8px;
@@ -87,14 +83,12 @@ h1 {
   }
 
   .service-item,
-  .location-item,
   .gallery-item {
     flex-direction: column;
     padding-top: 48px; /* Space for delete button */
   }
 
   .service-item mat-form-field,
-  .location-item mat-form-field,
   .gallery-item mat-form-field {
     width: 100%;
   }
@@ -102,13 +96,11 @@ h1 {
 
 /* Animation */
 .service-item,
-.location-item,
 .gallery-item {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .service-item:hover,
-.location-item:hover,
 .gallery-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

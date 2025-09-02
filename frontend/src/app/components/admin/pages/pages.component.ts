@@ -14,12 +14,6 @@ interface Service {
   imageUrl: string;
 }
 
-interface Location {
-  name: string;
-  address: string;
-  phone: string;
-}
-
 interface ContactInfo {
   address: string;
   openingHours: string;
@@ -36,7 +30,6 @@ interface LandingPageContent {
   heroTitle: string;
   heroDescription: string;
   services: Service[];
-  locations: Location[];
   galleryImages: GalleryImage[];
   contactInfo: ContactInfo;
 }
@@ -69,28 +62,7 @@ export class PagesComponent implements OnInit {
       { name: 'BODY WAX', imageUrl: 'assets/bodywax.png' },
       { name: 'VACUUM', imageUrl: 'assets/vacuum.png' },
     ],
-    locations: [
-      {
-        name: 'Elite Auto Spa',
-        address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-        phone: '9876543210',
-      },
-      {
-        name: 'Sparkle Car Wash',
-        address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-        phone: '9876543210',
-      },
-      {
-        name: 'AquaShine Auto Spa',
-        address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-        phone: '9876543210',
-      },
-      {
-        name: 'Glide & Shine Car Wash',
-        address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-        phone: '9876543210',
-      },
-    ],
+
     galleryImages: [
       { url: 'assets/car1.png', alt: 'Car 1' },
       { url: 'assets/car2.png', alt: 'Car 2' },
@@ -119,14 +91,6 @@ export class PagesComponent implements OnInit {
 
   removeService(index: number): void {
     this.content.services.splice(index, 1);
-  }
-
-  addLocation(): void {
-    this.content.locations.push({ name: '', address: '', phone: '' });
-  }
-
-  removeLocation(index: number): void {
-    this.content.locations.splice(index, 1);
   }
 
   addGalleryImage(): void {
