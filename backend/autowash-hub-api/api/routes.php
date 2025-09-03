@@ -3,13 +3,13 @@
 // (Some free hosts flag ini_set/error_reporting as dangerous)
 
 // CORS headers - Set immediately to avoid any issues
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
+header("Access-Control-Allow-Origin: https://capstone-alpha-lac.vercel.app"); // allow your Vercel frontend
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Credentials: true");
 
-// Handle preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
@@ -30,33 +30,7 @@ require_once "./vendor/firebase/php-jwt/JWT.php";
 // Import JWT for token validation
 use Firebase\JWT\JWT;
 
-// CORS headers
-// Allow only known frontend origins (add your deployed domains below)
-$allowedOrigins = [
-    'http://localhost:4200',
-    'https://autowash-hub.vercel.app',
-    'https://markaducal.github.io',
-    'https://autowash-hub-frontend.vercel.app',
-    'https://autowash-hub-git-main-markaducal.vercel.app',
-    'https://capstone-r36r4ho9b-markaducals-projects.vercel.app',
-    // Add your GitHub Pages domain, e.g.:
-    // 'https://<your-username>.github.io',
-    // or custom domain serving the Angular app
-];
-
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-if (in_array($origin, $allowedOrigins, true)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-} else if ($origin === '') {
-    // Non-CORS request (same-origin or direct), do nothing
-} else {
-    // Temporary: Allow all origins for development (remove in production)
-    header('Access-Control-Allow-Origin: ' . $origin);
-}
-
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
+// CORS configuration is now handled at the top of the file
 
 // Get the request method and endpoint
 $method = $_SERVER['REQUEST_METHOD'];

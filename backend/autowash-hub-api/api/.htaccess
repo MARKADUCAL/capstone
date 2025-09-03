@@ -1,8 +1,20 @@
-RewriteEngine On
+# AutoWash Hub API - CORS and Routing
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "https://capstone-alpha-lac.vercel.app"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header set Access-Control-Allow-Credentials "true"
+</IfModule>
 
-# Only rewrite if the request is not a real file or directory
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Route everything to routes.php with request path
-RewriteRule ^(.*)$ routes.php?request=$1 [L,QSA]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Handle OPTIONS requests for CORS preflight
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+    
+    # Route API requests to routes.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ routes.php?request=$1 [L,QSA]
+</IfModule>
