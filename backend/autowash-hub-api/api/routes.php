@@ -3,6 +3,12 @@
 // (Some free hosts flag ini_set/error_reporting as dangerous)
 
 // CORS headers - Set immediately to avoid any issues
+// This must be the first thing we do to prevent CORS errors
+
+// Get the origin from the request
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// Define allowed origins
 $allowedOrigins = [
     'https://capstone-alpha-lac.vercel.app',
     'https://capstone-70tgpmfq9-markaducals-projects.vercel.app',
@@ -12,8 +18,11 @@ $allowedOrigins = [
     'http://127.0.0.1:3000'
 ];
 
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowedOrigins)) {
+// Check if origin is allowed (exact match or Vercel domain pattern)
+$isAllowed = in_array($origin, $allowedOrigins) || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin);
+
+// Set CORS headers
+if ($isAllowed) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
     // Default to localhost for development
@@ -24,8 +33,8 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Access-Control-Allow-Credentials: true");
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+// Handle preflight OPTIONS request immediately
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }

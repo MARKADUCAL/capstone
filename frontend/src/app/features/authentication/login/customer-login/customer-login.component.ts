@@ -52,7 +52,10 @@ export class CustomerLoginComponent implements OnInit {
       return;
     }
 
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    });
 
     // Avoid logging sensitive data like raw passwords
     console.log('Attempting login with:', {

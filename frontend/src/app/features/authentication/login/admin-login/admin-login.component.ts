@@ -48,7 +48,10 @@ export class AdminLoginComponent {
       return;
     }
 
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    });
 
     this.http
       .post(`${environment.apiUrl}/login_admin`, this.loginData, { headers })

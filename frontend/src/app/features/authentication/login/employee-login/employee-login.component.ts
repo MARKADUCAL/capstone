@@ -48,14 +48,13 @@ export class EmployeeLoginComponent {
       return;
     }
 
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    });
 
     this.http
-      .post(
-        `${environment.apiUrl}/login_employee`,
-        this.loginData,
-        { headers }
-      )
+      .post(`${environment.apiUrl}/login_employee`, this.loginData, { headers })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

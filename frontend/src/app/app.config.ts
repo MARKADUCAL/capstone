@@ -14,6 +14,6 @@ export const appConfig: ApplicationConfig = {
     typeof window !== 'undefined'
       ? provideAnimations()
       : provideNoopAnimations(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(),
   ],
 };
