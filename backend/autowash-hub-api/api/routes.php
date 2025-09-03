@@ -2,6 +2,18 @@
 // Production-safe: disable verbose error output on public hosting
 // (Some free hosts flag ini_set/error_reporting as dangerous)
 
+// CORS headers - Set immediately to avoid any issues
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 require_once "./config/env.php";
 loadEnv(__DIR__ . '/.env');
 
@@ -26,6 +38,7 @@ $allowedOrigins = [
     'https://markaducal.github.io',
     'https://autowash-hub-frontend.vercel.app',
     'https://autowash-hub-git-main-markaducal.vercel.app',
+    'https://capstone-r36r4ho9b-markaducals-projects.vercel.app',
     // Add your GitHub Pages domain, e.g.:
     // 'https://<your-username>.github.io',
     // or custom domain serving the Angular app
@@ -37,7 +50,8 @@ if (in_array($origin, $allowedOrigins, true)) {
 } else if ($origin === '') {
     // Non-CORS request (same-origin or direct), do nothing
 } else {
-    // Optionally, you can echo a small JSON error for disallowed origins in debug
+    // Temporary: Allow all origins for development (remove in production)
+    header('Access-Control-Allow-Origin: ' . $origin);
 }
 
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -70,6 +84,152 @@ if ($method === 'OPTIONS') {
 
 // Handle GET requests
 if ($method === 'GET') {
+    // Status page for root access
+    if ($request === '/' || $request === '/api/' || $request === '/api' || strpos($request, 'status') !== false) {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoWash Hub API - Status</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            margin: 20px;
+        }
+        .logo {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .status {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .info h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .info p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .endpoint {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        .endpoint strong {
+            color: #1976D2;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚗💧</div>
+        <h1>AutoWash Hub API</h1>
+        <p class="subtitle">Car Wash Management System</p>
+        
+        <div class="status">✅ API is Online and Working!</div>
+        
+        <div class="info">
+            <h3>🎉 Welcome to AutoWash Hub API</h3>
+            <p>Your API is successfully deployed and running on Hostinger. This system provides comprehensive car wash management functionality including:</p>
+            <ul>
+                <li>Customer and Employee Management</li>
+                <li>Booking and Appointment System</li>
+                <li>Inventory Management</li>
+                <li>Payment Processing</li>
+                <li>Analytics and Reporting</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h3>🔗 API Endpoints</h3>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <strong>Authentication</strong><br>
+                    POST /login_customer<br>
+                    POST /register_customer
+                </div>
+                <div class="endpoint">
+                    <strong>Bookings</strong><br>
+                    GET /get_all_bookings<br>
+                    POST /create_booking
+                </div>
+                <div class="endpoint">
+                    <strong>Inventory</strong><br>
+                    GET /get_inventory<br>
+                    POST /add_inventory_item
+                </div>
+                <div class="endpoint">
+                    <strong>Analytics</strong><br>
+                    GET /get_dashboard_summary<br>
+                    GET /get_revenue_analytics
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🚀 Deployed on Hostinger | 📅 ' . date('Y-m-d H:i:s') . ' | 🌍 Timezone: Asia/Manila</p>
+            <p>For API documentation, please refer to the API_DOCUMENTATION.md file</p>
+        </div>
+    </div>
+</body>
+</html>';
+        exit();
+    }
+    
     if (strpos($request, 'get_customer_count') !== false) {
         $result = $get->get_customer_count();
         echo json_encode($result);
