@@ -24,6 +24,8 @@ $allowedOrigins = [
     'http://localhost:4200',
     'https://autowash-hub.vercel.app',
     'https://markaducal.github.io',
+    'https://autowash-hub-frontend.vercel.app',
+    'https://autowash-hub-git-main-markaducal.vercel.app',
     // Add your GitHub Pages domain, e.g.:
     // 'https://<your-username>.github.io',
     // or custom domain serving the Angular app

@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost/autowash-hub-api/api',
+  apiUrl: 'https://brown-octopus-872555.hostingersite.com/api',
 };

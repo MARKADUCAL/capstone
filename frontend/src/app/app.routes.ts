@@ -36,9 +36,11 @@ import { CarWashBookingComponent as EmployeeCarWashBookingComponent } from './co
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
+import { ConnectionTestComponent } from './components/connection-test/connection-test.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
+  { path: 'connection-test', component: ConnectionTestComponent },
   { path: 'customer', component: CustomerLoginComponent },
   { path: 'customer-register', component: CustomerRegisterComponent },
   { path: 'admin', component: AdminLoginComponent },

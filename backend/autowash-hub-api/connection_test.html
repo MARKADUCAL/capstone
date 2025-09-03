@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoWash Hub - Connection Test</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .container {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+      }
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: #667eea;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+      }
+      .status {
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .status.loading {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .test-button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 10px;
+      }
+      .test-button:hover {
+        background: #5a6fd8;
+        transform: translateY(-2px);
+      }
+      .test-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        text-align: left;
+      }
+      .info h3 {
+        color: #333;
+        margin-top: 0;
+      }
+      .info p {
+        margin: 5px 0;
+        color: #666;
+      }
+      .timestamp {
+        font-size: 12px;
+        color: #999;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">AW</div>
+      <h1>AutoWash Hub</h1>
+      <p class="subtitle">Connection Test Dashboard</p>
+
+      <div id="status" class="status loading">Ready to test connection...</div>
+
+      <button class="test-button" onclick="testConnection()" id="testBtn">
+        Test Connection
+      </button>
+
+      <button class="test-button" onclick="testDatabase()" id="dbBtn">
+        Test Database
+      </button>
+
+      <div class="info">
+        <h3>Connection Details:</h3>
+        <p>
+          <strong>Server:</strong> sql.brown-octopus-872555.hostingersite.com
+        </p>
+        <p><strong>Database:</strong> u835265537_autowash</p>
+        <p>
+          <strong>Status:</strong> <span id="connectionStatus">Unknown</span>
+        </p>
+      </div>
+
+      <div class="timestamp" id="timestamp"></div>
+    </div>
+
+    <script>
+      function updateStatus(message, type) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.textContent = message;
+        statusDiv.className = `status ${type}`;
+      }
+
+      function updateTimestamp() {
+        const timestamp = new Date().toLocaleString();
+        document.getElementById(
+          "timestamp"
+        ).textContent = `Last updated: ${timestamp}`;
+      }
+
+      function testConnection() {
+        const btn = document.getElementById("testBtn");
+        btn.disabled = true;
+        btn.textContent = "Testing...";
+
+        updateStatus("Testing server connection...", "loading");
+
+        // Test basic connectivity
+        fetch("https://brown-octopus-872555.hostingersite.com", {
+          method: "HEAD",
+          mode: "no-cors",
+        })
+          .then(() => {
+            updateStatus("✅ Server connection successful!", "success");
+            document.getElementById("connectionStatus").textContent =
+              "Connected";
+          })
+          .catch((error) => {
+            updateStatus(
+              "❌ Server connection failed: " + error.message,
+              "error"
+            );
+            document.getElementById("connectionStatus").textContent = "Failed";
+          })
+          .finally(() => {
+            btn.disabled = false;
+            btn.textContent = "Test Connection";
+            updateTimestamp();
+          });
+      }
+
+      function testDatabase() {
+        const btn = document.getElementById("dbBtn");
+        btn.disabled = true;
+        btn.textContent = "Testing DB...";
+
+        updateStatus("Testing database connection...", "loading");
+
+        // Test database connection via PHP endpoint
+        fetch("test_connection.php", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              updateStatus("✅ Database connection successful!", "success");
+              document.getElementById("connectionStatus").textContent =
+                "Connected";
+            } else {
+              updateStatus(
+                "❌ Database connection failed: " +
+                  (data.message || "Unknown error"),
+                "error"
+              );
+              document.getElementById("connectionStatus").textContent =
+                "Failed";
+            }
+          })
+          .catch((error) => {
+            updateStatus("❌ Database test failed: " + error.message, "error");
+            document.getElementById("connectionStatus").textContent = "Failed";
+          })
+          .finally(() => {
+            btn.disabled = false;
+            btn.textContent = "Test Database";
+            updateTimestamp();
+          });
+      }
+
+      // Initialize timestamp
+      updateTimestamp();
+
+      // Auto-test connection on page load
+      window.addEventListener("load", () => {
+        setTimeout(testConnection, 1000);
+      });
+    </script>
+  </body>
+</html>

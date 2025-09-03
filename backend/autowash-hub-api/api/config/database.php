@@ -3,10 +3,10 @@ date_default_timezone_set("Asia/Manila");
 
 set_time_limit(1000);
 
-define("SERVER", "localhost");
-define("DATABASE", "db_autowashhub");
-define("USER", "root");
-define("PASSWORD", "");
+define("SERVER", "sql.brown-octopus-872555.hostingersite.com");
+define("DATABASE", "u835265537_autowash");
+define("USER", "u835265537_aducalremegioO");
+define("PASSWORD", "f3>S-A>Mt");
 define("DRIVER", "mysql");
 
 class Connection {
