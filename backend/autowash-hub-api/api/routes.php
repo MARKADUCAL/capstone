@@ -442,23 +442,40 @@ if ($method === 'GET') {
         exit();
     }
 
-    // Test connection endpoint
+    // Test connection endpoint - actually test database connection
     if (strpos($request, 'test_connection') !== false) {
-        $result = [
-            'status' => [
-                'remarks' => 'success',
-                'message' => 'Backend connection successful'
-            ],
-            'payload' => [
-                'timestamp' => date('Y-m-d H:i:s'),
-                'server_time' => time(),
-                'api_version' => '1.0.0',
-                'environment' => 'production'
-            ],
-            'prepared_by' => 'AutoWash Hub API',
-            'timestamp' => date('Y-m-d H:i:s')
-        ];
-        echo json_encode($result);
+        try {
+            // Test database connection
+            $connection = new Connection();
+            $pdo = $connection->connect();
+            
+            // Test if we can actually query the database
+            $stmt = $pdo->query("SELECT 1 as test");
+            $result = $stmt->fetch();
+            
+            if ($result && $result['test'] == 1) {
+                $response = [
+                    'success' => true,
+                    'message' => 'Database connection successful',
+                    'timestamp' => date('Y-m-d H:i:s'),
+                    'server_info' => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
+                ];
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'Database query test failed'
+                ];
+            }
+            
+        } catch (Exception $e) {
+            $response = [
+                'success' => false,
+                'message' => 'Connection failed: ' . $e->getMessage(),
+                'timestamp' => date('Y-m-d H:i:s')
+            ];
+        }
+        
+        echo json_encode($response);
         exit();
     }
 }

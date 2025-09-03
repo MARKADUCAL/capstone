@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 ob_clean();
 
 try {
-    require_once '../config/database.php';
+    require_once 'config/database.php';
     
     $connection = new Connection();
     $pdo = $connection->connect();

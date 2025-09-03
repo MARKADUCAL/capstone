@@ -21,7 +21,7 @@ class Connection {
         try {
             return new \PDO($this->connectionString, USER, PASSWORD, $this->options);
         } catch (\PDOException $e) {
-            die("Connection failed: " . $e->getMessage());
+            throw new \PDOException("Connection failed: " . $e->getMessage());
         }
     }
 }
