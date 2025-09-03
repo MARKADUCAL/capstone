@@ -3,7 +3,22 @@
 // (Some free hosts flag ini_set/error_reporting as dangerous)
 
 // CORS headers - Set immediately to avoid any issues
-header("Access-Control-Allow-Origin: https://capstone-alpha-lac.vercel.app"); // allow your Vercel frontend
+$allowedOrigins = [
+    'https://capstone-alpha-lac.vercel.app',
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    // Default to localhost for development
+    header("Access-Control-Allow-Origin: http://localhost:4200");
+}
+
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Access-Control-Allow-Credentials: true");
@@ -423,6 +438,26 @@ if ($method === 'GET') {
             http_response_code(400);
             echo json_encode(['message' => 'Employee ID is required.']);
         }
+        exit();
+    }
+
+    // Test connection endpoint
+    if (strpos($request, 'test_connection') !== false) {
+        $result = [
+            'status' => [
+                'remarks' => 'success',
+                'message' => 'Backend connection successful'
+            ],
+            'payload' => [
+                'timestamp' => date('Y-m-d H:i:s'),
+                'server_time' => time(),
+                'api_version' => '1.0.0',
+                'environment' => 'production'
+            ],
+            'prepared_by' => 'AutoWash Hub API',
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        echo json_encode($result);
         exit();
     }
 }
