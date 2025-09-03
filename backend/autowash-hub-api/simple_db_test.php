@@ -1,106 +1,78 @@
 <?php
 // Simple Database Connection Test
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Database configuration
-$host = "sql.brown-octopus-872555.hostingersite.com";
-$dbname = "u835265537_autowash";
-$username = "u835265537_aducalremegioO";
-$password = "f3>S-A>Mt";
+echo "<h2>Simple Database Connection Test</h2>";
+echo "<style>body{font-family:Arial,sans-serif;margin:20px;} .success{color:green;} .error{color:red;} .info{color:blue;}</style>";
 
-$response = [
-    'timestamp' => date('Y-m-d H:i:s'),
-    'tests' => []
-];
-
-// Test 1: Basic connectivity
-$response['tests']['server_connectivity'] = [
-    'test' => 'Server Connectivity',
-    'status' => 'testing'
-];
-
-$connection = @fsockopen($host, 3306, $errno, $errstr, 5);
-if ($connection) {
-    $response['tests']['server_connectivity']['status'] = 'success';
-    $response['tests']['server_connectivity']['message'] = 'Server is reachable';
-    fclose($connection);
-} else {
-    $response['tests']['server_connectivity']['status'] = 'error';
-    $response['tests']['server_connectivity']['message'] = "Cannot connect: $errstr ($errno)";
-}
-
-// Test 2: DNS Resolution
-$ip = gethostbyname($host);
-if ($ip === $host) {
-    $response['tests']['dns_resolution'] = [
-        'test' => 'DNS Resolution',
-        'status' => 'error',
-        'message' => 'DNS resolution failed'
-    ];
-} else {
-    $response['tests']['dns_resolution'] = [
-        'test' => 'DNS Resolution',
-        'status' => 'success',
-        'message' => "Resolved to: $ip"
-    ];
-}
-
-// Test 3: Database Connection
 try {
-    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-    $options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_TIMEOUT => 10,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
-    ];
+    require_once './api/config/database.php';
     
-    $pdo = new PDO($dsn, $username, $password, $options);
+    echo "<p class='info'>Testing connection to:</p>";
+    echo "<ul>";
+    echo "<li>Server: " . SERVER . " (localhost for shared hosting)</li>";
+    echo "<li>Database: " . DATABASE . "</li>";
+    echo "<li>User: " . USER . "</li>";
+    echo "</ul>";
     
-    $response['tests']['database_connection'] = [
-        'test' => 'Database Connection',
-        'status' => 'success',
-        'message' => 'Connected successfully'
-    ];
+    $connection = new Connection();
+    $pdo = $connection->connect();
     
-    // Test query
-    $stmt = $pdo->query("SELECT 1 as test, NOW() as server_time");
+    echo "<p class='success'>✅ Database connection successful!</p>";
+    
+    // Test a simple query
+    $stmt = $pdo->query("SELECT 1 as test, NOW() as current_time");
     $result = $stmt->fetch();
     
-    $response['tests']['database_query'] = [
-        'test' => 'Database Query',
-        'status' => 'success',
-        'message' => 'Query executed successfully',
-        'data' => $result
-    ];
+    echo "<p class='success'>✅ Database query successful!</p>";
+    echo "<p>Test result: " . $result['test'] . "</p>";
+    echo "<p>Server time: " . $result['current_time'] . "</p>";
+    
+    // Get server info
+    $stmt = $pdo->query("SELECT VERSION() as version");
+    $version = $stmt->fetch();
+    echo "<p>MySQL version: " . $version['version'] . "</p>";
     
 } catch (Exception $e) {
-    $response['tests']['database_connection'] = [
-        'test' => 'Database Connection',
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ];
-}
-
-// Overall status
-$has_errors = false;
-foreach ($response['tests'] as $test) {
-    if ($test['status'] === 'error') {
-        $has_errors = true;
-        break;
+    echo "<p class='error'>❌ Database connection failed: " . $e->getMessage() . "</p>";
+    
+    // Provide specific error guidance
+    $error = $e->getMessage();
+    if (strpos($error, 'Connection timed out') !== false) {
+        echo "<div class='error'>";
+        echo "<h4>Connection Timeout Solutions:</h4>";
+        echo "<ul>";
+        echo "<li>Check if the database server is running</li>";
+        echo "<li>Verify the server address is correct</li>";
+        echo "<li>Check if port 3306 is open</li>";
+        echo "<li>Contact your hosting provider</li>";
+        echo "</ul>";
+        echo "</div>";
+    } elseif (strpos($error, 'Access denied') !== false) {
+        echo "<div class='error'>";
+        echo "<h4>Access Denied Solutions:</h4>";
+        echo "<ul>";
+        echo "<li>Check username and password</li>";
+        echo "<li>Verify database name is correct</li>";
+        echo "<li>Check user permissions</li>";
+        echo "</ul>";
+        echo "</div>";
+    } elseif (strpos($error, 'Unknown database') !== false) {
+        echo "<div class='error'>";
+        echo "<h4>Database Not Found Solutions:</h4>";
+        echo "<ul>";
+        echo "<li>Verify the database name is correct</li>";
+        echo "<li>Check if the database exists in your hosting panel</li>";
+        echo "<li>Create the database if it doesn't exist</li>";
+        echo "</ul>";
+        echo "</div>";
     }
 }
-
-$response['overall_status'] = $has_errors ? 'error' : 'success';
-$response['summary'] = $has_errors ? 'Some tests failed' : 'All tests passed';
-
-echo json_encode($response, JSON_PRETTY_PRINT);
 ?>
-

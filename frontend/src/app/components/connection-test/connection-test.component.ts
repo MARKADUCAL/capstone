@@ -185,7 +185,7 @@ export class ConnectionTestComponent implements OnInit {
     );
 
     // Test database connection via the test endpoint we created
-    this.http.get(`${this.apiUrl}/../test_connection.php`).subscribe({
+    this.http.get(`${this.apiUrl}/test_connection.php`).subscribe({
       next: (response: any) => {
         if (response.success) {
           this.addResult(

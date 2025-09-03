@@ -5,6 +5,7 @@
 // CORS headers - Set immediately to avoid any issues
 $allowedOrigins = [
     'https://capstone-alpha-lac.vercel.app',
+    'https://capstone-70tgpmfq9-markaducals-projects.vercel.app',
     'http://localhost:4200',
     'http://127.0.0.1:4200',
     'http://localhost:3000',

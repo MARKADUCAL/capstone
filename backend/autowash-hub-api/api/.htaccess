@@ -1,6 +1,11 @@
 # AutoWash Hub API - CORS and Routing
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "https://capstone-alpha-lac.vercel.app"
+    # Allow multiple origins for CORS
+    SetEnvIf Origin "https://capstone-alpha-lac\.vercel\.app$" AccessControlAllowOrigin=$0
+    SetEnvIf Origin "https://capstone-70tgpmfq9-markaducals-projects\.vercel\.app$" AccessControlAllowOrigin=$0
+    SetEnvIf Origin "http://localhost:4200$" AccessControlAllowOrigin=$0
+    SetEnvIf Origin "http://127\.0\.0\.1:4200$" AccessControlAllowOrigin=$0
+    Header always set Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
     Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
     Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
     Header set Access-Control-Allow-Credentials "true"
