@@ -3095,5 +3095,213 @@ class Post extends GlobalMethods
         }
     }
 
+    /**
+     * Request password reset for customer
+     */
+    public function request_password_reset_customer($data) {
+        if (empty($data->email)) {
+            return $this->sendPayload(null, "failed", "Email is required", 400);
+        }
+
+        try {
+            // Check if customer exists
+            $sql = "SELECT id, email, first_name, last_name FROM customers WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $customer = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$customer) {
+                // For security, don't reveal if email exists or not
+                return $this->sendPayload(null, "success", "If the email exists, a password reset link has been sent", 200);
+            }
+
+            // Generate reset token
+            $resetToken = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token expires in 1 hour
+
+            // Store reset token in database
+            $sql = "INSERT INTO password_reset_tokens (email, token, expires_at, user_type) VALUES (?, ?, ?, 'customer') 
+                    ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email, $resetToken, $expiresAt]);
+
+            // In a real application, you would send an email here
+            // For now, we'll return the token in the response for testing
+            // TODO: Implement email sending functionality
+            
+            return $this->sendPayload([
+                'reset_token' => $resetToken, // Remove this in production
+                'expires_at' => $expiresAt,
+                'customer_name' => $customer['first_name'] . ' ' . $customer['last_name']
+            ], "success", "Password reset link has been sent to your email", 200);
+
+        } catch (\PDOException $e) {
+            error_log("Password reset request error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "An error occurred while processing your request", 500);
+        }
+    }
+
+    /**
+     * Request password reset for admin
+     */
+    public function request_password_reset_admin($data) {
+        if (empty($data->email)) {
+            return $this->sendPayload(null, "failed", "Email is required", 400);
+        }
+
+        try {
+            // Check if admin exists
+            $sql = "SELECT id, email, first_name, last_name FROM admins WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $admin = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$admin) {
+                // For security, don't reveal if email exists or not
+                return $this->sendPayload(null, "success", "If the email exists, a password reset link has been sent", 200);
+            }
+
+            // Generate reset token
+            $resetToken = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token expires in 1 hour
+
+            // Store reset token in database
+            $sql = "INSERT INTO password_reset_tokens (email, token, expires_at, user_type) VALUES (?, ?, ?, 'admin') 
+                    ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email, $resetToken, $expiresAt]);
+
+            // In a real application, you would send an email here
+            // For now, we'll return the token in the response for testing
+            // TODO: Implement email sending functionality
+            
+            return $this->sendPayload([
+                'reset_token' => $resetToken, // Remove this in production
+                'expires_at' => $expiresAt,
+                'admin_name' => $admin['first_name'] . ' ' . $admin['last_name']
+            ], "success", "Password reset link has been sent to your email", 200);
+
+        } catch (\PDOException $e) {
+            error_log("Password reset request error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "An error occurred while processing your request", 500);
+        }
+    }
+
+    /**
+     * Request password reset for employee
+     */
+    public function request_password_reset_employee($data) {
+        if (empty($data->email)) {
+            return $this->sendPayload(null, "failed", "Email is required", 400);
+        }
+
+        try {
+            // Check if employee exists
+            $sql = "SELECT id, email, first_name, last_name FROM employees WHERE email = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email]);
+            $employee = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$employee) {
+                // For security, don't reveal if email exists or not
+                return $this->sendPayload(null, "success", "If the email exists, a password reset link has been sent", 200);
+            }
+
+            // Generate reset token
+            $resetToken = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token expires in 1 hour
+
+            // Store reset token in database
+            $sql = "INSERT INTO password_reset_tokens (email, token, expires_at, user_type) VALUES (?, ?, ?, 'employee') 
+                    ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->email, $resetToken, $expiresAt]);
+
+            // In a real application, you would send an email here
+            // For now, we'll return the token in the response for testing
+            // TODO: Implement email sending functionality
+            
+            return $this->sendPayload([
+                'reset_token' => $resetToken, // Remove this in production
+                'expires_at' => $expiresAt,
+                'employee_name' => $employee['first_name'] . ' ' . $employee['last_name']
+            ], "success", "Password reset link has been sent to your email", 200);
+
+        } catch (\PDOException $e) {
+            error_log("Password reset request error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "An error occurred while processing your request", 500);
+        }
+    }
+
+    /**
+     * Reset password using token
+     */
+    public function reset_password($data) {
+        if (empty($data->token) || empty($data->new_password)) {
+            return $this->sendPayload(null, "failed", "Token and new password are required", 400);
+        }
+
+        if (strlen($data->new_password) < 6) {
+            return $this->sendPayload(null, "failed", "Password must be at least 6 characters long", 400);
+        }
+
+        try {
+            // Verify token
+            $sql = "SELECT email, user_type, expires_at FROM password_reset_tokens WHERE token = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->token]);
+            $tokenData = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$tokenData) {
+                return $this->sendPayload(null, "failed", "Invalid or expired reset token", 400);
+            }
+
+            // Check if token is expired
+            if (strtotime($tokenData['expires_at']) < time()) {
+                // Clean up expired token
+                $deleteSql = "DELETE FROM password_reset_tokens WHERE token = ?";
+                $deleteStmt = $this->pdo->prepare($deleteSql);
+                $deleteStmt->execute([$data->token]);
+                
+                return $this->sendPayload(null, "failed", "Reset token has expired", 400);
+            }
+
+            $email = $tokenData['email'];
+            $userType = $tokenData['user_type'];
+            $hashedPassword = password_hash($data->new_password, PASSWORD_BCRYPT);
+
+            // Update password based on user type
+            $tableMap = [
+                'customer' => 'customers',
+                'admin' => 'admins',
+                'employee' => 'employees'
+            ];
+
+            if (!isset($tableMap[$userType])) {
+                return $this->sendPayload(null, "failed", "Invalid user type", 400);
+            }
+
+            $table = $tableMap[$userType];
+            $updateSql = "UPDATE {$table} SET password = ? WHERE email = ?";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([$hashedPassword, $email]);
+
+            if ($updateStmt->rowCount() > 0) {
+                // Delete the used token
+                $deleteSql = "DELETE FROM password_reset_tokens WHERE token = ?";
+                $deleteStmt = $this->pdo->prepare($deleteSql);
+                $deleteStmt->execute([$data->token]);
+
+                return $this->sendPayload(null, "success", "Password has been reset successfully", 200);
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to update password", 400);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Password reset error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "An error occurred while resetting your password", 500);
+        }
+    }
+
 }
 

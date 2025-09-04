@@ -530,6 +530,31 @@ if ($method === 'POST') {
         exit();
     }
     
+    // Forgot password routes
+    if (strpos($request, 'request_password_reset_customer') !== false) {
+        $result = $post->request_password_reset_customer($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'request_password_reset_admin') !== false) {
+        $result = $post->request_password_reset_admin($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'request_password_reset_employee') !== false) {
+        $result = $post->request_password_reset_employee($data);
+        echo json_encode($result);
+        exit();
+    }
+    
+    if (strpos($request, 'reset_password') !== false) {
+        $result = $post->reset_password($data);
+        echo json_encode($result);
+        exit();
+    }
+    
 
 
     if (strpos($request, 'create_booking') !== false) {
