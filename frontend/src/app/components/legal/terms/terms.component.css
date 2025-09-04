@@ -1,0 +1,18 @@
+.legal-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.legal-container h1 {
+  margin-bottom: 16px;
+}
+
+.legal-container h2 {
+  margin-top: 24px;
+}
+
+.legal-container p {
+  line-height: 1.6;
+}

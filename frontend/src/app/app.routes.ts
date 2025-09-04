@@ -40,6 +40,8 @@ import { CustomerRecordsComponent } from './components/employee/customer-records
 import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
 import { ConnectionTestComponent } from './components/connection-test/connection-test.component';
+import { TermsComponent } from './components/legal/terms/terms.component';
+import { PrivacyComponent } from './components/legal/privacy/privacy.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -59,6 +61,10 @@ export const routes: Routes = [
     path: 'customer-forgot-password',
     component: CustomerForgotPasswordComponent,
   },
+
+  // Legal pages
+  { path: 'terms', component: TermsComponent },
+  { path: 'privacy', component: PrivacyComponent },
   { path: 'admin-forgot-password', component: AdminForgotPasswordComponent },
   {
     path: 'employee-forgot-password',
