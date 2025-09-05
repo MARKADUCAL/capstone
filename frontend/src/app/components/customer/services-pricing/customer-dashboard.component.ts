@@ -164,11 +164,19 @@ export class ServicesPricingComponent implements OnInit {
     );
   }
 
-  formatPrice(price: number): string {
-    if (price === null || price === undefined || price <= 0) {
+  formatPrice(price: any): string {
+    if (price === null || price === undefined) {
       return 'Price not set';
     }
-    return `₱${price.toFixed(2)}`;
+
+    // Convert to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+    if (isNaN(numericPrice) || numericPrice <= 0) {
+      return 'Price not set';
+    }
+
+    return `₱${numericPrice.toFixed(2)}`;
   }
 
   getServicePackageDescription(code: string): string {
@@ -186,6 +194,13 @@ export class ServicesPricingComponent implements OnInit {
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
     const price = this.pricingMatrix[vehicleType]?.[servicePackage];
-    return typeof price === 'number' && price > 0;
+    if (price === null || price === undefined) {
+      return false;
+    }
+
+    // Convert to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+    return !isNaN(numericPrice) && numericPrice > 0;
   }
 }
