@@ -155,13 +155,6 @@ export class ServicesPricingComponent implements OnInit {
     this.router.navigate(['/customer']);
   }
 
-  // Logout method for customers
-  logout(): void {
-    localStorage.removeItem('customer_data');
-    localStorage.removeItem('auth_token');
-    this.router.navigate(['/customer']);
-  }
-
   // Check if customer is properly authenticated
   isAuthenticated(): boolean {
     return !!(
@@ -169,14 +162,6 @@ export class ServicesPricingComponent implements OnInit {
       this.customerName &&
       this.customerName !== 'Customer'
     );
-  }
-
-  // Refresh customer data and reload everything
-  refreshCustomerData(): void {
-    this.loadCustomerData();
-    if (this.isAuthenticated()) {
-      this.loadPricingData();
-    }
   }
 
   formatPrice(price: number): string {
@@ -201,6 +186,6 @@ export class ServicesPricingComponent implements OnInit {
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
     const price = this.pricingMatrix[vehicleType]?.[servicePackage];
-    return price && price > 0;
+    return typeof price === 'number' && price > 0;
   }
 }

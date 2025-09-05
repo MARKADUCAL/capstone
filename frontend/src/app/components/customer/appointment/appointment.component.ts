@@ -54,7 +54,6 @@ export class AppointmentComponent implements OnInit {
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
-  availableSlots = 12;
   isBrowser: boolean;
 
   // User information

@@ -3,19 +3,6 @@
   <div class="welcome-section">
     <div class="welcome-header">
       <h1 class="welcome-title">Welcome, {{ customerName || "Customer" }}</h1>
-      <div class="welcome-actions">
-        <button
-          class="btn-refresh"
-          (click)="refreshCustomerData()"
-          *ngIf="isAuthenticated()"
-          title="Refresh Data"
-        >
-          <i class="fas fa-sync-alt"></i>
-        </button>
-        <button class="btn-logout" (click)="logout()" *ngIf="isAuthenticated()">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-      </div>
     </div>
     <p class="welcome-description">
       View our comprehensive car wash service pricing based on your vehicle type
@@ -116,7 +103,11 @@
                 </td>
                 <td *ngFor="let package of servicePackages" class="price-cell">
                   <div class="price-amount">
-                    {{ formatPrice(pricingMatrix[vehicle.code]?.[package.code] || 0) }}
+                    {{
+                      formatPrice(
+                        pricingMatrix[vehicle.code][package.code] || 0
+                      )
+                    }}
                   </div>
                   <button
                     class="btn-book-service"
