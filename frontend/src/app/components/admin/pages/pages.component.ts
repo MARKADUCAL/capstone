@@ -174,15 +174,24 @@ export class PagesComponent implements OnInit {
   testRouting(): void {
     this.landingPageService.testRouting().subscribe({
       next: (response: ApiResponse<any> | null) => {
-        if (response && response.status && response.status.remarks === 'success') {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
           this.snackBar.open('Routing test successful!', 'Close', {
             duration: 3000,
           });
           console.log('Routing test response:', response);
         } else {
-          this.snackBar.open('Routing test failed: ' + (response?.status?.message || 'No response'), 'Close', {
-            duration: 5000,
-          });
+          this.snackBar.open(
+            'Routing test failed: ' +
+              (response?.status?.message || 'No response'),
+            'Close',
+            {
+              duration: 5000,
+            }
+          );
         }
       },
       error: (error: any) => {
