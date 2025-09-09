@@ -3306,33 +3306,61 @@ class Post extends GlobalMethods
     // Landing Page Content Management Methods
     public function update_landing_page_content($data) {
         try {
-            if (!isset($data['section_name']) || !isset($data['content_data'])) {
-                return $this->sendPayload(null, "failed", "Missing required fields: section_name and content_data", 400);
-            }
+            // Handle the frontend format where the entire content object is sent
+            $sections = [
+                'hero' => [
+                    'title' => $data['hero']['title'] ?? '',
+                    'description' => $data['hero']['description'] ?? '',
+                    'background_url' => $data['hero']['background_url'] ?? ''
+                ],
+                'services' => $data['services'] ?? [],
+                'gallery' => $data['gallery'] ?? [],
+                'contact_info' => [
+                    'address' => $data['contact_info']['address'] ?? '',
+                    'opening_hours' => $data['contact_info']['opening_hours'] ?? '',
+                    'phone' => $data['contact_info']['phone'] ?? '',
+                    'email' => $data['contact_info']['email'] ?? ''
+                ],
+                'footer' => [
+                    'address' => $data['footer']['address'] ?? '',
+                    'phone' => $data['footer']['phone'] ?? '',
+                    'email' => $data['footer']['email'] ?? '',
+                    'copyright' => $data['footer']['copyright'] ?? '',
+                    'facebook' => $data['footer']['facebook'] ?? '',
+                    'instagram' => $data['footer']['instagram'] ?? '',
+                    'twitter' => $data['footer']['twitter'] ?? '',
+                    'tiktok' => $data['footer']['tiktok'] ?? ''
+                ]
+            ];
 
-            $section_name = $data['section_name'];
-            $content_data = json_encode($data['content_data']);
+            $updated_sections = [];
+            
+            foreach ($sections as $section_name => $content_data) {
+                $json_content = json_encode($content_data);
+                
+                // Check if section exists
+                $check_sql = "SELECT id FROM landing_page_content WHERE section_name = ?";
+                $check_stmt = $this->pdo->prepare($check_sql);
+                $check_stmt->execute([$section_name]);
+                $existing = $check_stmt->fetch();
 
-            // Check if section exists
-            $check_sql = "SELECT id FROM landing_page_content WHERE section_name = ?";
-            $check_stmt = $this->pdo->prepare($check_sql);
-            $check_stmt->execute([$section_name]);
-            $existing = $check_stmt->fetch();
-
-            if ($existing) {
-                // Update existing section
-                $sql = "UPDATE landing_page_content SET content_data = ?, updated_at = CURRENT_TIMESTAMP WHERE section_name = ?";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([$content_data, $section_name]);
-            } else {
-                // Insert new section
-                $sql = "INSERT INTO landing_page_content (section_name, content_data) VALUES (?, ?)";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([$section_name, $content_data]);
+                if ($existing) {
+                    // Update existing section
+                    $sql = "UPDATE landing_page_content SET content_data = ?, updated_at = CURRENT_TIMESTAMP WHERE section_name = ?";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute([$json_content, $section_name]);
+                } else {
+                    // Insert new section
+                    $sql = "INSERT INTO landing_page_content (section_name, content_data) VALUES (?, ?)";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute([$section_name, $json_content]);
+                }
+                
+                $updated_sections[] = $section_name;
             }
 
             return $this->sendPayload(
-                ['section_name' => $section_name, 'updated' => true],
+                ['updated_sections' => $updated_sections, 'total_updated' => count($updated_sections)],
                 "success",
                 "Landing page content updated successfully",
                 200

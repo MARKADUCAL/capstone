@@ -78,6 +78,10 @@ export class LandingPageService {
   updateLandingPageContent(
     content: LandingPageContent
   ): Observable<ApiResponse<any> | null> {
+    console.log('API URL:', `${this.apiUrl}/update_landing_page_content`);
+    console.log('Request headers:', this.getHeaders());
+    console.log('Request body:', content);
+
     return this.http.post<ApiResponse<any> | null>(
       `${this.apiUrl}/update_landing_page_content`,
       content,

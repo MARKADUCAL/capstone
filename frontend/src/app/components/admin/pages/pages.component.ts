@@ -176,6 +176,8 @@ export class PagesComponent implements OnInit {
       this.content
     );
 
+    console.log('Sending data to backend:', backendContent);
+
     this.landingPageService.updateLandingPageContent(backendContent).subscribe({
       next: (response: ApiResponse<any> | null) => {
         if (

@@ -490,7 +490,9 @@ if ($method === 'GET') {
 
     // Landing page content endpoints
     if (strpos($request, 'landing_page_content') !== false) {
+        error_log("Landing page content GET request");
         $result = $get->get_landing_page_content();
+        error_log("Landing page content GET result: " . json_encode($result));
         echo json_encode($result);
         exit();
     }
@@ -886,7 +888,10 @@ if ($method === 'PUT') {
 
     // Landing page content update endpoints
     if (strpos($request, 'update_landing_page_content') !== false) {
+        // Log the incoming data for debugging
+        error_log("Landing page content update request: " . json_encode($data));
         $result = $post->update_landing_page_content($data);
+        error_log("Landing page content update result: " . json_encode($result));
         echo json_encode($result);
         exit();
     }
