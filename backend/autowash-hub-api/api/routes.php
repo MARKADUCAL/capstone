@@ -66,6 +66,11 @@ if (isset($_GET['request'])) {
     $request = '/' . $_GET['request'];
 }
 
+// Debug: Log the request details
+error_log("Request Method: " . $method);
+error_log("Request URI: " . $request);
+error_log("GET request param: " . (isset($_GET['request']) ? $_GET['request'] : 'not set'));
+
 // Create database connection
 $connection = new Connection();
 $pdo = $connection->connect();
@@ -488,11 +493,30 @@ if ($method === 'GET') {
         exit();
     }
 
+    // Test endpoint for routing
+    if (strpos($request, 'test_landing_page_routing') !== false) {
+        echo json_encode([
+            'status' => ['remarks' => 'success', 'message' => 'Routing is working'],
+            'payload' => [
+                'request_uri' => $request,
+                'request_param' => isset($_GET['request']) ? $_GET['request'] : 'not set',
+                'method' => $method
+            ]
+        ]);
+        exit();
+    }
+
     // Landing page content endpoints
-    if (strpos($request, 'landing_page_content') !== false) {
-        error_log("Landing page content GET request");
+    if (strpos($request, 'landing_page_content') !== false && !strpos($request, 'update_landing_page_content')) {
+        error_log("=== LANDING PAGE GET REQUEST ===");
+        error_log("Request URI: " . $request);
+        error_log("Request param: " . (isset($_GET['request']) ? $_GET['request'] : 'not set'));
+        
         $result = $get->get_landing_page_content();
-        error_log("Landing page content GET result: " . json_encode($result));
+        
+        error_log("GET result: " . json_encode($result));
+        error_log("=== END LANDING PAGE GET ===");
+        
         echo json_encode($result);
         exit();
     }
@@ -888,10 +912,16 @@ if ($method === 'PUT') {
 
     // Landing page content update endpoints
     if (strpos($request, 'update_landing_page_content') !== false) {
-        // Log the incoming data for debugging
-        error_log("Landing page content update request: " . json_encode($data));
+        error_log("=== LANDING PAGE UPDATE REQUEST ===");
+        error_log("Request URI: " . $request);
+        error_log("Request param: " . (isset($_GET['request']) ? $_GET['request'] : 'not set'));
+        error_log("Incoming data: " . json_encode($data));
+        
         $result = $post->update_landing_page_content($data);
-        error_log("Landing page content update result: " . json_encode($result));
+        
+        error_log("Update result: " . json_encode($result));
+        error_log("=== END LANDING PAGE UPDATE ===");
+        
         echo json_encode($result);
         exit();
     }

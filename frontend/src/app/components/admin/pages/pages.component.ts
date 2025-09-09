@@ -171,6 +171,29 @@ export class PagesComponent implements OnInit {
     this.content.galleryImages.splice(index, 1);
   }
 
+  testRouting(): void {
+    this.landingPageService.testRouting().subscribe({
+      next: (response: ApiResponse<any> | null) => {
+        if (response && response.status && response.status.remarks === 'success') {
+          this.snackBar.open('Routing test successful!', 'Close', {
+            duration: 3000,
+          });
+          console.log('Routing test response:', response);
+        } else {
+          this.snackBar.open('Routing test failed: ' + (response?.status?.message || 'No response'), 'Close', {
+            duration: 5000,
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error('Routing test error:', error);
+        this.snackBar.open('Routing test error: ' + error.message, 'Close', {
+          duration: 5000,
+        });
+      },
+    });
+  }
+
   saveChanges(): void {
     const backendContent = this.landingPageService.convertToBackendFormat(
       this.content

@@ -101,6 +101,15 @@ export class LandingPageService {
     );
   }
 
+  // Test routing endpoint
+  testRouting(): Observable<ApiResponse<any>> {
+    console.log('Testing routing with URL:', `${this.apiUrl}/test_landing_page_routing`);
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiUrl}/test_landing_page_routing`,
+      { headers: this.getHeaders() }
+    );
+  }
+
   // Helper method to convert frontend format to backend format
   convertToBackendFormat(frontendContent: any): LandingPageContent {
     return {
