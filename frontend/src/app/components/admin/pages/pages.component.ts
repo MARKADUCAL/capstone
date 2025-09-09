@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { LandingPageService } from '../../services/landing-page.service';
+import { LandingPageService, ApiResponse, LandingPageContent } from '../../../services/landing-page.service';
 
 interface Service {
   name: string;
@@ -28,7 +28,7 @@ interface GalleryImage {
   alt: string;
 }
 
-interface LandingPageContent {
+interface FrontendLandingPageContent {
   heroTitle: string;
   heroDescription: string;
   heroBackgroundUrl: string;
@@ -65,7 +65,7 @@ interface LandingPageContent {
   styleUrl: './pages.component.css',
 })
 export class PagesComponent implements OnInit {
-  content: LandingPageContent = {
+  content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
       'AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor carwash specialists offering quality services including body wash, interior vacuum, and more.',
@@ -116,7 +116,7 @@ export class PagesComponent implements OnInit {
 
   loadLandingPageContent(): void {
     this.landingPageService.getLandingPageContent().subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<LandingPageContent>) => {
         if (response.status.remarks === 'success' && response.payload) {
           const backendContent = response.payload;
           this.content =
@@ -129,7 +129,7 @@ export class PagesComponent implements OnInit {
           // Keep default content if loading fails
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading landing page content:', error);
         this.snackBar.open('Failed to load landing page content', 'Close', {
           duration: 3000,
@@ -161,7 +161,7 @@ export class PagesComponent implements OnInit {
     );
 
     this.landingPageService.updateLandingPageContent(backendContent).subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<any>) => {
         if (response.status.remarks === 'success') {
           this.snackBar.open('Changes saved successfully!', 'Close', {
             duration: 3000,
@@ -176,7 +176,7 @@ export class PagesComponent implements OnInit {
           );
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error saving landing page content:', error);
         this.snackBar.open(
           'Failed to save changes. Please try again.',

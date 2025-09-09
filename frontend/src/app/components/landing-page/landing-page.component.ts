@@ -10,7 +10,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
-import { LandingPageService } from '../../services/landing-page.service';
+import { LandingPageService, ApiResponse, LandingPageContent } from '../../services/landing-page.service';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
 type ContactInfo = {
@@ -19,7 +19,7 @@ type ContactInfo = {
   phone: string;
   email: string;
 };
-type LandingPageContent = {
+type FrontendLandingPageContent = {
   heroTitle: string;
   heroDescription: string;
   heroBackgroundUrl: string;
@@ -72,7 +72,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   ) {}
 
   // Dynamic content (editable via admin pages)
-  content: LandingPageContent = {
+  content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
       'AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor carwash specialists offering quality services including body wash, interior vacuum, and more.',
@@ -116,7 +116,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   loadLandingPageContent() {
     this.landingPageService.getLandingPageContent().subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<LandingPageContent>) => {
         if (response.status.remarks === 'success' && response.payload) {
           const backendContent = response.payload;
           this.content =
@@ -129,7 +129,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           // Keep default content if loading fails
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading landing page content:', error);
         // Keep default content if loading fails
       },
