@@ -303,7 +303,15 @@
       (click)="testRouting()"
       style="margin-right: 10px"
     >
-      <mat-icon>wifi</mat-icon> Test Connection
+      <mat-icon>wifi</mat-icon> Test GET
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      (click)="testPostRouting()"
+      style="margin-right: 10px"
+    >
+      <mat-icon>send</mat-icon> Test POST
     </button>
     <button mat-raised-button color="primary" (click)="saveChanges()">
       <mat-icon>save</mat-icon> Save Changes

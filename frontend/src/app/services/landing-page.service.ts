@@ -78,15 +78,17 @@ export class LandingPageService {
   updateLandingPageContent(
     content: LandingPageContent
   ): Observable<ApiResponse<any> | null> {
-    console.log('API URL:', `${this.apiUrl}/update_landing_page_content`);
-    console.log('Request headers:', this.getHeaders());
-    console.log('Request body:', content);
+    const url = `${this.apiUrl}/update_landing_page_content`;
+    const headers = this.getHeaders();
 
-    return this.http.post<ApiResponse<any> | null>(
-      `${this.apiUrl}/update_landing_page_content`,
-      content,
-      { headers: this.getHeaders() }
-    );
+    console.log('=== HTTP POST REQUEST ===');
+    console.log('URL:', url);
+    console.log('Headers:', headers);
+    console.log('Body:', content);
+    console.log('Body type:', typeof content);
+    console.log('Body stringified:', JSON.stringify(content));
+
+    return this.http.post<ApiResponse<any> | null>(url, content, { headers });
   }
 
   // Update specific section
@@ -109,6 +111,22 @@ export class LandingPageService {
     );
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/test_landing_page_routing`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Test POST endpoint
+  testPostRouting(): Observable<ApiResponse<any>> {
+    const testData = { test: 'data', timestamp: new Date().toISOString() };
+    console.log(
+      'Testing POST routing with URL:',
+      `${this.apiUrl}/test_landing_page_post`
+    );
+    console.log('Test data:', testData);
+
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}/test_landing_page_post`,
+      testData,
       { headers: this.getHeaders() }
     );
   }

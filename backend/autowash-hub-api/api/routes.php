@@ -506,6 +506,20 @@ if ($method === 'GET') {
         exit();
     }
 
+    // Test POST endpoint
+    if (strpos($request, 'test_landing_page_post') !== false) {
+        echo json_encode([
+            'status' => ['remarks' => 'success', 'message' => 'POST routing is working'],
+            'payload' => [
+                'request_uri' => $request,
+                'request_param' => isset($_GET['request']) ? $_GET['request'] : 'not set',
+                'method' => $method,
+                'received_data' => $data
+            ]
+        ]);
+        exit();
+    }
+
     // Landing page content endpoints
     if (strpos($request, 'landing_page_content') !== false && !strpos($request, 'update_landing_page_content')) {
         error_log("=== LANDING PAGE GET REQUEST ===");

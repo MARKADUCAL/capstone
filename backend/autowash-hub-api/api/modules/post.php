@@ -3306,6 +3306,10 @@ class Post extends GlobalMethods
     // Landing Page Content Management Methods
     public function update_landing_page_content($data) {
         try {
+            error_log("=== POST METHOD START ===");
+            error_log("Received data: " . json_encode($data));
+            error_log("Data type: " . gettype($data));
+            
             // Handle the frontend format where the entire content object is sent
             $sections = [
                 'hero' => [
@@ -3359,13 +3363,35 @@ class Post extends GlobalMethods
                 $updated_sections[] = $section_name;
             }
 
-            return $this->sendPayload(
+            error_log("=== POST METHOD SUCCESS ===");
+            error_log("Updated sections: " . json_encode($updated_sections));
+            
+            $result = $this->sendPayload(
                 ['updated_sections' => $updated_sections, 'total_updated' => count($updated_sections)],
                 "success",
                 "Landing page content updated successfully",
                 200
             );
+            
+            error_log("Final result: " . json_encode($result));
+            return $result;
+            
         } catch (\PDOException $e) {
+            error_log("=== POST METHOD PDO ERROR ===");
+            error_log("PDO Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to update landing page content: " . $e->getMessage(),
+                500
+            );
+        } catch (Exception $e) {
+            error_log("=== POST METHOD GENERAL ERROR ===");
+            error_log("General Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
             return $this->sendPayload(
                 null,
                 "failed",

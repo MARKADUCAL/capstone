@@ -179,10 +179,10 @@ export class PagesComponent implements OnInit {
           response.status &&
           response.status.remarks === 'success'
         ) {
-          this.snackBar.open('Routing test successful!', 'Close', {
+          this.snackBar.open('GET test successful!', 'Close', {
             duration: 3000,
           });
-          console.log('Routing test response:', response);
+          console.log('GET test response:', response);
         } else {
           this.snackBar.open(
             'Routing test failed: ' +
@@ -195,8 +195,39 @@ export class PagesComponent implements OnInit {
         }
       },
       error: (error: any) => {
-        console.error('Routing test error:', error);
-        this.snackBar.open('Routing test error: ' + error.message, 'Close', {
+        console.error('GET test error:', error);
+        this.snackBar.open('GET test error: ' + error.message, 'Close', {
+          duration: 5000,
+        });
+      },
+    });
+  }
+
+  testPostRouting(): void {
+    this.landingPageService.testPostRouting().subscribe({
+      next: (response: ApiResponse<any> | null) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
+          this.snackBar.open('POST test successful!', 'Close', {
+            duration: 3000,
+          });
+          console.log('POST test response:', response);
+        } else {
+          this.snackBar.open(
+            'POST test failed: ' + (response?.status?.message || 'No response'),
+            'Close',
+            {
+              duration: 5000,
+            }
+          );
+        }
+      },
+      error: (error: any) => {
+        console.error('POST test error:', error);
+        this.snackBar.open('POST test error: ' + error.message, 'Close', {
           duration: 5000,
         });
       },
@@ -208,7 +239,13 @@ export class PagesComponent implements OnInit {
       this.content
     );
 
-    console.log('Sending data to backend:', backendContent);
+    console.log('=== SAVE CHANGES DEBUG ===');
+    console.log('Frontend content:', this.content);
+    console.log('Converted backend content:', backendContent);
+    console.log(
+      'API URL:',
+      `${this.landingPageService['apiUrl']}/update_landing_page_content`
+    );
 
     this.landingPageService.updateLandingPageContent(backendContent).subscribe({
       next: (response: ApiResponse<any> | null) => {
