@@ -3303,5 +3303,87 @@ class Post extends GlobalMethods
         }
     }
 
+    // Landing Page Content Management Methods
+    public function update_landing_page_content($data) {
+        try {
+            if (!isset($data['section_name']) || !isset($data['content_data'])) {
+                return $this->sendPayload(null, "failed", "Missing required fields: section_name and content_data", 400);
+            }
+
+            $section_name = $data['section_name'];
+            $content_data = json_encode($data['content_data']);
+
+            // Check if section exists
+            $check_sql = "SELECT id FROM landing_page_content WHERE section_name = ?";
+            $check_stmt = $this->pdo->prepare($check_sql);
+            $check_stmt->execute([$section_name]);
+            $existing = $check_stmt->fetch();
+
+            if ($existing) {
+                // Update existing section
+                $sql = "UPDATE landing_page_content SET content_data = ?, updated_at = CURRENT_TIMESTAMP WHERE section_name = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$content_data, $section_name]);
+            } else {
+                // Insert new section
+                $sql = "INSERT INTO landing_page_content (section_name, content_data) VALUES (?, ?)";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$section_name, $content_data]);
+            }
+
+            return $this->sendPayload(
+                ['section_name' => $section_name, 'updated' => true],
+                "success",
+                "Landing page content updated successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to update landing page content: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function update_landing_page_section($section_name, $content_data) {
+        try {
+            $json_content = json_encode($content_data);
+
+            // Check if section exists
+            $check_sql = "SELECT id FROM landing_page_content WHERE section_name = ?";
+            $check_stmt = $this->pdo->prepare($check_sql);
+            $check_stmt->execute([$section_name]);
+            $existing = $check_stmt->fetch();
+
+            if ($existing) {
+                // Update existing section
+                $sql = "UPDATE landing_page_content SET content_data = ?, updated_at = CURRENT_TIMESTAMP WHERE section_name = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$json_content, $section_name]);
+            } else {
+                // Insert new section
+                $sql = "INSERT INTO landing_page_content (section_name, content_data) VALUES (?, ?)";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$section_name, $json_content]);
+            }
+
+            return $this->sendPayload(
+                ['section_name' => $section_name, 'updated' => true],
+                "success",
+                "Section updated successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to update section: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
 }
 

@@ -487,6 +487,22 @@ if ($method === 'GET') {
         echo json_encode($response);
         exit();
     }
+
+    // Landing page content endpoints
+    if (strpos($request, 'landing_page_content') !== false) {
+        $result = $get->get_landing_page_content();
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'landing_page_section') !== false) {
+        // Extract section name from URL
+        $parts = explode('/', $request);
+        $section_name = end($parts);
+        $result = $get->get_landing_page_section($section_name);
+        echo json_encode($result);
+        exit();
+    }
 }
 
 // Handle the request
@@ -864,6 +880,22 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'update_system_setting') !== false) {
         $result = $put->update_system_setting($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Landing page content update endpoints
+    if (strpos($request, 'update_landing_page_content') !== false) {
+        $result = $post->update_landing_page_content($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_landing_page_section') !== false) {
+        // Extract section name from URL
+        $parts = explode('/', $request);
+        $section_name = end($parts);
+        $result = $post->update_landing_page_section($section_name, $data);
         echo json_encode($result);
         exit();
     }

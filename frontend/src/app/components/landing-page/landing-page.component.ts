@@ -10,6 +10,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
+import { LandingPageService } from '../../services/landing-page.service';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
 type ContactInfo = {
@@ -66,7 +67,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private contactService: ContactService
+    private contactService: ContactService,
+    private landingPageService: LandingPageService
   ) {}
 
   // Dynamic content (editable via admin pages)
@@ -109,52 +111,29 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const raw = localStorage.getItem('landingPageContent');
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          this.content = {
-            heroTitle: parsed.heroTitle ?? this.content.heroTitle,
-            heroDescription:
-              parsed.heroDescription ?? this.content.heroDescription,
-            heroBackgroundUrl:
-              parsed.heroBackgroundUrl ?? this.content.heroBackgroundUrl,
-            services: Array.isArray(parsed.services)
-              ? parsed.services
-              : this.content.services,
-            galleryImages: Array.isArray(parsed.galleryImages)
-              ? parsed.galleryImages
-              : this.content.galleryImages,
-            contactInfo: {
-              address:
-                parsed.contactInfo?.address ?? this.content.contactInfo.address,
-              openingHours:
-                parsed.contactInfo?.openingHours ??
-                this.content.contactInfo.openingHours,
-              phone:
-                parsed.contactInfo?.phone ?? this.content.contactInfo.phone,
-              email:
-                parsed.contactInfo?.email ?? this.content.contactInfo.email,
-            },
-            footer: {
-              address: parsed.footer?.address ?? this.content.footer.address,
-              phone: parsed.footer?.phone ?? this.content.footer.phone,
-              email: parsed.footer?.email ?? this.content.footer.email,
-              copyright:
-                parsed.footer?.copyright ?? this.content.footer.copyright,
-              facebook: parsed.footer?.facebook ?? this.content.footer.facebook,
-              instagram:
-                parsed.footer?.instagram ?? this.content.footer.instagram,
-              twitter: parsed.footer?.twitter ?? this.content.footer.twitter,
-              tiktok: parsed.footer?.tiktok ?? this.content.footer.tiktok,
-            },
-          };
-        } catch {
-          // ignore malformed storage
+    this.loadLandingPageContent();
+  }
+
+  loadLandingPageContent() {
+    this.landingPageService.getLandingPageContent().subscribe({
+      next: (response) => {
+        if (response.status.remarks === 'success' && response.payload) {
+          const backendContent = response.payload;
+          this.content =
+            this.landingPageService.convertToFrontendFormat(backendContent);
+        } else {
+          console.warn(
+            'Failed to load landing page content:',
+            response.status.message
+          );
+          // Keep default content if loading fails
         }
-      }
-    }
+      },
+      error: (error) => {
+        console.error('Error loading landing page content:', error);
+        // Keep default content if loading fails
+      },
+    });
   }
 
   toggleMobileMenu() {

@@ -22,6 +22,7 @@ export class EmployeeLoginComponent {
   errorMessage = '';
   isLoading = false;
   isBrowser: boolean;
+  showPassword = false;
 
   constructor(
     private http: HttpClient,
@@ -96,5 +97,9 @@ export class EmployeeLoginComponent {
           }
         },
       });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

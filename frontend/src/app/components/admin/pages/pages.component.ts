@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { LandingPageService } from '../../services/landing-page.service';
 
 interface Service {
   name: string;
@@ -105,56 +106,37 @@ export class PagesComponent implements OnInit {
 
   constructor(
     private snackBar: MatSnackBar,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private landingPageService: LandingPageService
   ) {}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      const raw = localStorage.getItem('landingPageContent');
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          this.content = {
-            heroTitle: parsed.heroTitle ?? this.content.heroTitle,
-            heroDescription:
-              parsed.heroDescription ?? this.content.heroDescription,
-            heroBackgroundUrl:
-              parsed.heroBackgroundUrl ?? this.content.heroBackgroundUrl,
-            services: Array.isArray(parsed.services)
-              ? parsed.services
-              : this.content.services,
-            galleryImages: Array.isArray(parsed.galleryImages)
-              ? parsed.galleryImages
-              : this.content.galleryImages,
-            contactInfo: {
-              address:
-                parsed.contactInfo?.address ?? this.content.contactInfo.address,
-              openingHours:
-                parsed.contactInfo?.openingHours ??
-                this.content.contactInfo.openingHours,
-              phone:
-                parsed.contactInfo?.phone ?? this.content.contactInfo.phone,
-              email:
-                parsed.contactInfo?.email ?? this.content.contactInfo.email,
-            },
-            footer: {
-              address: parsed.footer?.address ?? this.content.footer.address,
-              phone: parsed.footer?.phone ?? this.content.footer.phone,
-              email: parsed.footer?.email ?? this.content.footer.email,
-              copyright:
-                parsed.footer?.copyright ?? this.content.footer.copyright,
-              facebook: parsed.footer?.facebook ?? this.content.footer.facebook,
-              instagram:
-                parsed.footer?.instagram ?? this.content.footer.instagram,
-              twitter: parsed.footer?.twitter ?? this.content.footer.twitter,
-              tiktok: parsed.footer?.tiktok ?? this.content.footer.tiktok,
-            },
-          };
-        } catch {
-          // ignore malformed storage
+    this.loadLandingPageContent();
+  }
+
+  loadLandingPageContent(): void {
+    this.landingPageService.getLandingPageContent().subscribe({
+      next: (response) => {
+        if (response.status.remarks === 'success' && response.payload) {
+          const backendContent = response.payload;
+          this.content =
+            this.landingPageService.convertToFrontendFormat(backendContent);
+        } else {
+          console.warn(
+            'Failed to load landing page content:',
+            response.status.message
+          );
+          // Keep default content if loading fails
         }
-      }
-    }
+      },
+      error: (error) => {
+        console.error('Error loading landing page content:', error);
+        this.snackBar.open('Failed to load landing page content', 'Close', {
+          duration: 3000,
+        });
+        // Keep default content if loading fails
+      },
+    });
   }
 
   addService(): void {
@@ -174,11 +156,36 @@ export class PagesComponent implements OnInit {
   }
 
   saveChanges(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('landingPageContent', JSON.stringify(this.content));
-    }
-    this.snackBar.open('Changes saved successfully!', 'Close', {
-      duration: 3000,
+    const backendContent = this.landingPageService.convertToBackendFormat(
+      this.content
+    );
+
+    this.landingPageService.updateLandingPageContent(backendContent).subscribe({
+      next: (response) => {
+        if (response.status.remarks === 'success') {
+          this.snackBar.open('Changes saved successfully!', 'Close', {
+            duration: 3000,
+          });
+        } else {
+          this.snackBar.open(
+            'Failed to save changes: ' + response.status.message,
+            'Close',
+            {
+              duration: 5000,
+            }
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error saving landing page content:', error);
+        this.snackBar.open(
+          'Failed to save changes. Please try again.',
+          'Close',
+          {
+            duration: 5000,
+          }
+        );
+      },
     });
   }
 

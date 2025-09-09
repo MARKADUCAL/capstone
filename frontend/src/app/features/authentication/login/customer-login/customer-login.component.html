@@ -39,24 +39,33 @@
 
           <div class="form-group">
             <label for="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              [(ngModel)]="loginData.password"
-              required
-              #password="ngModel"
-              aria-label="Password input"
-              placeholder="Enter your password"
-              [disabled]="isLoading"
-            />
+            <div class="password-input-container">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                [(ngModel)]="loginData.password"
+                required
+                #password="ngModel"
+                aria-label="Password input"
+                placeholder="Enter your password"
+                [disabled]="isLoading"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [disabled]="isLoading"
+                aria-label="Toggle password visibility"
+              >
+                <i
+                  [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                ></i>
+              </button>
+            </div>
           </div>
 
           <div class="remember-forgot">
-            <label class="remember-me">
-              <input type="checkbox" [disabled]="isLoading" />
-              <span>Remember Me</span>
-            </label>
             <a routerLink="/customer-forgot-password" class="forgot-password"
               >Forgot Password?</a
             >

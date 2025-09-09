@@ -1115,5 +1115,68 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    // Landing Page Content Management Methods
+    public function get_landing_page_content() {
+        try {
+            $sql = "SELECT section_name, content_data FROM landing_page_content ORDER BY section_name";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Convert to associative array for easier frontend consumption
+            $content = [];
+            foreach ($sections as $section) {
+                $content[$section['section_name']] = json_decode($section['content_data'], true);
+            }
+            
+            return $this->sendPayload(
+                $content,
+                "success",
+                "Landing page content retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve landing page content: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function get_landing_page_section($section_name) {
+        try {
+            $sql = "SELECT content_data FROM landing_page_content WHERE section_name = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$section_name]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                $content = json_decode($result['content_data'], true);
+                return $this->sendPayload(
+                    $content,
+                    "success",
+                    "Section content retrieved successfully",
+                    200
+                );
+            } else {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Section not found",
+                    404
+                );
+            }
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve section content: " . $e->getMessage(),
+                500
+            );
+        }
+    }
 }
 ?>

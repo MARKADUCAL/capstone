@@ -22,6 +22,7 @@ export class CustomerLoginComponent implements OnInit {
   errorMessage = '';
   isLoading = false;
   apiBaseUrl = environment.apiUrl; // Use environment configuration
+  showPassword = false;
 
   constructor(
     private http: HttpClient,
@@ -108,5 +109,9 @@ export class CustomerLoginComponent implements OnInit {
           }
         },
       });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }
