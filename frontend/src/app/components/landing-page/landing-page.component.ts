@@ -10,7 +10,11 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
-import { LandingPageService, ApiResponse, LandingPageContent } from '../../services/landing-page.service';
+import {
+  LandingPageService,
+  ApiResponse,
+  LandingPageContent,
+} from '../../services/landing-page.service';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
 type ContactInfo = {
@@ -116,15 +120,20 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   loadLandingPageContent() {
     this.landingPageService.getLandingPageContent().subscribe({
-      next: (response: ApiResponse<LandingPageContent>) => {
-        if (response.status.remarks === 'success' && response.payload) {
+      next: (response: ApiResponse<LandingPageContent> | null) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success' &&
+          response.payload
+        ) {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
         } else {
           console.warn(
             'Failed to load landing page content:',
-            response.status.message
+            response?.status?.message || 'No response received'
           );
           // Keep default content if loading fails
         }

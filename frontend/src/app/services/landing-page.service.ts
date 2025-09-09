@@ -59,8 +59,8 @@ export class LandingPageService {
   }
 
   // Get all landing page content
-  getLandingPageContent(): Observable<ApiResponse<LandingPageContent>> {
-    return this.http.get<ApiResponse<LandingPageContent>>(
+  getLandingPageContent(): Observable<ApiResponse<LandingPageContent> | null> {
+    return this.http.get<ApiResponse<LandingPageContent> | null>(
       `${this.apiUrl}/landing_page_content`,
       { headers: this.getHeaders() }
     );
@@ -77,8 +77,8 @@ export class LandingPageService {
   // Update landing page content
   updateLandingPageContent(
     content: LandingPageContent
-  ): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
+  ): Observable<ApiResponse<any> | null> {
+    return this.http.post<ApiResponse<any> | null>(
       `${this.apiUrl}/update_landing_page_content`,
       content,
       { headers: this.getHeaders() }

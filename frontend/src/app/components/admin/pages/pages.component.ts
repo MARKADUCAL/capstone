@@ -9,7 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { LandingPageService, ApiResponse, LandingPageContent } from '../../../services/landing-page.service';
+import {
+  LandingPageService,
+  ApiResponse,
+  LandingPageContent,
+} from '../../../services/landing-page.service';
 
 interface Service {
   name: string;
@@ -116,24 +120,36 @@ export class PagesComponent implements OnInit {
 
   loadLandingPageContent(): void {
     this.landingPageService.getLandingPageContent().subscribe({
-      next: (response: ApiResponse<LandingPageContent>) => {
-        if (response.status.remarks === 'success' && response.payload) {
+      next: (response: ApiResponse<LandingPageContent> | null) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success' &&
+          response.payload
+        ) {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
         } else {
           console.warn(
             'Failed to load landing page content:',
-            response.status.message
+            response?.status?.message || 'No response received'
           );
           // Keep default content if loading fails
+          this.snackBar.open(
+            'Using default content. Please set up the database to enable content management.',
+            'Close',
+            { duration: 5000 }
+          );
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content:', error);
-        this.snackBar.open('Failed to load landing page content', 'Close', {
-          duration: 3000,
-        });
+        this.snackBar.open(
+          'Database not set up. Please run the SQL script to create the required tables.',
+          'Close',
+          { duration: 7000 }
+        );
         // Keep default content if loading fails
       },
     });
@@ -161,17 +177,23 @@ export class PagesComponent implements OnInit {
     );
 
     this.landingPageService.updateLandingPageContent(backendContent).subscribe({
-      next: (response: ApiResponse<any>) => {
-        if (response.status.remarks === 'success') {
+      next: (response: ApiResponse<any> | null) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success'
+        ) {
           this.snackBar.open('Changes saved successfully!', 'Close', {
             duration: 3000,
           });
         } else {
           this.snackBar.open(
-            'Failed to save changes: ' + response.status.message,
+            'Failed to save changes: ' +
+              (response?.status?.message ||
+                'No response received. Please check if database tables exist.'),
             'Close',
             {
-              duration: 5000,
+              duration: 7000,
             }
           );
         }
@@ -179,10 +201,10 @@ export class PagesComponent implements OnInit {
       error: (error: any) => {
         console.error('Error saving landing page content:', error);
         this.snackBar.open(
-          'Failed to save changes. Please try again.',
+          'Database not set up. Please run the SQL script to create the required tables.',
           'Close',
           {
-            duration: 5000,
+            duration: 7000,
           }
         );
       },
