@@ -1,3 +1,89 @@
+/* Admin reply styling */
+.admin-reply-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 100%);
+  border: 1px solid #e6edf5;
+  border-radius: 12px;
+}
+
+.admin-reply-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.admin-reply-textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid #d6deea;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #ffffff;
+  color: #111827;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-reply-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.admin-reply-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.admin-reply-actions .save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.05s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.admin-reply-actions .save-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.admin-reply-actions .save-btn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.admin-reply-actions .btn-icon {
+  font-size: 16px;
+}
+
+.admin-reply-meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.admin-reply-meta .meta-label {
+  color: #374151;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.admin-reply-meta .meta-value {
+  color: #4b5563;
+}
 /* Feedback Management Container */
 .feedback-management-container {
   padding: 24px;

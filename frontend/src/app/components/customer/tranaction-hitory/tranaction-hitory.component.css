@@ -1,3 +1,40 @@
+/* Admin comment card styling */
+.admin-comment {
+  margin-top: 14px;
+  padding: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #10b981;
+  border-radius: 10px;
+}
+
+.admin-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.admin-icon {
+  font-size: 16px;
+}
+
+.admin-title {
+  font-weight: 700;
+  color: #065f46;
+}
+
+.admin-time {
+  margin-left: auto;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.admin-comment-content {
+  white-space: pre-wrap;
+  color: #111827;
+  line-height: 1.5;
+}
 /* Modern Transaction History Styles */
 .transaction-history-container {
   max-width: 1200px;
