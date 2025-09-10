@@ -486,7 +486,7 @@
                   class="header-cell"
                   *ngFor="let serviceCode of serviceCodes"
                 >
-                  {{ serviceHeaderLabel(serviceCode) }}
+                  {{ serviceCode.replace("p", "") }}
                 </div>
               </div>
               <div
