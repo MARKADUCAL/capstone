@@ -497,7 +497,7 @@
                   class="price-cell"
                   *ngFor="let serviceCode of serviceCodes"
                 >
-                  ₱{{ pricingMatrix[vehicleCode]?.[serviceCode] || 'N/A' }}
+                  {{ formatPrice(vehicleCode, serviceCode) }}
                 </div>
               </div>
             </div>

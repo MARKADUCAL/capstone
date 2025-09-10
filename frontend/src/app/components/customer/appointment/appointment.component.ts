@@ -520,6 +520,26 @@ export class AppointmentComponent implements OnInit {
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
 
+  // Format price for pricing matrix cell
+  formatPrice(vehicleCode: string, serviceCode: string): string {
+    try {
+      const value = this.pricingMatrix?.[vehicleCode]?.[serviceCode];
+      if (value === undefined || value === null || value === '') {
+        return 'N/A';
+      }
+      const num = typeof value === 'string' ? parseFloat(value) : Number(value);
+      if (isNaN(num)) return 'N/A';
+      return new Intl.NumberFormat('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(num);
+    } catch {
+      return 'N/A';
+    }
+  }
+
   // View booking details (in a real app, this might navigate to a details page)
   viewBooking(booking: Booking): void {
     alert(`Viewing booking details for ${booking.nickname}`);
