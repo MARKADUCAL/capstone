@@ -10,6 +10,8 @@ export interface CustomerFeedback {
   customer_id: number;
   rating: number;
   comment: string;
+  admin_comment?: string | null;
+  admin_commented_at?: string | null;
   is_public: boolean;
   created_at?: string;
   customer_name?: string;
@@ -106,6 +108,37 @@ export class FeedbackService {
         catchError((error) => {
           console.error('💥 Service error:', error);
           return throwError(() => new Error('Failed to retrieve feedback.'));
+        })
+      );
+  }
+
+  // Update admin comment on a feedback item
+  updateAdminComment(
+    id: number,
+    adminComment: string
+  ): Observable<FeedbackResponse> {
+    const payload = { id, admin_comment: adminComment } as any;
+    return this.http
+      .put<any>(`${this.apiUrl}/update_feedback_admin_comment`, payload)
+      .pipe(
+        map((response) => {
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            return {
+              success: true,
+              message: response.status.message,
+              data: response.payload?.customer_feedback,
+            };
+          }
+          throw new Error(
+            response?.status?.message || 'Failed to update admin comment'
+          );
+        }),
+        catchError((error) => {
+          return throwError(() => new Error('Failed to update admin comment.'));
         })
       );
   }

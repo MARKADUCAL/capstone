@@ -350,6 +350,37 @@
             <p><em>No comment provided by the customer</em></p>
           </div>
         </div>
+
+        <div class="admin-reply-section">
+          <h4>Admin Reply</h4>
+          <textarea
+            [(ngModel)]="adminCommentDraft"
+            rows="4"
+            class="admin-reply-textarea"
+            placeholder="Write a reply visible to the customer..."
+          ></textarea>
+          <div class="admin-reply-actions">
+            <button
+              class="action-btn save-btn"
+              (click)="saveAdminComment()"
+              [disabled]="isSavingAdminComment"
+            >
+              <span class="btn-icon">{{
+                isSavingAdminComment ? "⏳" : "💾"
+              }}</span>
+              {{ isSavingAdminComment ? "Saving..." : "Save Reply" }}
+            </button>
+            <div
+              class="admin-reply-meta"
+              *ngIf="selectedFeedback.admin_commented_at"
+            >
+              <span class="meta-label">Last replied:</span>
+              <span class="meta-value">{{
+                formatDate(selectedFeedback.admin_commented_at)
+              }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

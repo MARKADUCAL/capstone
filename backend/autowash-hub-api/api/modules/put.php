@@ -354,6 +354,58 @@ class Put {
         }
     }
 
+    /**
+     * Update admin comment on a customer feedback
+     */
+    public function update_feedback_admin_comment($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Feedback ID is required", 400);
+            }
+
+            // Ensure column exists (backward compatible)
+            try {
+                $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
+                $checkStmt = $this->pdo->prepare($checkSql);
+                $checkStmt->execute(['admin_comment']);
+                $hasCol = (int)$checkStmt->fetchColumn() > 0;
+                if (!$hasCol) {
+                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL");
+                }
+                $checkStmt->execute(['admin_commented_at']);
+                $hasCol2 = (int)$checkStmt->fetchColumn() > 0;
+                if (!$hasCol2) {
+                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL");
+                }
+            } catch (\PDOException $e) {
+                // ignore if cannot alter
+            }
+
+            $sql = "UPDATE customer_feedback SET admin_comment = ?, admin_commented_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->admin_comment ?? '', $data->id]);
+
+            if ($stmt->rowCount() > 0) {
+                // Return updated record
+                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
+                $stmtGet->execute([$data->id]);
+                $feedback = $stmtGet->fetch(PDO::FETCH_ASSOC);
+                return $this->sendPayload(['customer_feedback' => $feedback], "success", "Admin comment updated", 200);
+            }
+
+            // If no rows updated, still fetch to confirm existence
+            $stmtGet = $this->pdo->prepare("SELECT id FROM customer_feedback WHERE id = ?");
+            $stmtGet->execute([$data->id]);
+            if ($stmtGet->fetch(PDO::FETCH_ASSOC)) {
+                return $this->sendPayload(null, "success", "No changes made", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Feedback not found", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     // New update methods for the updated database schema
     public function update_vehicle_type($data) {
         try {

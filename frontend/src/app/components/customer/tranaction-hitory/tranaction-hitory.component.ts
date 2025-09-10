@@ -467,10 +467,24 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
     completedBookings.forEach((booking) => {
       const bookingId = parseInt(booking.id);
-      this.feedbackService.checkFeedbackExists(bookingId).subscribe({
-        next: (exists) => {
+      this.feedbackService.getAllFeedback(200).subscribe({
+        next: (list) => {
+          const feedbackForBooking = list.find(
+            (f) => f.booking_id === bookingId
+          );
+          const exists = !!feedbackForBooking;
           this.feedbackExistsMap.set(bookingId, exists);
           console.log(`Feedback exists for booking ${bookingId}: ${exists}`);
+          // Attach admin comment to booking for display if present
+          if (
+            feedbackForBooking &&
+            (feedbackForBooking.admin_comment || '').toString().trim().length >
+              0
+          ) {
+            (booking as any).adminComment = feedbackForBooking.admin_comment;
+            (booking as any).adminCommentedAt =
+              feedbackForBooking.admin_commented_at;
+          }
         },
         error: (error) => {
           console.error(

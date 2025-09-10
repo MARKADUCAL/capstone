@@ -792,12 +792,34 @@ class Get extends GlobalMethods {
 
     public function get_customer_feedback($limit = 10) {
         try {
+            // Ensure admin_comment columns exist (backward compatible)
+            try {
+                $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
+                $checkStmt = $this->pdo->prepare($checkSql);
+
+                $checkStmt->execute(['admin_comment']);
+                $hasAdminComment = (int)$checkStmt->fetchColumn() > 0;
+                if (!$hasAdminComment) {
+                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL");
+                }
+
+                $checkStmt->execute(['admin_commented_at']);
+                $hasAdminCommentedAt = (int)$checkStmt->fetchColumn() > 0;
+                if (!$hasAdminCommentedAt) {
+                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL");
+                }
+            } catch (\PDOException $e) {
+                // If ALTER fails due to permissions, continue without breaking reads
+            }
+
             $sql = "SELECT 
                         cf.id,
                         cf.booking_id,
                         cf.customer_id,
                         cf.rating,
                         cf.comment,
+                        cf.admin_comment,
+                        cf.admin_commented_at,
                         cf.is_public,
                         cf.created_at,
                         CONCAT(c.first_name, ' ', c.last_name) as customer_name,

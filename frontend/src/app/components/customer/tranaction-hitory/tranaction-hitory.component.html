@@ -267,6 +267,28 @@
             {{ getRejectionReason(booking) }}
           </div>
         </div>
+
+        <!-- Admin Comment Section (if admin replied to feedback) -->
+        <div
+          class="admin-comment"
+          *ngIf="
+            $any(booking).adminComment &&
+            $any(booking).adminComment.trim().length > 0
+          "
+        >
+          <div class="admin-comment-header">
+            <span class="admin-icon">🛠️</span>
+            <span class="admin-title">Admin Reply</span>
+            <span class="admin-time" *ngIf="$any(booking).adminCommentedAt">
+              {{
+                $any(booking).adminCommentedAt | date : "MMM dd, yyyy, h:mm a"
+              }}
+            </span>
+          </div>
+          <div class="admin-comment-content">
+            {{ $any(booking).adminComment }}
+          </div>
+        </div>
       </div>
 
       <div class="card-actions">

@@ -34,6 +34,8 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
   // View modal
   selectedFeedback: CustomerFeedback | null = null;
   isViewModalOpen = false;
+  adminCommentDraft: string = '';
+  isSavingAdminComment = false;
 
   private subscription: Subscription = new Subscription();
 
@@ -197,12 +199,14 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
 
   openViewModal(feedback: CustomerFeedback): void {
     this.selectedFeedback = feedback;
+    this.adminCommentDraft = feedback.admin_comment || '';
     this.isViewModalOpen = true;
   }
 
   closeViewModal(): void {
     this.isViewModalOpen = false;
     this.selectedFeedback = null;
+    this.adminCommentDraft = '';
   }
 
   formatDate(dateString: string): string {
@@ -231,5 +235,47 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
 
   trackByFeedback(index: number, feedback: CustomerFeedback): number {
     return feedback.id || index;
+  }
+
+  saveAdminComment(): void {
+    if (!this.selectedFeedback || !this.selectedFeedback.id) return;
+    this.isSavingAdminComment = true;
+    this.errorMessage = null;
+    this.successMessage = null;
+    this.feedbackService
+      .updateAdminComment(
+        this.selectedFeedback.id,
+        this.adminCommentDraft || ''
+      )
+      .subscribe({
+        next: (res) => {
+          this.isSavingAdminComment = false;
+          this.successMessage = res.message || 'Admin comment saved';
+          // Update local item
+          if (res.data) {
+            const idx = this.feedbackList.findIndex(
+              (f) => f.id === this.selectedFeedback!.id
+            );
+            if (idx > -1) {
+              this.feedbackList[idx] = {
+                ...this.feedbackList[idx],
+                admin_comment: res.data.admin_comment,
+                admin_commented_at: res.data.admin_commented_at,
+              } as CustomerFeedback;
+              this.applyFilters();
+            }
+            // Reflect in modal
+            if (this.selectedFeedback) {
+              this.selectedFeedback.admin_comment = res.data.admin_comment;
+              this.selectedFeedback.admin_commented_at =
+                res.data.admin_commented_at;
+            }
+          }
+        },
+        error: (err) => {
+          this.isSavingAdminComment = false;
+          this.errorMessage = err?.message || 'Failed to save admin comment';
+        },
+      });
   }
 }

@@ -783,6 +783,14 @@ if ($method === 'PUT') {
         exit();
     }
     
+    if (strpos($request, 'update_feedback_admin_comment') !== false) {
+        error_log("Processing update_feedback_admin_comment request");
+        $result = $put->update_feedback_admin_comment($data);
+        error_log("update_feedback_admin_comment result: " . json_encode($result));
+        echo json_encode($result);
+        exit();
+    }
+    
     // Test endpoint to verify routing
     if (strpos($request, 'test_put') !== false) {
         error_log("Test PUT endpoint reached");
