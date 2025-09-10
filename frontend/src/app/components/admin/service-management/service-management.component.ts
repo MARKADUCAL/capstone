@@ -49,50 +49,32 @@ export class ServiceManagementComponent implements OnInit {
   vehicleTypes: VehicleType[] = [
     {
       code: 'S',
-      description: 'SMALL HATCHBACKS [wigo, picanto, eon, etc.]',
+      description: 'SEDANS (all sedan types)',
       isActive: true,
     },
     {
       code: 'M',
-      description:
-        'SMALL HATCHBACKS | SEDAN | COUPES [rio, accent, city, vios, civic, etc.]',
+      description: 'SUVs (all SUV types)',
       isActive: true,
     },
     {
       code: 'L',
-      description:
-        'MPVs | AUVs | COMPACT SUVs [rav4, avanza, ecosport, cx3, etc.]',
+      description: 'VANs (any type of van)',
       isActive: true,
     },
     {
       code: 'XL',
-      description:
-        'SUVs | FULL SUVs | PICK-UPS [trailblazer, hilux, ranger, fortuner, etc.]',
-      isActive: true,
-    },
-    {
-      code: 'XXL',
-      description:
-        'MODIFIED VEHICLES | BIG SUVs [land cruiser, patrol, prado, etc.]',
+      description: 'Larger than vans (big SUVs/pickups, oversized vehicles)',
       isActive: true,
     },
   ];
 
   // Service Packages from the image
   servicePackages: ServicePackage[] = [
-    { code: '1', description: 'BODY WASH', isActive: true },
-    { code: '1.5', description: 'BODY WASH, TIRE BLACK', isActive: true },
-    { code: '2', description: 'BODY WASH, TIRE BLACK, VACUUM', isActive: true },
-    {
-      code: '3',
-      description: 'BODY WASH, BODY WAX, TIRE BLACK',
-      isActive: true,
-    },
-    {
-      code: '4',
-      description: 'BODY WASH, BODY WAX, TIRE BLACK, VACUUM',
-      isActive: true,
-    },
+    { code: 'p1', description: 'Wash only', isActive: true },
+    { code: 'p2', description: 'Wash / Vacuum', isActive: true },
+    { code: 'p3', description: 'Wash / Vacuum / Hand Wax', isActive: true },
+    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax', isActive: true },
   ];
 
   // Dynamic pricing matrix built from database data
