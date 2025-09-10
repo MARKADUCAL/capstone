@@ -231,19 +231,20 @@ export class AppointmentComponent implements OnInit {
     console.log('Current pricing matrix:', this.pricingMatrix);
 
     // Get price from database pricing matrix
+    const backendKey = this.backendServiceKey(serviceCode);
     if (
       vehicleCode &&
-      serviceCode &&
+      backendKey &&
       this.pricingMatrix[vehicleCode] &&
-      this.pricingMatrix[vehicleCode][serviceCode]
+      this.pricingMatrix[vehicleCode][backendKey]
     ) {
-      this.selectedPrice = this.pricingMatrix[vehicleCode][serviceCode];
+      this.selectedPrice = this.pricingMatrix[vehicleCode][backendKey];
       console.log(
-        `Price for ${vehicleCode} - ${serviceCode}: ${this.selectedPrice}`
+        `Price for ${vehicleCode} - ${backendKey}: ${this.selectedPrice}`
       );
     } else {
       this.selectedPrice = null;
-      console.log(`No price found for ${vehicleCode} - ${serviceCode}`);
+      console.log(`No price found for ${vehicleCode} - ${backendKey}`);
       console.log('Available vehicle codes:', Object.keys(this.pricingMatrix));
       if (this.pricingMatrix[vehicleCode]) {
         console.log(
@@ -523,7 +524,8 @@ export class AppointmentComponent implements OnInit {
   // Format price for pricing matrix cell
   formatPrice(vehicleCode: string, serviceCode: string): string {
     try {
-      const value = this.pricingMatrix?.[vehicleCode]?.[serviceCode];
+      const key = this.backendServiceKey(serviceCode);
+      const value = this.pricingMatrix?.[vehicleCode]?.[key];
       if (value === undefined || value === null || value === '') {
         return 'N/A';
       }
@@ -538,6 +540,29 @@ export class AppointmentComponent implements OnInit {
     } catch {
       return 'N/A';
     }
+  }
+
+  // Map frontend service code (e.g., p1) to backend key (e.g., '1')
+  backendServiceKey(serviceCode: string): string {
+    if (!serviceCode) return '';
+    const map: Record<string, string> = {
+      p1: '1',
+      p2: '2',
+      p3: '3',
+      p4: '4',
+    };
+    return map[serviceCode] || serviceCode.replace(/^p/, '');
+  }
+
+  // Header label to show in pricing table for a service code
+  serviceHeaderLabel(serviceCode: string): string {
+    const labelMap: Record<string, string> = {
+      p1: '1',
+      p2: '2',
+      p3: '3',
+      p4: '4',
+    };
+    return labelMap[serviceCode] || serviceCode;
   }
 
   // View booking details (in a real app, this might navigate to a details page)
