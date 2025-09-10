@@ -172,6 +172,7 @@
                 name="washDate"
                 required
                 placeholder="Select wash date"
+                [min]="minDate"
               />
               <mat-datepicker-toggle
                 matSuffix
@@ -190,6 +191,7 @@
                 required
                 placeholder="Select wash time"
                 class="time-input-field"
+                [min]="minTimeForSelectedDate() || null"
               />
               <mat-icon
                 matSuffix

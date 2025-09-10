@@ -102,6 +102,9 @@ export class AppointmentComponent implements OnInit {
   availableMinutes: string[] = ['00', '15', '30', '45'];
   availablePeriods: string[] = ['AM', 'PM'];
 
+  // Date/time guards
+  minDate: Date = new Date();
+
   constructor(
     private bookingService: BookingService,
     private serviceService: ServiceService,
@@ -127,6 +130,41 @@ export class AppointmentComponent implements OnInit {
           }, 500); // Small delay to ensure services are loaded
         }
       });
+    }
+  }
+
+  // Helper: return min time (HH:MM) if selected date is today; else null (no limit)
+  minTimeForSelectedDate(): string | null {
+    try {
+      if (!this.bookingForm.washDate) return null;
+      const selected = new Date(this.bookingForm.washDate);
+      const now = new Date();
+      if (
+        selected.getFullYear() === now.getFullYear() &&
+        selected.getMonth() === now.getMonth() &&
+        selected.getDate() === now.getDate()
+      ) {
+        const hh = now.getHours().toString().padStart(2, '0');
+        const mm = now.getMinutes().toString().padStart(2, '0');
+        return `${hh}:${mm}`;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Guard: ensure selected date/time are not in the past
+  private isDateTimeInPast(dateStr: string, timeStr: string): boolean {
+    if (!dateStr || !timeStr) return false;
+    try {
+      const [h, m] = timeStr.split(':').map((v) => parseInt(v, 10));
+      const d = new Date(dateStr);
+      d.setHours(isNaN(h) ? 0 : h, isNaN(m) ? 0 : m, 0, 0);
+      const now = new Date();
+      return d.getTime() < now.getTime();
+    } catch {
+      return false;
     }
   }
 
@@ -329,6 +367,17 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
+    // Prevent booking in the past (date or time)
+    if (
+      this.isDateTimeInPast(
+        this.bookingForm.washDate,
+        this.bookingForm.washTime
+      )
+    ) {
+      this.errorMessage = 'Please select a future date and time.';
+      return;
+    }
+
     this.isSubmitting = true;
     this.errorMessage = '';
 
@@ -430,6 +479,19 @@ export class AppointmentComponent implements OnInit {
       this.errorMessage = 'Please select a wash time';
       return false;
     }
+
+    // Validate: washDate cannot be in the past
+    try {
+      const today = new Date();
+      const selected = new Date(this.bookingForm.washDate);
+      // Normalize both dates to midnight for date-only comparison
+      today.setHours(0, 0, 0, 0);
+      selected.setHours(0, 0, 0, 0);
+      if (selected.getTime() < today.getTime()) {
+        this.errorMessage = 'Wash date cannot be in the past';
+        return false;
+      }
+    } catch {}
 
     if (!this.bookingForm.paymentType) {
       this.errorMessage = 'Please select a payment type';
@@ -557,7 +619,17 @@ export class AppointmentComponent implements OnInit {
     const formattedHour = hour24.toString().padStart(2, '0');
     const formattedMinute = this.selectedMinute.toString().padStart(2, '0');
 
-    this.bookingForm.washTime = `${formattedHour}:${formattedMinute}`;
+    // If selected date is today, clamp to current time if needed
+    const minTime = this.minTimeForSelectedDate();
+    let finalTime = `${formattedHour}:${formattedMinute}`;
+    if (minTime) {
+      // Compare HH:MM strings lexicographically works because both are zero-padded
+      if (finalTime < minTime) {
+        finalTime = minTime;
+      }
+    }
+
+    this.bookingForm.washTime = finalTime;
     this.showTimePicker = false;
   }
 }
