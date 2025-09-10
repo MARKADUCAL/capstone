@@ -338,6 +338,10 @@
   background-color: #ef4444; /* Red */
 }
 
+.delete-btn {
+  background-color: #b91c1c; /* Darker red */
+}
+
 .complete-btn {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   font-weight: 700;

@@ -134,6 +134,10 @@
           <mat-icon>cancel</mat-icon>
           Reject
         </button>
+        <button class="action-btn delete-btn" (click)="deleteBooking(booking)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
         } @else if (booking.status === 'Approved') {
         <div class="approved-badge">
           <mat-icon>check_circle</mat-icon>
@@ -156,6 +160,10 @@
         <button class="action-btn edit-btn" (click)="editBooking(booking)">
           <mat-icon>edit</mat-icon>
           Edit
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteBooking(booking)">
+          <mat-icon>delete</mat-icon>
+          Delete
         </button>
         }
       </div>

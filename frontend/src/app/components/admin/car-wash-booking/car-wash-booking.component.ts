@@ -55,6 +55,48 @@ interface CarWashBooking {
   rejectionReason?: string;
 }
 
+// Simple confirmation dialog for destructive actions
+@Component({
+  selector: 'app-confirm-delete-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  template: `
+    <div style="padding:20px;min-width:380px">
+      <h2
+        mat-dialog-title
+        style="margin:0 0 8px 0;display:flex;align-items:center;gap:8px"
+      >
+        <mat-icon color="warn">delete</mat-icon>
+        Delete Booking
+      </h2>
+      <mat-dialog-content>
+        <p>
+          Are you sure you want to delete booking #{{ data.id }} for
+          <b>{{ data.name }}</b
+          >? This action cannot be undone.
+        </p>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end" style="margin-top:12px">
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="warn" (click)="confirm()">
+          Delete
+        </button>
+      </mat-dialog-actions>
+    </div>
+  `,
+})
+export class ConfirmDeleteDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmDeleteDialogComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: { id: number; name: string }
+  ) {}
+
+  confirm(): void {
+    this.dialogRef.close(true);
+  }
+}
+
 // Rejection Dialog Component
 @Component({
   selector: 'app-rejection-dialog',
@@ -254,6 +296,34 @@ export class CarWashBookingComponent implements OnInit {
 
   editBooking(booking: CarWashBooking): void {
     this.openBookingDialog(booking, 'edit');
+  }
+
+  deleteBooking(booking: CarWashBooking): void {
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '420px',
+      data: { id: booking.id, name: booking.customerName },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      // Optimistic UI: remove from list immediately
+      const index = this.bookings.findIndex((b) => b.id === booking.id);
+      const backup = index !== -1 ? { ...this.bookings[index] } : null;
+      if (index !== -1) this.bookings.splice(index, 1);
+
+      // Backend: mark as Cancelled (soft delete) to match existing API
+      this.bookingService
+        .updateBookingStatus(booking.id, 'Cancelled')
+        .subscribe({
+          next: () => this.showNotification('Booking deleted'),
+          error: (err) => {
+            // Rollback on failure
+            if (backup) this.bookings.splice(index, 0, backup);
+            this.showNotification(err.message || 'Failed to delete booking');
+          },
+        });
+    });
   }
 
   filterBookings(status: string): CarWashBooking[] {
