@@ -32,34 +32,21 @@ export class ServicesPricingComponent implements OnInit {
 
   // Vehicle types with descriptions
   vehicleTypes = [
-    { code: 'S', description: 'Small Hatchbacks (wigo, picanto, eon)' },
-    {
-      code: 'M',
-      description:
-        'Small Hatchbacks | Sedan | Coupes (rio, accent, city, vios, civic)',
-    },
-    {
-      code: 'L',
-      description: 'MPVs | AUVs | Compact SUVs (rav4, avanza, ecosport, cx3)',
-    },
+    { code: 'S', description: 'Sedans (all sedan types)' },
+    { code: 'M', description: 'SUVs (all SUV types)' },
+    { code: 'L', description: 'VANs (any type of van)' },
     {
       code: 'XL',
-      description:
-        'SUVs | Full SUVs | Pick-ups (trailblazer, hilux, ranger, fortuner)',
-    },
-    {
-      code: 'XXL',
-      description: 'Modified Vehicles | Big SUVs (land cruiser, patrol, prado)',
+      description: 'Larger than vans (big SUVs/pickups, oversized vehicles)',
     },
   ];
 
   // Service packages with descriptions
   servicePackages = [
-    { code: '1', description: 'Body Wash' },
-    { code: '1.5', description: 'Body Wash, Tire Black' },
-    { code: '2', description: 'Body Wash, Tire Black, Vacuum' },
-    { code: '3', description: 'Body Wash, Body Wax, Tire Black' },
-    { code: '4', description: 'Body Wash, Body Wax, Tire Black, Vacuum' },
+    { code: 'p1', description: 'Wash only' },
+    { code: 'p2', description: 'Wash / Vacuum' },
+    { code: 'p3', description: 'Wash / Vacuum / Hand Wax' },
+    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax' },
   ];
 
   // Empty pricing matrix (will be populated from database)

@@ -352,7 +352,7 @@ export class AppointmentComponent implements OnInit {
     // Extract vehicle type code (e.g., 'S' from 'S - Small Hatchbacks...')
     const vehicleTypeCode = this.bookingForm.vehicleType.split(' - ')[0];
 
-    // Extract service package code (e.g., '1' from '1 - Body Wash')
+    // Extract service package code (e.g., 'p1' from 'p1 - Wash only')
     const servicePackageCode = this.bookingForm.services.split(' - ')[0];
 
     const bookingData = {

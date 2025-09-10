@@ -60,24 +60,22 @@ export interface WashingPoint {
 }
 
 export const VEHICLE_TYPES = [
-  'S - Small Hatchbacks (e.g., wigo, picanto, eon)',
-  'M - Small Hatchbacks | Sedan | Coupes (e.g., rio, accent, city, vios, civic)',
-  'L - MPVs | AUVs | Compact SUVs (e.g., rav4, avanza, ecosport, cx3)',
-  'XL - SUVs | Full SUVs | Pick-ups (e.g., trailblazer, hilux, ranger, fortuner)',
-  'XXL - Modified Vehicles | Big SUVs (e.g., land cruiser, patrol, prado)',
+  'S - Sedans (all sedan types)',
+  'M - SUVs (all SUV types)',
+  'L - Vans (any type of van)',
+  'XL - Larger than vans (big SUVs/pickups, oversized vehicles)',
 ];
 
-export const VEHICLE_TYPE_CODES = ['S', 'M', 'L', 'XL', 'XXL'];
+export const VEHICLE_TYPE_CODES = ['S', 'M', 'L', 'XL'];
 
 export const SERVICE_PACKAGES = [
-  '1 - Body Wash',
-  '1.5 - Body Wash, Tire Black',
-  '2 - Body Wash, Tire Black, Vacuum',
-  '3 - Body Wash, Body Wax, Tire Black',
-  '4 - Body Wash, Body Wax, Tire Black, Vacuum',
+  'p1 - Wash only',
+  'p2 - Wash / Vacuum',
+  'p3 - Wash / Vacuum / Hand Wax',
+  'p4 - Wash / Vacuum / Buffing Wax',
 ];
 
-export const SERVICE_CODES = ['1', '1.5', '2', '3', '4'];
+export const SERVICE_CODES = ['p1', 'p2', 'p3', 'p4'];
 
 export interface PricingInfo {
   vehicleType: string;
