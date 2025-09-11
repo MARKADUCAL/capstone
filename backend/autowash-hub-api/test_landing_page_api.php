@@ -1,81 +1,67 @@
 <?php
-// Test script for landing page API endpoints
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// Simple local test page for landing page endpoints
+header('Content-Type: text/html; charset=utf-8');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+$base = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') .
+        '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . '/api';
+
+function getJson($url) {
+    $context = stream_context_create(['http' => ['method' => 'GET']]);
+    $res = @file_get_contents($url, false, $context);
+    return $res === false ? null : $res;
 }
 
-require_once 'api/config/database.php';
-require_once 'api/modules/get.php';
-require_once 'api/modules/post.php';
-
-try {
-    $connection = new Connection();
-    $pdo = $connection->connect();
-    
-    $get = new Get($pdo);
-    $post = new Post($pdo);
-    
-    echo "=== Landing Page API Test ===\n\n";
-    
-    // Test 1: Check if tables exist
-    echo "1. Checking if tables exist...\n";
-    $tables = $pdo->query("SHOW TABLES LIKE 'landing_page%'")->fetchAll();
-    echo "Found tables: " . json_encode($tables) . "\n\n";
-    
-    // Test 2: Check current content
-    echo "2. Checking current content...\n";
-    $result = $get->get_landing_page_content();
-    echo "GET result: " . json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
-    
-    // Test 3: Test update with sample data
-    echo "3. Testing update with sample data...\n";
-    $testData = [
-        'hero' => [
-            'title' => 'TEST TITLE',
-            'description' => 'Test description',
-            'background_url' => 'assets/test.png'
-        ],
-        'services' => [
-            ['name' => 'Test Service', 'image_url' => 'assets/test.png']
-        ],
-        'gallery' => [
-            ['url' => 'assets/test.png', 'alt' => 'Test Image']
-        ],
-        'contact_info' => [
-            'address' => 'Test Address',
-            'opening_hours' => 'Test Hours',
-            'phone' => 'Test Phone',
-            'email' => 'test@test.com'
-        ],
-        'footer' => [
-            'address' => 'Test Footer Address',
-            'phone' => 'Test Footer Phone',
-            'email' => 'test@footer.com',
-            'copyright' => 'Test Copyright',
-            'facebook' => '#',
-            'instagram' => '#',
-            'twitter' => '#',
-            'tiktok' => '#'
+function postJson($url, $data) {
+    $opts = [
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => json_encode($data)
         ]
     ];
-    
-    $updateResult = $post->update_landing_page_content($testData);
-    echo "UPDATE result: " . json_encode($updateResult, JSON_PRETTY_PRINT) . "\n\n";
-    
-    // Test 4: Verify the update
-    echo "4. Verifying the update...\n";
-    $verifyResult = $get->get_landing_page_content();
-    echo "VERIFY result: " . json_encode($verifyResult, JSON_PRETTY_PRINT) . "\n\n";
-    
-    echo "=== Test Complete ===\n";
-    
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-    echo "Stack trace: " . $e->getTraceAsString() . "\n";
+    $context = stream_context_create($opts);
+    $res = @file_get_contents($url, false, $context);
+    return $res === false ? null : $res;
 }
-?>
+
+echo "<h1>Landing Page API Tests</h1>";
+
+$getUrl = $base . '/landing_page_content';
+echo "<h2>GET /landing_page_content</h2>";
+echo '<code>' . htmlspecialchars($getUrl) . '</code>';
+$getRes = getJson($getUrl);
+echo '<pre>' . htmlspecialchars($getRes ?? 'Request failed') . '</pre>';
+
+$postUrl = $base . '/update_landing_page_content';
+echo "<h2>POST /update_landing_page_content</h2>";
+echo '<code>' . htmlspecialchars($postUrl) . '</code>';
+$sample = [
+    'hero' => [
+        'title' => 'CARWASHING MADE EASY',
+        'description' => 'AutoWash Hub is one of the most convenient car washing service providers at your preferred location.',
+        'background_url' => 'assets/homebackground.png'
+    ],
+    'services' => [
+        ['name' => 'Body Wash', 'image_url' => 'assets/basiccarwash.png']
+    ],
+    'gallery' => [ ['url' => 'assets/car1.png', 'alt' => 'sample'] ],
+    'contact_info' => [
+        'address' => '123 Auto Street, Car City',
+        'opening_hours' => 'Mon-Sun 8:00 AM - 6:00 PM',
+        'phone' => '+63 912 345 6789',
+        'email' => 'contact@autowashhub.com'
+    ],
+    'footer' => [
+        'address' => '123 Auto Street, Car City',
+        'phone' => '+63 912 345 6789',
+        'email' => 'support@autowashhub.com',
+        'copyright' => '© 2025 AutoWash Hub. All rights reserved.',
+        'facebook' => '', 'instagram' => '', 'twitter' => '', 'tiktok' => ''
+    ]
+];
+$postRes = postJson($postUrl, $sample);
+echo '<pre>' . htmlspecialchars($postRes ?? 'Request failed') . '</pre>';
+
+echo "<p>If GET failed, run <a href='setup_landing_page.php'>setup_landing_page.php</a> then retry.</p>";
+
+
