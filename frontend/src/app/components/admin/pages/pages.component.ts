@@ -130,6 +130,10 @@ export class PagesComponent implements OnInit {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
+          console.log(
+            'Landing page content loaded successfully:',
+            this.content
+          );
         } else {
           console.warn(
             'Failed to load landing page content:',
@@ -137,16 +141,16 @@ export class PagesComponent implements OnInit {
           );
           // Keep default content if loading fails
           this.snackBar.open(
-            'Using default content. Please set up the database to enable content management.',
+            'Using default content. Database tables may not exist. Please run the setup script.',
             'Close',
-            { duration: 5000 }
+            { duration: 7000 }
           );
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content:', error);
         this.snackBar.open(
-          'Database not set up. Please run the SQL script to create the required tables.',
+          'Database connection failed. Please check if the database tables exist and run the setup script.',
           'Close',
           { duration: 7000 }
         );
@@ -257,11 +261,13 @@ export class PagesComponent implements OnInit {
           this.snackBar.open('Changes saved successfully!', 'Close', {
             duration: 3000,
           });
+          console.log('Save successful:', response);
         } else {
+          console.error('Save failed:', response);
           this.snackBar.open(
             'Failed to save changes: ' +
               (response?.status?.message ||
-                'No response received. Please check if database tables exist.'),
+                'No response received. Database tables may not exist.'),
             'Close',
             {
               duration: 7000,
@@ -272,7 +278,7 @@ export class PagesComponent implements OnInit {
       error: (error: any) => {
         console.error('Error saving landing page content:', error);
         this.snackBar.open(
-          'Database not set up. Please run the SQL script to create the required tables.',
+          'Database connection failed. Please check if the database tables exist and run the setup script.',
           'Close',
           {
             duration: 7000,

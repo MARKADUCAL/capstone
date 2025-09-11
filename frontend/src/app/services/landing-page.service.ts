@@ -139,7 +139,10 @@ export class LandingPageService {
         description: frontendContent.heroDescription || '',
         background_url: frontendContent.heroBackgroundUrl || '',
       },
-      services: frontendContent.services || [],
+      services: (frontendContent.services || []).map((service: any) => ({
+        name: service.name || '',
+        image_url: service.imageUrl || service.image_url || '',
+      })),
       gallery: frontendContent.galleryImages || [],
       contact_info: {
         address: frontendContent.contactInfo?.address || '',
@@ -166,7 +169,10 @@ export class LandingPageService {
       heroTitle: backendContent.hero?.title || '',
       heroDescription: backendContent.hero?.description || '',
       heroBackgroundUrl: backendContent.hero?.background_url || '',
-      services: backendContent.services || [],
+      services: (backendContent.services || []).map((service: any) => ({
+        name: service.name || '',
+        imageUrl: service.image_url || service.imageUrl || '',
+      })),
       galleryImages: backendContent.gallery || [],
       contactInfo: {
         address: backendContent.contact_info?.address || '',
