@@ -373,7 +373,7 @@ export class CarWashBookingComponent implements OnInit {
           const booking = {
             id: Number(b.id ?? idx + 1),
             customerName: this.resolveCustomerName(b.customerName, b.nickname),
-            vehicleType: b.vehicleType ?? 'Unknown',
+            vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
             date: b.washDate ?? '',
             time: b.washTime ?? '',
             status: (b.status ?? 'Pending') as
