@@ -14,6 +14,8 @@ import {
   ApiResponse,
   LandingPageContent,
 } from '../../../services/landing-page.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 interface Service {
   name: string;
@@ -265,51 +267,114 @@ export class PagesComponent implements OnInit {
   }
 
   saveChanges(): void {
-    const backendContent = this.landingPageService.convertToBackendFormat(
-      this.content
-    );
+    // Send section-by-section updates to improve compatibility with some hosts
+    const heroPayload = {
+      title: this.content.heroTitle,
+      description: this.content.heroDescription,
+      background_url: this.content.heroBackgroundUrl,
+    };
+    const servicesPayload = (this.content.services || []).map((s) => ({
+      name: s.name,
+      image_url: (s as any).image_url || s.imageUrl || '',
+    }));
+    const galleryPayload = this.content.galleryImages || [];
+    const contactPayload = {
+      address: this.content.contactInfo?.address || '',
+      opening_hours: this.content.contactInfo?.openingHours || '',
+      phone: this.content.contactInfo?.phone || '',
+      email: this.content.contactInfo?.email || '',
+    };
+    const footerPayload = {
+      address: this.content.footer?.address || '',
+      phone: this.content.footer?.phone || '',
+      email: this.content.footer?.email || '',
+      copyright: this.content.footer?.copyright || '',
+      facebook: this.content.footer?.facebook || '',
+      instagram: this.content.footer?.instagram || '',
+      twitter: this.content.footer?.twitter || '',
+      tiktok: this.content.footer?.tiktok || '',
+    };
 
-    console.log('=== SAVE CHANGES DEBUG ===');
-    console.log('Frontend content:', this.content);
-    console.log('Converted backend content:', backendContent);
-    console.log(
-      'API URL:',
-      `${this.landingPageService['apiUrl']}/update_landing_page_content`
-    );
+    console.log('=== SAVE (SECTIONED) DEBUG ===');
+    console.log('Hero:', heroPayload);
+    console.log('Services:', servicesPayload);
+    console.log('Gallery:', galleryPayload);
+    console.log('Contact:', contactPayload);
+    console.log('Footer:', footerPayload);
 
-    this.landingPageService.updateLandingPageContent(backendContent).subscribe({
-      next: (response: ApiResponse<any> | null) => {
-        if (
-          response &&
-          response.status &&
-          response.status.remarks === 'success'
-        ) {
-          this.snackBar.open('Changes saved successfully!', 'Close', {
+    const requests = {
+      hero: this.landingPageService.updateSection('hero', heroPayload).pipe(
+        catchError((e) => {
+          console.error('Hero save error', e);
+          return of(null);
+        })
+      ),
+      services: this.landingPageService
+        .updateSection('services', servicesPayload)
+        .pipe(
+          catchError((e) => {
+            console.error('Services save error', e);
+            return of(null);
+          })
+        ),
+      gallery: this.landingPageService
+        .updateSection('gallery', galleryPayload)
+        .pipe(
+          catchError((e) => {
+            console.error('Gallery save error', e);
+            return of(null);
+          })
+        ),
+      contact_info: this.landingPageService
+        .updateSection('contact_info', contactPayload)
+        .pipe(
+          catchError((e) => {
+            console.error('Contact save error', e);
+            return of(null);
+          })
+        ),
+      footer: this.landingPageService
+        .updateSection('footer', footerPayload)
+        .pipe(
+          catchError((e) => {
+            console.error('Footer save error', e);
+            return of(null);
+          })
+        ),
+    };
+
+    forkJoin(requests)
+      .pipe(
+        map((res) => {
+          const keys = Object.keys(res);
+          const successes = keys.filter(
+            (k) =>
+              (res as any)[k] && (res as any)[k].status?.remarks === 'success'
+          );
+          return { total: keys.length, ok: successes.length };
+        })
+      )
+      .subscribe(({ total, ok }) => {
+        if (ok === total) {
+          this.snackBar.open('All changes saved successfully!', 'Close', {
             duration: 3000,
           });
-          console.log('Save successful:', response);
+        } else if (ok > 0) {
+          this.snackBar.open(
+            `${ok}/${total} sections saved. Some failed — please retry.`,
+            'Close',
+            { duration: 6000 }
+          );
         } else {
-          console.error('Save failed:', response);
           // Fallback: save locally so admin can continue editing without DB
           this.saveToLocalStorage();
           this.snackBar.open(
-            'No database response. Changes saved to your browser only.',
+            'Could not reach API. Changes saved to your browser only.',
             'Close',
             { duration: 6000 }
           );
         }
-      },
-      error: (error: any) => {
-        console.error('Error saving landing page content:', error);
-        // Fallback: save locally so admin can continue editing without DB
-        this.saveToLocalStorage();
-        this.snackBar.open(
-          'Database not reachable. Changes saved to your browser only.',
-          'Close',
-          { duration: 6000 }
-        );
-      },
-    });
+      });
   }
 
   onHeroBackgroundSelected(event: Event): void {
