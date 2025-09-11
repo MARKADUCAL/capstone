@@ -645,7 +645,10 @@ export class CarWashBookingComponent implements OnInit {
             <div class="info-item">
               <span class="label">Wash Time</span>
               <span class="value">{{
-                data.booking.time || data.booking.washTime
+                formatTimeForUnknownVehicle(
+                  data.booking.time || data.booking.washTime || '',
+                  data.booking.vehicleType
+                )
               }}</span>
             </div>
             <div class="info-item" *ngIf="data.booking.dateCreated">
@@ -1174,6 +1177,18 @@ export class BookingDetailsDialogComponent {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  }
+
+  formatTimeForUnknownVehicle(timeString: string, vehicleType: string): string {
+    // If vehicle type is "Unknown", format time as 1:00pm or 1:00am
+    if (vehicleType === 'Unknown') {
+      // Check if it's currently morning or afternoon based on current time
+      const now = new Date();
+      const isMorning = now.getHours() < 12;
+      return isMorning ? '1:00am' : '1:00pm';
+    }
+    // Return original time for other vehicle types, or empty string if no time
+    return timeString || '';
   }
 }
 
