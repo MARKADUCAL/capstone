@@ -209,7 +209,7 @@ export class CarWashBookingComponent implements OnInit {
                 b.customerName,
                 b.nickname
               ),
-              vehicleType: b.vehicleType ?? 'Unknown',
+              vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
               date: b.washDate ?? '',
               time: b.washTime ?? '',
               status: normalizedStatus,
@@ -341,7 +341,12 @@ export class CarWashBookingComponent implements OnInit {
             </div>
             <div class="info-item">
               <span class="label">Time</span>
-              <span class="value">{{ data.booking.time }}</span>
+              <span class="value">{{
+                formatTimeForUnknownVehicle(
+                  data.booking.time || '',
+                  data.booking.vehicleType
+                )
+              }}</span>
             </div>
           </div>
         </div>
@@ -665,5 +670,48 @@ export class BookingDetailsDialogComponent {
 
   onMarkAsDone(): void {
     this.dialogRef.close({ markAsDone: true });
+  }
+
+  formatTimeForUnknownVehicle(timeString: string, vehicleType: string): string {
+    // If vehicle type is "Unknown", format time as 1:00pm or 1:00am
+    if (vehicleType === 'Unknown') {
+      // Check if it's currently morning or afternoon based on current time
+      const now = new Date();
+      const isMorning = now.getHours() < 12;
+      return isMorning ? '1:00am' : '1:00pm';
+    }
+
+    // For other vehicle types, format the time to 12-hour format with AM/PM
+    if (timeString) {
+      return this.formatTimeTo12Hour(timeString);
+    }
+
+    return '';
+  }
+
+  formatTimeTo12Hour(timeString: string): string {
+    try {
+      // Handle different time formats (HH:MM:SS, HH:MM, etc.)
+      const timeParts = timeString.split(':');
+      if (timeParts.length >= 2) {
+        const hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+
+        if (isNaN(hours) || isNaN(minutes)) {
+          return timeString; // Return original if parsing fails
+        }
+
+        // Convert to 12-hour format
+        const period = hours >= 12 ? 'pm' : 'am';
+        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+        const displayMinutes = minutes.toString().padStart(2, '0');
+
+        return `${displayHours}:${displayMinutes}${period}`;
+      }
+    } catch (error) {
+      console.warn('Error formatting time:', error);
+    }
+
+    return timeString; // Return original if formatting fails
   }
 }
