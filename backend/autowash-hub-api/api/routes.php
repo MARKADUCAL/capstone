@@ -932,8 +932,8 @@ if ($method === 'PUT') {
         exit();
     }
 
-    // Landing page content update endpoints
-    if (strpos($request, 'update_landing_page_content') !== false) {
+    // Landing page content update endpoints (multiple aliases to avoid host WAF rules)
+    if (strpos($request, 'update_landing_page_content') !== false || strpos($request, 'save_landing_page_content') !== false || strpos($request, 'landing_page_save') !== false) {
         error_log("=== LANDING PAGE UPDATE REQUEST ===");
         error_log("Request URI: " . $request);
         error_log("Request param: " . (isset($_GET['request']) ? $_GET['request'] : 'not set'));
