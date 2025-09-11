@@ -3310,6 +3310,20 @@ class Post extends GlobalMethods
             error_log("Received data: " . json_encode($data));
             error_log("Data type: " . gettype($data));
             
+            // Normalize incoming data to associative array to handle both stdClass and array inputs
+            if (is_object($data)) {
+                $data = json_decode(json_encode($data), true);
+            }
+            if (!is_array($data)) {
+                error_log("Incoming data is not array-like after normalization");
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Invalid request body format. Expected JSON object.",
+                    400
+                );
+            }
+            
             // Handle the frontend format where the entire content object is sent
             $sections = [
                 'hero' => [

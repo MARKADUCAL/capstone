@@ -69,6 +69,7 @@ interface FrontendLandingPageContent {
   styleUrl: './pages.component.css',
 })
 export class PagesComponent implements OnInit {
+  private readonly STORAGE_KEY = 'landingPageContent';
   content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
@@ -115,6 +116,12 @@ export class PagesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load any locally saved draft first (no-DB mode)
+    const localDraft = this.loadFromLocalStorage();
+    if (localDraft) {
+      this.content = localDraft;
+      console.log('Loaded landing page draft from localStorage.');
+    }
     this.loadLandingPageContent();
   }
 
@@ -139,22 +146,41 @@ export class PagesComponent implements OnInit {
             'Failed to load landing page content:',
             response?.status?.message || 'No response received'
           );
-          // Keep default content if loading fails
-          this.snackBar.open(
-            'Using default content. Database tables may not exist. Please run the setup script.',
-            'Close',
-            { duration: 7000 }
-          );
+          // Fallback to localStorage if present
+          const local = this.loadFromLocalStorage();
+          if (local) {
+            this.content = local;
+            this.snackBar.open(
+              'Loaded content from your browser (no database connection).',
+              'Close',
+              { duration: 5000 }
+            );
+          } else {
+            this.snackBar.open(
+              'Using default content. Database not connected. Your edits will be saved locally.',
+              'Close',
+              { duration: 7000 }
+            );
+          }
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content:', error);
-        this.snackBar.open(
-          'Database connection failed. Please check if the database tables exist and run the setup script.',
-          'Close',
-          { duration: 7000 }
-        );
-        // Keep default content if loading fails
+        const local = this.loadFromLocalStorage();
+        if (local) {
+          this.content = local;
+          this.snackBar.open(
+            'Loaded content from your browser (no database connection).',
+            'Close',
+            { duration: 5000 }
+          );
+        } else {
+          this.snackBar.open(
+            'Database connection failed. Your edits will be saved locally only.',
+            'Close',
+            { duration: 7000 }
+          );
+        }
       },
     });
   }
@@ -264,25 +290,23 @@ export class PagesComponent implements OnInit {
           console.log('Save successful:', response);
         } else {
           console.error('Save failed:', response);
+          // Fallback: save locally so admin can continue editing without DB
+          this.saveToLocalStorage();
           this.snackBar.open(
-            'Failed to save changes: ' +
-              (response?.status?.message ||
-                'No response received. Database tables may not exist.'),
+            'No database response. Changes saved to your browser only.',
             'Close',
-            {
-              duration: 7000,
-            }
+            { duration: 6000 }
           );
         }
       },
       error: (error: any) => {
         console.error('Error saving landing page content:', error);
+        // Fallback: save locally so admin can continue editing without DB
+        this.saveToLocalStorage();
         this.snackBar.open(
-          'Database connection failed. Please check if the database tables exist and run the setup script.',
+          'Database not reachable. Changes saved to your browser only.',
           'Close',
-          {
-            duration: 7000,
-          }
+          { duration: 6000 }
         );
       },
     });
@@ -335,5 +359,28 @@ export class PagesComponent implements OnInit {
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  private loadFromLocalStorage(): FrontendLandingPageContent | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed as FrontendLandingPageContent;
+    } catch (e) {
+      console.warn('Failed to read local landing page draft:', e);
+      return null;
+    }
+  }
+
+  private saveToLocalStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
+      console.log('Saved landing page draft to localStorage.');
+    } catch (e) {
+      console.warn('Failed to save landing page draft locally:', e);
+    }
   }
 }

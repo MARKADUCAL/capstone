@@ -49,6 +49,7 @@ type FrontendLandingPageContent = {
   styleUrl: './landing-page.component.css',
 })
 export class LandingPageComponent implements OnInit, OnDestroy {
+  private readonly STORAGE_KEY = 'landingPageContent';
   mobileMenuOpen = false;
   showModal = false;
 
@@ -115,6 +116,12 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
+    // Try localStorage first so the page works without DB
+    const local = this.loadFromLocalStorage();
+    if (local) {
+      this.content = local;
+      console.log('Landing page content loaded from localStorage.');
+    }
     this.loadLandingPageContent();
   }
 
@@ -130,17 +137,19 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
+          // refresh local cache for no-DB mode consumers
+          this.saveToLocalStorage();
         } else {
           console.warn(
             'Failed to load landing page content:',
             response?.status?.message || 'No response received'
           );
-          // Keep default content if loading fails
+          // Keep default or previously cached local content
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content:', error);
-        // Keep default content if loading fails
+        // Keep default or previously cached local content
       },
     });
   }
@@ -297,5 +306,23 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.showVerificationModal = false;
     this.verificationCode = '';
     this.isEmailVerified = false;
+  }
+
+  private loadFromLocalStorage(): FrontendLandingPageContent | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw) as FrontendLandingPageContent;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private saveToLocalStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
+    } catch (e) {}
   }
 }
