@@ -1187,8 +1187,39 @@ export class BookingDetailsDialogComponent {
       const isMorning = now.getHours() < 12;
       return isMorning ? '1:00am' : '1:00pm';
     }
-    // Return original time for other vehicle types, or empty string if no time
-    return timeString || '';
+
+    // For other vehicle types, format the time to 12-hour format with AM/PM
+    if (timeString) {
+      return this.formatTimeTo12Hour(timeString);
+    }
+
+    return '';
+  }
+
+  formatTimeTo12Hour(timeString: string): string {
+    try {
+      // Handle different time formats (HH:MM:SS, HH:MM, etc.)
+      const timeParts = timeString.split(':');
+      if (timeParts.length >= 2) {
+        const hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+
+        if (isNaN(hours) || isNaN(minutes)) {
+          return timeString; // Return original if parsing fails
+        }
+
+        // Convert to 12-hour format
+        const period = hours >= 12 ? 'pm' : 'am';
+        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+        const displayMinutes = minutes.toString().padStart(2, '0');
+
+        return `${displayHours}:${displayMinutes}${period}`;
+      }
+    } catch (error) {
+      console.warn('Error formatting time:', error);
+    }
+
+    return timeString; // Return original if formatting fails
   }
 }
 
