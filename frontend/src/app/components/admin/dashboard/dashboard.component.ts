@@ -407,10 +407,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Helper method to format currency
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
+    return (
+      '₱' +
+      new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount)
+    );
   }
 
   // Helper method to format date

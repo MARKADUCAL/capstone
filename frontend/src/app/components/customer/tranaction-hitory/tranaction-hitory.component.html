@@ -455,9 +455,9 @@
           <div class="detail-content">
             <div class="detail-row">
               <span class="label">Amount:</span>
-              <span class="value price">{{
-                selectedBooking.price | currency : "PHP"
-              }}</span>
+              <span class="value price"
+                >₱{{ selectedBooking.price | number : "1.2-2" }}</span
+              >
             </div>
             <div class="detail-row">
               <span class="label">Method:</span>

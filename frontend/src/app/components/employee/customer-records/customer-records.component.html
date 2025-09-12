@@ -196,7 +196,7 @@
             <div class="info-item">
               <div class="info-label">Amount:</div>
               <div class="info-value amount" *ngIf="raw.price as p">
-                {{ p | currency : "PHP" : "symbol-narrow" }}
+                ₱{{ p | number : "1.2-2" }}
               </div>
               <div class="info-value" *ngIf="!raw.price">—</div>
             </div>
