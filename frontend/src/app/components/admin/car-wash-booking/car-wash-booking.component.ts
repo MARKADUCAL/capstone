@@ -622,9 +622,9 @@ export class CarWashBookingComponent implements OnInit {
             </div>
             <div class="info-item">
               <span class="label">Price</span>
-              <span class="value price">{{
-                data.booking.price | currency
-              }}</span>
+              <span class="value price"
+                >₱{{ data.booking.price | number : '1.2-2' }}</span
+              >
             </div>
           </div>
         </div>
@@ -1286,7 +1286,9 @@ export class BookingDetailsDialogComponent {
           <mat-icon>attach_money</mat-icon>
           <div class="detail-text">
             <div class="label">Price</div>
-            <div class="value">{{ data.booking.price | currency }}</div>
+            <div class="value">
+              ₱{{ data.booking.price | number : '1.2-2' }}
+            </div>
           </div>
         </div>
       </div>

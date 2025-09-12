@@ -97,8 +97,9 @@ export class LandingPageService {
     sectionName: string,
     content: any
   ): Observable<ApiResponse<any>> {
+    // Use alias path to avoid potential WAF rules on provider
     return this.http.post<ApiResponse<any>>(
-      `${this.apiUrl}/update_landing_page_section/${sectionName}`,
+      `${this.apiUrl}/save_landing_page_section/${sectionName}`,
       content,
       { headers: this.getHeaders() }
     );

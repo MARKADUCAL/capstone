@@ -948,7 +948,11 @@ if ($method === 'PUT') {
         exit();
     }
 
-    if (strpos($request, 'update_landing_page_section') !== false) {
+    if (
+        strpos($request, 'update_landing_page_section') !== false ||
+        strpos($request, 'save_landing_page_section') !== false ||
+        strpos($request, 'landing_page_section_save') !== false
+    ) {
         // Extract section name from URL
         $parts = explode('/', $request);
         $section_name = end($parts);
