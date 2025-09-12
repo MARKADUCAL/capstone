@@ -279,6 +279,12 @@
   font-weight: 700;
 }
 
+.peso-symbol {
+  font-weight: 700;
+  color: #059669;
+  font-size: 16px;
+}
+
 /* Action buttons styling */
 .action-buttons {
   display: flex;

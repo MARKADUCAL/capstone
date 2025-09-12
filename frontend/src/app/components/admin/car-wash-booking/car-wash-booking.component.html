@@ -93,19 +93,20 @@
       <div class="card-body">
         <div class="info-grid">
           <div class="info">
-            <mat-icon>calendar_today</mat-icon> {{ booking.date }}
+            <mat-icon>calendar_today</mat-icon>
+            {{ formatDate(booking.date) || "No date set" }}
           </div>
           <div class="info">
-            <mat-icon>access_time</mat-icon> {{ booking.time }}
+            <mat-icon>access_time</mat-icon>
+            {{ formatTime(booking.time) || "No time set" }}
           </div>
           <div class="info">
             <mat-icon>local_car_wash</mat-icon>
             {{ booking.serviceType || "Standard Wash" }}
           </div>
           <div class="info price">
-            <mat-icon>attach_money</mat-icon> ₱{{
-              booking.price | number : "1.2-2"
-            }}
+            <span class="peso-symbol">₱</span>
+            {{ booking.price | number : "1.2-2" }}
           </div>
         </div>
 

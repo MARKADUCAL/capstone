@@ -430,8 +430,36 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  }
+
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    try {
+      // Handle different time formats (HH:MM:SS, HH:MM, etc.)
+      const timeParts = timeString.split(':');
+      if (timeParts.length >= 2) {
+        const hours = parseInt(timeParts[0], 10);
+        const minutes = parseInt(timeParts[1], 10);
+
+        if (isNaN(hours) || isNaN(minutes)) {
+          return timeString; // Return original if parsing fails
+        }
+
+        // Convert to 12-hour format
+        const period = hours >= 12 ? 'pm' : 'am';
+        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+        const displayMinutes = minutes.toString().padStart(2, '0');
+
+        return `${displayHours}:${displayMinutes}${period}`;
+      }
+    } catch (error) {
+      console.warn('Error formatting time:', error);
+    }
+
+    return timeString; // Return original if formatting fails
   }
 
   private openBookingDialog(booking: CarWashBooking, mode: 'view' | 'edit') {
