@@ -47,6 +47,7 @@ require_once "./autoload.php";
 require_once "./modules/get.php";
 require_once "./modules/post.php";
 require_once "./modules/put.php";
+require_once "./modules/upload.php";
 require_once "./config/database.php";
 
 // Manually include JWT library to ensure it's loaded
@@ -731,6 +732,56 @@ if ($method === 'POST') {
     if (strpos($request, 'add_booking_history') !== false) {
         $result = $post->add_booking_history($data);
         echo json_encode($result);
+        exit();
+    }
+    
+    // Add inventory item with image upload
+    if (strpos($request, 'add_inventory_item_with_image') !== false) {
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $result = $post->add_inventory_item_with_image($data, $_FILES['image']);
+            echo json_encode($result);
+        } else {
+            echo json_encode(['status' => 'failed', 'message' => 'No image file provided', 'data' => null]);
+        }
+        exit();
+    }
+}
+
+// Handle file uploads
+if ($method === 'POST' && isset($_FILES)) {
+    // Initialize upload handler
+    $uploadHandler = new UploadHandler($pdo);
+    
+    // Create uploaded_files table if it doesn't exist
+    $uploadHandler->createUploadedFilesTable();
+    
+    // Single file upload
+    if (strpos($request, 'upload_file') !== false) {
+        $category = $_POST['category'] ?? 'general';
+        $result = $uploadHandler->uploadFile($_FILES['file'], $category);
+        echo json_encode($result);
+        exit();
+    }
+    
+    // Multiple files upload
+    if (strpos($request, 'upload_multiple_files') !== false) {
+        $category = $_POST['category'] ?? 'general';
+        $result = $uploadHandler->uploadMultipleFiles($_FILES['files'], $category);
+        echo json_encode($result);
+        exit();
+    }
+    
+    // Delete file
+    if (strpos($request, 'delete_file') !== false) {
+        $data = json_decode(file_get_contents("php://input"));
+        $filePath = $data->filepath ?? null;
+        
+        if ($filePath) {
+            $result = $uploadHandler->deleteFile($filePath);
+            echo json_encode($result);
+        } else {
+            echo json_encode(['status' => 'failed', 'message' => 'File path required', 'data' => null]);
+        }
         exit();
     }
 }

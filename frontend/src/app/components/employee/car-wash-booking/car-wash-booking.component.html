@@ -93,9 +93,8 @@
             {{ booking.serviceType || "Standard Wash" }}
           </div>
           <div class="info price">
-            <mat-icon>attach_money</mat-icon> ₱{{
-              booking.price | number : "1.2-2"
-            }}
+            <span class="peso-symbol">₱</span
+            >{{ booking.price | number : "1.2-2" }}
           </div>
         </div>
       </div>

@@ -203,17 +203,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (!this.validateContactForm()) {
       return;
     }
-
-    // Check if email is Gmail
-    if (!this.contactService.verifyGmailFormat(this.contactForm.email)) {
-      this.contactErrorMessage =
-        'Please use a valid Gmail address (@gmail.com)';
-      return;
-    }
-
-    // Show verification modal
-    this.verificationEmail = this.contactForm.email;
-    this.showVerificationModal = true;
+    // Directly submit without Gmail-only check or verification
+    this.submitContactForm();
   }
 
   validateContactForm(): boolean {

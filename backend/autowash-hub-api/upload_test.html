@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Upload Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+      }
+      input[type="file"],
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      .section {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      .section h3 {
+        margin-top: 0;
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>File Upload Test</h1>
+
+      <div class="section">
+        <h3>Single File Upload</h3>
+        <form id="singleUploadForm">
+          <div class="form-group">
+            <label for="singleFile">Select File:</label>
+            <input
+              type="file"
+              id="singleFile"
+              name="file"
+              accept="image/*"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="singleCategory">Category:</label>
+            <select id="singleCategory" name="category">
+              <option value="inventory">Inventory</option>
+              <option value="services">Services</option>
+              <option value="gallery">Gallery</option>
+              <option value="profiles">Profiles</option>
+            </select>
+          </div>
+          <button type="submit">Upload Single File</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <h3>Multiple Files Upload</h3>
+        <form id="multipleUploadForm">
+          <div class="form-group">
+            <label for="multipleFiles">Select Files:</label>
+            <input
+              type="file"
+              id="multipleFiles"
+              name="files"
+              accept="image/*"
+              multiple
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="multipleCategory">Category:</label>
+            <select id="multipleCategory" name="category">
+              <option value="inventory">Inventory</option>
+              <option value="services">Services</option>
+              <option value="gallery">Gallery</option>
+              <option value="profiles">Profiles</option>
+            </select>
+          </div>
+          <button type="submit">Upload Multiple Files</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <h3>Inventory Item with Image</h3>
+        <form id="inventoryForm">
+          <div class="form-group">
+            <label for="itemName">Item Name:</label>
+            <input type="text" id="itemName" name="name" required />
+          </div>
+          <div class="form-group">
+            <label for="itemStock">Stock:</label>
+            <input type="number" id="itemStock" name="stock" required />
+          </div>
+          <div class="form-group">
+            <label for="itemPrice">Price:</label>
+            <input
+              type="number"
+              id="itemPrice"
+              name="price"
+              step="0.01"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="itemCategory">Category:</label>
+            <input type="text" id="itemCategory" name="category" />
+          </div>
+          <div class="form-group">
+            <label for="inventoryImage">Image:</label>
+            <input
+              type="file"
+              id="inventoryImage"
+              name="image"
+              accept="image/*"
+              required
+            />
+          </div>
+          <button type="submit">Add Inventory Item</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <h3>Delete File</h3>
+        <form id="deleteForm">
+          <div class="form-group">
+            <label for="filePath"
+              >File Path (e.g.,
+              uploads/inventory_1234567890_1234567890.jpg):</label
+            >
+            <input type="text" id="filePath" name="filepath" required />
+          </div>
+          <button type="submit">Delete File</button>
+        </form>
+      </div>
+
+      <div id="result"></div>
+    </div>
+
+    <script>
+      const API_BASE = "./api/";
+
+      function showResult(message, isError = false) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.className = `result ${isError ? "error" : "success"}`;
+        resultDiv.textContent = message;
+      }
+
+      // Single file upload
+      document
+        .getElementById("singleUploadForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData();
+          const fileInput = document.getElementById("singleFile");
+          const category = document.getElementById("singleCategory").value;
+
+          formData.append("file", fileInput.files[0]);
+          formData.append("category", category);
+
+          try {
+            const response = await fetch(API_BASE + "upload_file", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+            showResult(
+              JSON.stringify(result, null, 2),
+              result.status !== "success"
+            );
+          } catch (error) {
+            showResult("Error: " + error.message, true);
+          }
+        });
+
+      // Multiple files upload
+      document
+        .getElementById("multipleUploadForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData();
+          const fileInput = document.getElementById("multipleFiles");
+          const category = document.getElementById("multipleCategory").value;
+
+          for (let i = 0; i < fileInput.files.length; i++) {
+            formData.append("files[]", fileInput.files[i]);
+          }
+          formData.append("category", category);
+
+          try {
+            const response = await fetch(API_BASE + "upload_multiple_files", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+            showResult(
+              JSON.stringify(result, null, 2),
+              result.status !== "success"
+            );
+          } catch (error) {
+            showResult("Error: " + error.message, true);
+          }
+        });
+
+      // Inventory item with image
+      document
+        .getElementById("inventoryForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData();
+          const imageInput = document.getElementById("inventoryImage");
+
+          formData.append("image", imageInput.files[0]);
+          formData.append("name", document.getElementById("itemName").value);
+          formData.append("stock", document.getElementById("itemStock").value);
+          formData.append("price", document.getElementById("itemPrice").value);
+          formData.append(
+            "category",
+            document.getElementById("itemCategory").value
+          );
+
+          try {
+            const response = await fetch(
+              API_BASE + "add_inventory_item_with_image",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+
+            const result = await response.json();
+            showResult(
+              JSON.stringify(result, null, 2),
+              result.status !== "success"
+            );
+          } catch (error) {
+            showResult("Error: " + error.message, true);
+          }
+        });
+
+      // Delete file
+      document
+        .getElementById("deleteForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const filePath = document.getElementById("filePath").value;
+
+          try {
+            const response = await fetch(API_BASE + "delete_file", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ filepath: filePath }),
+            });
+
+            const result = await response.json();
+            showResult(
+              JSON.stringify(result, null, 2),
+              result.status !== "success"
+            );
+          } catch (error) {
+            showResult("Error: " + error.message, true);
+          }
+        });
+    </script>
+  </body>
+</html>

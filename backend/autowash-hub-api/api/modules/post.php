@@ -1842,6 +1842,54 @@ class Post extends GlobalMethods
 
     }
 
+    public function add_inventory_item_with_image($data, $file) {
+        if (empty($data->name) || !isset($data->stock) || !isset($data->price)) {
+            return $this->sendPayload(null, "failed", "Missing required fields", 400);
+        }
+
+        try {
+            // Handle image upload if file is provided
+            $imageUrl = null;
+            if ($file && $file['error'] === UPLOAD_ERR_OK) {
+                require_once __DIR__ . '/upload.php';
+                $uploadHandler = new UploadHandler($this->pdo);
+                $uploadHandler->createUploadedFilesTable();
+                
+                $uploadResult = $uploadHandler->uploadFile($file, 'inventory');
+                $uploadData = json_decode($uploadResult, true);
+                
+                if ($uploadData['status'] === 'success') {
+                    $imageUrl = $uploadData['data']['filepath'];
+                } else {
+                    return $this->sendPayload(null, "failed", "Image upload failed: " . $uploadData['message'], 400);
+                }
+            }
+
+            $sql = "INSERT INTO inventory (name, image_url, stock, price, category) VALUES (?, ?, ?, ?, ?)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $data->name,
+                $imageUrl,
+                $data->stock,
+                $data->price,
+                $data->category ?? null
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                $id = $this->pdo->lastInsertId();
+                return $this->sendPayload([
+                    'id' => $id,
+                    'image_url' => $imageUrl
+                ], "success", "Inventory item added successfully", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Failed to add item", 400);
+
+        } catch (\PDOException $e) {
+            return $this->sendPayload(null, "failed", "Database error: " . $e->getMessage(), 500);
+        }
+    }
+
 
 
     public function delete_inventory_item($id) {

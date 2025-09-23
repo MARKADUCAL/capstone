@@ -177,7 +177,7 @@
         id="youremail"
         name="email"
         [(ngModel)]="contactForm.email"
-        placeholder="Your Email (Gmail only)"
+        placeholder="Your Email"
         required
       />
       <input
@@ -272,45 +272,4 @@
   </div>
 </div>
 
-<!-- Gmail Verification Modal -->
-<div class="modal-overlay" *ngIf="showVerificationModal">
-  <div class="custom-modal verification-modal">
-    <div class="modal-header">
-      <h3>Gmail Verification Required</h3>
-    </div>
-    <div class="modal-body">
-      <p>
-        We need to verify your Gmail address:
-        <strong>{{ verificationEmail }}</strong>
-      </p>
-      <p>Please check your email for a verification code and enter it below:</p>
-
-      <div class="verification-input">
-        <input
-          type="text"
-          [(ngModel)]="verificationCode"
-          placeholder="Enter 6-digit code"
-          maxlength="6"
-          class="verification-code-input"
-        />
-      </div>
-
-      <div class="verification-actions">
-        <button class="modal-btn modal-btn-ok" (click)="sendVerificationCode()">
-          Resend Code
-        </button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn modal-btn-ok" (click)="verifyCode()">
-        Verify & Send
-      </button>
-      <button
-        class="modal-btn modal-btn-cancel"
-        (click)="closeVerificationModal()"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>
+<!-- Removed Gmail Verification Modal -->

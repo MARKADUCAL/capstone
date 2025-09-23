@@ -187,21 +187,5 @@ export class ContactService {
       );
   }
 
-  // Verify Gmail address format
-  verifyGmailFormat(email: string): boolean {
-    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    return gmailRegex.test(email);
-  }
-
-  // Send verification email (mock implementation)
-  sendVerificationEmail(email: string): Observable<boolean> {
-    // In a real implementation, this would call an email service
-    // For now, we'll simulate the verification process
-    return new Observable((observer) => {
-      setTimeout(() => {
-        observer.next(true);
-        observer.complete();
-      }, 1000);
-    });
-  }
+  // Removed Gmail-only verification helpers; not required for sending messages
 }
