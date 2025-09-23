@@ -228,18 +228,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   sendVerificationCode() {
-    this.contactService.sendVerificationEmail(this.verificationEmail).subscribe(
-      (success) => {
-        if (success) {
-          this.contactErrorMessage = '';
-          // In a real app, you would show a message that verification code was sent
-        }
-      },
-      (error) => {
-        this.contactErrorMessage =
-          'Failed to send verification code. Please try again.';
-      }
-    );
+    // Verification no longer required; keep method as no-op to avoid breaking references
+    this.contactErrorMessage = '';
   }
 
   verifyCode() {
