@@ -189,18 +189,22 @@ export class PagesComponent implements OnInit {
 
   addService(): void {
     this.content.services.push({ name: '', imageUrl: '' });
+    this.onContentChange();
   }
 
   removeService(index: number): void {
     this.content.services.splice(index, 1);
+    this.onContentChange();
   }
 
   addGalleryImage(): void {
     this.content.galleryImages.push({ url: '', alt: '' });
+    this.onContentChange();
   }
 
   removeGalleryImage(index: number): void {
     this.content.galleryImages.splice(index, 1);
+    this.onContentChange();
   }
 
   testRouting(): void {
@@ -383,11 +387,29 @@ export class PagesComponent implements OnInit {
       return;
     }
     const file = input.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('Please select a valid image file', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('Image size must be less than 5MB', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : '';
       if (result) {
         this.content.heroBackgroundUrl = result;
+        this.onContentChange();
       }
     };
     reader.readAsDataURL(file);
@@ -400,11 +422,29 @@ export class PagesComponent implements OnInit {
       return;
     }
     const file = input.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('Please select a valid image file', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('Image size must be less than 5MB', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : '';
       if (result) {
         this.content.services[index].imageUrl = result;
+        this.onContentChange();
       }
     };
     reader.readAsDataURL(file);
@@ -416,11 +456,29 @@ export class PagesComponent implements OnInit {
       return;
     }
     const file = input.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('Please select a valid image file', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('Image size must be less than 5MB', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : '';
       if (result) {
         this.content.galleryImages[index].url = result;
+        this.onContentChange();
       }
     };
     reader.readAsDataURL(file);
@@ -447,5 +505,65 @@ export class PagesComponent implements OnInit {
     } catch (e) {
       console.warn('Failed to save landing page draft locally:', e);
     }
+  }
+
+  getPreviewUrl(): string {
+    // Save current content to localStorage for preview
+    this.saveToLocalStorage();
+    // Return the landing page URL with a timestamp to force refresh
+    return `/landing-page?preview=${Date.now()}`;
+  }
+
+  // Auto-save functionality
+  onContentChange(): void {
+    // Save to localStorage whenever content changes for real-time preview
+    this.saveToLocalStorage();
+  }
+
+  // Validation methods
+  validateContent(): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (!this.content.heroTitle?.trim()) {
+      errors.push('Hero title is required');
+    }
+
+    if (!this.content.heroDescription?.trim()) {
+      errors.push('Hero description is required');
+    }
+
+    if (!this.content.heroBackgroundUrl?.trim()) {
+      errors.push('Hero background image is required');
+    }
+
+    if (!this.content.services || this.content.services.length === 0) {
+      errors.push('At least one service is required');
+    } else {
+      this.content.services.forEach((service, index) => {
+        if (!service.name?.trim()) {
+          errors.push(`Service ${index + 1} name is required`);
+        }
+        if (!service.imageUrl?.trim()) {
+          errors.push(`Service ${index + 1} image is required`);
+        }
+      });
+    }
+
+    if (!this.content.contactInfo?.address?.trim()) {
+      errors.push('Contact address is required');
+    }
+
+    if (!this.content.contactInfo?.phone?.trim()) {
+      errors.push('Contact phone is required');
+    }
+
+    if (!this.content.contactInfo?.email?.trim()) {
+      errors.push('Contact email is required');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 }

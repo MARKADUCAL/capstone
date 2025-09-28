@@ -2,6 +2,26 @@
   <h1>Landing Page Content Management</h1>
 
   <mat-tab-group>
+    <!-- Live Preview Tab -->
+    <mat-tab label="Live Preview">
+      <div class="preview-container">
+        <div class="preview-header">
+          <h3>Live Preview - Landing Page</h3>
+          <p>See how your changes will look on the actual landing page</p>
+        </div>
+        <div class="preview-frame">
+          <iframe
+            [src]="getPreviewUrl()"
+            width="100%"
+            height="800px"
+            frameborder="0"
+            title="Landing Page Preview"
+          >
+          </iframe>
+        </div>
+      </div>
+    </mat-tab>
+
     <!-- Hero Section -->
     <mat-tab label="Hero Section">
       <mat-card class="content-card">
@@ -9,7 +29,7 @@
           <mat-card-title>Hero Content</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div style="margin-bottom: 16px">
+          <div class="file-upload-container">
             <label for="heroBg">Hero Background Image</label>
             <input
               id="heroBg"
@@ -17,38 +37,47 @@
               accept="image/*"
               (change)="onHeroBackgroundSelected($event)"
             />
-            <div *ngIf="content.heroBackgroundUrl" style="margin-top: 8px">
+            <div
+              *ngIf="content.heroBackgroundUrl"
+              class="image-preview-container"
+            >
               <small>Preview:</small>
               <img
                 [src]="content.heroBackgroundUrl"
                 alt="Hero background preview"
-                style="
-                  display: block;
-                  max-width: 320px;
-                  border-radius: 8px;
-                  margin-top: 4px;
-                "
+                class="image-preview hero-preview"
+                title="Hero background preview"
               />
             </div>
           </div>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hero Title</mat-label>
+            <mat-label>Hero Title *</mat-label>
             <input
               matInput
               [(ngModel)]="content.heroTitle"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter hero title"
+              required
             />
+            <mat-error *ngIf="!content.heroTitle?.trim()"
+              >Hero title is required</mat-error
+            >
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hero Description</mat-label>
+            <mat-label>Hero Description *</mat-label>
             <textarea
               matInput
               [(ngModel)]="content.heroDescription"
+              (ngModelChange)="onContentChange()"
               rows="4"
               placeholder="Enter hero description"
+              required
             ></textarea>
+            <mat-error *ngIf="!content.heroDescription?.trim()"
+              >Hero description is required</mat-error
+            >
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -74,24 +103,43 @@
                   accept="image/*"
                   (change)="onServiceImageSelected(i, $event)"
                 />
+                <div *ngIf="service.imageUrl" class="image-preview-container">
+                  <small>Preview:</small>
+                  <img
+                    [src]="service.imageUrl"
+                    [alt]="service.name + ' preview'"
+                    [title]="service.name + ' preview'"
+                    class="image-preview"
+                  />
+                </div>
               </div>
 
               <mat-form-field appearance="outline">
-                <mat-label>Service Name</mat-label>
+                <mat-label>Service Name *</mat-label>
                 <input
                   matInput
                   [(ngModel)]="service.name"
+                  (ngModelChange)="onContentChange()"
                   placeholder="Enter service name"
+                  required
                 />
+                <mat-error *ngIf="!service.name?.trim()"
+                  >Service name is required</mat-error
+                >
               </mat-form-field>
 
               <mat-form-field appearance="outline">
-                <mat-label>Image URL</mat-label>
+                <mat-label>Image URL *</mat-label>
                 <input
                   matInput
                   [(ngModel)]="service.imageUrl"
+                  (ngModelChange)="onContentChange()"
                   placeholder="Enter image URL"
+                  required
                 />
+                <mat-error *ngIf="!service.imageUrl?.trim()"
+                  >Service image is required</mat-error
+                >
               </mat-form-field>
 
               <button mat-icon-button color="warn" (click)="removeService(i)">
@@ -127,6 +175,15 @@
                   accept="image/*"
                   (change)="onGalleryImageSelected(i, $event)"
                 />
+                <div *ngIf="image.url" class="image-preview-container">
+                  <small>Preview:</small>
+                  <img
+                    [src]="image.url"
+                    [alt]="image.alt + ' preview'"
+                    [title]="image.alt + ' preview'"
+                    class="image-preview"
+                  />
+                </div>
               </div>
 
               <mat-form-field appearance="outline">
@@ -172,12 +229,17 @@
         </mat-card-header>
         <mat-card-content>
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Address</mat-label>
+            <mat-label>Address *</mat-label>
             <input
               matInput
               [(ngModel)]="content.contactInfo.address"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter address"
+              required
             />
+            <mat-error *ngIf="!content.contactInfo.address?.trim()"
+              >Address is required</mat-error
+            >
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -185,26 +247,38 @@
             <input
               matInput
               [(ngModel)]="content.contactInfo.openingHours"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter opening hours"
             />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Phone</mat-label>
+            <mat-label>Phone *</mat-label>
             <input
               matInput
               [(ngModel)]="content.contactInfo.phone"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter phone number"
+              required
             />
+            <mat-error *ngIf="!content.contactInfo.phone?.trim()"
+              >Phone is required</mat-error
+            >
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
+            <mat-label>Email *</mat-label>
             <input
               matInput
               [(ngModel)]="content.contactInfo.email"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter email"
+              type="email"
+              required
             />
+            <mat-error *ngIf="!content.contactInfo.email?.trim()"
+              >Email is required</mat-error
+            >
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -222,6 +296,7 @@
             <input
               matInput
               [(ngModel)]="content.footer.address"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter footer address"
             />
           </mat-form-field>
@@ -231,6 +306,7 @@
             <input
               matInput
               [(ngModel)]="content.footer.phone"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter footer phone"
             />
           </mat-form-field>
@@ -240,7 +316,9 @@
             <input
               matInput
               [(ngModel)]="content.footer.email"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter footer email"
+              type="email"
             />
           </mat-form-field>
 
@@ -249,6 +327,7 @@
             <input
               matInput
               [(ngModel)]="content.footer.copyright"
+              (ngModelChange)="onContentChange()"
               placeholder="Enter copyright text"
             />
           </mat-form-field>
@@ -259,6 +338,7 @@
               <input
                 matInput
                 [(ngModel)]="content.footer.facebook"
+                (ngModelChange)="onContentChange()"
                 placeholder="https://facebook.com/yourpage"
                 title="Facebook URL"
               />
@@ -268,6 +348,7 @@
               <input
                 matInput
                 [(ngModel)]="content.footer.instagram"
+                (ngModelChange)="onContentChange()"
                 placeholder="https://instagram.com/yourpage"
                 title="Instagram URL"
               />
@@ -277,6 +358,7 @@
               <input
                 matInput
                 [(ngModel)]="content.footer.twitter"
+                (ngModelChange)="onContentChange()"
                 placeholder="https://twitter.com/yourpage"
                 title="Twitter URL"
               />
@@ -286,6 +368,7 @@
               <input
                 matInput
                 [(ngModel)]="content.footer.tiktok"
+                (ngModelChange)="onContentChange()"
                 placeholder="https://tiktok.com/@yourpage"
                 title="TikTok URL"
               />
@@ -301,7 +384,7 @@
       mat-raised-button
       color="accent"
       (click)="testRouting()"
-      style="margin-right: 10px"
+      class="test-button"
     >
       <mat-icon>wifi</mat-icon> Test GET
     </button>
@@ -309,12 +392,25 @@
       mat-raised-button
       color="warn"
       (click)="testPostRouting()"
-      style="margin-right: 10px"
+      class="test-button"
     >
       <mat-icon>send</mat-icon> Test POST
     </button>
-    <button mat-raised-button color="primary" (click)="saveChanges()">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="saveChanges()"
+      [disabled]="!validateContent().isValid"
+    >
       <mat-icon>save</mat-icon> Save Changes
     </button>
+  </div>
+
+  <!-- Validation Errors Display -->
+  <div *ngIf="!validateContent().isValid" class="validation-errors">
+    <h4>Please fix the following errors before saving:</h4>
+    <ul>
+      <li *ngFor="let error of validateContent().errors">{{ error }}</li>
+    </ul>
   </div>
 </div>
