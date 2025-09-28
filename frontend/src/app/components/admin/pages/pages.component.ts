@@ -77,12 +77,12 @@ interface FrontendLandingPageContent {
   styleUrl: './pages.component.css',
 })
 export class PagesComponent implements OnInit, OnDestroy {
-  private readonly STORAGE_KEY = 'landingPageContent';
   validationResult: { isValid: boolean; errors: string[] } = {
     isValid: true,
     errors: [],
   };
   private validationTimeout: any;
+  isSaving = false;
 
   content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
@@ -130,12 +130,6 @@ export class PagesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Load any locally saved draft first (no-DB mode)
-    const localDraft = this.loadFromLocalStorage();
-    if (localDraft) {
-      this.content = localDraft;
-      console.log('Loaded landing page draft from localStorage.');
-    }
     this.loadLandingPageContent();
     // Initialize validation
     this.updateValidation();
@@ -164,43 +158,22 @@ export class PagesComponent implements OnInit, OnDestroy {
             'Failed to load landing page content:',
             response?.status?.message || 'No response received'
           );
-          // Fallback to localStorage if present
-          const local = this.loadFromLocalStorage();
-          if (local) {
-            this.content = local;
-            this.snackBar.open(
-              'Loaded content from your browser (no database connection).',
-              'Close',
-              { duration: 5000 }
-            );
-          } else {
-            this.snackBar.open(
-              'Using default content. Database not connected. Your edits will be saved locally.',
-              'Close',
-              { duration: 7000 }
-            );
-          }
+          this.snackBar.open(
+            'Failed to load content from database. Please check your connection.',
+            'Close',
+            { duration: 5000 }
+          );
           // Update validation after loading content
           this.updateValidation();
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content:', error);
-        const local = this.loadFromLocalStorage();
-        if (local) {
-          this.content = local;
-          this.snackBar.open(
-            'Loaded content from your browser (no database connection).',
-            'Close',
-            { duration: 5000 }
-          );
-        } else {
-          this.snackBar.open(
-            'Database connection failed. Your edits will be saved locally only.',
-            'Close',
-            { duration: 7000 }
-          );
-        }
+        this.snackBar.open(
+          'Database connection failed. Please check your connection and try again.',
+          'Close',
+          { duration: 7000 }
+        );
         // Update validation after loading content
         this.updateValidation();
       },
@@ -291,6 +264,24 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   saveChanges(): void {
+    if (this.isSaving) {
+      return; // Prevent multiple simultaneous saves
+    }
+
+    // Validate content before saving
+    const validation = this.validateContent();
+    if (!validation.isValid) {
+      this.snackBar.open(
+        'Please fix validation errors before saving.',
+        'Close',
+        { duration: 3000 }
+      );
+      return;
+    }
+
+    this.isSaving = true;
+    this.snackBar.open('Saving changes...', 'Close', { duration: 2000 });
+
     // Send section-by-section updates to improve compatibility with some hosts
     const heroPayload = {
       title: this.content.heroTitle,
@@ -319,7 +310,7 @@ export class PagesComponent implements OnInit, OnDestroy {
       tiktok: this.content.footer?.tiktok || '',
     };
 
-    console.log('=== SAVE (SECTIONED) DEBUG ===');
+    console.log('=== SAVE TO DATABASE ===');
     console.log('Hero:', heroPayload);
     console.log('Services:', servicesPayload);
     console.log('Gallery:', galleryPayload);
@@ -378,26 +369,40 @@ export class PagesComponent implements OnInit, OnDestroy {
           return { total: keys.length, ok: successes.length };
         })
       )
-      .subscribe(({ total, ok }) => {
-        if (ok === total) {
-          this.snackBar.open('All changes saved successfully!', 'Close', {
-            duration: 3000,
-          });
-        } else if (ok > 0) {
+      .subscribe({
+        next: ({ total, ok }) => {
+          this.isSaving = false;
+          if (ok === total) {
+            this.snackBar.open(
+              'All changes saved successfully to database!',
+              'Close',
+              {
+                duration: 3000,
+              }
+            );
+          } else if (ok > 0) {
+            this.snackBar.open(
+              `${ok}/${total} sections saved to database. Some failed — please retry.`,
+              'Close',
+              { duration: 6000 }
+            );
+          } else {
+            this.snackBar.open(
+              'Failed to save to database. Please check your connection and try again.',
+              'Close',
+              { duration: 6000 }
+            );
+          }
+        },
+        error: (error) => {
+          this.isSaving = false;
+          console.error('Save error:', error);
           this.snackBar.open(
-            `${ok}/${total} sections saved. Some failed — please retry.`,
+            'Failed to save to database. Please check your connection and try again.',
             'Close',
             { duration: 6000 }
           );
-        } else {
-          // Fallback: save locally so admin can continue editing without DB
-          this.saveToLocalStorage();
-          this.snackBar.open(
-            'Could not reach API. Changes saved to your browser only.',
-            'Close',
-            { duration: 6000 }
-          );
-        }
+        },
       });
   }
 
@@ -504,40 +509,13 @@ export class PagesComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  private loadFromLocalStorage(): FrontendLandingPageContent | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
-    try {
-      const raw = localStorage.getItem(this.STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      return parsed as FrontendLandingPageContent;
-    } catch (e) {
-      console.warn('Failed to read local landing page draft:', e);
-      return null;
-    }
-  }
-
-  private saveToLocalStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
-      console.log('Saved landing page draft to localStorage.');
-    } catch (e) {
-      console.warn('Failed to save landing page draft locally:', e);
-    }
-  }
-
   getPreviewUrl(): string {
-    // Save current content to localStorage for preview
-    this.saveToLocalStorage();
     // Return the landing page URL with a timestamp to force refresh
     return `/landing-page?preview=${Date.now()}`;
   }
 
-  // Auto-save functionality
+  // Content change handler
   onContentChange(): void {
-    // Save to localStorage whenever content changes for real-time preview
-    this.saveToLocalStorage();
     // Update validation result
     this.updateValidation();
   }

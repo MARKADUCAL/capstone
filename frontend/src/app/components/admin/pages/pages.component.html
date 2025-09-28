@@ -400,9 +400,11 @@
       mat-raised-button
       color="primary"
       (click)="saveChanges()"
-      [disabled]="!validationResult.isValid"
+      [disabled]="!validationResult.isValid || isSaving"
     >
-      <mat-icon>save</mat-icon> Save Changes
+      <mat-icon *ngIf="!isSaving">save</mat-icon>
+      <mat-icon *ngIf="isSaving" class="spinning">refresh</mat-icon>
+      {{ isSaving ? "Saving..." : "Save Changes" }}
     </button>
   </div>
 

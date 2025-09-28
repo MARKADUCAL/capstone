@@ -222,6 +222,20 @@ button[mat-raised-button]:disabled {
   cursor: not-allowed;
 }
 
+/* Spinning animation for save button */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Responsive Design for Preview */
 @media (max-width: 768px) {
   .preview-frame iframe {
