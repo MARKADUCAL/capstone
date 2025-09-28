@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -72,9 +78,12 @@ interface FrontendLandingPageContent {
 })
 export class PagesComponent implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'landingPageContent';
-  validationResult: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] };
+  validationResult: { isValid: boolean; errors: string[] } = {
+    isValid: true,
+    errors: [],
+  };
   private validationTimeout: any;
-  
+
   content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
@@ -539,7 +548,7 @@ export class PagesComponent implements OnInit, OnDestroy {
     if (this.validationTimeout) {
       clearTimeout(this.validationTimeout);
     }
-    
+
     // Set new timeout to debounce validation
     this.validationTimeout = setTimeout(() => {
       this.validationResult = this.validateContent();
