@@ -396,21 +396,21 @@
     >
       <mat-icon>send</mat-icon> Test POST
     </button>
-    <button
-      mat-raised-button
-      color="primary"
+    <button 
+      mat-raised-button 
+      color="primary" 
       (click)="saveChanges()"
-      [disabled]="!validateContent().isValid"
+      [disabled]="!validationResult.isValid"
     >
       <mat-icon>save</mat-icon> Save Changes
     </button>
   </div>
 
   <!-- Validation Errors Display -->
-  <div *ngIf="!validateContent().isValid" class="validation-errors">
+  <div *ngIf="!validationResult.isValid" class="validation-errors">
     <h4>Please fix the following errors before saving:</h4>
     <ul>
-      <li *ngFor="let error of validateContent().errors">{{ error }}</li>
+      <li *ngFor="let error of validationResult.errors">{{ error }}</li>
     </ul>
   </div>
 </div>

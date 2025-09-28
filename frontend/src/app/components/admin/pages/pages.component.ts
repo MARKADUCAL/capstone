@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -70,8 +70,11 @@ interface FrontendLandingPageContent {
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.css',
 })
-export class PagesComponent implements OnInit {
+export class PagesComponent implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'landingPageContent';
+  validationResult: { isValid: boolean; errors: string[] } = { isValid: true, errors: [] };
+  private validationTimeout: any;
+  
   content: FrontendLandingPageContent = {
     heroTitle: 'CARWASHING MADE EASY',
     heroDescription:
@@ -125,6 +128,8 @@ export class PagesComponent implements OnInit {
       console.log('Loaded landing page draft from localStorage.');
     }
     this.loadLandingPageContent();
+    // Initialize validation
+    this.updateValidation();
   }
 
   loadLandingPageContent(): void {
@@ -143,6 +148,8 @@ export class PagesComponent implements OnInit {
             'Landing page content loaded successfully:',
             this.content
           );
+          // Update validation after loading content
+          this.updateValidation();
         } else {
           console.warn(
             'Failed to load landing page content:',
@@ -164,6 +171,8 @@ export class PagesComponent implements OnInit {
               { duration: 7000 }
             );
           }
+          // Update validation after loading content
+          this.updateValidation();
         }
       },
       error: (error: any) => {
@@ -183,6 +192,8 @@ export class PagesComponent implements OnInit {
             { duration: 7000 }
           );
         }
+        // Update validation after loading content
+        this.updateValidation();
       },
     });
   }
@@ -518,6 +529,21 @@ export class PagesComponent implements OnInit {
   onContentChange(): void {
     // Save to localStorage whenever content changes for real-time preview
     this.saveToLocalStorage();
+    // Update validation result
+    this.updateValidation();
+  }
+
+  // Update validation result with debounce
+  private updateValidation(): void {
+    // Clear existing timeout
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
+    
+    // Set new timeout to debounce validation
+    this.validationTimeout = setTimeout(() => {
+      this.validationResult = this.validateContent();
+    }, 100); // 100ms debounce
   }
 
   // Validation methods
@@ -565,5 +591,12 @@ export class PagesComponent implements OnInit {
       isValid: errors.length === 0,
       errors,
     };
+  }
+
+  ngOnDestroy(): void {
+    // Clean up validation timeout
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
   }
 }
