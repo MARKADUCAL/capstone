@@ -78,18 +78,18 @@ export class LandingPageService {
   updateLandingPageContent(
     content: LandingPageContent
   ): Observable<ApiResponse<any> | null> {
-    // Use alias endpoint to avoid potential WAF blocking of the word 'update'
+    // Backend handles landing page updates under PUT (with multiple aliases)
     const url = `${this.apiUrl}/save_landing_page_content`;
     const headers = this.getHeaders();
 
-    console.log('=== HTTP POST REQUEST ===');
+    console.log('=== HTTP PUT REQUEST ===');
     console.log('URL:', url);
     console.log('Headers:', headers);
     console.log('Body:', content);
     console.log('Body type:', typeof content);
     console.log('Body stringified:', JSON.stringify(content));
 
-    return this.http.post<ApiResponse<any> | null>(url, content, { headers });
+    return this.http.put<ApiResponse<any> | null>(url, content, { headers });
   }
 
   // Update specific section
@@ -97,8 +97,8 @@ export class LandingPageService {
     sectionName: string,
     content: any
   ): Observable<ApiResponse<any>> {
-    // Use alias path to avoid potential WAF rules on provider
-    return this.http.post<ApiResponse<any>>(
+    // Backend expects PUT for landing page section updates
+    return this.http.put<ApiResponse<any>>(
       `${this.apiUrl}/save_landing_page_section/${sectionName}`,
       content,
       { headers: this.getHeaders() }
