@@ -124,7 +124,7 @@
       <h3>Service Package Details</h3>
       <div class="packages-grid">
         <div *ngFor="let package of servicePackages" class="package-info">
-          <h4>Package {{ package.code }}</h4>
+          <h4>Package {{ package.code.replace("p", "") }}</h4>
           <p>{{ package.description }}</p>
         </div>
       </div>
@@ -170,7 +170,9 @@
                   *ngFor="let package of servicePackages"
                   class="package-header"
                 >
-                  <div class="package-title">Package {{ package.code }}</div>
+                  <div class="package-title">
+                    Package {{ package.code.replace("p", "") }}
+                  </div>
                   <div class="package-desc">{{ package.description }}</div>
                 </th>
               </tr>

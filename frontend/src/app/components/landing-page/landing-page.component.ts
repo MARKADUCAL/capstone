@@ -121,11 +121,10 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Service packages with descriptions
   servicePackages = [
-    { code: '1', description: 'BODY WASH' },
-    { code: '1.5', description: 'BODY WASH, TIRE BLACK' },
-    { code: '2', description: 'BODY WASH, VACUUM, TIRE BLACK' },
-    { code: '3', description: 'BODY WASH, BODY WAX, TIRE BLACK' },
-    { code: '4', description: 'BODY WASH, BODY WAX, TIRE BLACK, VACUUM' },
+    { code: 'p1', description: 'BODY WASH' },
+    { code: 'p2', description: 'BODY WASH, TIRE BLACK' },
+    { code: 'p3', description: 'BODY WASH, VACUUM, TIRE BLACK' },
+    { code: 'p4', description: 'BODY WASH, BODY WAX, TIRE BLACK' },
   ];
 
   constructor(
