@@ -6,6 +6,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -126,7 +127,8 @@ export class PagesComponent implements OnInit, OnDestroy {
   constructor(
     private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private landingPageService: LandingPageService
+    private landingPageService: LandingPageService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -509,9 +511,11 @@ export class PagesComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  getPreviewUrl(): string {
-    // Return the landing page URL with a timestamp to force refresh
-    return `/landing-page?preview=${Date.now()}`;
+  getPreviewUrl(): SafeResourceUrl {
+    // Return a sanitized URL to satisfy Angular's security for iframe src
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `/landing-page?preview=${Date.now()}`
+    );
   }
 
   // Content change handler
