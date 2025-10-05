@@ -52,6 +52,8 @@ export class InventoryManagementComponent implements OnInit {
   editItemData: InventoryItem | null = null;
   selectedItem: InventoryItem | null = null;
   isSubmitting: boolean = false;
+  imageLoading: boolean = false;
+  editImageLoading: boolean = false;
   private apiUrl = environment.apiUrl;
 
   constructor(
@@ -360,6 +362,56 @@ export class InventoryManagementComponent implements OnInit {
           );
         },
       });
+  }
+
+  // Image handling methods
+  isValidImageUrl(url: string): boolean {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url);
+    } catch {
+      return false;
+    }
+  }
+
+  onImageUrlChange(): void {
+    this.imageLoading = true;
+  }
+
+  onImageLoad(): void {
+    this.imageLoading = false;
+  }
+
+  onImageError(): void {
+    this.imageLoading = false;
+  }
+
+  onEditImageUrlChange(): void {
+    this.editImageLoading = true;
+  }
+
+  onEditImageLoad(): void {
+    this.editImageLoading = false;
+  }
+
+  onEditImageError(): void {
+    this.editImageLoading = false;
+  }
+
+  selectImage(): void {
+    if (this.newItem.imageUrl && this.isValidImageUrl(this.newItem.imageUrl)) {
+      this.showNotification('Image selected! You can now save the item.');
+    }
+  }
+
+  selectEditImage(): void {
+    if (
+      this.editItemData?.imageUrl &&
+      this.isValidImageUrl(this.editItemData.imageUrl)
+    ) {
+      this.showNotification('Image selected! You can now save the changes.');
+    }
   }
 
   private showNotification(message: string): void {

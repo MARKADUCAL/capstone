@@ -131,7 +131,45 @@
               [(ngModel)]="newItem.imageUrl"
               name="imageUrl"
               placeholder="https://..."
+              (input)="onImageUrlChange()"
             />
+            <!-- Image Preview -->
+            <div
+              class="image-preview-container"
+              *ngIf="newItem.imageUrl && isValidImageUrl(newItem.imageUrl)"
+            >
+              <div class="image-preview-label">Preview:</div>
+              <div class="image-preview" (click)="selectImage()">
+                <img
+                  [src]="newItem.imageUrl"
+                  [alt]="'Preview of ' + newItem.name"
+                  [title]="'Preview of ' + newItem.name"
+                  (error)="onImageError()"
+                  (load)="onImageLoad()"
+                />
+                <div class="image-overlay">
+                  <mat-icon>touch_app</mat-icon>
+                  <span>Click to select</span>
+                </div>
+              </div>
+            </div>
+            <!-- Error message for invalid image -->
+            <div
+              class="image-error"
+              *ngIf="
+                newItem.imageUrl &&
+                !isValidImageUrl(newItem.imageUrl) &&
+                !imageLoading
+              "
+            >
+              <mat-icon>error</mat-icon>
+              <span>Invalid image URL or image failed to load</span>
+            </div>
+            <!-- Loading indicator -->
+            <div class="image-loading" *ngIf="imageLoading">
+              <mat-icon>refresh</mat-icon>
+              <span>Loading image...</span>
+            </div>
           </div>
           <div class="form-actions">
             <button
@@ -201,7 +239,47 @@
               [(ngModel)]="editItemData.imageUrl"
               name="editImageUrl"
               placeholder="https://..."
+              (input)="onEditImageUrlChange()"
             />
+            <!-- Image Preview -->
+            <div
+              class="image-preview-container"
+              *ngIf="
+                editItemData.imageUrl && isValidImageUrl(editItemData.imageUrl)
+              "
+            >
+              <div class="image-preview-label">Preview:</div>
+              <div class="image-preview" (click)="selectEditImage()">
+                <img
+                  [src]="editItemData.imageUrl"
+                  [alt]="'Preview of ' + editItemData.name"
+                  [title]="'Preview of ' + editItemData.name"
+                  (error)="onEditImageError()"
+                  (load)="onEditImageLoad()"
+                />
+                <div class="image-overlay">
+                  <mat-icon>touch_app</mat-icon>
+                  <span>Click to select</span>
+                </div>
+              </div>
+            </div>
+            <!-- Error message for invalid image -->
+            <div
+              class="image-error"
+              *ngIf="
+                editItemData.imageUrl &&
+                !isValidImageUrl(editItemData.imageUrl) &&
+                !editImageLoading
+              "
+            >
+              <mat-icon>error</mat-icon>
+              <span>Invalid image URL or image failed to load</span>
+            </div>
+            <!-- Loading indicator -->
+            <div class="image-loading" *ngIf="editImageLoading">
+              <mat-icon>refresh</mat-icon>
+              <span>Loading image...</span>
+            </div>
           </div>
           <div class="form-actions">
             <button type="button" class="cancel-btn" (click)="closeEditModal()">
