@@ -212,6 +212,9 @@ export class LandingEditorComponent implements OnInit {
       .subscribe((bulkRes) => {
         if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
           this.isSaving = false;
+          try {
+            localStorage.removeItem('landingPageContent');
+          } catch {}
           this.snackBar.open(
             'All changes saved successfully to database!',
             'Close',
@@ -317,6 +320,9 @@ export class LandingEditorComponent implements OnInit {
                   'Close',
                   { duration: 3000 }
                 );
+                try {
+                  localStorage.removeItem('landingPageContent');
+                } catch {}
               } else if (ok > 0) {
                 this.snackBar.open(
                   `${ok}/${total} sections saved. Some failed — please retry.`,
