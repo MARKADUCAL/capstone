@@ -2,26 +2,6 @@
   <h1>Landing Page Content Management</h1>
 
   <mat-tab-group>
-    <!-- Live Preview Tab -->
-    <mat-tab label="Live Preview">
-      <div class="preview-container">
-        <div class="preview-header">
-          <h3>Live Preview - Landing Page</h3>
-          <p>See how your changes will look on the actual landing page</p>
-        </div>
-        <div class="preview-frame">
-          <iframe
-            [src]="getPreviewUrl()"
-            width="100%"
-            height="800px"
-            frameborder="0"
-            title="Landing Page Preview"
-          >
-          </iframe>
-        </div>
-      </div>
-    </mat-tab>
-
     <!-- Hero Section -->
     <mat-tab label="Hero Section">
       <mat-card class="content-card">
@@ -108,7 +88,7 @@
                   <img
                     [src]="service.imageUrl"
                     [alt]="service.name + ' preview'"
-                    [title]="service.name + ' preview'"
+                    title="Service image preview"
                     class="image-preview"
                   />
                 </div>
@@ -180,7 +160,7 @@
                   <img
                     [src]="image.url"
                     [alt]="image.alt + ' preview'"
-                    [title]="image.alt + ' preview'"
+                    title="Gallery image preview"
                     class="image-preview"
                   />
                 </div>
@@ -380,22 +360,6 @@
   </mat-tab-group>
 
   <div class="save-button-container">
-    <button
-      mat-raised-button
-      color="accent"
-      (click)="testRouting()"
-      class="test-button"
-    >
-      <mat-icon>wifi</mat-icon> Test GET
-    </button>
-    <button
-      mat-raised-button
-      color="warn"
-      (click)="testPostRouting()"
-      class="test-button"
-    >
-      <mat-icon>send</mat-icon> Test POST
-    </button>
     <button
       mat-raised-button
       color="primary"

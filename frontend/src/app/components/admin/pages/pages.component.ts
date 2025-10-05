@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+// removed DomSanitizer as live preview is removed
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -127,8 +127,7 @@ export class PagesComponent implements OnInit, OnDestroy {
   constructor(
     private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private landingPageService: LandingPageService,
-    private sanitizer: DomSanitizer
+    private landingPageService: LandingPageService
   ) {}
 
   ngOnInit(): void {
@@ -202,68 +201,9 @@ export class PagesComponent implements OnInit, OnDestroy {
     this.onContentChange();
   }
 
-  testRouting(): void {
-    this.landingPageService.testRouting().subscribe({
-      next: (response: ApiResponse<any> | null) => {
-        if (
-          response &&
-          response.status &&
-          response.status.remarks === 'success'
-        ) {
-          this.snackBar.open('GET test successful!', 'Close', {
-            duration: 3000,
-          });
-          console.log('GET test response:', response);
-        } else {
-          this.snackBar.open(
-            'Routing test failed: ' +
-              (response?.status?.message || 'No response'),
-            'Close',
-            {
-              duration: 5000,
-            }
-          );
-        }
-      },
-      error: (error: any) => {
-        console.error('GET test error:', error);
-        this.snackBar.open('GET test error: ' + error.message, 'Close', {
-          duration: 5000,
-        });
-      },
-    });
-  }
+  // removed testRouting per request
 
-  testPostRouting(): void {
-    this.landingPageService.testPostRouting().subscribe({
-      next: (response: ApiResponse<any> | null) => {
-        if (
-          response &&
-          response.status &&
-          response.status.remarks === 'success'
-        ) {
-          this.snackBar.open('POST test successful!', 'Close', {
-            duration: 3000,
-          });
-          console.log('POST test response:', response);
-        } else {
-          this.snackBar.open(
-            'POST test failed: ' + (response?.status?.message || 'No response'),
-            'Close',
-            {
-              duration: 5000,
-            }
-          );
-        }
-      },
-      error: (error: any) => {
-        console.error('POST test error:', error);
-        this.snackBar.open('POST test error: ' + error.message, 'Close', {
-          duration: 5000,
-        });
-      },
-    });
-  }
+  // removed testPostRouting per request
 
   saveChanges(): void {
     if (this.isSaving) {
@@ -511,12 +451,7 @@ export class PagesComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  getPreviewUrl(): SafeResourceUrl {
-    // Return a sanitized URL to satisfy Angular's security for iframe src
-    return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `/landing-page?preview=${Date.now()}`
-    );
-  }
+  // removed live preview URL helper per request
 
   // Content change handler
   onContentChange(): void {
