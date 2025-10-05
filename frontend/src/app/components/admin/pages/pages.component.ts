@@ -6,7 +6,6 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-// removed DomSanitizer as live preview is removed
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -225,16 +224,24 @@ export class PagesComponent implements OnInit, OnDestroy {
     this.snackBar.open('Saving changes...', 'Close', { duration: 2000 });
 
     // Send section-by-section updates to improve compatibility with some hosts
+    const stripDataUrl = (val: string | undefined | null): string => {
+      if (!val) return '';
+      return val.startsWith('data:') ? '' : val;
+    };
+
     const heroPayload = {
       title: this.content.heroTitle,
       description: this.content.heroDescription,
-      background_url: this.content.heroBackgroundUrl,
+      background_url: stripDataUrl(this.content.heroBackgroundUrl),
     };
     const servicesPayload = (this.content.services || []).map((s) => ({
       name: s.name,
-      image_url: (s as any).image_url || s.imageUrl || '',
+      image_url: stripDataUrl((s as any).image_url || s.imageUrl || ''),
     }));
-    const galleryPayload = this.content.galleryImages || [];
+    const galleryPayload = (this.content.galleryImages || []).map((g) => ({
+      url: stripDataUrl(g.url),
+      alt: g.alt,
+    }));
     const contactPayload = {
       address: this.content.contactInfo?.address || '',
       opening_hours: this.content.contactInfo?.openingHours || '',
@@ -308,6 +315,7 @@ export class PagesComponent implements OnInit, OnDestroy {
             (k) =>
               (res as any)[k] && (res as any)[k].status?.remarks === 'success'
           );
+          console.log('Section save responses:', res);
           return { total: keys.length, ok: successes.length };
         })
       )
