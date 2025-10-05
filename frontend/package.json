@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:clean": "node --no-deprecation node_modules/@angular/cli/bin/ng serve",
     "build": "ng build --configuration production",
     "build:ssr": "ng build --configuration production && ng run autowash-hub:server:production",
     "watch": "ng build --watch --configuration development",

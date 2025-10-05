@@ -112,11 +112,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       description:
         'SUVs | FULL SUVs | PICK-UPS [trailblazer, hilux, ranger, fortuner, etc..]',
     },
-    {
-      code: 'XXL',
-      description:
-        'MODIFIED VEHICLES | BIG SUVs [land cruiser, patrol, prado, etc..]',
-    },
   ];
 
   // Service packages with descriptions
@@ -393,7 +388,13 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  formatPrice(price: any): string {
+  formatPrice(vehicleType: string, servicePackage: string): string {
+    // Check if vehicle type exists in pricing matrix
+    if (!this.pricingMatrix[vehicleType]) {
+      return 'Price not set';
+    }
+
+    const price = this.pricingMatrix[vehicleType][servicePackage];
     if (price === null || price === undefined) {
       return 'Price not set';
     }
@@ -409,7 +410,12 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
-    const price = this.pricingMatrix[vehicleType]?.[servicePackage];
+    // Check if vehicle type exists in pricing matrix
+    if (!this.pricingMatrix[vehicleType]) {
+      return false;
+    }
+
+    const price = this.pricingMatrix[vehicleType][servicePackage];
     if (price === null || price === undefined) {
       return false;
     }
