@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { of, forkJoin } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {
   LandingPageService,
   ApiResponse,
@@ -199,27 +201,146 @@ export class LandingEditorComponent implements OnInit {
     const backendContent = this.landingPageService.convertToBackendFormat(
       this.content as any
     );
-    this.landingPageService.updateLandingPageContent(backendContent).subscribe({
-      next: (res) => {
-        this.isSaving = false;
-        if (res && (res as any).status?.remarks === 'success') {
-          this.snackBar.open('Landing page saved successfully.', 'Close', {
-            duration: 3000,
-          });
-        } else {
+    this.landingPageService
+      .updateLandingPageContent(backendContent)
+      .pipe(
+        catchError((e) => {
+          console.error('Bulk save error — falling back to section saves', e);
+          return of(null);
+        })
+      )
+      .subscribe((bulkRes) => {
+        if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
+          this.isSaving = false;
           this.snackBar.open(
-            'Some sections may not have saved. Please retry.',
+            'All changes saved successfully to database!',
             'Close',
-            { duration: 4000 }
+            { duration: 3000 }
           );
+          return;
         }
-      },
-      error: () => {
-        this.isSaving = false;
-        this.snackBar.open('Failed to save. Please try again.', 'Close', {
-          duration: 4000,
-        });
-      },
-    });
+
+        const stripDataUrl = (val: string | undefined | null): string => {
+          if (!val) return '';
+          return val.startsWith('data:') ? '' : val;
+        };
+
+        const heroPayload = {
+          title: this.content.heroTitle,
+          description: this.content.heroDescription,
+          background_url: stripDataUrl(this.content.heroBackgroundUrl),
+        };
+        const servicesPayload = (this.content.services || []).map((s) => ({
+          name: s.name,
+          image_url: stripDataUrl((s as any).image_url || s.imageUrl || ''),
+        }));
+        const galleryPayload = (this.content.galleryImages || []).map((g) => ({
+          url: stripDataUrl(g.url),
+          alt: g.alt,
+        }));
+        const contactPayload = {
+          address: this.content.contactInfo?.address || '',
+          opening_hours: this.content.contactInfo?.openingHours || '',
+          phone: this.content.contactInfo?.phone || '',
+          email: this.content.contactInfo?.email || '',
+        };
+        const footerPayload = {
+          address: this.content.footer?.address || '',
+          phone: this.content.footer?.phone || '',
+          email: this.content.footer?.email || '',
+          copyright: this.content.footer?.copyright || '',
+          facebook: this.content.footer?.facebook || '',
+          instagram: this.content.footer?.instagram || '',
+          twitter: this.content.footer?.twitter || '',
+          tiktok: this.content.footer?.tiktok || '',
+        };
+
+        const requests = {
+          hero: this.landingPageService.updateSection('hero', heroPayload).pipe(
+            catchError((e) => {
+              console.error('Hero save error', e);
+              return of(null);
+            })
+          ),
+          services: this.landingPageService
+            .updateSection('services', servicesPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Services save error', e);
+                return of(null);
+              })
+            ),
+          gallery: this.landingPageService
+            .updateSection('gallery', galleryPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Gallery save error', e);
+                return of(null);
+              })
+            ),
+          contact_info: this.landingPageService
+            .updateSection('contact_info', contactPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Contact save error', e);
+                return of(null);
+              })
+            ),
+          footer: this.landingPageService
+            .updateSection('footer', footerPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Footer save error', e);
+                return of(null);
+              })
+            ),
+        };
+
+        forkJoin(requests)
+          .pipe(
+            map((res) => {
+              const keys = Object.keys(res);
+              const successes = keys.filter(
+                (k) =>
+                  (res as any)[k] &&
+                  (res as any)[k].status?.remarks === 'success'
+              );
+              return { total: keys.length, ok: successes.length };
+            })
+          )
+          .subscribe({
+            next: ({ total, ok }) => {
+              this.isSaving = false;
+              if (ok === total) {
+                this.snackBar.open(
+                  'All changes saved successfully to database!',
+                  'Close',
+                  { duration: 3000 }
+                );
+              } else if (ok > 0) {
+                this.snackBar.open(
+                  `${ok}/${total} sections saved. Some failed — please retry.`,
+                  'Close',
+                  { duration: 6000 }
+                );
+              } else {
+                this.snackBar.open(
+                  'Failed to save to database. Please try again.',
+                  'Close',
+                  { duration: 6000 }
+                );
+              }
+            },
+            error: (error) => {
+              this.isSaving = false;
+              console.error('Save error:', error);
+              this.snackBar.open(
+                'Failed to save to database. Please try again.',
+                'Close',
+                { duration: 6000 }
+              );
+            },
+          });
+      });
   }
 }
