@@ -1,0 +1,91 @@
+.admin-landing-editor-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.content-card {
+  margin: 16px 0;
+  padding: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.services-list,
+.gallery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.service-item,
+.gallery-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  position: relative;
+}
+
+.service-item mat-form-field,
+.gallery-item mat-form-field {
+  flex: 1;
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #fff;
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.validation-errors {
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  color: #c62828;
+}
+
+.validation-errors h4 {
+  margin: 0 0 12px 0;
+  color: #d32f2f;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.validation-errors li {
+  margin-bottom: 4px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

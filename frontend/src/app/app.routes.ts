@@ -22,6 +22,7 @@ import { EmployeeManagementComponent } from './components/admin/employee-managem
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
 import { ManageEnquiriesComponent } from './components/admin/manage-enquiries/manage-enquiries.component';
 import { ReportingComponent } from './components/admin/reporting/reporting.component';
+import { LandingEditorComponent } from './components/admin/landing-editor/landing-editor.component';
 import { ProfileComponent as AdminProfileComponent } from './components/admin/profile/profile.component';
 import { ServiceManagementComponent } from './components/admin/service-management/service-management.component';
 import { FeedbackManagementComponent } from './components/admin/feedback-management/feedback-management.component';
@@ -83,6 +84,7 @@ export const routes: Routes = [
       { path: 'user-management', component: UserManagementComponent },
       { path: 'manage-enquiries', component: ManageEnquiriesComponent },
       { path: 'reporting', component: ReportingComponent },
+      { path: 'landing-editor', component: LandingEditorComponent },
       { path: 'service-management', component: ServiceManagementComponent },
       { path: 'feedback-management', component: FeedbackManagementComponent },
       { path: 'profile', component: AdminProfileComponent },
