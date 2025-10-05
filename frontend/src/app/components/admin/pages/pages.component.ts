@@ -266,93 +266,136 @@ export class PagesComponent implements OnInit, OnDestroy {
     console.log('Contact:', contactPayload);
     console.log('Footer:', footerPayload);
 
-    const requests = {
-      hero: this.landingPageService.updateSection('hero', heroPayload).pipe(
+    // Try single-endpoint save first (simpler for hosting/WAF rules)
+    const backendContent = this.landingPageService.convertToBackendFormat({
+      heroTitle: heroPayload.title,
+      heroDescription: heroPayload.description,
+      heroBackgroundUrl: heroPayload.background_url,
+      services: servicesPayload.map((s) => ({
+        name: s.name,
+        imageUrl: s.image_url,
+      })),
+      galleryImages: galleryPayload,
+      contactInfo: {
+        address: contactPayload.address,
+        openingHours: contactPayload.opening_hours,
+        phone: contactPayload.phone,
+        email: contactPayload.email,
+      },
+      footer: footerPayload,
+    } as any);
+
+    this.landingPageService
+      .updateLandingPageContent(backendContent)
+      .pipe(
         catchError((e) => {
-          console.error('Hero save error', e);
+          console.error('Bulk save error — falling back to section saves', e);
           return of(null);
         })
-      ),
-      services: this.landingPageService
-        .updateSection('services', servicesPayload)
-        .pipe(
-          catchError((e) => {
-            console.error('Services save error', e);
-            return of(null);
-          })
-        ),
-      gallery: this.landingPageService
-        .updateSection('gallery', galleryPayload)
-        .pipe(
-          catchError((e) => {
-            console.error('Gallery save error', e);
-            return of(null);
-          })
-        ),
-      contact_info: this.landingPageService
-        .updateSection('contact_info', contactPayload)
-        .pipe(
-          catchError((e) => {
-            console.error('Contact save error', e);
-            return of(null);
-          })
-        ),
-      footer: this.landingPageService
-        .updateSection('footer', footerPayload)
-        .pipe(
-          catchError((e) => {
-            console.error('Footer save error', e);
-            return of(null);
-          })
-        ),
-    };
-
-    forkJoin(requests)
-      .pipe(
-        map((res) => {
-          const keys = Object.keys(res);
-          const successes = keys.filter(
-            (k) =>
-              (res as any)[k] && (res as any)[k].status?.remarks === 'success'
-          );
-          console.log('Section save responses:', res);
-          return { total: keys.length, ok: successes.length };
-        })
       )
-      .subscribe({
-        next: ({ total, ok }) => {
+      .subscribe((bulkRes) => {
+        if (bulkRes && bulkRes.status?.remarks === 'success') {
           this.isSaving = false;
-          if (ok === total) {
-            this.snackBar.open(
-              'All changes saved successfully to database!',
-              'Close',
-              {
-                duration: 3000,
-              }
-            );
-          } else if (ok > 0) {
-            this.snackBar.open(
-              `${ok}/${total} sections saved to database. Some failed — please retry.`,
-              'Close',
-              { duration: 6000 }
-            );
-          } else {
-            this.snackBar.open(
-              'Failed to save to database. Please check your connection and try again.',
-              'Close',
-              { duration: 6000 }
-            );
-          }
-        },
-        error: (error) => {
-          this.isSaving = false;
-          console.error('Save error:', error);
           this.snackBar.open(
-            'Failed to save to database. Please check your connection and try again.',
+            'All changes saved successfully to database!',
             'Close',
-            { duration: 6000 }
+            {
+              duration: 3000,
+            }
           );
-        },
+          return;
+        }
+
+        // Fallback: section-by-section
+        const requests = {
+          hero: this.landingPageService.updateSection('hero', heroPayload).pipe(
+            catchError((e) => {
+              console.error('Hero save error', e);
+              return of(null);
+            })
+          ),
+          services: this.landingPageService
+            .updateSection('services', servicesPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Services save error', e);
+                return of(null);
+              })
+            ),
+          gallery: this.landingPageService
+            .updateSection('gallery', galleryPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Gallery save error', e);
+                return of(null);
+              })
+            ),
+          contact_info: this.landingPageService
+            .updateSection('contact_info', contactPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Contact save error', e);
+                return of(null);
+              })
+            ),
+          footer: this.landingPageService
+            .updateSection('footer', footerPayload)
+            .pipe(
+              catchError((e) => {
+                console.error('Footer save error', e);
+                return of(null);
+              })
+            ),
+        };
+
+        forkJoin(requests)
+          .pipe(
+            map((res) => {
+              const keys = Object.keys(res);
+              const successes = keys.filter(
+                (k) =>
+                  (res as any)[k] &&
+                  (res as any)[k].status?.remarks === 'success'
+              );
+              console.log('Section save responses:', res);
+              return { total: keys.length, ok: successes.length };
+            })
+          )
+          .subscribe({
+            next: ({ total, ok }) => {
+              this.isSaving = false;
+              if (ok === total) {
+                this.snackBar.open(
+                  'All changes saved successfully to database!',
+                  'Close',
+                  {
+                    duration: 3000,
+                  }
+                );
+              } else if (ok > 0) {
+                this.snackBar.open(
+                  `${ok}/${total} sections saved to database. Some failed — please retry.`,
+                  'Close',
+                  { duration: 6000 }
+                );
+              } else {
+                this.snackBar.open(
+                  'Failed to save to database. Please check your connection and try again.',
+                  'Close',
+                  { duration: 6000 }
+                );
+              }
+            },
+            error: (error) => {
+              this.isSaving = false;
+              console.error('Save error:', error);
+              this.snackBar.open(
+                'Failed to save to database. Please check your connection and try again.',
+                'Close',
+                { duration: 6000 }
+              );
+            },
+          });
       });
   }
 
