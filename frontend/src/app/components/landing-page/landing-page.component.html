@@ -88,28 +88,118 @@
 
 <!-- Pricing Section -->
 <section class="pricing" id="pricing">
-  <h2>PRICING</h2>
-  <div class="pricing-steps">
-    <div class="step-image">
-      <img
-        src="assets/step1.png"
-        alt="Step 1: Identify Vehicle Type"
-        title="Step 1: Identify Vehicle Type"
-      />
+  <div class="pricing-container">
+    <div class="section-header">
+      <h2>Service Packages & Pricing</h2>
+      <p>Choose the perfect service package for your vehicle</p>
     </div>
-    <div class="step-image">
-      <img
-        src="assets/step2.png"
-        alt="Step 2: Select Services"
-        title="Step 2: Select Services"
-      />
+
+    <!-- Service Packages Explanation -->
+    <div class="packages-explanation">
+      <h3>Service Package Details</h3>
+      <div class="packages-grid">
+        <div *ngFor="let package of servicePackages" class="package-info">
+          <h4>Package {{ package.code }}</h4>
+          <p>{{ package.description }}</p>
+        </div>
+      </div>
     </div>
-    <div class="step-image">
-      <img
-        src="assets/step3.png"
-        alt="Step 3: Determine Price"
-        title="Step 3: Determine Price"
-      />
+
+    <!-- Vehicle Types Explanation -->
+    <div class="vehicle-types-explanation">
+      <h3>Vehicle Type Classification</h3>
+      <div class="vehicle-types-grid">
+        <div *ngFor="let vehicle of vehicleTypes" class="vehicle-info">
+          <h4>{{ vehicle.code }}</h4>
+          <p>{{ vehicle.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Matrix -->
+    <div class="pricing-section">
+      <h3>Pricing Matrix</h3>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading pricing information...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="pricingError && !loading" class="error-state">
+        <p class="error-message">{{ pricingError }}</p>
+        <button class="btn-primary" (click)="loadPricingData()">
+          Try Again
+        </button>
+      </div>
+
+      <!-- Pricing Table -->
+      <div *ngIf="!loading && !pricingError" class="pricing-table-container">
+        <div class="pricing-table">
+          <table>
+            <thead>
+              <tr>
+                <th class="vehicle-header">Vehicle Type</th>
+                <th
+                  *ngFor="let package of servicePackages"
+                  class="package-header"
+                >
+                  <div class="package-title">Package {{ package.code }}</div>
+                  <div class="package-desc">{{ package.description }}</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let vehicle of vehicleTypes" class="vehicle-row">
+                <td class="vehicle-cell">
+                  <div class="vehicle-code">{{ vehicle.code }}</div>
+                  <div class="vehicle-desc">{{ vehicle.description }}</div>
+                </td>
+                <td *ngFor="let package of servicePackages" class="price-cell">
+                  <div class="price-amount">
+                    {{
+                      formatPrice(
+                        pricingMatrix[vehicle.code][package.code] || 0
+                      )
+                    }}
+                  </div>
+                  <button
+                    class="btn-book-service"
+                    (click)="
+                      navigateToAppointmentWithPackage(
+                        vehicle.code,
+                        package.code
+                      )
+                    "
+                    [disabled]="!isPriceAvailable(vehicle.code, package.code)"
+                    [ngClass]="{
+                      disabled: !isPriceAvailable(vehicle.code, package.code)
+                    }"
+                  >
+                    {{
+                      isPriceAvailable(vehicle.code, package.code)
+                        ? "Book Now"
+                        : "Unavailable"
+                    }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Booking Guide -->
+      <div class="booking-guide">
+        <h4>How to Book</h4>
+        <ol>
+          <li>Identify your vehicle type from the classification above</li>
+          <li>Choose your preferred service package</li>
+          <li>Click "Book Now" for your selected combination</li>
+          <li>Complete your appointment details</li>
+        </ol>
+      </div>
     </div>
   </div>
 </section>

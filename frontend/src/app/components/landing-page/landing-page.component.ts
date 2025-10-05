@@ -8,6 +8,7 @@ import {
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -15,6 +16,7 @@ import {
   ApiResponse,
   LandingPageContent,
 } from '../../services/landing-page.service';
+import { environment } from '../../../environments/environment';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
 type ContactInfo = {
@@ -41,6 +43,18 @@ type FrontendLandingPageContent = {
     tiktok: string;
   };
 };
+
+interface PricingEntry {
+  id: number;
+  vehicle_type: string;
+  service_package: string;
+  price: number;
+  is_active: boolean;
+}
+
+interface PricingMatrix {
+  [vehicleType: string]: { [servicePackage: string]: number };
+}
 
 @Component({
   selector: 'app-landing-page',
@@ -69,11 +83,52 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   contactErrorMessage = '';
   isEmailVerified = false;
 
+  // Pricing data properties
+  loading: boolean = false;
+  pricingError: string = '';
+  pricingMatrix: PricingMatrix = {};
+  pricingEntries: PricingEntry[] = [];
+
+  // Vehicle types with descriptions
+  vehicleTypes = [
+    { code: 'S', description: 'SMALL HATCHBACKS [wigo, picanto, eon, etc..]' },
+    {
+      code: 'M',
+      description:
+        'SMALL HATCHBACKS | SEDAN | COUPES [rio, accent, city, vios, civic, etc..]',
+    },
+    {
+      code: 'L',
+      description:
+        'MPVs | AUVs | COMPACT SUVs [rav4, avanza, ecosport, cx3, etc..]',
+    },
+    {
+      code: 'XL',
+      description:
+        'SUVs | FULL SUVs | PICK-UPS [trailblazer, hilux, ranger, fortuner, etc..]',
+    },
+    {
+      code: 'XXL',
+      description:
+        'MODIFIED VEHICLES | BIG SUVs [land cruiser, patrol, prado, etc..]',
+    },
+  ];
+
+  // Service packages with descriptions
+  servicePackages = [
+    { code: '1', description: 'BODY WASH' },
+    { code: '1.5', description: 'BODY WASH, TIRE BLACK' },
+    { code: '2', description: 'BODY WASH, VACUUM, TIRE BLACK' },
+    { code: '3', description: 'BODY WASH, BODY WAX, TIRE BLACK' },
+    { code: '4', description: 'BODY WASH, BODY WAX, TIRE BLACK, VACUUM' },
+  ];
+
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
     private contactService: ContactService,
-    private landingPageService: LandingPageService
+    private landingPageService: LandingPageService,
+    private http: HttpClient
   ) {}
 
   // Dynamic content (editable via admin pages)
@@ -123,6 +178,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       console.log('Landing page content loaded from localStorage.');
     }
     this.loadLandingPageContent();
+    this.loadPricingData();
   }
 
   loadLandingPageContent() {
@@ -305,5 +361,70 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
     } catch (e) {}
+  }
+
+  // Pricing methods
+  loadPricingData(): void {
+    this.loading = true;
+    this.pricingError = '';
+
+    // Load pricing from database
+    this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
+      next: (response) => {
+        if (response.status && response.status.remarks === 'success') {
+          this.pricingMatrix = response.payload.pricing_matrix || {};
+          console.log('Loaded pricing matrix:', this.pricingMatrix);
+        } else {
+          console.error('Failed to load pricing matrix:', response);
+          this.pricingMatrix = {};
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading pricing matrix:', error);
+        this.pricingMatrix = {};
+        this.loading = false;
+      },
+    });
+  }
+
+  formatPrice(price: any): string {
+    if (price === null || price === undefined) {
+      return 'Price not set';
+    }
+
+    // Convert to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+    if (isNaN(numericPrice) || numericPrice <= 0) {
+      return 'Price not set';
+    }
+
+    return `₱${numericPrice.toFixed(2)}`;
+  }
+
+  isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
+    const price = this.pricingMatrix[vehicleType]?.[servicePackage];
+    if (price === null || price === undefined) {
+      return false;
+    }
+
+    // Convert to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+    return !isNaN(numericPrice) && numericPrice > 0;
+  }
+
+  navigateToAppointmentWithPackage(
+    vehicleType: string,
+    servicePackage: string
+  ): void {
+    this.router.navigate(['/customer'], {
+      queryParams: {
+        vehicle_type: vehicleType,
+        service_package: servicePackage,
+        price: this.pricingMatrix[vehicleType]?.[servicePackage] || 0,
+      },
+    });
   }
 }

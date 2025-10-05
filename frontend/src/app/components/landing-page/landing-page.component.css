@@ -298,29 +298,308 @@
   height: auto; /* Adjust height to fit content */
 }
 
-.pricing h2 {
+.pricing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 2.2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* Packages Explanation */
+.packages-explanation {
+  margin-bottom: 40px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.packages-explanation h3 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.package-info {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.package-info h4 {
+  color: #2196f3;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.package-info p {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Vehicle Types Explanation */
+.vehicle-types-explanation {
+  margin-bottom: 40px;
+  padding: 25px;
+  background: #e3f2fd;
+  border-radius: 12px;
+}
+
+.vehicle-types-explanation h3 {
+  color: #1976d2;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.vehicle-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.vehicle-info {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.vehicle-info h4 {
+  color: #1976d2;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.vehicle-info p {
+  color: #666;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Pricing Section */
+.pricing-section {
+  margin-top: 40px;
+}
+
+.pricing-section h3 {
   text-align: center;
   color: #333;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 40px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  color: #f44336;
   margin-bottom: 20px;
 }
 
-.pricing-steps {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+/* Pricing Table */
+.pricing-table-container {
+  overflow-x: auto;
+  margin-bottom: 30px;
 }
 
-.step-image {
-  flex: 1;
-  margin: 10px;
-  padding: 15px;
-  text-align: center; /* Center the image */
-  min-width: 250px; /* Minimum width for small screens */
+.pricing-table {
+  width: 100%;
+  min-width: 800px;
 }
 
-.step-image img {
-  max-width: 100%; /* Responsive image */
-  height: auto; /* Maintain aspect ratio */
+.pricing-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 15px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.vehicle-header {
+  text-align: left;
+  min-width: 200px;
+}
+
+.package-header {
+  min-width: 150px;
+}
+
+.package-title {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.package-desc {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+.pricing-table td {
+  padding: 20px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.vehicle-cell {
+  text-align: left;
+  background: #f8f9fa;
+}
+
+.vehicle-code {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.vehicle-desc {
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.price-cell {
+  position: relative;
+}
+
+.price-amount {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2196f3;
+  margin-bottom: 15px;
+}
+
+.btn-book-service {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 120px;
+}
+
+.btn-book-service:hover:not(.disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-book-service.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Booking Guide */
+.booking-guide {
+  background: #e8f5e8;
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 30px;
+}
+
+.booking-guide h4 {
+  color: #2e7d32;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.booking-guide ol {
+  color: #555;
+  line-height: 1.8;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.booking-guide li {
+  margin-bottom: 8px;
+}
+
+.btn-primary {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Location Section */
@@ -839,6 +1118,49 @@
 
   .footer-container div {
     margin-bottom: 30px;
+  }
+
+  /* Pricing responsive */
+  .packages-grid,
+  .vehicle-types-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-table-container {
+    margin: 0 -15px;
+  }
+
+  .pricing-table {
+    min-width: 600px;
+  }
+
+  .pricing-table th,
+  .pricing-table td {
+    padding: 15px 10px;
+  }
+
+  .package-desc,
+  .vehicle-desc {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .pricing-table {
+    min-width: 500px;
+  }
+
+  .price-amount {
+    font-size: 1.1rem;
+  }
+
+  .btn-book-service {
+    padding: 8px 15px;
+    font-size: 12px;
   }
 }
 
