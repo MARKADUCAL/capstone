@@ -89,6 +89,11 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   pricingMatrix: PricingMatrix = {};
   pricingEntries: PricingEntry[] = [];
 
+  // Services data properties
+  servicesLoading: boolean = false;
+  servicesError: string = '';
+  services: Service[] = [];
+
   // Vehicle types with descriptions
   vehicleTypes = [
     { code: 'S', description: 'SMALL HATCHBACKS [wigo, picanto, eon, etc..]' },
@@ -179,6 +184,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
     this.loadLandingPageContent();
     this.loadPricingData();
+    this.loadServicesData();
   }
 
   loadLandingPageContent() {
@@ -426,5 +432,71 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         price: this.pricingMatrix[vehicleType]?.[servicePackage] || 0,
       },
     });
+  }
+
+  // Services methods
+  loadServicesData(): void {
+    this.servicesLoading = true;
+    this.servicesError = '';
+
+    // Load service categories from database
+    this.http
+      .get<any>(`${environment.apiUrl}/get_service_categories`)
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.status.remarks === 'success') {
+            // Convert service categories to services format
+            this.services = response.payload.service_categories.map(
+              (category: any) => ({
+                name: category.name.toUpperCase(),
+                imageUrl: this.getServiceImageUrl(category.name),
+              })
+            );
+            console.log('Loaded services:', this.services);
+          } else {
+            console.error('Failed to load services:', response);
+            this.services = this.getDefaultServices();
+          }
+          this.servicesLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading services:', error);
+          this.services = this.getDefaultServices();
+          this.servicesLoading = false;
+        },
+      });
+  }
+
+  private getServiceImageUrl(serviceName: string): string {
+    // Map service names to image URLs
+    const serviceImages: { [key: string]: string } = {
+      'body wash': 'assets/basiccarwash.png',
+      'tire black': 'assets/tireblack.png',
+      'body wax': 'assets/bodywax.png',
+      vacuum: 'assets/vacuum.png',
+      'basic wash': 'assets/basiccarwash.png',
+      'premium wash': 'assets/basiccarwash.png',
+      'interior cleaning': 'assets/vacuum.png',
+      'exterior wash': 'assets/basiccarwash.png',
+    };
+
+    const lowerName = serviceName.toLowerCase();
+    for (const [key, imageUrl] of Object.entries(serviceImages)) {
+      if (lowerName.includes(key)) {
+        return imageUrl;
+      }
+    }
+
+    // Default image if no match found
+    return 'assets/basiccarwash.png';
+  }
+
+  private getDefaultServices(): Service[] {
+    return [
+      { name: 'BASIC CAR WASH', imageUrl: 'assets/basiccarwash.png' },
+      { name: 'TIRE BLACK', imageUrl: 'assets/tireblack.png' },
+      { name: 'BODY WAX', imageUrl: 'assets/bodywax.png' },
+      { name: 'VACUUM', imageUrl: 'assets/vacuum.png' },
+    ];
   }
 }

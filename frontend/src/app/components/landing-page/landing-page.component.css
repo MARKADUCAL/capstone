@@ -249,6 +249,47 @@
   color: #333;
 }
 
+/* Services Loading and Error States */
+.services-loading,
+.services-error {
+  text-align: center;
+  padding: 40px;
+}
+
+.services-loading .loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.services-error .error-message {
+  color: #f44336;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.services-error .btn-primary {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.services-error .btn-primary:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
 /* Easy as 123 Section */
 .easy-steps {
   text-align: center;
