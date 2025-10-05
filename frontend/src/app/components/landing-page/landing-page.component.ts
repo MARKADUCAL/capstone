@@ -96,30 +96,21 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Vehicle types with descriptions
   vehicleTypes = [
-    { code: 'S', description: 'SMALL HATCHBACKS [wigo, picanto, eon, etc..]' },
-    {
-      code: 'M',
-      description:
-        'SMALL HATCHBACKS | SEDAN | COUPES [rio, accent, city, vios, civic, etc..]',
-    },
-    {
-      code: 'L',
-      description:
-        'MPVs | AUVs | COMPACT SUVs [rav4, avanza, ecosport, cx3, etc..]',
-    },
+    { code: 'S', description: 'Sedans (all sedan types)' },
+    { code: 'M', description: 'SUVs (all SUV types)' },
+    { code: 'L', description: 'VANs (any type of van)' },
     {
       code: 'XL',
-      description:
-        'SUVs | FULL SUVs | PICK-UPS [trailblazer, hilux, ranger, fortuner, etc..]',
+      description: 'Larger than vans (big SUVs/pickups, oversized vehicles)',
     },
   ];
 
   // Service packages with descriptions
   servicePackages = [
-    { code: 'p1', description: 'BODY WASH' },
-    { code: 'p2', description: 'BODY WASH, TIRE BLACK' },
-    { code: 'p3', description: 'BODY WASH, VACUUM, TIRE BLACK' },
-    { code: 'p4', description: 'BODY WASH, BODY WAX, TIRE BLACK' },
+    { code: 'p1', description: 'Wash only' },
+    { code: 'p2', description: 'Wash / Vacuum' },
+    { code: 'p3', description: 'Wash / Vacuum / Hand Wax' },
+    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax' },
   ];
 
   constructor(
