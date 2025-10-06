@@ -161,12 +161,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    // Try localStorage first so the page works without DB
-    const local = this.loadFromLocalStorage();
-    if (local) {
-      this.content = local;
-      console.log('Landing page content loaded from localStorage.');
-    }
+    // Clear localStorage cache to ensure fresh data from database
+    this.clearLocalStorageCache();
+    // Load from API first, with localStorage as fallback
     this.loadLandingPageContent();
     this.loadPricingData();
     this.loadServicesData();
@@ -186,17 +183,20 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             this.landingPageService.convertToFrontendFormat(backendContent);
           // refresh local cache for no-DB mode consumers
           this.saveToLocalStorage();
+          console.log('Landing page content loaded from API and updated.');
         } else {
           console.warn(
-            'Failed to load landing page content:',
+            'Failed to load landing page content from API:',
             response?.status?.message || 'No response received'
           );
-          // Keep default or previously cached local content
+          // Try localStorage as fallback
+          this.loadFromLocalStorageFallback();
         }
       },
       error: (error: any) => {
-        console.error('Error loading landing page content:', error);
-        // Keep default or previously cached local content
+        console.error('Error loading landing page content from API:', error);
+        // Try localStorage as fallback
+        this.loadFromLocalStorageFallback();
       },
     });
   }
@@ -347,11 +347,33 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  private loadFromLocalStorageFallback(): void {
+    const local = this.loadFromLocalStorage();
+    if (local) {
+      this.content = local;
+      console.log('Landing page content loaded from localStorage as fallback.');
+    } else {
+      console.log('No cached content available, using default content.');
+    }
+  }
+
   private saveToLocalStorage(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
     } catch (e) {}
+  }
+
+  private clearLocalStorageCache(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+      console.log(
+        'Cleared localStorage cache to ensure fresh data from database.'
+      );
+    } catch (e) {
+      console.warn('Failed to clear localStorage cache:', e);
+    }
   }
 
   // Pricing methods
