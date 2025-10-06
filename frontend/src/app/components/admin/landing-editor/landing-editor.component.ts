@@ -16,7 +16,7 @@ import {
   ApiResponse,
   LandingPageContent,
 } from '../../../services/landing-page.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
