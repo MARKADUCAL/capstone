@@ -149,8 +149,14 @@ class UploadHandler {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
         $basePath = dirname($_SERVER['SCRIPT_NAME'], 2); // Go up two levels from api/ to root
-        
-        return $protocol . '://' . $host . $basePath . '/' . $relativePath;
+
+        // Normalize to avoid double slashes in the final URL
+        $basePath = rtrim($basePath, '/');
+        $relativePath = ltrim($relativePath, '/');
+
+        $pathPrefix = $basePath === '' ? '' : $basePath . '/';
+
+        return $protocol . '://' . $host . '/' . $pathPrefix . $relativePath;
     }
 
     private function storeFileInfo($filename, $filepath, $category, $size, $type) {
