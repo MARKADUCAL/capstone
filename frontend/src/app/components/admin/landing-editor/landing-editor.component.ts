@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient } from '@angular/common/http';
 import { of, forkJoin } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
@@ -15,6 +16,7 @@ import {
   ApiResponse,
   LandingPageContent,
 } from '../../../services/landing-page.service';
+import { environment } from '../../../environments/environment';
 
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
@@ -68,6 +70,13 @@ export class LandingEditorComponent implements OnInit {
     errors: [],
   };
 
+  // Image upload properties
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  isUploading: boolean = false;
+  uploadError: string = '';
+  uploadSuccess: string = '';
+
   content: FrontendLandingPageContent = {
     heroTitle: '',
     heroDescription: '',
@@ -89,7 +98,8 @@ export class LandingEditorComponent implements OnInit {
 
   constructor(
     private snackBar: MatSnackBar,
-    private landingPageService: LandingPageService
+    private landingPageService: LandingPageService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -195,6 +205,86 @@ export class LandingEditorComponent implements OnInit {
 
   private reloadContent(): void {
     this.loadLandingPageContent();
+  }
+
+  // Image upload methods
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.uploadError = 'Please select a valid image file.';
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.uploadError = 'File size must be less than 5MB.';
+        return;
+      }
+
+      this.selectedFile = file;
+      this.uploadError = '';
+      this.uploadSuccess = '';
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  uploadImage(): void {
+    if (!this.selectedFile) {
+      this.uploadError = 'Please select an image file first.';
+      return;
+    }
+
+    this.isUploading = true;
+    this.uploadError = '';
+    this.uploadSuccess = '';
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+    formData.append('category', 'hero_background');
+
+    this.http
+      .post<any>(`${environment.apiUrl}/upload_file`, formData)
+      .subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          if (response.status === 'success') {
+            this.uploadSuccess = 'Image uploaded successfully!';
+            this.content.heroBackgroundUrl = response.data.url;
+            this.clearUploadForm();
+            this.snackBar.open('Hero background image updated!', 'Close', {
+              duration: 3000,
+            });
+          } else {
+            this.uploadError =
+              response.message || 'Upload failed. Please try again.';
+          }
+        },
+        error: (error) => {
+          this.isUploading = false;
+          this.uploadError = 'Upload failed. Please try again.';
+          console.error('Upload error:', error);
+        },
+      });
+  }
+
+  clearUploadForm(): void {
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.uploadError = '';
+    this.uploadSuccess = '';
+  }
+
+  removeImagePreview(): void {
+    this.imagePreview = null;
+    this.selectedFile = null;
   }
 
   saveChanges(): void {

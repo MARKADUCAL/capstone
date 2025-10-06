@@ -94,13 +94,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   servicesError: string = '';
   services: Service[] = [];
 
-  // Image upload properties
-  selectedFile: File | null = null;
-  imagePreview: string | null = null;
-  isUploading: boolean = false;
-  uploadError: string = '';
-  uploadSuccess: string = '';
-
   // Vehicle types with descriptions
   vehicleTypes = [
     { code: 'S', description: 'Sedans (all sedan types)' },
@@ -389,109 +382,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     console.log('Force refreshing landing page content...');
     this.clearLocalStorageCache();
     this.loadLandingPageContent();
-  }
-
-  // Image upload methods
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.uploadError = 'Please select a valid image file.';
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.uploadError = 'File size must be less than 5MB.';
-        return;
-      }
-
-      this.selectedFile = file;
-      this.uploadError = '';
-      this.uploadSuccess = '';
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  uploadImage(): void {
-    if (!this.selectedFile) {
-      this.uploadError = 'Please select an image file first.';
-      return;
-    }
-
-    this.isUploading = true;
-    this.uploadError = '';
-    this.uploadSuccess = '';
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-    formData.append('category', 'hero_background');
-
-    this.http
-      .post<any>(`${environment.apiUrl}/upload_file`, formData)
-      .subscribe({
-        next: (response) => {
-          this.isUploading = false;
-          if (response.status === 'success') {
-            this.uploadSuccess = 'Image uploaded successfully!';
-            this.content.heroBackgroundUrl = response.data.url;
-            this.saveToLocalStorage();
-            this.saveHeroBackgroundToDatabase();
-            this.clearUploadForm();
-          } else {
-            this.uploadError =
-              response.message || 'Upload failed. Please try again.';
-          }
-        },
-        error: (error) => {
-          this.isUploading = false;
-          this.uploadError = 'Upload failed. Please try again.';
-          console.error('Upload error:', error);
-        },
-      });
-  }
-
-  clearUploadForm(): void {
-    this.selectedFile = null;
-    this.imagePreview = null;
-    this.uploadError = '';
-    this.uploadSuccess = '';
-  }
-
-  removeImagePreview(): void {
-    this.imagePreview = null;
-    this.selectedFile = null;
-  }
-
-  private saveHeroBackgroundToDatabase(): void {
-    const heroPayload = {
-      title: this.content.heroTitle,
-      description: this.content.heroDescription,
-      background_url: this.content.heroBackgroundUrl,
-    };
-
-    this.landingPageService.updateSection('hero', heroPayload).subscribe({
-      next: (response) => {
-        if (response.status && response.status.remarks === 'success') {
-          console.log('Hero background saved to database successfully');
-        } else {
-          console.warn(
-            'Failed to save hero background to database:',
-            response.status?.message
-          );
-        }
-      },
-      error: (error) => {
-        console.error('Error saving hero background to database:', error);
-      },
-    });
   }
 
   // Pricing methods

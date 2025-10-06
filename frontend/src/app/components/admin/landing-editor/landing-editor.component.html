@@ -35,6 +35,75 @@
               placeholder="Enter hero background image URL"
             />
           </mat-form-field>
+
+          <!-- Image Upload Section -->
+          <div class="image-upload-section">
+            <h4>Or Upload New Image</h4>
+
+            <!-- File Input -->
+            <div class="file-input-container">
+              <input
+                type="file"
+                id="heroImageUpload"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                class="file-input-hidden"
+              />
+              <label for="heroImageUpload" class="file-input-label">
+                <mat-icon>cloud_upload</mat-icon>
+                Choose Image File
+              </label>
+            </div>
+
+            <!-- Image Preview -->
+            <div *ngIf="imagePreview" class="image-preview-container">
+              <h5>Preview:</h5>
+              <div class="image-preview">
+                <img [src]="imagePreview" alt="Preview" />
+                <button
+                  type="button"
+                  class="remove-preview-btn"
+                  (click)="removeImagePreview()"
+                  title="Remove preview"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload Button -->
+            <div *ngIf="selectedFile" class="upload-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="uploadImage()"
+                [disabled]="isUploading"
+              >
+                <mat-icon *ngIf="!isUploading">upload</mat-icon>
+                <mat-icon *ngIf="isUploading" class="spinning"
+                  >refresh</mat-icon
+                >
+                {{ isUploading ? "Uploading..." : "Upload Image" }}
+              </button>
+              <button
+                mat-button
+                (click)="clearUploadForm()"
+                [disabled]="isUploading"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <!-- Messages -->
+            <div *ngIf="uploadError" class="upload-error">
+              <mat-icon>error</mat-icon>
+              {{ uploadError }}
+            </div>
+            <div *ngIf="uploadSuccess" class="upload-success">
+              <mat-icon>check_circle</mat-icon>
+              {{ uploadSuccess }}
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
     </mat-tab>
