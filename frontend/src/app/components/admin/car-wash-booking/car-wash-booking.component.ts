@@ -21,6 +21,12 @@ import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { Employee } from '../../../models/booking.model';
+import {
+  VEHICLE_TYPE_CODES,
+  SERVICE_CODES,
+  PAYMENT_TYPES,
+  ONLINE_PAYMENT_OPTIONS,
+} from '../../../models/booking.model';
 
 interface CarWashBooking {
   id: number;
@@ -205,6 +211,20 @@ export class CarWashBookingComponent implements OnInit {
   ngOnInit(): void {
     this.loadBookings();
     this.loadEmployees();
+  }
+
+  openCreateBooking(): void {
+    const dialogRef = this.dialog.open(CreateWalkInBookingDialogComponent, {
+      width: '640px',
+      data: {},
+    });
+
+    dialogRef.afterClosed().subscribe((created) => {
+      if (created) {
+        this.showNotification('Booking created successfully');
+        setTimeout(() => this.loadBookings(), 500);
+      }
+    });
   }
 
   approveBooking(booking: CarWashBooking): void {
@@ -543,6 +563,318 @@ export class CarWashBookingComponent implements OnInit {
       // You could also make an API call to get the latest booking data
       // this.bookingService.getBookingById(bookingId).subscribe(...)
     }
+  }
+}
+
+@Component({
+  selector: 'app-create-walkin-booking-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+  ],
+  template: `
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon"><mat-icon>add_circle</mat-icon></div>
+          <div class="header-text">
+            <h2 class="modal-title">Create Booking (Walk-in)</h2>
+            <p class="modal-subtitle">Book for customers without an account</p>
+          </div>
+        </div>
+        <button class="close-button" (click)="onClose()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form #f="ngForm">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Customer Nickname *</mat-label>
+              <input
+                matInput
+                [(ngModel)]="form.nickname"
+                name="nickname"
+                required
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Phone *</mat-label>
+              <input matInput [(ngModel)]="form.phone" name="phone" required />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Vehicle Type *</mat-label>
+              <mat-select
+                [(ngModel)]="form.vehicle_type"
+                name="vehicle_type"
+                required
+              >
+                <mat-option *ngFor="let v of vehicleTypes" [value]="v">{{
+                  v
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Service Package *</mat-label>
+              <mat-select
+                [(ngModel)]="form.service_package"
+                name="service_package"
+                required
+              >
+                <mat-option *ngFor="let s of serviceCodes" [value]="s">{{
+                  s
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Wash Date *</mat-label>
+              <input
+                matInput
+                type="date"
+                [(ngModel)]="form.wash_date"
+                name="wash_date"
+                required
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Wash Time *</mat-label>
+              <input
+                matInput
+                type="time"
+                [(ngModel)]="form.wash_time"
+                name="wash_time"
+                required
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Payment Type *</mat-label>
+              <mat-select
+                [(ngModel)]="form.payment_type"
+                name="payment_type"
+                required
+              >
+                <mat-option *ngFor="let p of paymentTypes" [value]="p">{{
+                  p
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field
+              appearance="outline"
+              *ngIf="form.payment_type === 'Online Payment'"
+            >
+              <mat-label>Online Method *</mat-label>
+              <mat-select
+                [(ngModel)]="form.online_payment_option"
+                name="online_payment_option"
+                required
+              >
+                <mat-option
+                  *ngFor="let o of onlinePaymentOptions"
+                  [value]="o"
+                  >{{ o }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Notes</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                [(ngModel)]="form.notes"
+                name="notes"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button class="action-btn secondary-btn" (click)="onClose()">
+          <mat-icon>close</mat-icon>
+          Cancel
+        </button>
+        <button
+          class="action-btn primary-btn"
+          [disabled]="!isValid() || submitting"
+          (click)="onCreate()"
+        >
+          <mat-icon>save</mat-icon>
+          {{ submitting ? 'Creating...' : 'Create Booking' }}
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [
+    `
+      .modal-container {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        min-width: 560px;
+        max-width: 720px;
+      }
+      .modal-header {
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        color: #fff;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .header-content {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .header-icon {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 10px;
+      }
+      .modal-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .modal-subtitle {
+        margin: 0;
+        opacity: 0.95;
+      }
+      .close-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+      }
+      .modal-content {
+        padding: 20px;
+        max-height: 60vh;
+        overflow: auto;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .full {
+        grid-column: 1 / -1;
+      }
+      .modal-actions {
+        padding: 16px 20px;
+        background: #f8fafc;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid #e2e8f0;
+      }
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .secondary-btn {
+        background: #e2e8f0;
+        color: #475569;
+      }
+      .primary-btn {
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        color: #fff;
+      }
+      @media (max-width: 640px) {
+        .modal-container {
+          min-width: 90vw;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
+})
+export class CreateWalkInBookingDialogComponent {
+  vehicleTypes = VEHICLE_TYPE_CODES;
+  serviceCodes = SERVICE_CODES;
+  paymentTypes = PAYMENT_TYPES;
+  onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
+  submitting = false;
+
+  form: any = {
+    customer_id: 0, // 0 indicates walk-in/no account; backend requires a value
+    vehicle_type: '',
+    service_package: '',
+    nickname: '',
+    phone: '',
+    wash_date: '',
+    wash_time: '',
+    payment_type: '',
+    online_payment_option: '',
+    notes: '',
+  };
+
+  constructor(
+    private bookingService: BookingService,
+    public dialogRef: MatDialogRef<CreateWalkInBookingDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
+
+  isValid(): boolean {
+    if (!this.form.nickname?.trim()) return false;
+    if (!this.form.phone?.trim()) return false;
+    if (!this.form.vehicle_type) return false;
+    if (!this.form.service_package) return false;
+    if (!this.form.wash_date) return false;
+    if (!this.form.wash_time) return false;
+    if (!this.form.payment_type) return false;
+    if (
+      this.form.payment_type === 'Online Payment' &&
+      !this.form.online_payment_option
+    )
+      return false;
+    return true;
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
+  }
+
+  onCreate(): void {
+    if (!this.isValid() || this.submitting) return;
+    this.submitting = true;
+
+    const payload = { ...this.form };
+    this.bookingService.createBooking(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.dialogRef.close(true);
+      },
+      error: () => {
+        this.submitting = false;
+      },
+    });
   }
 }
 

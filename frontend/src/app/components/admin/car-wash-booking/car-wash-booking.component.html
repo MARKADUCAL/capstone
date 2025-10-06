@@ -5,6 +5,10 @@
       <p class="header-subtitle">Manage and oversee all car wash bookings</p>
     </div>
     <div class="header-right">
+      <button mat-raised-button color="primary" (click)="openCreateBooking()">
+        <mat-icon>add</mat-icon>
+        Create Booking
+      </button>
       <mat-form-field appearance="outline" class="status-filter">
         <mat-label>Filter by Status</mat-label>
         <mat-select [(ngModel)]="selectedStatus">
