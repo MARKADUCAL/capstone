@@ -348,10 +348,6 @@
   background-color: #ef4444; /* Red */
 }
 
-.delete-btn {
-  background-color: #b91c1c; /* Darker red */
-}
-
 .complete-btn {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   font-weight: 700;
@@ -366,24 +362,18 @@
   box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
 }
 
-/* Special handling for multiple buttons layout */
-.action-buttons .action-btn:nth-child(4) ~ .action-btn {
-  min-width: 70px;
-  padding: 12px 12px;
-  font-size: 12px;
+/* Special handling for 3-button layout (Pending status: View, Approve, Reject) */
+.action-buttons .action-btn:nth-child(3) {
+  min-width: 90px;
+  padding: 12px 16px;
+  font-size: 13px;
 }
 
-/* When there are 4 buttons, reduce spacing and size */
-.action-buttons .action-btn:nth-child(4) {
-  min-width: 70px;
-  padding: 12px 12px;
-  font-size: 12px;
-}
-
-/* Ensure proper spacing for different button counts */
-.action-buttons .action-btn:nth-child(3):last-child {
-  min-width: 85px;
-  padding: 12px 14px;
+/* Special handling for 2-button layout (Cancelled status: View, Edit) */
+.action-buttons .action-btn:nth-child(2):last-child {
+  min-width: 100px;
+  padding: 12px 18px;
+  font-size: 13px;
 }
 
 /* Status badges for non-actionable states */
