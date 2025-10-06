@@ -161,8 +161,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    // Clear localStorage cache to ensure fresh data from database
-    this.clearLocalStorageCache();
     // Load from API first, with localStorage as fallback
     this.loadLandingPageContent();
     this.loadPricingData();
@@ -181,9 +179,12 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
-          // refresh local cache for no-DB mode consumers
+          // Clear old cache and save fresh data
+          this.clearLocalStorageCache();
           this.saveToLocalStorage();
-          console.log('Landing page content loaded from API and updated.');
+          console.log(
+            'Landing page content loaded from API and cache updated.'
+          );
         } else {
           console.warn(
             'Failed to load landing page content from API:',
@@ -374,6 +375,13 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.warn('Failed to clear localStorage cache:', e);
     }
+  }
+
+  // Public method to force refresh content (useful for debugging)
+  public forceRefreshContent(): void {
+    console.log('Force refreshing landing page content...');
+    this.clearLocalStorageCache();
+    this.loadLandingPageContent();
   }
 
   // Pricing methods
