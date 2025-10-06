@@ -294,11 +294,12 @@
   align-items: stretch;
   min-height: 48px;
   margin-top: auto;
+  flex-wrap: wrap;
 }
 
 .action-btn {
   flex: 1;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border: none;
   border-radius: 10px;
   font-weight: 600;
@@ -306,7 +307,7 @@
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
   text-align: center;
-  min-width: 60px;
+  min-width: 80px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -314,6 +315,9 @@
   height: 40px;
   font-size: 13px;
   white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  position: relative;
 }
 
 .action-btn:hover {
@@ -360,6 +364,26 @@
 .complete-btn:hover {
   background: linear-gradient(135deg, #047857 0%, #065f46 100%);
   box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+}
+
+/* Special handling for multiple buttons layout */
+.action-buttons .action-btn:nth-child(4) ~ .action-btn {
+  min-width: 70px;
+  padding: 12px 12px;
+  font-size: 12px;
+}
+
+/* When there are 4 buttons, reduce spacing and size */
+.action-buttons .action-btn:nth-child(4) {
+  min-width: 70px;
+  padding: 12px 12px;
+  font-size: 12px;
+}
+
+/* Ensure proper spacing for different button counts */
+.action-buttons .action-btn:nth-child(3):last-child {
+  min-width: 85px;
+  padding: 12px 14px;
 }
 
 /* Status badges for non-actionable states */
@@ -486,14 +510,16 @@
     padding: 8px 16px 12px;
     flex-direction: column;
     gap: 8px;
-    min-height: auto;
+    min-height: unset;
   }
 
   .action-btn {
-    padding: 12px 14px;
+    padding: 12px 16px;
     font-size: 13px;
     width: 100%;
     height: 44px;
+    min-width: auto;
+    flex: none;
   }
 
   .completed-badge,
