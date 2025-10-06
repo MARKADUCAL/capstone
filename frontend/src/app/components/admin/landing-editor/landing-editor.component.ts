@@ -184,6 +184,19 @@ export class LandingEditorComponent implements OnInit {
     return { isValid: errors.length === 0, errors };
   }
 
+  private clearLandingPageCache(): void {
+    try {
+      localStorage.removeItem('landingPageContent');
+      console.log('Cleared landing page cache after successful save.');
+    } catch (error) {
+      console.warn('Failed to clear landing page cache:', error);
+    }
+  }
+
+  private reloadContent(): void {
+    this.loadLandingPageContent();
+  }
+
   saveChanges(): void {
     if (this.isSaving) return;
 
@@ -212,9 +225,8 @@ export class LandingEditorComponent implements OnInit {
       .subscribe((bulkRes) => {
         if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
           this.isSaving = false;
-          try {
-            localStorage.removeItem('landingPageContent');
-          } catch {}
+          this.clearLandingPageCache();
+          this.reloadContent();
           this.snackBar.open(
             'All changes saved successfully to database!',
             'Close',
@@ -315,14 +327,13 @@ export class LandingEditorComponent implements OnInit {
             next: ({ total, ok }) => {
               this.isSaving = false;
               if (ok === total) {
+                this.clearLandingPageCache();
+                this.reloadContent();
                 this.snackBar.open(
                   'All changes saved successfully to database!',
                   'Close',
                   { duration: 3000 }
                 );
-                try {
-                  localStorage.removeItem('landingPageContent');
-                } catch {}
               } else if (ok > 0) {
                 this.snackBar.open(
                   `${ok}/${total} sections saved. Some failed — please retry.`,
