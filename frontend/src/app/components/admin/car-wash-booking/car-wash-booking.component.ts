@@ -374,8 +374,8 @@ export class CarWashBookingComponent implements OnInit {
             id: Number(b.id ?? idx + 1),
             customerName: this.resolveCustomerName(b.customerName, b.nickname),
             vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
-            date: b.washDate ?? '',
-            time: b.washTime ?? '',
+            date: b.washDate ?? b.wash_date ?? '',
+            time: b.washTime ?? b.wash_time ?? '',
             status: (b.status ?? 'Pending') as
               | 'Pending'
               | 'Approved'
@@ -431,7 +431,17 @@ export class CarWashBookingComponent implements OnInit {
 
   formatDate(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    const trimmed = String(dateString).trim();
+    // Handle common invalid placeholders
+    if (
+      trimmed === '0000-00-00' ||
+      trimmed === '0000-00-00 00:00:00' ||
+      trimmed.toLowerCase() === 'invalid date'
+    )
+      return '';
+
+    const date = new Date(trimmed);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString();
   }
 
