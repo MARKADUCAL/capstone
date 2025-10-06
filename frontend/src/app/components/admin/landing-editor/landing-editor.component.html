@@ -26,19 +26,23 @@
             ></textarea>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hero Background URL *</mat-label>
-            <input
-              matInput
-              [(ngModel)]="content.heroBackgroundUrl"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter hero background image URL"
-            />
-          </mat-form-field>
-
           <!-- Image Upload Section -->
           <div class="image-upload-section">
-            <h4>Or Upload New Image</h4>
+            <h4>Hero Background Image *</h4>
+
+            <!-- Current Image Display -->
+            <div
+              *ngIf="content.heroBackgroundUrl"
+              class="current-image-container"
+            >
+              <h5>Current Image:</h5>
+              <div class="current-image">
+                <img
+                  [src]="content.heroBackgroundUrl"
+                  alt="Current hero background"
+                />
+              </div>
+            </div>
 
             <!-- File Input -->
             <div class="file-input-container">

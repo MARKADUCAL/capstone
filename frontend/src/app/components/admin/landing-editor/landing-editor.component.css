@@ -106,6 +106,32 @@ h1 {
   font-weight: 500;
 }
 
+.current-image-container {
+  margin-bottom: 20px;
+}
+
+.current-image-container h5 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.current-image {
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.current-image img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+}
+
 .file-input-container {
   margin-bottom: 15px;
 }

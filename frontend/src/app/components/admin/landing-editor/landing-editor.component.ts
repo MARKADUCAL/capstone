@@ -172,7 +172,7 @@ export class LandingEditorComponent implements OnInit {
     if (!this.content.heroDescription?.trim())
       errors.push('Hero description is required');
     if (!this.content.heroBackgroundUrl?.trim())
-      errors.push('Hero background image is required');
+      errors.push('Hero background image is required - please upload an image');
 
     if (!this.content.services || this.content.services.length === 0) {
       errors.push('At least one service is required');
@@ -258,6 +258,7 @@ export class LandingEditorComponent implements OnInit {
           if (response.status === 'success') {
             this.uploadSuccess = 'Image uploaded successfully!';
             this.content.heroBackgroundUrl = response.data.url;
+            this.updateValidation(); // Update validation after successful upload
             this.clearUploadForm();
             this.snackBar.open('Hero background image updated!', 'Close', {
               duration: 3000,
