@@ -259,10 +259,18 @@ export class LandingEditorComponent implements OnInit {
             this.uploadSuccess = 'Image uploaded successfully!';
             this.content.heroBackgroundUrl = response.data.url;
             this.updateValidation(); // Update validation after successful upload
+
+            // Automatically save the hero background to database
+            this.saveHeroBackgroundToDatabase();
+
             this.clearUploadForm();
-            this.snackBar.open('Hero background image updated!', 'Close', {
-              duration: 3000,
-            });
+            this.snackBar.open(
+              'Hero background image updated and saved!',
+              'Close',
+              {
+                duration: 3000,
+              }
+            );
           } else {
             this.uploadError =
               response.message || 'Upload failed. Please try again.';
@@ -286,6 +294,32 @@ export class LandingEditorComponent implements OnInit {
   removeImagePreview(): void {
     this.imagePreview = null;
     this.selectedFile = null;
+  }
+
+  private saveHeroBackgroundToDatabase(): void {
+    const heroPayload = {
+      title: this.content.heroTitle,
+      description: this.content.heroDescription,
+      background_url: this.content.heroBackgroundUrl,
+    };
+
+    this.landingPageService.updateSection('hero', heroPayload).subscribe({
+      next: (response) => {
+        if (response.status && response.status.remarks === 'success') {
+          console.log('Hero background saved to database successfully');
+          // Clear the landing page cache so it loads fresh data
+          this.clearLandingPageCache();
+        } else {
+          console.warn(
+            'Failed to save hero background to database:',
+            response.status?.message
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error saving hero background to database:', error);
+      },
+    });
   }
 
   saveChanges(): void {
