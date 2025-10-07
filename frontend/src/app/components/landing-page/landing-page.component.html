@@ -20,8 +20,9 @@
     </div>
     <ul class="nav-links" [class.mobile-nav-active]="mobileMenuOpen">
       <li><a href="#hero" (click)="closeMobileMenu()">Home</a></li>
-      <li><a href="#services" (click)="closeMobileMenu()">Services</a></li>
-      <li><a href="#pricing" (click)="closeMobileMenu()">Pricing</a></li>
+      <li>
+        <a href="#pricing" (click)="closeMobileMenu()">Services & Pricing</a>
+      </li>
       <li><a href="#gallery" (click)="closeMobileMenu()">Gallery</a></li>
       <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
     </ul>
@@ -55,42 +56,6 @@
     <a (click)="onBookNowClick()" class="book-now-btn">Book Now</a>
   </div>
 </header>
-
-<!-- Services Section -->
-<section class="services" id="services">
-  <h2>SERVICES WE OFFER</h2>
-
-  <!-- Loading State -->
-  <div *ngIf="servicesLoading" class="services-loading">
-    <div class="loading-spinner"></div>
-    <p>Loading services...</p>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="servicesError && !servicesLoading" class="services-error">
-    <p class="error-message">{{ servicesError }}</p>
-    <button class="btn-primary" (click)="loadServicesData()">Try Again</button>
-  </div>
-
-  <!-- Services Grid -->
-  <div *ngIf="!servicesLoading && !servicesError" class="services-container">
-    <div class="service-item" *ngFor="let s of services">
-      <img [src]="s.imageUrl" [alt]="s.name" [title]="s.name" />
-      <p>{{ s.name }}</p>
-    </div>
-  </div>
-
-  <!-- Fallback to content.services if no dynamic services loaded -->
-  <div
-    *ngIf="!servicesLoading && !servicesError && services.length === 0"
-    class="services-container"
-  >
-    <div class="service-item" *ngFor="let s of content.services">
-      <img [src]="s.imageUrl" [alt]="s.name" [title]="s.name" />
-      <p>{{ s.name }}</p>
-    </div>
-  </div>
-</section>
 
 <!-- Easy as 123 Section -->
 <section class="easy-steps">
