@@ -409,14 +409,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  formatPrice(vehicleType: string, servicePackage: string): string {
-    // Check if vehicle type exists in pricing matrix
-    if (!this.pricingMatrix[vehicleType]) {
-      return 'Price not set';
-    }
-
-    const price = this.pricingMatrix[vehicleType][servicePackage];
-    if (price === null || price === undefined) {
+  formatPrice(price: number): string {
+    if (price === null || price === undefined || price <= 0) {
       return 'Price not set';
     }
 

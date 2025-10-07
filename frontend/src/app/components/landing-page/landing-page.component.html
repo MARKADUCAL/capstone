@@ -135,9 +135,7 @@
                   *ngFor="let package of servicePackages"
                   class="package-header"
                 >
-                  <div class="package-title">
-                    Package {{ package.code.replace("p", "") }}
-                  </div>
+                  <div class="package-title">Package {{ package.code }}</div>
                   <div class="package-desc">{{ package.description }}</div>
                 </th>
               </tr>
@@ -150,7 +148,11 @@
                 </td>
                 <td *ngFor="let package of servicePackages" class="price-cell">
                   <div class="price-amount">
-                    {{ formatPrice(vehicle.code, package.code) }}
+                    {{
+                      formatPrice(
+                        pricingMatrix[vehicle.code][package.code] || 0
+                      )
+                    }}
                   </div>
                   <button
                     class="btn-book-service"
