@@ -921,10 +921,6 @@ export class CreateWalkInBookingDialogComponent {
             <h3>Customer Information</h3>
           </div>
           <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Full Name</span>
-              <span class="value">{{ data.booking.customerName }}</span>
-            </div>
             <div
               class="info-item"
               *ngIf="data.booking.firstName && data.booking.lastName"
