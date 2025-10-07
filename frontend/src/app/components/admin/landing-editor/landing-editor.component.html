@@ -118,44 +118,6 @@
       </mat-card>
     </mat-tab>
 
-    <mat-tab label="Services">
-      <mat-card class="content-card">
-        <mat-card-content>
-          <div class="services-list">
-            <div
-              class="service-item"
-              *ngFor="let service of content.services; let i = index"
-            >
-              <mat-form-field appearance="outline">
-                <mat-label>Service Name *</mat-label>
-                <input
-                  matInput
-                  [(ngModel)]="service.name"
-                  (ngModelChange)="onContentChange()"
-                  placeholder="Service name"
-                />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Image URL *</mat-label>
-                <input
-                  matInput
-                  [(ngModel)]="service.imageUrl"
-                  (ngModelChange)="onContentChange()"
-                  placeholder="Service image URL"
-                />
-              </mat-form-field>
-              <button mat-icon-button color="warn" (click)="removeService(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </div>
-          <button mat-raised-button color="primary" (click)="addService()">
-            <mat-icon>add</mat-icon> Add Service
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
-
     <mat-tab label="Gallery">
       <mat-card class="content-card">
         <mat-card-content>
