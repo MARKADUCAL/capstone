@@ -99,15 +99,58 @@ export class BookingService {
 
   // Create a new booking
   createBooking(bookingData: any): Observable<any> {
-    // In a real app, this would call an API endpoint
+    console.log('🔧 Service: createBooking called');
+    console.log('📤 Request data:', bookingData);
+    console.log('🌐 API URL:', `${environment.apiUrl}/create_booking`);
+
     return this.http
       .post<any>(`${environment.apiUrl}/create_booking`, bookingData)
       .pipe(
+        map((response) => {
+          console.log('📥 Raw backend response:', response);
+
+          // Handle the backend response structure
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            console.log('✅ Booking created successfully');
+            return {
+              success: true,
+              message: response.status.message,
+              data: response.payload,
+            };
+          } else {
+            console.log('❌ Booking creation failed:', response);
+            throw new Error(
+              response?.status?.message || 'Failed to create booking'
+            );
+          }
+        }),
         catchError((error) => {
-          console.error('Error creating booking:', error);
-          return throwError(
-            () => new Error('Failed to create booking. Please try again later.')
-          );
+          console.error('💥 Service error:', error);
+
+          let errorMessage =
+            'Failed to create booking. Please try again later.';
+
+          if (error.status === 400) {
+            errorMessage =
+              error.error?.status?.message ||
+              'Invalid booking data. Please check your inputs.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (
+            error.error &&
+            error.error.status &&
+            error.error.status.message
+          ) {
+            errorMessage = error.error.status.message;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          return throwError(() => new Error(errorMessage));
         })
       );
   }

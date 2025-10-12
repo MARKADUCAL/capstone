@@ -646,6 +646,7 @@ export class CarWashBookingComponent implements OnInit {
                 type="date"
                 [(ngModel)]="form.wash_date"
                 name="wash_date"
+                [min]="getMinDate()"
                 required
               />
             </mat-form-field>
@@ -838,7 +839,8 @@ export class CreateWalkInBookingDialogComponent {
   constructor(
     private bookingService: BookingService,
     public dialogRef: MatDialogRef<CreateWalkInBookingDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private snackBar: MatSnackBar
   ) {}
 
   isValid(): boolean {
@@ -857,6 +859,11 @@ export class CreateWalkInBookingDialogComponent {
     return true;
   }
 
+  getMinDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }
+
   onClose(): void {
     this.dialogRef.close();
   }
@@ -865,14 +872,64 @@ export class CreateWalkInBookingDialogComponent {
     if (!this.isValid() || this.submitting) return;
     this.submitting = true;
 
-    const payload = { ...this.form };
+    // Validate date is not in the past
+    const selectedDate = new Date(this.form.wash_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      this.snackBar.open(
+        'Please select a future date for the booking',
+        'Close',
+        {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        }
+      );
+      this.submitting = false;
+      return;
+    }
+
+    // Prepare payload with proper data structure for backend
+    const payload = {
+      customer_id: this.form.customer_id,
+      vehicle_type: this.form.vehicle_type,
+      service_package: this.form.service_package,
+      nickname: this.form.nickname.trim(),
+      phone: this.form.phone.trim(),
+      wash_date: this.form.wash_date,
+      wash_time: this.form.wash_time,
+      payment_type: this.form.payment_type,
+      online_payment_option: this.form.online_payment_option || null,
+      notes: this.form.notes?.trim() || null,
+    };
+
+    console.log('Creating booking with payload:', payload);
+
     this.bookingService.createBooking(payload).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Booking created successfully:', response);
         this.submitting = false;
+        this.snackBar.open('Booking created successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
         this.dialogRef.close(true);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error creating booking:', error);
         this.submitting = false;
+        this.snackBar.open(
+          'Failed to create booking: ' + (error.message || 'Unknown error'),
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+          }
+        );
       },
     });
   }
