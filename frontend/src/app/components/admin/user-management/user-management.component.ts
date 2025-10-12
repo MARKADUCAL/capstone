@@ -170,7 +170,27 @@ export class UserManagementComponent implements OnInit {
         error: (error) => {
           this.isSubmitting = false;
           console.error('Error creating customer:', error);
-          this.showNotification('Error creating customer. Please try again.');
+
+          let errorMessage = 'Error creating customer. Please try again.';
+
+          if (error.status === 400) {
+            if (
+              error.error &&
+              error.error.status &&
+              error.error.status.message
+            ) {
+              errorMessage = error.error.status.message;
+            } else {
+              errorMessage = 'Invalid data provided. Please check your inputs.';
+            }
+          } else if (error.status === 409) {
+            errorMessage =
+              'Email already exists. Please use a different email.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+
+          this.showNotification(errorMessage);
         },
       });
     } else {
@@ -179,16 +199,39 @@ export class UserManagementComponent implements OnInit {
   }
 
   private validateUserForm(): boolean {
-    return !!(
-      this.newUser.first_name &&
-      this.newUser.last_name &&
-      this.newUser.email &&
-      this.newUser.phone &&
-      this.newUser.password &&
-      this.newUser.confirm_password &&
-      this.newUser.password === this.newUser.confirm_password &&
-      this.newUser.password.length >= 6
-    );
+    // Check required fields
+    if (
+      !this.newUser.first_name ||
+      !this.newUser.last_name ||
+      !this.newUser.email ||
+      !this.newUser.phone ||
+      !this.newUser.password ||
+      !this.newUser.confirm_password
+    ) {
+      this.showNotification('Please fill in all required fields');
+      return false;
+    }
+
+    // Check email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.newUser.email)) {
+      this.showNotification('Please enter a valid email address');
+      return false;
+    }
+
+    // Check password length
+    if (this.newUser.password.length < 6) {
+      this.showNotification('Password must be at least 6 characters long');
+      return false;
+    }
+
+    // Check password match
+    if (this.newUser.password !== this.newUser.confirm_password) {
+      this.showNotification('Passwords do not match');
+      return false;
+    }
+
+    return true;
   }
 
   private createEmptyUser(): NewUser {

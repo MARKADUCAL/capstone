@@ -407,6 +407,19 @@
   font-weight: 600;
 }
 
+.modal-info {
+  padding: 15px 24px;
+  background: #e3f2fd;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-info p {
+  margin: 0;
+  color: #1976d2;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .close-btn {
   color: white;
   font-size: 28px;
@@ -495,6 +508,23 @@
 .save-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Employee Details View */

@@ -277,6 +277,7 @@
               Cancel
             </button>
             <button type="submit" class="save-btn" [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="loading-spinner"></span>
               {{ isSubmitting ? "Creating..." : "Create Customer" }}
             </button>
           </div>

@@ -20,7 +20,7 @@ interface Employee {
 }
 
 interface NewEmployee {
-  employee_id: string;
+  employee_id?: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -148,7 +148,6 @@ export class EmployeeManagementComponent implements OnInit {
       this.isSubmitting = true;
 
       const employeeData = {
-        employee_id: this.newEmployee.employee_id,
         first_name: this.newEmployee.first_name,
         last_name: this.newEmployee.last_name,
         email: this.newEmployee.email,
@@ -179,7 +178,28 @@ export class EmployeeManagementComponent implements OnInit {
           error: (error) => {
             this.isSubmitting = false;
             console.error('Error creating employee:', error);
-            this.showNotification('Error creating employee. Please try again.');
+
+            let errorMessage = 'Error creating employee. Please try again.';
+
+            if (error.status === 400) {
+              if (
+                error.error &&
+                error.error.status &&
+                error.error.status.message
+              ) {
+                errorMessage = error.error.status.message;
+              } else {
+                errorMessage =
+                  'Invalid data provided. Please check your inputs.';
+              }
+            } else if (error.status === 409) {
+              errorMessage =
+                'Email already exists. Please use a different email.';
+            } else if (error.status === 500) {
+              errorMessage = 'Server error. Please try again later.';
+            }
+
+            this.showNotification(errorMessage);
           },
         });
     } else {
@@ -356,18 +376,40 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   private validateEmployeeForm(): boolean {
-    return !!(
-      this.newEmployee.employee_id &&
-      this.newEmployee.first_name &&
-      this.newEmployee.last_name &&
-      this.newEmployee.email &&
-      this.newEmployee.phone &&
-      this.newEmployee.password &&
-      this.newEmployee.confirm_password &&
-      this.newEmployee.position &&
-      this.newEmployee.password === this.newEmployee.confirm_password &&
-      this.newEmployee.password.length >= 6
-    );
+    // Check required fields
+    if (
+      !this.newEmployee.first_name ||
+      !this.newEmployee.last_name ||
+      !this.newEmployee.email ||
+      !this.newEmployee.phone ||
+      !this.newEmployee.password ||
+      !this.newEmployee.confirm_password ||
+      !this.newEmployee.position
+    ) {
+      this.showNotification('Please fill in all required fields');
+      return false;
+    }
+
+    // Check email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.newEmployee.email)) {
+      this.showNotification('Please enter a valid email address');
+      return false;
+    }
+
+    // Check password length
+    if (this.newEmployee.password.length < 6) {
+      this.showNotification('Password must be at least 6 characters long');
+      return false;
+    }
+
+    // Check password match
+    if (this.newEmployee.password !== this.newEmployee.confirm_password) {
+      this.showNotification('Passwords do not match');
+      return false;
+    }
+
+    return true;
   }
 
   private createEmptyEmployee(): NewEmployee {

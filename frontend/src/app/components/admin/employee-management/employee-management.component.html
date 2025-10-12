@@ -120,20 +120,14 @@
         <h2>Add New Employee</h2>
         <span class="close-btn" (click)="closeAddEmployeeModal()">&times;</span>
       </div>
+      <div class="modal-info">
+        <p>
+          <strong>Note:</strong> Employee ID will be automatically generated
+          (e.g., EMP-001, EMP-002, etc.)
+        </p>
+      </div>
       <div class="modal-body">
         <form class="employee-form" (ngSubmit)="submitEmployeeForm()">
-          <div class="form-group">
-            <label for="employee-id">Employee ID *</label>
-            <input
-              type="text"
-              id="employee-id"
-              name="employee-id"
-              [(ngModel)]="newEmployee.employee_id"
-              required
-              placeholder="Enter employee ID (e.g., EMP-001)"
-            />
-          </div>
-
           <div class="form-group">
             <label for="first-name">First Name *</label>
             <input
@@ -234,6 +228,7 @@
               Cancel
             </button>
             <button type="submit" class="save-btn" [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="loading-spinner"></span>
               {{ isSubmitting ? "Creating..." : "Save Employee" }}
             </button>
           </div>
