@@ -56,10 +56,48 @@
   <mat-card class="tasks-card">
     <mat-card-header>
       <mat-card-title>Upcoming Tasks</mat-card-title>
+      <button
+        mat-icon-button
+        class="refresh-btn"
+        (click)="loadUpcomingTasks()"
+        [disabled]="loading"
+        matTooltip="Refresh tasks"
+      >
+        <mat-icon [class.spinning]="loading">refresh</mat-icon>
+      </button>
     </mat-card-header>
     <mat-card-content>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-icon class="loading-icon">refresh</mat-icon>
+        <p>Loading upcoming tasks...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-container">
+        <mat-icon class="error-icon">error</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="loadUpcomingTasks()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+
+      <!-- No Tasks State -->
+      <div
+        *ngIf="!loading && !error && upcomingTasks.length === 0"
+        class="no-tasks-container"
+      >
+        <mat-icon class="no-tasks-icon">assignment_turned_in</mat-icon>
+        <p>No upcoming tasks found</p>
+        <small>All caught up! Check back later for new assignments.</small>
+      </div>
+
       <!-- Desktop Table View -->
-      <div class="desktop-table">
+      <div
+        class="desktop-table"
+        *ngIf="!loading && !error && upcomingTasks.length > 0"
+      >
         <table mat-table [dataSource]="upcomingTasks" class="tasks-table">
           <!-- Customer Name Column -->
           <ng-container matColumnDef="customerName">
@@ -111,7 +149,10 @@
       </div>
 
       <!-- Mobile Card View -->
-      <div class="mobile-cards">
+      <div
+        class="mobile-cards"
+        *ngIf="!loading && !error && upcomingTasks.length > 0"
+      >
         <div class="task-card" *ngFor="let task of upcomingTasks">
           <div class="task-card-header">
             <div class="customer-info">

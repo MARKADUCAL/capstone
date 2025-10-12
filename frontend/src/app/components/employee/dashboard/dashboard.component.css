@@ -84,6 +84,20 @@ h1 {
   margin-bottom: 24px;
 }
 
+.tasks-card mat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.refresh-btn {
+  margin-left: auto;
+}
+
+.refresh-btn mat-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
 .tasks-table {
   width: 100%;
 }
@@ -276,6 +290,70 @@ h1 {
   /* Show desktop table on desktop */
   .desktop-table {
     display: block;
+  }
+}
+
+/* Loading, Error, and No Tasks States */
+.loading-container,
+.error-container,
+.no-tasks-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #1976d2;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.error-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #f44336;
+  margin-bottom: 16px;
+}
+
+.no-tasks-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #4caf50;
+  margin-bottom: 16px;
+}
+
+.loading-container p,
+.error-container p,
+.no-tasks-container p {
+  margin: 0 0 8px 0;
+  color: #6c757d;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.no-tasks-container small {
+  color: #9e9e9e;
+  font-size: 14px;
+}
+
+.error-container button {
+  margin-top: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
