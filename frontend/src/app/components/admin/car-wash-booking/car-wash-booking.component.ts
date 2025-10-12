@@ -824,7 +824,7 @@ export class CreateWalkInBookingDialogComponent {
   submitting = false;
 
   form: any = {
-    customer_id: 0, // 0 indicates walk-in/no account; backend requires a value
+    customer_id: 999, // Use 999 for walk-in customers (backend expects non-zero value)
     vehicle_type: '',
     service_package: '',
     nickname: '',
@@ -905,7 +905,51 @@ export class CreateWalkInBookingDialogComponent {
       notes: this.form.notes?.trim() || null,
     };
 
+    // Additional validation to ensure no empty strings are sent
+    if (
+      !payload.nickname ||
+      !payload.phone ||
+      !payload.vehicle_type ||
+      !payload.service_package ||
+      !payload.wash_date ||
+      !payload.wash_time ||
+      !payload.payment_type
+    ) {
+      this.snackBar.open('Please fill in all required fields', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+      this.submitting = false;
+      return;
+    }
+
     console.log('Creating booking with payload:', payload);
+    console.log('Payload validation:');
+    console.log(
+      '- customer_id:',
+      payload.customer_id,
+      typeof payload.customer_id
+    );
+    console.log(
+      '- vehicle_type:',
+      payload.vehicle_type,
+      typeof payload.vehicle_type
+    );
+    console.log(
+      '- service_package:',
+      payload.service_package,
+      typeof payload.service_package
+    );
+    console.log('- nickname:', payload.nickname, typeof payload.nickname);
+    console.log('- phone:', payload.phone, typeof payload.phone);
+    console.log('- wash_date:', payload.wash_date, typeof payload.wash_date);
+    console.log('- wash_time:', payload.wash_time, typeof payload.wash_time);
+    console.log(
+      '- payment_type:',
+      payload.payment_type,
+      typeof payload.payment_type
+    );
 
     this.bookingService.createBooking(payload).subscribe({
       next: (response) => {
