@@ -275,6 +275,92 @@ mat-card-title {
   margin: 0;
 }
 
+/* Mobile Card View Styles */
+.mobile-cards {
+  display: none;
+}
+
+.booking-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.customer-info h4 {
+  margin: 0 0 4px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.booking-date {
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.booking-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.service-info,
+.amount-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.service-info mat-icon,
+.amount-info mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.amount {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.booking-card-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-btn {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  min-width: auto !important;
+  width: 100%;
+  justify-content: center;
+}
+
+.mobile-btn mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -311,6 +397,40 @@ mat-card-title {
     font-size: 11px;
     padding: 4px 8px;
     min-width: 70px;
+  }
+
+  /* Hide desktop table on mobile */
+  .desktop-table {
+    display: none;
+  }
+
+  /* Show mobile cards on mobile */
+  .mobile-cards {
+    display: block;
+  }
+
+  /* Adjust booking card content for smaller screens */
+  .booking-card-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .service-info,
+  .amount-info {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Hide mobile cards on desktop */
+  .mobile-cards {
+    display: none;
+  }
+
+  /* Show desktop table on desktop */
+  .desktop-table {
+    display: block;
   }
 }
 
