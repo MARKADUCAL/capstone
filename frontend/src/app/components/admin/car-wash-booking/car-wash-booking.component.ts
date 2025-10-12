@@ -693,6 +693,24 @@ export class CarWashBookingComponent implements OnInit {
               </mat-select>
             </mat-form-field>
 
+            <mat-form-field appearance="outline">
+              <mat-label>Assign Employee *</mat-label>
+              <mat-select
+                [(ngModel)]="form.assigned_employee_id"
+                name="assigned_employee_id"
+                required
+              >
+                <mat-option
+                  *ngFor="let employee of employees"
+                  [value]="employee.id"
+                  [disabled]="employee.status === 'Inactive'"
+                >
+                  {{ employee.name }} - {{ employee.role }}
+                  <span *ngIf="employee.status === 'Inactive'">(Inactive)</span>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
             <mat-form-field appearance="outline" class="full">
               <mat-label>Notes</mat-label>
               <textarea
@@ -821,6 +839,7 @@ export class CreateWalkInBookingDialogComponent {
   serviceCodes = SERVICE_CODES;
   paymentTypes = PAYMENT_TYPES;
   onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
+  employees: Employee[] = [];
   submitting = false;
 
   form: any = {
@@ -833,6 +852,7 @@ export class CreateWalkInBookingDialogComponent {
     wash_time: '',
     payment_type: '',
     online_payment_option: '',
+    assigned_employee_id: null,
     notes: '',
   };
 
@@ -840,8 +860,11 @@ export class CreateWalkInBookingDialogComponent {
     private bookingService: BookingService,
     public dialogRef: MatDialogRef<CreateWalkInBookingDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private http: HttpClient
+  ) {
+    this.loadEmployees();
+  }
 
   isValid(): boolean {
     if (!this.form.nickname?.trim()) return false;
@@ -851,6 +874,7 @@ export class CreateWalkInBookingDialogComponent {
     if (!this.form.wash_date) return false;
     if (!this.form.wash_time) return false;
     if (!this.form.payment_type) return false;
+    if (!this.form.assigned_employee_id) return false;
     if (
       this.form.payment_type === 'Online Payment' &&
       !this.form.online_payment_option
@@ -862,6 +886,58 @@ export class CreateWalkInBookingDialogComponent {
   getMinDate(): string {
     const today = new Date();
     return today.toISOString().split('T')[0];
+  }
+
+  loadEmployees(): void {
+    this.http.get(`${environment.apiUrl}/get_all_employees`).subscribe({
+      next: (response: any) => {
+        if (
+          response &&
+          response.status &&
+          response.status.remarks === 'success' &&
+          response.payload &&
+          response.payload.employees
+        ) {
+          this.employees = response.payload.employees.map((employee: any) => {
+            const derivedStatus =
+              localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
+            return {
+              id: employee.id,
+              employeeId: employee.employee_id,
+              name: `${employee.first_name} ${employee.last_name}`,
+              email: employee.email,
+              phone: employee.phone || 'N/A',
+              role: employee.position || 'Employee',
+              status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
+              registrationDate: this.formatDate(employee.created_at),
+            };
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error loading employees:', error);
+        this.snackBar.open('Failed to load employees', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+      },
+    });
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const trimmed = String(dateString).trim();
+    if (
+      trimmed === '0000-00-00' ||
+      trimmed === '0000-00-00 00:00:00' ||
+      trimmed.toLowerCase() === 'invalid date'
+    )
+      return '';
+
+    const date = new Date(trimmed);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString();
   }
 
   onClose(): void {
@@ -954,13 +1030,54 @@ export class CreateWalkInBookingDialogComponent {
     this.bookingService.createBooking(payload).subscribe({
       next: (response) => {
         console.log('Booking created successfully:', response);
-        this.submitting = false;
-        this.snackBar.open('Booking created successfully!', 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
-        this.dialogRef.close(true);
+
+        // If employee is assigned, assign them to the booking
+        if (this.form.assigned_employee_id && response.data?.booking_id) {
+          this.bookingService
+            .assignEmployeeToBooking(
+              response.data.booking_id,
+              this.form.assigned_employee_id
+            )
+            .subscribe({
+              next: () => {
+                console.log('Employee assigned successfully');
+                this.submitting = false;
+                this.snackBar.open(
+                  'Booking created and employee assigned successfully!',
+                  'Close',
+                  {
+                    duration: 3000,
+                    horizontalPosition: 'right',
+                    verticalPosition: 'top',
+                  }
+                );
+                this.dialogRef.close(true);
+              },
+              error: (assignError) => {
+                console.error('Error assigning employee:', assignError);
+                this.submitting = false;
+                this.snackBar.open(
+                  'Booking created but failed to assign employee: ' +
+                    (assignError.message || 'Unknown error'),
+                  'Close',
+                  {
+                    duration: 5000,
+                    horizontalPosition: 'right',
+                    verticalPosition: 'top',
+                  }
+                );
+                this.dialogRef.close(true);
+              },
+            });
+        } else {
+          this.submitting = false;
+          this.snackBar.open('Booking created successfully!', 'Close', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+          });
+          this.dialogRef.close(true);
+        }
       },
       error: (error) => {
         console.error('Error creating booking:', error);
