@@ -9,7 +9,14 @@ class UploadHandler {
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
-        $this->uploadDir = __DIR__ . '/../../uploads/';
+        // Store uploads under the public web root so they are directly accessible via /uploads/...
+        $documentRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
+        if (!empty($documentRoot)) {
+            $this->uploadDir = $documentRoot . '/uploads/';
+        } else {
+            // Fallback: relative to project if DOCUMENT_ROOT is not set
+            $this->uploadDir = __DIR__ . '/../../uploads/';
+        }
     }
 
     public function sendPayload($data, $status, $message, $code) {

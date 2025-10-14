@@ -1,38 +1,26 @@
-# Security settings for uploads folder
+#### Security and access rules for uploads (Apache 2.4/LiteSpeed compatible)
 
-# Prevent execution of PHP files
+# Stop any rewrites inside uploads (serve files directly)
 
-<Files "\*.php">
-Order Deny,Allow
-Deny from all
-</Files>
+RewriteEngine Off
 
-# Prevent execution of other script files
+# Prevent execution of scripts
 
 <FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
-Order Deny,Allow
-Deny from all
+Require all denied
 </FilesMatch>
 
-# Only allow image files
+# Allow only image file access
 
-<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
-Order Allow,Deny
-Allow from all
+<FilesMatch "\.(jpe?g|png|gif|webp)$">
+Require all granted
 </FilesMatch>
 
-# Block access to any other file types
-
-<FilesMatch "^(?!._\.(jpg|jpeg|png|gif|webp)$)._$">
-Order Deny,Allow
-Deny from all
-</FilesMatch>
-
-# Prevent directory browsing
+# Prevent directory listing
 
 Options -Indexes
 
-# Set proper MIME types
+# Correct MIME types
 
 <IfModule mod_mime.c>
     AddType image/jpeg .jpg .jpeg
@@ -54,9 +42,7 @@ Options -Indexes
 # Security headers
 
 <IfModule mod_headers.c>
-    Header set X-Content-Type-Options nosniff
-    Header set X-Frame-Options DENY
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
     Header set X-XSS-Protection "1; mode=block"
 </IfModule>
-
-
