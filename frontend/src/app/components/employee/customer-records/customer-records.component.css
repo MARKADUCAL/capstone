@@ -27,11 +27,42 @@ h2 {
   overflow-x: auto;
 }
 
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .customer-records-container {
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .search-input {
+    min-width: 100%;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .table-container {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
 .bookings-table {
   width: 100%;
   border-collapse: collapse;
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 600px; /* Ensure table has minimum width for readability */
 }
 
 .bookings-table th,
@@ -39,6 +70,7 @@ h2 {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  white-space: nowrap; /* Prevent text wrapping in cells */
 }
 
 .bookings-table th {
@@ -48,6 +80,59 @@ h2 {
 
 .bookings-table tr:hover {
   background-color: #f9f9f9;
+}
+
+/* Mobile table optimizations */
+@media (max-width: 768px) {
+  .bookings-table {
+    min-width: 500px; /* Smaller minimum width for mobile */
+  }
+
+  .bookings-table th,
+  .bookings-table td {
+    padding: 8px 6px;
+    font-size: 14px;
+  }
+
+  .bookings-table th:nth-child(1),
+  .bookings-table td:nth-child(1) {
+    width: 40px; /* # column */
+  }
+
+  .bookings-table th:nth-child(2),
+  .bookings-table td:nth-child(2) {
+    min-width: 120px; /* Customer Name */
+  }
+
+  .bookings-table th:nth-child(3),
+  .bookings-table td:nth-child(3) {
+    min-width: 100px; /* Service */
+  }
+
+  .bookings-table th:nth-child(4),
+  .bookings-table td:nth-child(4) {
+    min-width: 80px; /* Date */
+  }
+
+  .bookings-table th:nth-child(5),
+  .bookings-table td:nth-child(5) {
+    min-width: 60px; /* Time */
+  }
+
+  .bookings-table th:nth-child(6),
+  .bookings-table td:nth-child(6) {
+    min-width: 70px; /* Rating */
+  }
+
+  .bookings-table th:nth-child(7),
+  .bookings-table td:nth-child(7) {
+    min-width: 80px; /* Status */
+  }
+
+  .bookings-table th:nth-child(8),
+  .bookings-table td:nth-child(8) {
+    min-width: 60px; /* View */
+  }
 }
 
 /* Rating display styles */
@@ -125,10 +210,169 @@ h2 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 12px;
 }
 
 .view-btn:hover {
   background-color: #145ea8;
+}
+
+/* Mobile button optimizations */
+@media (max-width: 768px) {
+  .view-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 50px;
+  }
+
+  .status-badge {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+
+  .rating-display {
+    font-size: 12px;
+  }
+
+  .star-icon {
+    font-size: 14px;
+  }
+
+  .rating-value {
+    font-size: 12px;
+  }
+
+  .rating-count {
+    font-size: 10px;
+  }
+}
+
+/* Mobile Card Layout */
+.mobile-cards {
+  display: none;
+}
+
+.mobile-cards .booking-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.mobile-cards .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.mobile-cards .card-number {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.mobile-cards .card-content {
+  padding: 16px;
+}
+
+.mobile-cards .customer-info {
+  margin-bottom: 12px;
+}
+
+.mobile-cards .customer-name {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.mobile-cards .service-name {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.mobile-cards .booking-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-cards .detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.mobile-cards .detail-label {
+  font-size: 13px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.mobile-cards .detail-value {
+  font-size: 13px;
+  color: #212529;
+  font-weight: 500;
+}
+
+.mobile-cards .card-actions {
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.mobile-cards .mobile-view-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.mobile-cards .mobile-view-btn:hover {
+  background-color: #145ea8;
+}
+
+.mobile-cards .no-records-mobile {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.mobile-cards .no-records-mobile p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Show/hide views based on screen size */
+@media (max-width: 768px) {
+  .desktop-view {
+    display: none;
+  }
+
+  .mobile-view {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktop-view {
+    display: block;
+  }
+
+  .mobile-view {
+    display: none;
+  }
 }
 
 .modal-backdrop {
@@ -151,6 +395,67 @@ h2 {
   border-radius: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+}
+
+/* Mobile modal optimizations */
+@media (max-width: 768px) {
+  .modal {
+    width: 95vw;
+    max-width: 95vw;
+    max-height: 90vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .modal-content {
+    padding: 12px;
+    max-height: 60vh;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px 0;
+  }
+
+  .info-item {
+    margin-bottom: 8px;
+  }
+
+  .info-label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 13px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .status-banner {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .status-label {
+    font-size: 14px;
+  }
+
+  .status-desc {
+    font-size: 12px;
+  }
 }
 
 .modal-header {

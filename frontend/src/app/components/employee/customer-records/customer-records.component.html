@@ -12,7 +12,8 @@
     </div>
   </div>
 
-  <div class="table-container">
+  <!-- Desktop Table View -->
+  <div class="table-container desktop-view">
     <table class="bookings-table">
       <thead>
         <tr>
@@ -71,6 +72,70 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="mobile-cards mobile-view">
+    <div
+      class="booking-card"
+      *ngFor="let booking of filteredBookings; let i = index"
+    >
+      <div class="card-header">
+        <div class="card-number">#{{ i + 1 }}</div>
+        <div class="card-status">
+          <span class="status-badge" [class]="booking.status.toLowerCase()">
+            {{ booking.status }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="customer-info">
+          <h3 class="customer-name">{{ booking.customerName }}</h3>
+          <p class="service-name">{{ booking.service }}</p>
+        </div>
+
+        <div class="booking-details">
+          <div class="detail-item">
+            <span class="detail-label">Date:</span>
+            <span class="detail-value">{{
+              booking.date | date : "MMM d, y"
+            }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Time:</span>
+            <span class="detail-value">{{ booking.time }}</span>
+          </div>
+          <div class="detail-item" *ngIf="booking.averageRating !== undefined">
+            <span class="detail-label">Rating:</span>
+            <div class="rating-display">
+              <div
+                class="star-icon"
+                [style.color]="getStarColor(booking.averageRating)"
+              >
+                ★
+              </div>
+              <span class="rating-value">{{
+                getStarRating(booking.averageRating)
+              }}</span>
+              <span class="rating-count" *ngIf="booking.totalRatings"
+                >({{ booking.totalRatings }})</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="view-btn mobile-view-btn" (click)="openDetails(booking)">
+          View Details
+        </button>
+      </div>
+    </div>
+
+    <div class="no-records-mobile" *ngIf="filteredBookings.length === 0">
+      <p>No booking records found</p>
+    </div>
   </div>
 
   <div
