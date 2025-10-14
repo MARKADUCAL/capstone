@@ -444,6 +444,50 @@
                 selectedBooking.assigned_employee_id
               }}</span>
             </div>
+            <div
+              class="detail-row"
+              *ngIf="
+                hasEmployeeAssigned(selectedBooking) &&
+                $any(selectedBooking).employee_phone
+              "
+            >
+              <span class="label">Contact:</span>
+              <span class="value">{{
+                $any(selectedBooking).employee_phone
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Rating Section (if available) -->
+        <div class="detail-card" *ngIf="getCustomerRating(selectedBooking)">
+          <div class="detail-header">
+            <span class="detail-icon">⭐</span>
+            <h4>Customer Rating</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Rating:</span>
+              <span class="value rating-display">
+                <div class="star-rating-display">
+                  <span class="stars">{{
+                    getStarDisplay(getCustomerRating(selectedBooking) || 0)
+                  }}</span>
+                  <span class="rating-value"
+                    >{{ getCustomerRating(selectedBooking) }}/5</span
+                  >
+                </div>
+              </span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="getCustomerRatingComment(selectedBooking)"
+            >
+              <span class="label">Comment:</span>
+              <span class="value rating-comment">{{
+                getCustomerRatingComment(selectedBooking)
+              }}</span>
+            </div>
           </div>
         </div>
 
@@ -462,6 +506,102 @@
             <div class="detail-row">
               <span class="label">Method:</span>
               <span class="value">{{ selectedBooking.paymentType }}</span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).paymentStatus">
+              <span class="label">Payment Status:</span>
+              <span
+                class="value"
+                [ngClass]="
+                  'payment-' + $any(selectedBooking).paymentStatus.toLowerCase()
+                "
+              >
+                {{ $any(selectedBooking).paymentStatus }}
+              </span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).transactionId">
+              <span class="label">Transaction ID:</span>
+              <span class="value">{{
+                $any(selectedBooking).transactionId
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Booking Information -->
+        <div class="detail-card" *ngIf="hasAdditionalInfo(selectedBooking)">
+          <div class="detail-header">
+            <span class="detail-icon">📋</span>
+            <h4>Additional Information</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row" *ngIf="selectedBooking.notes">
+              <span class="label">Notes:</span>
+              <span class="value">{{ selectedBooking.notes }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).specialRequests"
+            >
+              <span class="label">Special Requests:</span>
+              <span class="value">{{
+                $any(selectedBooking).specialRequests
+              }}</span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).bookingSource">
+              <span class="label">Booking Source:</span>
+              <span class="value">{{
+                $any(selectedBooking).bookingSource
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).estimatedDuration"
+            >
+              <span class="label">Estimated Duration:</span>
+              <span class="value"
+                >{{ $any(selectedBooking).estimatedDuration }} minutes</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Timeline -->
+        <div class="detail-card" *ngIf="hasServiceTimeline(selectedBooking)">
+          <div class="detail-header">
+            <span class="detail-icon">⏱️</span>
+            <h4>Service Timeline</h4>
+          </div>
+          <div class="detail-content">
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).bookingCreatedAt"
+            >
+              <span class="label">Booked:</span>
+              <span class="value">{{
+                $any(selectedBooking).bookingCreatedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).approvedAt">
+              <span class="label">Approved:</span>
+              <span class="value">{{
+                $any(selectedBooking).approvedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).startedAt">
+              <span class="label">Started:</span>
+              <span class="value">{{
+                $any(selectedBooking).startedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
+            </div>
+            <div class="detail-row" *ngIf="$any(selectedBooking).completedAt">
+              <span class="label">Completed:</span>
+              <span class="value">{{
+                $any(selectedBooking).completedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
             </div>
           </div>
         </div>

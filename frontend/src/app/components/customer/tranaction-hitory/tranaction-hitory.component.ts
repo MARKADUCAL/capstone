@@ -650,4 +650,42 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       booking.employee_last_name
     );
   }
+
+  // New methods for enhanced modal display
+  getCustomerRating(booking: any): number | null {
+    return booking.customerRating || booking.rating || null;
+  }
+
+  getCustomerRatingComment(booking: any): string | null {
+    return booking.customerRatingComment || booking.ratingComment || null;
+  }
+
+  getStarDisplay(rating: number): string {
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) {
+      stars += '☆';
+    }
+    return stars;
+  }
+
+  hasAdditionalInfo(booking: any): boolean {
+    return !!(
+      booking.notes ||
+      booking.specialRequests ||
+      booking.bookingSource ||
+      booking.estimatedDuration
+    );
+  }
+
+  hasServiceTimeline(booking: any): boolean {
+    return !!(
+      booking.bookingCreatedAt ||
+      booking.approvedAt ||
+      booking.startedAt ||
+      booking.completedAt
+    );
+  }
 }
