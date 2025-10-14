@@ -136,17 +136,25 @@ export class LandingPageService {
 
   // Helper method to convert frontend format to backend format
   convertToBackendFormat(frontendContent: any): LandingPageContent {
+    const stripDataUrl = (val: string | undefined | null): string => {
+      if (!val) return '';
+      return String(val).startsWith('data:') ? '' : String(val);
+    };
     return {
       hero: {
         title: frontendContent.heroTitle || '',
         description: frontendContent.heroDescription || '',
-        background_url: frontendContent.heroBackgroundUrl || '',
+        background_url: stripDataUrl(frontendContent.heroBackgroundUrl) || '',
       },
       services: (frontendContent.services || []).map((service: any) => ({
         name: service.name || '',
-        image_url: service.imageUrl || service.image_url || '',
+        image_url:
+          stripDataUrl(service.imageUrl || service.image_url || '') || '',
       })),
-      gallery: frontendContent.galleryImages || [],
+      gallery: (frontendContent.galleryImages || []).map((g: any) => ({
+        url: stripDataUrl(g.url),
+        alt: g.alt,
+      })),
       contact_info: {
         address: frontendContent.contactInfo?.address || '',
         opening_hours: frontendContent.contactInfo?.openingHours || '',
@@ -168,15 +176,31 @@ export class LandingPageService {
 
   // Helper method to convert backend format to frontend format
   convertToFrontendFormat(backendContent: LandingPageContent): any {
+    const toApiFileUrl = (url: string | undefined | null): string => {
+      if (!url) return '';
+      const val = String(url);
+      // Already an absolute URL not pointing to uploads
+      if (/\/api\/file\//.test(val)) return val;
+      // If points to uploads as relative or absolute, convert to API route
+      const match = val.match(/(?:uploads\/)([^/?#]+)$/);
+      if (match && match[1]) {
+        return `${this.apiUrl}/file/${match[1]}`;
+      }
+      return val;
+    };
     return {
       heroTitle: backendContent.hero?.title || '',
       heroDescription: backendContent.hero?.description || '',
-      heroBackgroundUrl: backendContent.hero?.background_url || '',
+      heroBackgroundUrl:
+        toApiFileUrl(backendContent.hero?.background_url) || '',
       services: (backendContent.services || []).map((service: any) => ({
         name: service.name || '',
-        imageUrl: service.image_url || service.imageUrl || '',
+        imageUrl: toApiFileUrl(service.image_url || service.imageUrl || ''),
       })),
-      galleryImages: backendContent.gallery || [],
+      galleryImages: (backendContent.gallery || []).map((g: any) => ({
+        url: toApiFileUrl(g.url),
+        alt: g.alt,
+      })),
       contactInfo: {
         address: backendContent.contact_info?.address || '',
         openingHours: backendContent.contact_info?.opening_hours || '',

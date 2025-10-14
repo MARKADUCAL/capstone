@@ -80,6 +80,7 @@ $pdo = $connection->connect();
 $post = new Post($pdo);
 $get = new Get($pdo);
 $put = new Put($pdo);
+$uploadHandler = new UploadHandler($pdo);
 
 // Handle OPTIONS request (CORS preflight)
 if ($method === 'OPTIONS') {
@@ -89,6 +90,13 @@ if ($method === 'OPTIONS') {
 
 // Handle GET requests
 if ($method === 'GET') {
+    // Serve uploaded files via API to bypass static hosting restrictions
+    if (strpos($request, 'file/') !== false) {
+        $parts = explode('/', $request);
+        $filename = end($parts);
+        $uploadHandler->serveFile($filename);
+        exit();
+    }
     // Status page for root access
     if ($request === '/' || $request === '/api/' || $request === '/api' || strpos($request, 'status') !== false) {
         header('Content-Type: text/html; charset=utf-8');

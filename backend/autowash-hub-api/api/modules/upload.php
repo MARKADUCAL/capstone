@@ -153,21 +153,46 @@ class UploadHandler {
     }
 
     public function getFileUrl($relativePath) {
+        // Always return an API-served URL to avoid static hosting restrictions
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
-        $basePath = dirname($_SERVER['SCRIPT_NAME'], 2); // Go up two levels from api/ to root
+        $apiBase = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); // e.g., /api
+        $filename = basename($relativePath);
+        return $protocol . '://' . $host . $apiBase . '/file/' . $filename;
+    }
 
-        // Normalize to avoid double slashes in the final URL
-        $basePath = rtrim($basePath, '/');
-        // Some hosts return '/' here; treat it as empty base path
-        if ($basePath === '/' || $basePath === '\\') {
-            $basePath = '';
+    public function serveFile($filename) {
+        $safeName = basename($filename);
+        $fullPath = $this->uploadDir . $safeName;
+
+        if (!file_exists($fullPath) || !is_file($fullPath)) {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'failed', 'message' => 'File not found']);
+            exit();
         }
-        $relativePath = ltrim($relativePath, '/');
 
-        $pathPrefix = $basePath === '' ? '' : $basePath . '/';
+        // Determine MIME type safely
+        $finfo = function_exists('finfo_open') ? finfo_open(FILEINFO_MIME_TYPE) : false;
+        $mime = $finfo ? finfo_file($finfo, $fullPath) : mime_content_type($fullPath);
+        if ($finfo) finfo_close($finfo);
 
-        return $protocol . '://' . $host . '/' . $pathPrefix . $relativePath;
+        // Only serve image types
+        $allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($mime, $allowed)) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'failed', 'message' => 'Access denied']);
+            exit();
+        }
+
+        // Stream file
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($fullPath));
+        header('Cache-Control: public, max-age=2592000'); // 30 days
+        header('X-Content-Type-Options: nosniff');
+        readfile($fullPath);
+        exit();
     }
 
     private function storeFileInfo($filename, $filepath, $category, $size, $type) {
