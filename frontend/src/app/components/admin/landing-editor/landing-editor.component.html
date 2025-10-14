@@ -126,27 +126,128 @@
               class="gallery-item"
               *ngFor="let image of content.galleryImages; let i = index"
             >
-              <mat-form-field appearance="outline">
-                <mat-label>Image URL</mat-label>
-                <input
-                  matInput
-                  [(ngModel)]="image.url"
-                  (ngModelChange)="onContentChange()"
-                  placeholder="Image URL"
-                />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Alt Text</mat-label>
-                <input
-                  matInput
-                  [(ngModel)]="image.alt"
-                  (ngModelChange)="onContentChange()"
-                  placeholder="Alt text"
-                />
-              </mat-form-field>
+              <!-- Image Display Section -->
+              <div class="gallery-image-section">
+                <!-- Current Image Display -->
+                <div *ngIf="image.url" class="current-gallery-image">
+                  <h5>Current Image:</h5>
+                  <div class="gallery-image-preview">
+                    <img
+                      [src]="image.url"
+                      [alt]="image.alt || 'Gallery image'"
+                      title="Current gallery image"
+                    />
+                  </div>
+                </div>
+
+                <!-- Image Preview for Upload -->
+                <div *ngIf="image.preview" class="gallery-upload-preview">
+                  <h5>Upload Preview:</h5>
+                  <div class="gallery-image-preview">
+                    <img
+                      [src]="image.preview"
+                      alt="Upload preview"
+                      title="Upload preview"
+                    />
+                    <button
+                      type="button"
+                      class="remove-preview-btn"
+                      (click)="removeGalleryPreview(i)"
+                      title="Remove preview"
+                      aria-label="Remove preview"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input Fields Section -->
+              <div class="gallery-inputs">
+                <!-- URL Input -->
+                <mat-form-field appearance="outline" class="gallery-url-field">
+                  <mat-label>Image URL</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="image.url"
+                    (ngModelChange)="onContentChange()"
+                    placeholder="Enter image URL or upload a file below"
+                  />
+                </mat-form-field>
+
+                <!-- File Upload -->
+                <div class="gallery-file-upload">
+                  <input
+                    type="file"
+                    [id]="'galleryImageUpload' + i"
+                    accept="image/*"
+                    (change)="onGalleryFileSelected($event, i)"
+                    class="file-input-hidden"
+                    title="Choose image file from your device"
+                    aria-label="Choose image file for gallery"
+                  />
+                  <label
+                    [for]="'galleryImageUpload' + i"
+                    class="gallery-file-label"
+                    title="Choose image file from your device"
+                  >
+                    <mat-icon>cloud_upload</mat-icon>
+                    Choose Image File
+                  </label>
+                </div>
+
+                <!-- Alt Text -->
+                <mat-form-field appearance="outline" class="gallery-alt-field">
+                  <mat-label>Alt Text</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="image.alt"
+                    (ngModelChange)="onContentChange()"
+                    placeholder="Alt text for accessibility"
+                  />
+                </mat-form-field>
+
+                <!-- Upload Actions -->
+                <div *ngIf="image.selectedFile" class="gallery-upload-actions">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    size="small"
+                    (click)="uploadGalleryImage(i)"
+                    [disabled]="isUploadingGallery[i]"
+                  >
+                    <mat-icon *ngIf="!isUploadingGallery[i]">upload</mat-icon>
+                    <mat-icon *ngIf="isUploadingGallery[i]" class="spinning"
+                      >refresh</mat-icon
+                    >
+                    {{ isUploadingGallery[i] ? "Uploading..." : "Upload" }}
+                  </button>
+                  <button
+                    mat-button
+                    size="small"
+                    (click)="clearGalleryUpload(i)"
+                    [disabled]="isUploadingGallery[i]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <!-- Upload Messages -->
+                <div *ngIf="image.uploadError" class="gallery-upload-error">
+                  <mat-icon>error</mat-icon>
+                  {{ image.uploadError }}
+                </div>
+                <div *ngIf="image.uploadSuccess" class="gallery-upload-success">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ image.uploadSuccess }}
+                </div>
+              </div>
+
+              <!-- Delete Button -->
               <button
                 mat-icon-button
                 color="warn"
+                class="gallery-delete-btn"
                 (click)="removeGalleryImage(i)"
               >
                 <mat-icon>delete</mat-icon>

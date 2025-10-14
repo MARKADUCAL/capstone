@@ -19,7 +19,14 @@ import {
 import { environment } from '../../../../environments/environment';
 
 type Service = { name: string; imageUrl: string };
-type GalleryImage = { url: string; alt: string };
+type GalleryImage = {
+  url: string;
+  alt: string;
+  selectedFile?: File;
+  preview?: string;
+  uploadError?: string;
+  uploadSuccess?: string;
+};
 type ContactInfo = {
   address: string;
   openingHours: string;
@@ -76,6 +83,9 @@ export class LandingEditorComponent implements OnInit {
   isUploading: boolean = false;
   uploadError: string = '';
   uploadSuccess: string = '';
+
+  // Gallery upload properties
+  isUploadingGallery: boolean[] = [];
 
   content: FrontendLandingPageContent = {
     heroTitle: '',
@@ -150,11 +160,13 @@ export class LandingEditorComponent implements OnInit {
 
   addGalleryImage(): void {
     this.content.galleryImages.push({ url: '', alt: '' });
+    this.isUploadingGallery.push(false);
     this.updateValidation();
   }
 
   removeGalleryImage(index: number): void {
     this.content.galleryImages.splice(index, 1);
+    this.isUploadingGallery.splice(index, 1);
     this.updateValidation();
   }
 
@@ -484,5 +496,94 @@ export class LandingEditorComponent implements OnInit {
             },
           });
       });
+  }
+
+  // Gallery file upload methods
+  onGalleryFileSelected(event: any, index: number): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.content.galleryImages[index].uploadError =
+          'Please select a valid image file.';
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.content.galleryImages[index].uploadError =
+          'File size must be less than 5MB.';
+        return;
+      }
+
+      this.content.galleryImages[index].selectedFile = file;
+      this.content.galleryImages[index].uploadError = '';
+      this.content.galleryImages[index].uploadSuccess = '';
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.content.galleryImages[index].preview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  uploadGalleryImage(index: number): void {
+    const image = this.content.galleryImages[index];
+    if (!image.selectedFile) {
+      image.uploadError = 'Please select an image file first.';
+      return;
+    }
+
+    this.isUploadingGallery[index] = true;
+    image.uploadError = '';
+    image.uploadSuccess = '';
+
+    const formData = new FormData();
+    formData.append('file', image.selectedFile);
+    formData.append('category', 'gallery');
+
+    this.http
+      .post<any>(`${environment.apiUrl}/upload_file`, formData)
+      .subscribe({
+        next: (response) => {
+          this.isUploadingGallery[index] = false;
+          if (response.status === 'success') {
+            image.uploadSuccess = 'Image uploaded successfully!';
+            image.url = response.data.url;
+            this.updateValidation();
+
+            // Clear upload form
+            this.clearGalleryUpload(index);
+
+            this.snackBar.open(
+              `Gallery image ${index + 1} uploaded successfully!`,
+              'Close',
+              { duration: 3000 }
+            );
+          } else {
+            image.uploadError =
+              response.message || 'Upload failed. Please try again.';
+          }
+        },
+        error: (error) => {
+          this.isUploadingGallery[index] = false;
+          image.uploadError = 'Upload failed. Please try again.';
+          console.error('Gallery upload error:', error);
+        },
+      });
+  }
+
+  clearGalleryUpload(index: number): void {
+    this.content.galleryImages[index].selectedFile = undefined;
+    this.content.galleryImages[index].preview = undefined;
+    this.content.galleryImages[index].uploadError = '';
+    this.content.galleryImages[index].uploadSuccess = '';
+  }
+
+  removeGalleryPreview(index: number): void {
+    this.content.galleryImages[index].preview = undefined;
+    this.content.galleryImages[index].selectedFile = undefined;
   }
 }
