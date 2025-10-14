@@ -152,6 +152,10 @@ class UploadHandler {
 
         // Normalize to avoid double slashes in the final URL
         $basePath = rtrim($basePath, '/');
+        // Some hosts return '/' here; treat it as empty base path
+        if ($basePath === '/' || $basePath === '\\') {
+            $basePath = '';
+        }
         $relativePath = ltrim($relativePath, '/');
 
         $pathPrefix = $basePath === '' ? '' : $basePath . '/';
