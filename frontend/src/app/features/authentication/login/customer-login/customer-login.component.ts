@@ -5,6 +5,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-login',
@@ -80,33 +81,61 @@ export class CustomerLoginComponent implements OnInit {
                 JSON.stringify(response.payload.customer)
               );
 
-              // Navigate to customer dashboard
-              this.router.navigate(['/customer-view']);
+              // Show success message
+              Swal.fire({
+                title: 'Login Successful!',
+                text: 'Welcome back!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                // Navigate to customer dashboard
+                this.router.navigate(['/customer-view']);
+              });
             } else {
               this.errorMessage = 'Invalid response from server';
             }
           } else {
-            this.errorMessage = response.status?.message || 'Login failed';
+            const errorMessage = response.status?.message || 'Login failed';
+            this.errorMessage = errorMessage;
+
+            // Show error message
+            Swal.fire({
+              title: 'Login Failed!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
           }
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Login error:', error);
 
+          let errorMessage = '';
           if (error.error?.status?.message) {
-            this.errorMessage = error.error.status.message;
+            errorMessage = error.error.status.message;
           } else if (error.status === 0) {
-            this.errorMessage =
+            errorMessage =
               'Cannot connect to server. Please check your connection.';
           } else if (error.status === 401) {
-            this.errorMessage = 'Invalid email or password. Please try again.';
+            errorMessage = 'Invalid email or password. Please try again.';
           } else if (error.status === 404) {
-            this.errorMessage = 'API endpoint not found. Please check the URL.';
+            errorMessage = 'API endpoint not found. Please check the URL.';
           } else {
-            this.errorMessage = `Login failed (${error.status}): ${
+            errorMessage = `Login failed (${error.status}): ${
               error.statusText || 'Unknown error'
             }`;
           }
+
+          // Show error message
+          Swal.fire({
+            title: 'Login Failed!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+
+          this.errorMessage = errorMessage;
         },
       });
   }

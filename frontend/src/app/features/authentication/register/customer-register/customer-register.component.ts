@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-register',
@@ -118,31 +119,57 @@ export class CustomerRegisterComponent {
             response.status.remarks === 'success'
           ) {
             // Show success message before redirecting
-            alert('Registration successful! Please login.');
-            this.router.navigate(['/customer']);
+            Swal.fire({
+              title: 'Registration Complete!',
+              text: 'Your account has been created successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            }).then(() => {
+              this.router.navigate(['/customer']);
+            });
           } else {
-            this.errorMessage =
+            const errorMessage =
               (response && response.status && response.status.message) ||
               'Registration failed with unknown error';
+            this.errorMessage = errorMessage;
+
+            // Show error message
+            Swal.fire({
+              title: 'Registration Failed!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
           }
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Registration error:', error);
 
+          let errorMessage = '';
           if (error.error && error.error.status && error.error.status.message) {
-            this.errorMessage = error.error.status.message;
+            errorMessage = error.error.status.message;
           } else if (error.status === 0) {
-            this.errorMessage =
+            errorMessage =
               'Cannot connect to server. Please check if the backend is running and accessible.';
           } else if (error.status === 400) {
-            this.errorMessage =
+            errorMessage =
               'Invalid registration data. Please check your inputs.';
           } else if (error.status === 500) {
-            this.errorMessage = 'Server error. Please try again later.';
+            errorMessage = 'Server error. Please try again later.';
           } else {
-            this.errorMessage = `Registration failed with status ${error.status}. Please try again.`;
+            errorMessage = `Registration failed with status ${error.status}. Please try again.`;
           }
+
+          // Show error message
+          Swal.fire({
+            title: 'Registration Failed!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+
+          this.errorMessage = errorMessage;
         },
       });
   }

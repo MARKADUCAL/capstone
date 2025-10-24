@@ -45,6 +45,7 @@ import { PrivacyComponent } from './components/legal/privacy/privacy.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
+  { path: 'landing-page', component: LandingPageComponent },
   { path: 'connection-test', component: ConnectionTestComponent },
   { path: 'customer', component: CustomerLoginComponent },
   { path: 'customer-login', component: CustomerLoginComponent },

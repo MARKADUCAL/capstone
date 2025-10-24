@@ -5,6 +5,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-login',
@@ -74,27 +75,55 @@ export class AdminLoginComponent {
                 console.error('Error accessing localStorage:', err);
               }
 
-              // Navigate to admin dashboard
-              this.router.navigate(['/admin-view']);
+              // Show success message
+              Swal.fire({
+                title: 'Login Successful!',
+                text: 'Welcome back!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                // Navigate to admin dashboard
+                this.router.navigate(['/admin-view']);
+              });
             } else {
               this.errorMessage = 'Invalid response from server';
             }
           } else {
-            this.errorMessage = response.status?.message || 'Login failed';
+            const errorMessage = response.status?.message || 'Login failed';
+            this.errorMessage = errorMessage;
+
+            // Show error message
+            Swal.fire({
+              title: 'Login Failed!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
           }
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Login error:', error);
 
+          let errorMessage = '';
           if (error.error?.status?.message) {
-            this.errorMessage = error.error.status.message;
+            errorMessage = error.error.status.message;
           } else if (error.status === 0) {
-            this.errorMessage =
+            errorMessage =
               'Cannot connect to server. Please check your connection.';
           } else {
-            this.errorMessage = 'Login failed. Please try again.';
+            errorMessage = 'Login failed. Please try again.';
           }
+
+          // Show error message
+          Swal.fire({
+            title: 'Login Failed!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+
+          this.errorMessage = errorMessage;
         },
       });
   }

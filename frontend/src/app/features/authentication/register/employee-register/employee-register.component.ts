@@ -4,6 +4,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-employee-register',
@@ -176,28 +177,57 @@ export class EmployeeRegisterComponent implements OnInit {
             // Show success message before redirecting (only if in browser)
             if (this.isBrowser) {
               try {
-                alert('Registration successful! Please login.');
+                Swal.fire({
+                  title: 'Registration Complete!',
+                  text: 'Your account has been created successfully!',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                }).then(() => {
+                  this.router.navigate(['/employee-login']);
+                });
               } catch (err) {
                 console.error('Error with browser API:', err);
+                this.router.navigate(['/employee-login']);
               }
+            } else {
+              this.router.navigate(['/employee-login']);
             }
-            this.router.navigate(['/employee-login']);
           } else {
-            this.errorMessage =
+            const errorMessage =
               response.status.message || 'Registration failed';
+            this.errorMessage = errorMessage;
+
+            // Show error message
+            Swal.fire({
+              title: 'Registration Failed!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
           }
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Registration error', error);
+
+          let errorMessage = '';
           if (error.error?.status?.message) {
-            this.errorMessage = error.error.status.message;
+            errorMessage = error.error.status.message;
           } else if (error.status === 0) {
-            this.errorMessage =
-              'Cannot connect to server. Please try again later.';
+            errorMessage = 'Cannot connect to server. Please try again later.';
           } else {
-            this.errorMessage = 'Registration failed. Please try again.';
+            errorMessage = 'Registration failed. Please try again.';
           }
+
+          // Show error message
+          Swal.fire({
+            title: 'Registration Failed!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+
+          this.errorMessage = errorMessage;
         },
       });
   }
