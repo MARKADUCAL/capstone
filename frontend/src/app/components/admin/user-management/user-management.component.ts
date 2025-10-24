@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 export interface User {
   id: number;
@@ -158,13 +159,23 @@ export class UserManagementComponent implements OnInit {
             response.status &&
             response.status.remarks === 'success'
           ) {
-            this.showNotification('Customer created successfully');
+            Swal.fire({
+              title: 'Success!',
+              text: 'Customer created successfully',
+              icon: 'success',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#4CAF50',
+            });
             this.closeAddUserModal();
             this.loadCustomers(); // Reload the list
           } else {
-            this.showNotification(
-              response?.status?.message || 'Failed to create customer'
-            );
+            Swal.fire({
+              title: 'Error!',
+              text: response?.status?.message || 'Failed to create customer',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#f44336',
+            });
           }
         },
         error: (error) => {
@@ -190,11 +201,23 @@ export class UserManagementComponent implements OnInit {
             errorMessage = 'Server error. Please try again later.';
           }
 
-          this.showNotification(errorMessage);
+          Swal.fire({
+            title: 'Error!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#f44336',
+          });
         },
       });
     } else {
-      this.showNotification('Please fill all required fields correctly');
+      Swal.fire({
+        title: 'Validation Error!',
+        text: 'Please fill all required fields correctly',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ff9800',
+      });
     }
   }
 
@@ -290,45 +313,90 @@ export class UserManagementComponent implements OnInit {
           if (index > -1) {
             this.users[index] = { ...this.editUserData };
           }
-          this.showNotification('User updated successfully');
+          Swal.fire({
+            title: 'Success!',
+            text: 'User updated successfully',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#4CAF50',
+          });
         } else {
-          this.showNotification(
-            response?.status?.message || 'Failed to update user'
-          );
+          Swal.fire({
+            title: 'Error!',
+            text: response?.status?.message || 'Failed to update user',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#f44336',
+          });
         }
         this.closeEditUserModal();
       },
       error: (error) => {
         console.error('Error updating user:', error);
-        this.showNotification('Error updating user. Please try again.');
+        Swal.fire({
+          title: 'Error!',
+          text: 'Error updating user. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#f44336',
+        });
         this.closeEditUserModal();
       },
     });
   }
 
   deleteUser(user: User): void {
-    this.http.delete(`${this.apiUrl}/customers/${user.id}`).subscribe({
-      next: (response: any) => {
-        if (
-          response &&
-          response.status &&
-          response.status.remarks === 'success'
-        ) {
-          const index = this.users.findIndex((u) => u.id === user.id);
-          if (index > -1) {
-            this.users.splice(index, 1);
-          }
-          this.showNotification('User deleted successfully');
-        } else {
-          this.showNotification(
-            response?.status?.message || 'Failed to delete user'
-          );
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting user:', error);
-        this.showNotification('Error deleting user. Please try again.');
-      },
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete ${user.name}. This action cannot be undone!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http.delete(`${this.apiUrl}/customers/${user.id}`).subscribe({
+          next: (response: any) => {
+            if (
+              response &&
+              response.status &&
+              response.status.remarks === 'success'
+            ) {
+              const index = this.users.findIndex((u) => u.id === user.id);
+              if (index > -1) {
+                this.users.splice(index, 1);
+              }
+              Swal.fire({
+                title: 'Deleted!',
+                text: 'User has been deleted successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4CAF50',
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to delete user',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting user:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Error deleting user. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#f44336',
+            });
+          },
+        });
+      }
     });
   }
 

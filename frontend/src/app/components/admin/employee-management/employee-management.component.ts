@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 interface Employee {
   id: number;
@@ -166,13 +167,23 @@ export class EmployeeManagementComponent implements OnInit {
               response.status &&
               response.status.remarks === 'success'
             ) {
-              this.showNotification('Employee created successfully');
+              Swal.fire({
+                title: 'Success!',
+                text: 'Employee created successfully',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4CAF50',
+              });
               this.closeAddEmployeeModal();
               this.loadEmployees(); // Reload the list
             } else {
-              this.showNotification(
-                response?.status?.message || 'Failed to create employee'
-              );
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to create employee',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
             }
           },
           error: (error) => {
@@ -199,11 +210,23 @@ export class EmployeeManagementComponent implements OnInit {
               errorMessage = 'Server error. Please try again later.';
             }
 
-            this.showNotification(errorMessage);
+            Swal.fire({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#f44336',
+            });
           },
         });
     } else {
-      this.showNotification('Please fill all required fields correctly');
+      Swal.fire({
+        title: 'Validation Error!',
+        text: 'Please fill all required fields correctly',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ff9800',
+      });
     }
   }
 
@@ -288,11 +311,21 @@ export class EmployeeManagementComponent implements OnInit {
               this.editEmployeeData.status
             );
           } catch {}
-          this.showNotification('Employee updated successfully');
+          Swal.fire({
+            title: 'Success!',
+            text: 'Employee updated successfully',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#4CAF50',
+          });
         } else {
-          this.showNotification(
-            response?.status?.message || 'Failed to update employee'
-          );
+          Swal.fire({
+            title: 'Error!',
+            text: response?.status?.message || 'Failed to update employee',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#f44336',
+          });
         }
         this.closeEditEmployeeModal();
       },
@@ -313,11 +346,21 @@ export class EmployeeManagementComponent implements OnInit {
           if (idx > -1) {
             this.employees[idx].status = this.editEmployeeData.status;
           }
-          this.showNotification(
-            'No profile changes saved. Status updated locally.'
-          );
+          Swal.fire({
+            title: 'Info!',
+            text: 'No profile changes saved. Status updated locally.',
+            icon: 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#2196F3',
+          });
         } else {
-          this.showNotification('Error updating employee. Please try again.');
+          Swal.fire({
+            title: 'Error!',
+            text: 'Error updating employee. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#f44336',
+          });
         }
         this.closeEditEmployeeModal();
       },
@@ -325,28 +368,59 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   deleteEmployee(employee: Employee): void {
-    this.http.delete(`${this.apiUrl}/employees/${employee.id}`).subscribe({
-      next: (response: any) => {
-        if (
-          response &&
-          response.status &&
-          response.status.remarks === 'success'
-        ) {
-          const index = this.employees.findIndex((e) => e.id === employee.id);
-          if (index > -1) {
-            this.employees.splice(index, 1);
-          }
-          this.showNotification('Employee deleted successfully');
-        } else {
-          this.showNotification(
-            response?.status?.message || 'Failed to delete employee'
-          );
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting employee:', error);
-        this.showNotification('Error deleting employee. Please try again.');
-      },
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete ${employee.name}. This action cannot be undone!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http.delete(`${this.apiUrl}/employees/${employee.id}`).subscribe({
+          next: (response: any) => {
+            if (
+              response &&
+              response.status &&
+              response.status.remarks === 'success'
+            ) {
+              const index = this.employees.findIndex(
+                (e) => e.id === employee.id
+              );
+              if (index > -1) {
+                this.employees.splice(index, 1);
+              }
+              Swal.fire({
+                title: 'Deleted!',
+                text: 'Employee has been deleted successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4CAF50',
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to delete employee',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting employee:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Error deleting employee. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#f44336',
+            });
+          },
+        });
+      }
     });
   }
 
