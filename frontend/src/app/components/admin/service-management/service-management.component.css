@@ -660,6 +660,315 @@
   }
 }
 
+/* Scroll indicators for mobile tables */
+.table-scroll-indicator {
+  display: none;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  border: 1px solid #e0e0e0;
+}
+
+.table-scroll-indicator i {
+  margin-right: 6px;
+  color: #007bff;
+}
+
+@media (max-width: 768px) {
+  .table-scroll-indicator {
+    display: block;
+  }
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Improve pricing matrix table for mobile */
+  .pricing-table {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .pricing-table table {
+    min-width: 600px; /* Ensure table doesn't get too cramped */
+  }
+
+  .pricing-table th,
+  .pricing-table td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+
+  .vehicle-cell {
+    min-width: 120px;
+    max-width: 120px;
+  }
+
+  .price-cell {
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .price-amount {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .price-actions {
+    margin-top: 5px;
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  /* Improve form layout for mobile */
+  .form-container {
+    margin-bottom: 20px;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 14px 12px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+
+  /* Improve pricing entries table for mobile */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .table-container table {
+    min-width: 700px; /* Ensure all columns are visible */
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+
+  .actions-cell {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  /* Improve modal for mobile */
+  .modal-container {
+    margin: 20px;
+    padding: 25px;
+    max-width: calc(100vw - 40px);
+    width: calc(100vw - 40px);
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-management-container {
+    padding: 8px;
+  }
+
+  .service-header {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .service-header h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+
+  .service-header p {
+    font-size: 0.9rem;
+  }
+
+  .form-container,
+  .pricing-matrix-container,
+  .pricing-entries-list {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  /* Ultra-compact pricing matrix for very small screens */
+  .pricing-table table {
+    min-width: 500px;
+  }
+
+  .pricing-table th,
+  .pricing-table td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .vehicle-cell {
+    min-width: 100px;
+    max-width: 100px;
+  }
+
+  .vehicle-cell strong {
+    font-size: 0.8rem;
+  }
+
+  .vehicle-desc {
+    font-size: 0.65rem;
+    line-height: 1.2;
+  }
+
+  .price-cell {
+    min-width: 70px;
+  }
+
+  .price-amount {
+    font-size: 0.8rem;
+  }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  /* Ultra-compact entries table */
+  .table-container table {
+    min-width: 600px;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .entry-desc {
+    font-size: 0.65rem;
+    line-height: 1.2;
+  }
+
+  .price-display {
+    font-size: 0.9rem;
+  }
+
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    min-width: 60px;
+  }
+
+  .actions-cell {
+    gap: 4px;
+  }
+
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  /* Compact modal */
+  .modal-container {
+    margin: 10px;
+    padding: 20px;
+    max-width: calc(100vw - 20px);
+    width: calc(100vw - 20px);
+  }
+
+  .modal-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .modal-body p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn-icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    min-height: 48px;
+  }
+
+  .form-group input,
+  .form-group select {
+    min-height: 48px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .service-header {
+    padding: 15px;
+  }
+
+  .service-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .form-container,
+  .pricing-matrix-container,
+  .pricing-entries-list {
+    padding: 15px;
+  }
+
+  .pricing-table th,
+  .pricing-table td {
+    padding: 8px 6px;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 8px 6px;
+  }
+}
+
 /* Loading States */
 .loading-data {
   text-align: center;
