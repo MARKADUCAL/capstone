@@ -131,6 +131,8 @@ export class EmployeeManagementComponent implements OnInit {
 
   openAddEmployeeModal(): void {
     this.newEmployee = this.createEmptyEmployee();
+    // Generate employee ID when modal opens
+    this.newEmployee.employee_id = this.generateEmployeeId();
     this.isAddModalOpen = true;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden'; // Prevent scrolling
@@ -144,11 +146,34 @@ export class EmployeeManagementComponent implements OnInit {
     }
   }
 
+  generateEmployeeId(): string {
+    // Get the highest existing employee ID number
+    let maxId = 0;
+
+    this.employees.forEach((employee) => {
+      if (employee.employeeId) {
+        // Extract number from employee ID (e.g., "EMP-001" -> 1)
+        const match = employee.employeeId.match(/EMP-(\d+)/);
+        if (match) {
+          const idNumber = parseInt(match[1], 10);
+          if (idNumber > maxId) {
+            maxId = idNumber;
+          }
+        }
+      }
+    });
+
+    // Generate next employee ID
+    const nextId = maxId + 1;
+    return `EMP-${nextId.toString().padStart(3, '0')}`;
+  }
+
   submitEmployeeForm(): void {
     if (this.validateEmployeeForm()) {
       this.isSubmitting = true;
 
       const employeeData = {
+        employee_id: this.newEmployee.employee_id,
         first_name: this.newEmployee.first_name,
         last_name: this.newEmployee.last_name,
         email: this.newEmployee.email,
@@ -169,7 +194,7 @@ export class EmployeeManagementComponent implements OnInit {
             ) {
               Swal.fire({
                 title: 'Success!',
-                text: 'Employee created successfully',
+                text: `Employee created successfully with ID: ${this.newEmployee.employee_id}`,
                 icon: 'success',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#4CAF50',

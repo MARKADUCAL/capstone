@@ -125,6 +125,9 @@
           <strong>Note:</strong> Employee ID will be automatically generated
           (e.g., EMP-001, EMP-002, etc.)
         </p>
+        <p *ngIf="newEmployee.employee_id" class="generated-id">
+          <strong>Generated ID:</strong> {{ newEmployee.employee_id }}
+        </p>
       </div>
       <div class="modal-body">
         <form class="employee-form" (ngSubmit)="submitEmployeeForm()">
