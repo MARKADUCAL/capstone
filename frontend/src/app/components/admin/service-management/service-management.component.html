@@ -143,9 +143,9 @@
                       })
                     "
                     title="Edit Price"
-                    aria-label="Edit price for {{ vehicle.code }} {{
-                      service.code
-                    }}"
+                    [attr.aria-label]="
+                      'Edit price for ' + vehicle.code + ' ' + service.code
+                    "
                   >
                     <i class="fas fa-edit"></i>
                   </button>
@@ -221,9 +221,9 @@
                   (click)="editPricingEntry(entry)"
                   title="Edit"
                   [disabled]="isLoading"
-                  aria-label="Edit {{ entry.vehicleType }} {{
-                    entry.servicePackage
-                  }}"
+                  [attr.aria-label]="
+                    'Edit ' + entry.vehicleType + ' ' + entry.servicePackage
+                  "
                 >
                   <i class="fas fa-edit"></i>
                 </button>
@@ -232,9 +232,13 @@
                   (click)="toggleStatus(entry)"
                   title="{{ entry.isActive ? 'Deactivate' : 'Activate' }}"
                   [disabled]="isLoading"
-                  aria-label="{{
-                    entry.isActive ? 'Deactivate' : 'Activate'
-                  }} {{ entry.vehicleType }} {{ entry.servicePackage }}"
+                  [attr.aria-label]="
+                    (entry.isActive ? 'Deactivate' : 'Activate') +
+                    ' ' +
+                    entry.vehicleType +
+                    ' ' +
+                    entry.servicePackage
+                  "
                 >
                   <i
                     class="fas"
@@ -247,9 +251,9 @@
                   (click)="confirmDelete(entry.id || 0)"
                   title="Delete"
                   [disabled]="isLoading"
-                  aria-label="Delete {{ entry.vehicleType }} {{
-                    entry.servicePackage
-                  }}"
+                  [attr.aria-label]="
+                    'Delete ' + entry.vehicleType + ' ' + entry.servicePackage
+                  "
                 >
                   <i class="fas fa-trash"></i>
                 </button>
