@@ -193,11 +193,7 @@
             >
           </div>
 
-          <button
-            type="submit"
-            [disabled]="!registerForm.form.valid || isLoading"
-            class="sign-up-btn"
-          >
+          <button type="submit" [disabled]="isLoading" class="sign-up-btn">
             <span *ngIf="!isLoading">Create Account</span>
             <span *ngIf="isLoading">Creating Account...</span>
           </button>

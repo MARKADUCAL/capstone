@@ -166,11 +166,7 @@
             </small>
           </div>
 
-          <button
-            type="submit"
-            class="sign-up-btn"
-            [disabled]="!registerForm.form.valid || isLoading"
-          >
+          <button type="submit" class="sign-up-btn" [disabled]="isLoading">
             <span *ngIf="!isLoading">Sign Up</span>
             <span *ngIf="isLoading">Registering...</span>
           </button>
