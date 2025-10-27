@@ -14,10 +14,11 @@ html {
 .register-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
   padding: 20px;
   background-color: #f5ebd6;
+  padding-top: 40px;
 }
 
 .register-card {
@@ -81,9 +82,9 @@ html {
   padding: 30px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  overflow-y: auto;
-  max-height: 650px;
+  justify-content: flex-start;
+  overflow-y: visible;
+  min-height: 100%;
 }
 
 .register-form {
@@ -221,8 +222,7 @@ input.ng-valid {
   }
 
   .form-section {
-    max-height: 70vh;
-    overflow-y: auto;
+    overflow-y: visible;
   }
 }
 
