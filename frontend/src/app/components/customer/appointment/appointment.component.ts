@@ -95,10 +95,10 @@ export class AppointmentComponent implements OnInit {
 
   // Time picker properties
   showTimePicker = false;
-  selectedHour = 12;
+  selectedHour = 8; // Default to 8 AM
   selectedMinute = '00';
   selectedPeriod = 'AM';
-  availableHours: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  availableHours: number[] = [8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7]; // 8 AM to 8 PM
   availableMinutes: string[] = ['00', '15', '30', '45'];
   availablePeriods: string[] = ['AM', 'PM'];
 
@@ -480,6 +480,20 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
+    // Validate wash time is within business hours (8:00 AM to 8:00 PM)
+    try {
+      const [hours, minutes] = this.bookingForm.washTime
+        .split(':')
+        .map((v) => parseInt(v, 10));
+      if (hours < 8 || hours > 20) {
+        this.errorMessage = 'Wash time must be between 8:00 AM and 8:00 PM';
+        return false;
+      }
+    } catch {
+      this.errorMessage = 'Invalid wash time format';
+      return false;
+    }
+
     // Validate: washDate cannot be in the past
     try {
       const today = new Date();
@@ -635,6 +649,12 @@ export class AppointmentComponent implements OnInit {
       hour24 = 0;
     }
 
+    // Validate time is within 8:00 AM to 8:00 PM range
+    if (hour24 < 8 || hour24 > 20) {
+      this.errorMessage = 'Please select a time between 8:00 AM and 8:00 PM';
+      return;
+    }
+
     // Format time as HH:MM
     const formattedHour = hour24.toString().padStart(2, '0');
     const formattedMinute = this.selectedMinute.toString().padStart(2, '0');
@@ -647,6 +667,13 @@ export class AppointmentComponent implements OnInit {
       if (finalTime < minTime) {
         finalTime = minTime;
       }
+    }
+
+    // Final validation: ensure the final time is still within business hours
+    const finalHour24 = parseInt(finalTime.split(':')[0]);
+    if (finalHour24 < 8 || finalHour24 > 20) {
+      this.errorMessage = 'Selected time must be between 8:00 AM and 8:00 PM';
+      return;
     }
 
     this.bookingForm.washTime = finalTime;
