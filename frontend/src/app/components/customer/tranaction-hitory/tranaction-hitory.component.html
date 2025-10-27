@@ -199,7 +199,7 @@
               <span class="detail-icon">📅</span>
               <span class="detail-label">Date</span>
               <span class="detail-value">{{
-                booking.washDate | date : "MMM dd, yyyy"
+                formatDate(booking.washDate)
               }}</span>
             </div>
             <div class="detail-item">
@@ -380,7 +380,7 @@
             <div class="detail-row">
               <span class="label">Date:</span>
               <span class="value">{{
-                selectedBooking.washDate | date : "EEEE, MMMM dd, yyyy"
+                formatDate(selectedBooking.washDate)
               }}</span>
             </div>
             <div class="detail-row">
@@ -756,9 +756,7 @@
         </div>
         <div class="summary-item">
           <span class="label">Date:</span>
-          <span class="value">{{
-            bookingToCancel.washDate | date : "MMM dd, yyyy"
-          }}</span>
+          <span class="value">{{ formatDate(bookingToCancel.washDate) }}</span>
         </div>
         <div class="summary-item">
           <span class="label">Time:</span>

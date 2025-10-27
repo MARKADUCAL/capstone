@@ -619,6 +619,45 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Custom date formatting method to avoid timezone issues
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+
+    try {
+      // Parse the date string directly without timezone conversion
+      const date = new Date(dateString + 'T00:00:00'); // Add time to avoid timezone issues
+
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return dateString; // Return original if invalid
+      }
+
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+
+      const month = months[date.getMonth()];
+      const day = date.getDate().toString().padStart(2, '0');
+      const year = date.getFullYear();
+
+      return `${month} ${day}, ${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Return original on error
+    }
+  }
+
   getUserInitials(name: string): string {
     return name
       .split(' ')
