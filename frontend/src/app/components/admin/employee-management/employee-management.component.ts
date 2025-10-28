@@ -63,6 +63,11 @@ export class EmployeeManagementComponent implements OnInit {
   // Add state for submission
   isSubmitting: boolean = false;
 
+  // Pending approval modal
+  isPendingModalOpen = false;
+  pendingEmployees: Employee[] = [];
+  pendingError: string | null = null;
+
   constructor(
     private snackBar: MatSnackBar,
     private http: HttpClient,
@@ -104,6 +109,17 @@ export class EmployeeManagementComponent implements OnInit {
               registrationDate: this.formatDate(employee.created_at),
             };
           });
+
+          // Build pending list if backend exposes is_approved
+          const hasApprovalFlag = response.payload.employees.some(
+            (e: any) => 'is_approved' in e
+          );
+          this.pendingEmployees = hasApprovalFlag
+            ? this.employees.filter(
+                (_, idx) =>
+                  Number(response.payload.employees[idx].is_approved) !== 1
+              )
+            : [];
         } else {
           this.error = 'Failed to load employees';
           this.showNotification('Failed to load employees');
@@ -118,6 +134,47 @@ export class EmployeeManagementComponent implements OnInit {
         );
       },
     });
+  }
+
+  openPendingModal(): void {
+    this.pendingError = null;
+    // If we don't have pending list yet (no is_approved), try to refetch once
+    if (this.pendingEmployees.length === 0) {
+      this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
+        next: (response: any) => {
+          const list = response?.payload?.employees || [];
+          const hasApprovalFlag = list.some((e: any) => 'is_approved' in e);
+          if (hasApprovalFlag) {
+            const mapped = list.map((e: any, i: number) => ({
+              id: e.id,
+              employeeId: e.employee_id,
+              name: `${e.first_name} ${e.last_name}`,
+              email: e.email,
+              phone: e.phone || 'N/A',
+              role: e.position || 'Employee',
+              status: 'Inactive',
+              registrationDate: this.formatDate(e.created_at),
+            }));
+            this.pendingEmployees = mapped.filter(
+              (_, i) => Number(list[i].is_approved) !== 1
+            );
+          } else {
+            this.pendingEmployees = [];
+          }
+          this.isPendingModalOpen = true;
+        },
+        error: () => {
+          this.pendingError = 'Failed to load pending registrations.';
+          this.isPendingModalOpen = true;
+        },
+      });
+    } else {
+      this.isPendingModalOpen = true;
+    }
+  }
+
+  closePendingModal(): void {
+    this.isPendingModalOpen = false;
   }
 
   formatDate(dateString: string): string {
