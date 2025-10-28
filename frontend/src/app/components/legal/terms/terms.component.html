@@ -76,8 +76,8 @@
       </section>
 
       <div class="legal-actions">
-        <button class="btn" type="button" routerLink="/landing-page">
-          &larr; Back to Home
+        <button class="btn" type="button" (click)="onBackClick()">
+          ← {{ backButtonText }}
         </button>
       </div>
     </article>

@@ -1,3 +1,9 @@
+<div class="back-home-button">
+  <button class="home-btn" routerLink="/">
+    <i class="home-icon">🏠</i> Back to Home
+  </button>
+</div>
+
 <div class="register-container">
   <div class="register-card">
     <!-- Logo Section (Left) -->
@@ -130,8 +136,8 @@
               />
               <span
                 >I agree to the
-                <a routerLink="/terms">Terms & Conditions</a> and
-                <a routerLink="/privacy">Privacy Policy</a></span
+                <a routerLink="/terms" [queryParams]="{from: 'admin-register'}">Terms & Conditions</a> and
+                <a routerLink="/privacy" [queryParams]="{from: 'admin-register'}">Privacy Policy</a></span
               >
             </label>
           </div>

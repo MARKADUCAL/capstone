@@ -66,7 +66,9 @@
       </section>
 
       <div class="legal-actions">
-        <a class="btn" routerLink="/">← Back to Home</a>
+        <button class="btn" type="button" (click)="onBackClick()">
+          ← {{ backButtonText }}
+        </button>
       </div>
     </article>
   </div>

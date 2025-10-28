@@ -1,3 +1,9 @@
+<div class="back-home-button">
+  <button class="home-btn" routerLink="/">
+    <i class="home-icon">🏠</i> Back to Home
+  </button>
+</div>
+
 <div class="register-container">
   <div class="register-card">
     <div class="logo-section">
@@ -182,8 +188,8 @@
                 [disabled]="isLoading"
               />
               <span>
-                I agree to the <a routerLink="/terms">Terms & Conditions</a> and
-                <a routerLink="/privacy">Privacy Policy</a></span
+                I agree to the <a routerLink="/terms" [queryParams]="{from: 'employee-register'}">Terms & Conditions</a> and
+                <a routerLink="/privacy" [queryParams]="{from: 'employee-register'}">Privacy Policy</a></span
               >
             </label>
             <small
