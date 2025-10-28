@@ -30,6 +30,10 @@ export class EmployeeRegisterComponent implements OnInit {
   errorMessage = '';
   isLoading = false;
   isBrowser: boolean;
+  // Pending registrations modal state
+  showPendingModal = false;
+  pendingEmployees: any[] = [];
+  pendingLoadError = '';
 
   constructor(
     private http: HttpClient,
@@ -230,5 +234,35 @@ export class EmployeeRegisterComponent implements OnInit {
           this.errorMessage = errorMessage;
         },
       });
+  }
+
+  // Load and show pending registrations (awaiting admin approval)
+  openPendingRegistrations(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    this.pendingLoadError = '';
+    this.pendingEmployees = [];
+    this.showPendingModal = true;
+
+    this.http.get<any>(`${environment.apiUrl}/get_all_employees`).subscribe({
+      next: (response) => {
+        const employees = response?.payload?.employees || [];
+        // If backend provides is_approved flag, filter pending; otherwise show all
+        const hasApprovalFlag =
+          employees.length > 0 &&
+          employees.some((e: any) => 'is_approved' in e);
+        this.pendingEmployees = hasApprovalFlag
+          ? employees.filter((e: any) => Number(e.is_approved) !== 1)
+          : employees;
+      },
+      error: () => {
+        this.pendingLoadError = 'Failed to load pending registrations.';
+      },
+    });
+  }
+
+  closePendingRegistrations(): void {
+    this.showPendingModal = false;
   }
 }

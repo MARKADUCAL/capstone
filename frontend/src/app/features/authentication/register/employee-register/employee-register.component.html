@@ -223,3 +223,54 @@
     </div>
   </div>
 </div>
+
+<!-- Pending Registrations Button -->
+<div class="pending-btn-container">
+  <button
+    type="button"
+    class="pending-btn"
+    (click)="openPendingRegistrations()"
+  >
+    View Pending Registrations
+  </button>
+</div>
+
+<!-- Pending Registrations Modal -->
+<div class="pending-modal" *ngIf="showPendingModal">
+  <div
+    class="pending-modal-backdrop"
+    (click)="closePendingRegistrations()"
+  ></div>
+  <div class="pending-modal-content">
+    <div class="pending-modal-header">
+      <h3>Pending Employee Registrations</h3>
+      <button class="close" type="button" (click)="closePendingRegistrations()">
+        ×
+      </button>
+    </div>
+    <div class="pending-modal-body">
+      <div *ngIf="pendingLoadError" class="error-message">
+        {{ pendingLoadError }}
+      </div>
+      <div
+        *ngIf="!pendingLoadError && pendingEmployees.length === 0"
+        class="empty-state"
+      >
+        No pending registrations found.
+      </div>
+      <ul
+        class="pending-list"
+        *ngIf="!pendingLoadError && pendingEmployees.length > 0"
+      >
+        <li class="pending-item" *ngFor="let emp of pendingEmployees">
+          <div class="emp-name">{{ emp.first_name }} {{ emp.last_name }}</div>
+          <div class="emp-meta">
+            <span class="emp-id">{{ emp.employee_id }}</span>
+            <span class="emp-email">{{ emp.email }}</span>
+            <span class="emp-position">{{ emp.position }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
