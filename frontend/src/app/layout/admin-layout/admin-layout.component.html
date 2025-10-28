@@ -24,6 +24,14 @@
       </li>
       <li>
         <a
+          routerLink="/admin-view/admin-management"
+          routerLinkActive="active"
+          (click)="closeSidebarOnMobile()"
+          ><i class="fas fa-user-shield"></i> Admins</a
+        >
+      </li>
+      <li>
+        <a
           routerLink="/admin-view/user-management"
           routerLinkActive="active"
           (click)="closeSidebarOnMobile()"

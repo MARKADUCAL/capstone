@@ -1,0 +1,123 @@
+<div class="admin-container">
+  <div class="header">
+    <h2>Admin Management</h2>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading-container">
+    <p>Loading admins...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error) {
+  <div class="error-container">
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadAdmins()">Try Again</button>
+  </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && !error && admins.length === 0) {
+  <div class="empty-container">
+    <p>No admins found.</p>
+  </div>
+  }
+
+  <!-- Admins Table -->
+  @if (!loading && !error && admins.length > 0) {
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Registration Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (admin of admins; track admin.id) {
+        <tr>
+          <td class="admin-id" data-label="ID">
+            {{ admin.adminId || "N/A" }}
+          </td>
+          <td class="admin-name" data-label="Name">
+            <div class="name-cell">
+              <div class="user-avatar-small">
+                {{ getUserInitials(admin.name) }}
+              </div>
+              <span>{{ admin.name }}</span>
+            </div>
+          </td>
+          <td class="admin-email" data-label="Email">
+            {{ admin.email }}
+          </td>
+          <td class="admin-phone" data-label="Phone">
+            {{ admin.phone }}
+          </td>
+          <td class="admin-status" data-label="Status">
+            <span class="status-badge" [ngClass]="admin.status.toLowerCase()">
+              {{ admin.status }}
+            </span>
+          </td>
+          <td class="admin-date" data-label="Registered">
+            {{ admin.registrationDate }}
+          </td>
+          <td class="admin-actions" data-label="Actions">
+            <div class="action-buttons">
+              <button
+                class="action-btn view-btn"
+                (click)="viewAdmin(admin)"
+                title="View Details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- View Admin Modal -->
+  <div class="modal" [class.show-modal]="isViewModalOpen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Admin Details</h2>
+        <span class="close-btn" (click)="closeViewAdminModal()">&times;</span>
+      </div>
+      <div class="modal-body" *ngIf="selectedAdmin">
+        <div class="admin-details-view">
+          <div class="user-avatar-large">
+            {{ getUserInitials(selectedAdmin.name) }}
+          </div>
+          <p><strong>Full Name:</strong> {{ selectedAdmin.name }}</p>
+          <p><strong>Email:</strong> {{ selectedAdmin.email }}</p>
+          <p><strong>Phone:</strong> {{ selectedAdmin.phone }}</p>
+          <p><strong>ID:</strong> {{ selectedAdmin.adminId }}</p>
+          <p>
+            <strong>Registration Date:</strong>
+            {{ selectedAdmin.registrationDate }}
+          </p>
+          <p><strong>Status:</strong> {{ selectedAdmin.status }}</p>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeViewAdminModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

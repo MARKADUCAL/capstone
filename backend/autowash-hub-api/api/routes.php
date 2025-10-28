@@ -273,6 +273,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_all_admins') !== false) {
+        $result = $get->get_all_admins();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_bookings_by_customer') !== false) {
         if (isset($_GET['customer_id'])) {
             $customerId = $_GET['customer_id'];

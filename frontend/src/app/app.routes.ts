@@ -19,6 +19,7 @@ import { WashingPointComponent } from './components/admin/washing-point/washing-
 import { CarWashBookingComponent } from './components/admin/car-wash-booking/car-wash-booking.component';
 import { InventoryManagementComponent } from './components/admin/inventory-management/inventory-management.component';
 import { EmployeeManagementComponent } from './components/admin/employee-management/employee-management.component';
+import { AdminManagementComponent } from './components/admin/admin-management/admin-management.component';
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
 import { ManageEnquiriesComponent } from './components/admin/manage-enquiries/manage-enquiries.component';
 import { ReportingComponent } from './components/admin/reporting/reporting.component';
@@ -82,6 +83,7 @@ export const routes: Routes = [
       { path: 'car-wash-booking', component: CarWashBookingComponent },
       { path: 'inventory-management', component: InventoryManagementComponent },
       { path: 'employee-management', component: EmployeeManagementComponent },
+      { path: 'admin-management', component: AdminManagementComponent },
       { path: 'user-management', component: UserManagementComponent },
       { path: 'manage-enquiries', component: ManageEnquiriesComponent },
       { path: 'reporting', component: ReportingComponent },

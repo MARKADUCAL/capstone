@@ -127,6 +127,29 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_all_admins() {
+        try {
+            $sql = "SELECT id, admin_id, first_name, last_name, email, phone, created_at FROM admins ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['admins' => $admins],
+                "success",
+                "Admins retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve admins: " . $e->getMessage(),
+                500
+            );
+        }
+    }
     
 
 
