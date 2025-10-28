@@ -388,12 +388,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         } else {
           console.error('Failed to load pricing matrix:', response);
           this.pricingMatrix = {};
+          this.pricingError =
+            response?.status?.message || 'Failed to load pricing matrix.';
         }
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading pricing matrix:', error);
         this.pricingMatrix = {};
+        this.pricingError = 'Unable to load pricing data. Please try again.';
         this.loading = false;
       },
     });
@@ -407,22 +410,38 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       description: this.describeVehicleType(code),
     }));
 
-    // Derive union of service packages across vehicle types
+    // Derive union of service packages across vehicle types (use keys as-is)
     const pkgSet = new Set<string>();
-    for (const code of vehicleCodes) {
-      const entries = this.pricingMatrix[code] || {};
+    for (const vehicleCode of vehicleCodes) {
+      const entries = this.pricingMatrix[vehicleCode] || {};
       Object.keys(entries).forEach((pkg) => pkgSet.add(pkg));
     }
 
-    // Preferred order if present
-    const preferredOrder = ['1', '1.5', '2', '3', '4'];
-    const present = preferredOrder.filter((p) => pkgSet.has(p));
-    const remaining = Array.from(pkgSet)
-      .filter((p) => !present.includes(p))
-      .sort((a, b) => parseFloat(a) - parseFloat(b));
-    const ordered = [...present, ...remaining];
+    // Provide a stable order: p1, p1_5, p2, p3, p4, then others, or if numeric: 1,1.5,2,3,4
+    const preferredOrder = [
+      'p1',
+      'p1_5',
+      'p2',
+      'p3',
+      'p4',
+      '1',
+      '1.5',
+      '2',
+      '3',
+      '4',
+    ];
+    const presentPreferred = preferredOrder.filter((p) => pkgSet.has(p));
+    const remaining = Array.from(pkgSet).filter(
+      (p) => !presentPreferred.includes(p)
+    );
+    const ordered = [...presentPreferred, ...remaining];
 
     const pkgDescriptions: { [key: string]: string } = {
+      p1: 'Wash only',
+      p1_5: 'Body Wash + Tire Black',
+      p2: 'Wash / Vacuum',
+      p3: 'Wash / Vacuum / Hand Wax',
+      p4: 'Wash / Vacuum / Buffing Wax',
       '1': 'Wash only',
       '1.5': 'Body Wash + Tire Black',
       '2': 'Wash / Vacuum',
@@ -447,13 +466,16 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     return map[code] || code;
   }
 
-  formatPrice(price: number | null | undefined): string {
-    if (price === null || price === undefined || price <= 0) {
+  formatPrice(price: number | string | null | undefined): string {
+    if (price === null || price === undefined) {
       return 'Price not set';
     }
 
     // Convert to number if it's a string
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (numericPrice <= 0) {
+      return 'Price not set';
+    }
 
     if (isNaN(numericPrice) || numericPrice <= 0) {
       return 'Price not set';
@@ -463,15 +485,11 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
-    // Map UI package code (e.g., p1) to DB package code (e.g., 1)
-    const dbPackage = this.mapPackageCode(servicePackage);
-
-    // Check if vehicle type exists in pricing matrix
     if (!this.pricingMatrix[vehicleType]) {
       return false;
     }
 
-    const price = this.pricingMatrix[vehicleType][dbPackage];
+    const price = this.pricingMatrix[vehicleType][servicePackage];
     if (price === null || price === undefined) {
       return false;
     }
@@ -484,25 +502,10 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Provide price for template binding
   getPrice(vehicleType: string, servicePackage: string): number | null {
-    const dbPackage = this.mapPackageCode(servicePackage);
-    const price = this.pricingMatrix?.[vehicleType]?.[dbPackage];
+    const price = this.pricingMatrix?.[vehicleType]?.[servicePackage];
     if (price === null || price === undefined) return null;
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
     return isNaN(numericPrice) ? null : numericPrice;
-  }
-
-  // Convert UI package codes to DB keys
-  private mapPackageCode(packageCode: string): string {
-    // Accept already numeric codes
-    if (/^\d(\.\d)?$/.test(packageCode)) return packageCode;
-    const map: { [key: string]: string } = {
-      p1: '1',
-      p2: '2',
-      p3: '3',
-      p4: '4',
-      p1_5: '1.5',
-    };
-    return map[packageCode] || packageCode;
   }
 
   navigateToAppointmentWithPackage(
@@ -513,7 +516,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       queryParams: {
         vehicle_type: vehicleType,
         service_package: servicePackage,
-        price: this.pricingMatrix[vehicleType]?.[servicePackage] || 0,
+        price: this.getPrice(vehicleType, servicePackage) || 0,
       },
     });
   }
