@@ -156,7 +156,8 @@ export class EmployeeManagementComponent implements OnInit {
               registrationDate: this.formatDate(e.created_at),
             }));
             this.pendingEmployees = mapped.filter(
-              (_, i) => Number(list[i].is_approved) !== 1
+              (_: Employee, i: number) =>
+                Number((list[i] as any).is_approved) !== 1
             );
           } else {
             this.pendingEmployees = [];
