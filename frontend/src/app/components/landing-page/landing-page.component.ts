@@ -94,24 +94,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   servicesError: string = '';
   services: Service[] = [];
 
-  // Vehicle types with descriptions
-  vehicleTypes = [
-    { code: 'S', description: 'Sedans (all sedan types)' },
-    { code: 'M', description: 'SUVs (all SUV types)' },
-    { code: 'L', description: 'VANs (any type of van)' },
-    {
-      code: 'XL',
-      description: 'Larger than vans (big SUVs/pickups, oversized vehicles)',
-    },
-  ];
-
-  // Service packages with descriptions
-  servicePackages = [
-    { code: 'p1', description: 'Wash only' },
-    { code: 'p2', description: 'Wash / Vacuum' },
-    { code: 'p3', description: 'Wash / Vacuum / Hand Wax' },
-    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax' },
-  ];
+  // Vehicle types and service packages are derived from DB pricing
+  vehicleTypes: { code: string; description: string }[] = [];
+  servicePackages: { code: string; description: string }[] = [];
 
   constructor(
     private router: Router,
@@ -161,13 +146,16 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    // Load from API first, with localStorage as fallback
-    this.loadLandingPageContent();
-    this.loadPricingData();
-    this.loadServicesData();
+    // Only fetch on the client to avoid SSR build-time API calls
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadLandingPageContent();
+      this.loadPricingData();
+      this.loadServicesData();
+    }
   }
 
   loadLandingPageContent() {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.landingPageService.getLandingPageContent().subscribe({
       next: (response: ApiResponse<LandingPageContent> | null) => {
         if (
@@ -386,6 +374,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Pricing methods
   loadPricingData(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.loading = true;
     this.pricingError = '';
 
@@ -395,6 +384,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         if (response.status && response.status.remarks === 'success') {
           this.pricingMatrix = response.payload.pricing_matrix || {};
           console.log('Loaded pricing matrix:', this.pricingMatrix);
+          this.deriveVehicleTypesAndPackages();
         } else {
           console.error('Failed to load pricing matrix:', response);
           this.pricingMatrix = {};
@@ -409,7 +399,55 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  formatPrice(price: number): string {
+  private deriveVehicleTypesAndPackages(): void {
+    // Derive vehicle types from pricing matrix keys
+    const vehicleCodes = Object.keys(this.pricingMatrix || {});
+    this.vehicleTypes = vehicleCodes.map((code) => ({
+      code,
+      description: this.describeVehicleType(code),
+    }));
+
+    // Derive union of service packages across vehicle types
+    const pkgSet = new Set<string>();
+    for (const code of vehicleCodes) {
+      const entries = this.pricingMatrix[code] || {};
+      Object.keys(entries).forEach((pkg) => pkgSet.add(pkg));
+    }
+
+    // Preferred order if present
+    const preferredOrder = ['1', '1.5', '2', '3', '4'];
+    const present = preferredOrder.filter((p) => pkgSet.has(p));
+    const remaining = Array.from(pkgSet)
+      .filter((p) => !present.includes(p))
+      .sort((a, b) => parseFloat(a) - parseFloat(b));
+    const ordered = [...present, ...remaining];
+
+    const pkgDescriptions: { [key: string]: string } = {
+      '1': 'Wash only',
+      '1.5': 'Body Wash + Tire Black',
+      '2': 'Wash / Vacuum',
+      '3': 'Wash / Vacuum / Hand Wax',
+      '4': 'Wash / Vacuum / Buffing Wax',
+    };
+
+    this.servicePackages = ordered.map((code) => ({
+      code,
+      description: pkgDescriptions[code] || 'Car wash service',
+    }));
+  }
+
+  private describeVehicleType(code: string): string {
+    const map: { [key: string]: string } = {
+      S: 'Sedans (all sedan types)',
+      M: 'SUVs (all SUV types)',
+      L: 'VANs (any type of van)',
+      XL: 'Larger than vans (big SUVs/pickups, oversized vehicles)',
+      XXL: 'Oversized vehicles',
+    };
+    return map[code] || code;
+  }
+
+  formatPrice(price: number | null | undefined): string {
     if (price === null || price === undefined || price <= 0) {
       return 'Price not set';
     }
@@ -425,12 +463,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   isPriceAvailable(vehicleType: string, servicePackage: string): boolean {
+    // Map UI package code (e.g., p1) to DB package code (e.g., 1)
+    const dbPackage = this.mapPackageCode(servicePackage);
+
     // Check if vehicle type exists in pricing matrix
     if (!this.pricingMatrix[vehicleType]) {
       return false;
     }
 
-    const price = this.pricingMatrix[vehicleType][servicePackage];
+    const price = this.pricingMatrix[vehicleType][dbPackage];
     if (price === null || price === undefined) {
       return false;
     }
@@ -439,6 +480,29 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
 
     return !isNaN(numericPrice) && numericPrice > 0;
+  }
+
+  // Provide price for template binding
+  getPrice(vehicleType: string, servicePackage: string): number | null {
+    const dbPackage = this.mapPackageCode(servicePackage);
+    const price = this.pricingMatrix?.[vehicleType]?.[dbPackage];
+    if (price === null || price === undefined) return null;
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return isNaN(numericPrice) ? null : numericPrice;
+  }
+
+  // Convert UI package codes to DB keys
+  private mapPackageCode(packageCode: string): string {
+    // Accept already numeric codes
+    if (/^\d(\.\d)?$/.test(packageCode)) return packageCode;
+    const map: { [key: string]: string } = {
+      p1: '1',
+      p2: '2',
+      p3: '3',
+      p4: '4',
+      p1_5: '1.5',
+    };
+    return map[packageCode] || packageCode;
   }
 
   navigateToAppointmentWithPackage(
@@ -456,6 +520,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Services methods
   loadServicesData(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.servicesLoading = true;
     this.servicesError = '';
 

@@ -150,9 +150,7 @@
                 <td *ngFor="let package of servicePackages" class="price-cell">
                   <div class="price-amount">
                     {{
-                      formatPrice(
-                        pricingMatrix[vehicle.code][package.code] || 0
-                      )
+                      formatPrice(getPrice(vehicle.code, package.code))
                     }}
                   </div>
                   <button

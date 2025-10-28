@@ -6,7 +6,7 @@ set_time_limit(1000);
 define("SERVER", "localhost"); // Keep as localhost for Hostinger shared hosting
 define("DATABASE", "u835265537_database");   // matches Hostinger
 define("USER", "u835265537_autowash"); // matches Hostinger user (with zero)
-define("PASSWORD", "Remegio03");  // use the password you set in Hostinger
+define("PASSWORD", "Remegio030304");  // use the password you set in Hostinger
 define("DRIVER", "mysql");
 
 class Connection {
@@ -26,3 +26,4 @@ class Connection {
     }
 }
 ?>
+

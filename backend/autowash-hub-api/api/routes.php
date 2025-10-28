@@ -15,11 +15,15 @@ $allowedOrigins = [
     'http://localhost:4200',
     'http://127.0.0.1:4200',
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    // Hostinger site domain(s)
+    'https://brown-octopus-872555.hostingersite.com'
 ];
 
 // Check if origin is allowed (exact match or Vercel domain pattern)
-$isAllowed = in_array($origin, $allowedOrigins) || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin);
+$isAllowed = in_array($origin, $allowedOrigins)
+    || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin)
+    || preg_match('/^https:\/\/.*\.hostingersite\.com$/', $origin);
 
 // Set CORS headers
 if ($isAllowed) {
