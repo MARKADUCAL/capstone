@@ -386,6 +386,11 @@
   transition: transform 0.3s ease;
 }
 
+/* Wider modal variant for tables */
+.modal-content.modal-wide {
+  max-width: 900px;
+}
+
 .modal.show-modal .modal-content {
   transform: scale(1);
 }

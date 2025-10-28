@@ -334,8 +334,87 @@
         <div class="form-actions">
           <button
             type="button"
+            class="save-btn"
+            (click)="openCompletedBookings(selectedEmployee)"
+          >
+            View Completed Bookings
+          </button>
+          <button
+            type="button"
             class="cancel-btn"
             (click)="closeViewEmployeeModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completed Bookings Modal -->
+  <div class="modal" [class.show-modal]="isCompletedBookingsModalOpen">
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <h2>Completed Bookings</h2>
+        <span class="close-btn" (click)="closeCompletedBookingsModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body">
+        <div *ngIf="completedBookingsLoading" class="loading-container">
+          <p>Loading completed bookings...</p>
+        </div>
+        <div *ngIf="completedBookingsError" class="error-container">
+          <p>{{ completedBookingsError }}</p>
+        </div>
+        <div
+          *ngIf="
+            !completedBookingsLoading &&
+            !completedBookingsError &&
+            completedBookings.length === 0
+          "
+          class="empty-container"
+        >
+          <p>No completed bookings found for this employee.</p>
+        </div>
+        <div
+          class="table-container"
+          *ngIf="
+            !completedBookingsLoading &&
+            !completedBookingsError &&
+            completedBookings.length > 0
+          "
+        >
+          <table class="employee-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of completedBookings">
+                <td>{{ b.service }}</td>
+                <td>{{ b.customerName }}</td>
+                <td>{{ b.date | date : "mediumDate" }}</td>
+                <td>{{ b.time }}</td>
+                <td>
+                  {{
+                    b.totalAmount | currency : "PHP" : "symbol-narrow" : "1.2-2"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeCompletedBookingsModal()"
           >
             Close
           </button>

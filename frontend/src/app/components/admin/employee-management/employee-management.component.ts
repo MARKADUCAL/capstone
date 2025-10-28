@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
+import { BookingService } from '../../../services/booking.service';
 
 interface Employee {
   id: number;
@@ -68,10 +69,17 @@ export class EmployeeManagementComponent implements OnInit {
   pendingEmployees: Employee[] = [];
   pendingError: string | null = null;
 
+  // Completed bookings modal
+  isCompletedBookingsModalOpen = false;
+  completedBookingsLoading = false;
+  completedBookingsError: string | null = null;
+  completedBookings: any[] = [];
+
   constructor(
     private snackBar: MatSnackBar,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -520,6 +528,56 @@ export class EmployeeManagementComponent implements OnInit {
     this.selectedEmployee = null;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
+    }
+  }
+
+  // Open completed bookings modal for an employee
+  openCompletedBookings(employee: Employee): void {
+    this.selectedEmployee = employee;
+    this.completedBookings = [];
+    this.completedBookingsError = null;
+    this.completedBookingsLoading = true;
+    this.isCompletedBookingsModalOpen = true;
+
+    const employeeId = employee.id;
+    this.bookingService.getBookingsByEmployee(employeeId).subscribe({
+      next: (bookings: any[]) => {
+        // Filter to completed/done only and map the fields we need for display
+        this.completedBookings = (bookings || [])
+          .filter((b: any) => {
+            const s = (b.status || '').toString().toLowerCase();
+            return s === 'completed' || s === 'done';
+          })
+          .map((b: any) => ({
+            id: b.id,
+            service: b.services || b.serviceName || b.service || 'N/A',
+            customerName:
+              b.firstName && b.lastName
+                ? `${b.firstName} ${b.lastName}`
+                : b.nickname || b.customer_name || 'N/A',
+            date: b.washDate || b.date || b.booking_date || b.created_at,
+            time: b.washTime || b.time || b.booking_time,
+            totalAmount: b.price || b.total_amount || b.amount || 0,
+            raw: b,
+          }));
+        this.completedBookingsLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch employee bookings:', err);
+        this.completedBookingsError =
+          err?.message || 'Failed to load completed bookings.';
+        this.completedBookingsLoading = false;
+      },
+    });
+  }
+
+  closeCompletedBookingsModal(): void {
+    this.isCompletedBookingsModalOpen = false;
+    if (!this.isViewModalOpen) {
+      // If launched outside view modal, allow scroll restore
+      if (isPlatformBrowser(this.platformId)) {
+        document.body.style.overflow = '';
+      }
     }
   }
 
