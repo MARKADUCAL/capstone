@@ -17,7 +17,6 @@ import { EmployeeLayoutComponent } from './layout/employee-layout/employee-layou
 import { DashboardComponent } from './components/admin/dashboard/dashboard.component';
 import { WashingPointComponent } from './components/admin/washing-point/washing-point.component';
 import { CarWashBookingComponent } from './components/admin/car-wash-booking/car-wash-booking.component';
-import { InventoryManagementComponent } from './components/admin/inventory-management/inventory-management.component';
 import { EmployeeManagementComponent } from './components/admin/employee-management/employee-management.component';
 import { AdminManagementComponent } from './components/admin/admin-management/admin-management.component';
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
@@ -38,7 +37,6 @@ import { ProfileComponent as CustomerProfileComponent } from './components/custo
 import { DashboardComponent as EmployeeDashboardComponent } from './components/employee/dashboard/dashboard.component';
 import { CarWashBookingComponent as EmployeeCarWashBookingComponent } from './components/employee/car-wash-booking/car-wash-booking.component';
 import { CustomerRecordsComponent } from './components/employee/customer-records/customer-records.component';
-import { InventoryComponent } from './components/employee/inventory/inventory.component';
 import { ProfileComponent as EmployeeProfileComponent } from './components/employee/profile/profile.component';
 import { ConnectionTestComponent } from './components/connection-test/connection-test.component';
 import { TermsComponent } from './components/legal/terms/terms.component';
@@ -81,7 +79,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'washing-point', component: WashingPointComponent },
       { path: 'car-wash-booking', component: CarWashBookingComponent },
-      { path: 'inventory-management', component: InventoryManagementComponent },
+      // inventory-management route removed
       { path: 'employee-management', component: EmployeeManagementComponent },
       { path: 'admin-management', component: AdminManagementComponent },
       { path: 'user-management', component: UserManagementComponent },
@@ -103,7 +101,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: EmployeeDashboardComponent },
       { path: 'car-wash-booking', component: EmployeeCarWashBookingComponent },
       { path: 'customer-records', component: CustomerRecordsComponent },
-      { path: 'inventory', component: InventoryComponent },
+      // employee inventory route removed
       { path: 'profile', component: EmployeeProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
