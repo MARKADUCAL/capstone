@@ -242,6 +242,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
+
+    // Ensure feedback data (customer rating/comment and admin reply) are up-to-date for this booking
+    this.refreshFeedbackForBooking(booking);
   }
 
   closeViewModal(): void {
@@ -475,6 +478,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           const exists = !!feedbackForBooking;
           this.feedbackExistsMap.set(bookingId, exists);
           console.log(`Feedback exists for booking ${bookingId}: ${exists}`);
+          // Attach customer rating/comment and admin comment (if present) to the booking for modal display
+          if (feedbackForBooking) {
+            (booking as any).customerRating = feedbackForBooking.rating;
+            (booking as any).rating = feedbackForBooking.rating;
+            (booking as any).customerRatingComment = feedbackForBooking.comment;
+            (booking as any).ratingComment = feedbackForBooking.comment;
+          }
           // Attach admin comment to booking for display if present
           if (
             feedbackForBooking &&
@@ -494,6 +504,38 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           this.feedbackExistsMap.set(bookingId, false);
         },
       });
+    });
+  }
+
+  // Refresh feedback data for a single booking (used when opening the details modal)
+  private refreshFeedbackForBooking(booking: Booking): void {
+    const bookingId = parseInt(booking.id);
+    this.feedbackService.getAllFeedback(200).subscribe({
+      next: (list) => {
+        const feedbackForBooking = list.find((f) => f.booking_id === bookingId);
+        const exists = !!feedbackForBooking;
+        this.feedbackExistsMap.set(bookingId, exists);
+        if (feedbackForBooking) {
+          (booking as any).customerRating = feedbackForBooking.rating;
+          (booking as any).rating = feedbackForBooking.rating;
+          (booking as any).customerRatingComment = feedbackForBooking.comment;
+          (booking as any).ratingComment = feedbackForBooking.comment;
+          if (
+            (feedbackForBooking.admin_comment || '').toString().trim().length >
+            0
+          ) {
+            (booking as any).adminComment = feedbackForBooking.admin_comment;
+            (booking as any).adminCommentedAt =
+              feedbackForBooking.admin_commented_at;
+          }
+        }
+      },
+      error: (error) => {
+        console.error(
+          `Error refreshing feedback for booking ${bookingId}:`,
+          error
+        );
+      },
     });
   }
 
