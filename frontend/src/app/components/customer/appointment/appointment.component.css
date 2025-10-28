@@ -1502,6 +1502,10 @@
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
+.price-card.unavailable {
+  background: linear-gradient(135deg, #e74c3c 0%, #8e44ad 100%);
+}
+
 .price-header {
   display: flex;
   align-items: center;

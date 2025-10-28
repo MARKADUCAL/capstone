@@ -77,6 +77,22 @@
               <div class="price-amount">₱{{ selectedPrice }}</div>
             </div>
           </div>
+
+          <!-- Unavailable Display -->
+          <div
+            class="price-display"
+            *ngIf="!selectedPrice && isUnavailableSelection"
+          >
+            <div class="price-card unavailable">
+              <div class="price-header">
+                <i class="fas fa-ban"></i>
+                <span>Not Available</span>
+              </div>
+              <div class="price-amount">
+                This combination is currently inactive
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Personal Information -->

@@ -73,6 +73,8 @@ export class AppointmentComponent implements OnInit {
   // Pricing
   selectedPrice: number | null = null;
   pricingMatrix: any = {}; // Property to store pricing matrix from database
+  // When a selected combination exists but is inactive/not available
+  isUnavailableSelection = false;
 
   // Booking form model
   bookingForm: BookingForm = {
@@ -231,6 +233,7 @@ export class AppointmentComponent implements OnInit {
     console.log('Current pricing matrix:', this.pricingMatrix);
 
     // Get price from database pricing matrix
+    this.isUnavailableSelection = false;
     if (
       vehicleCode &&
       serviceCode &&
@@ -243,6 +246,10 @@ export class AppointmentComponent implements OnInit {
       );
     } else {
       this.selectedPrice = null;
+      // If both selections are present but no price found, mark as unavailable
+      if (vehicleCode && serviceCode) {
+        this.isUnavailableSelection = true;
+      }
       console.log(`No price found for ${vehicleCode} - ${serviceCode}`);
       console.log('Available vehicle codes:', Object.keys(this.pricingMatrix));
       if (this.pricingMatrix[vehicleCode]) {
