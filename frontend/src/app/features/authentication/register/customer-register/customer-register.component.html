@@ -160,8 +160,17 @@
               />
               <span
                 >I agree to the
-                <a routerLink="/terms" [queryParams]="{from: 'customer-register'}">Terms & Conditions</a> and
-                <a routerLink="/privacy" [queryParams]="{from: 'customer-register'}">Privacy Policy</a></span
+                <a
+                  routerLink="/terms"
+                  [queryParams]="{ from: 'customer-register' }"
+                  >Terms & Conditions</a
+                >
+                and
+                <a
+                  routerLink="/privacy"
+                  [queryParams]="{ from: 'customer-register' }"
+                  >Privacy Policy</a
+                ></span
               >
             </label>
             <small

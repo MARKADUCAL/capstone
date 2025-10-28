@@ -136,8 +136,17 @@
               />
               <span
                 >I agree to the
-                <a routerLink="/terms" [queryParams]="{from: 'admin-register'}">Terms & Conditions</a> and
-                <a routerLink="/privacy" [queryParams]="{from: 'admin-register'}">Privacy Policy</a></span
+                <a
+                  routerLink="/terms"
+                  [queryParams]="{ from: 'admin-register' }"
+                  >Terms & Conditions</a
+                >
+                and
+                <a
+                  routerLink="/privacy"
+                  [queryParams]="{ from: 'admin-register' }"
+                  >Privacy Policy</a
+                ></span
               >
             </label>
           </div>

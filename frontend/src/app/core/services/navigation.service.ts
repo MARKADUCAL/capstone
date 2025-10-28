@@ -3,7 +3,7 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NavigationService {
   private previousUrl: string = '';
@@ -13,14 +13,14 @@ export class NavigationService {
   constructor(private router: Router, private route: ActivatedRoute) {
     // Track navigation history
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.previousUrl = this.currentUrl;
         this.currentUrl = event.url;
       });
 
     // Track query parameters
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.queryParams = params;
     });
   }
@@ -50,7 +50,10 @@ export class NavigationService {
    * Check if the previous URL was a register page
    */
   isFromRegisterPage(): boolean {
-    return this.previousUrl.includes('-register') || this.queryParams['from']?.includes('-register');
+    return (
+      this.previousUrl.includes('-register') ||
+      this.queryParams['from']?.includes('-register')
+    );
   }
 
   /**
@@ -86,7 +89,7 @@ export class NavigationService {
    */
   getRegisterRoute(): string {
     const pageType = this.getRegisterPageType();
-    
+
     switch (pageType) {
       case 'customer':
         return '/customer-register';

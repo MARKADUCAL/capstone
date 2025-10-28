@@ -188,8 +188,18 @@
                 [disabled]="isLoading"
               />
               <span>
-                I agree to the <a routerLink="/terms" [queryParams]="{from: 'employee-register'}">Terms & Conditions</a> and
-                <a routerLink="/privacy" [queryParams]="{from: 'employee-register'}">Privacy Policy</a></span
+                I agree to the
+                <a
+                  routerLink="/terms"
+                  [queryParams]="{ from: 'employee-register' }"
+                  >Terms & Conditions</a
+                >
+                and
+                <a
+                  routerLink="/privacy"
+                  [queryParams]="{ from: 'employee-register' }"
+                  >Privacy Policy</a
+                ></span
               >
             </label>
             <small
