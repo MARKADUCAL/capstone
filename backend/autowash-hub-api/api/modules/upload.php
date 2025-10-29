@@ -156,9 +156,23 @@ class UploadHandler {
         // Always return an API-served URL to avoid static hosting restrictions
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
-        $apiBase = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); // e.g., /api
+
+        // Determine the api base path robustly across different host setups
+        $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+        // Ensure we always include '/api' even if rewrites make SCRIPT_NAME look like '/index.php'
+        if ($scriptDir === '' || $scriptDir === '/' || strpos($scriptDir, '/api') === false) {
+            $apiBase = '/api';
+        } else {
+            $apiBase = $scriptDir;
+        }
+
         $filename = basename($relativePath);
-        return $protocol . '://' . $host . $apiBase . '/file/' . $filename;
+        // Prefer clean path, but some shared hosts (e.g., Hostinger) may not route nested paths correctly.
+        // Use the query-style router fallback that our routes.php supports: ?request=file/<filename>
+        $cleanUrl = $protocol . '://' . $host . $apiBase . '/file/' . $filename;
+        $queryUrl = $protocol . '://' . $host . $apiBase . '/index.php?request=file/' . $filename;
+        // Return the query-based URL to maximize compatibility with host routing/WAF rules
+        return $queryUrl;
     }
 
     public function serveFile($filename) {

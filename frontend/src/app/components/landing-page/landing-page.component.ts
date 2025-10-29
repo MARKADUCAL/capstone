@@ -167,6 +167,28 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           const backendContent = response.payload;
           this.content =
             this.landingPageService.convertToFrontendFormat(backendContent);
+          // Normalize legacy file URLs to query-style to satisfy host routing/WAF
+          const normalize = (url: string | undefined | null): string => {
+            if (!url) return '';
+            if (url.includes('/file/') && !url.includes('request=file/')) {
+              const parts = url.split('/file/');
+              return (
+                parts[0].replace(/\/$/, '') +
+                '/index.php?request=file/' +
+                parts[1]
+              );
+            }
+            return url;
+          };
+          this.content.heroBackgroundUrl = normalize(
+            this.content.heroBackgroundUrl
+          );
+          this.content.galleryImages = (this.content.galleryImages || []).map(
+            (g) => ({
+              ...g,
+              url: normalize(g.url),
+            })
+          );
           // Clear old cache and save fresh data
           this.clearLocalStorageCache();
           this.saveToLocalStorage();
