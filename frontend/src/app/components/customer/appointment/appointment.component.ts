@@ -1,4 +1,5 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import Swal from 'sweetalert2';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -666,7 +667,12 @@ export class AppointmentComponent implements OnInit {
       const msg =
         'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
       this.errorMessage = msg;
-      alert(msg);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Time not available',
+        text: msg,
+        confirmButtonColor: '#3498db',
+      });
       return;
     }
 
@@ -690,7 +696,12 @@ export class AppointmentComponent implements OnInit {
       const msg =
         'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
       this.errorMessage = msg;
-      alert(msg);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Time not available',
+        text: msg,
+        confirmButtonColor: '#3498db',
+      });
       return;
     }
 
@@ -722,7 +733,12 @@ export class AppointmentComponent implements OnInit {
         const msg =
           'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
         this.errorMessage = msg;
-        alert(msg);
+        Swal.fire({
+          icon: 'warning',
+          title: 'Time not available',
+          text: msg,
+          confirmButtonColor: '#3498db',
+        });
         // Do not clear the field; allow browser min/max UI to guide
         return;
       }
