@@ -493,7 +493,10 @@ export class AppointmentComponent implements OnInit {
         .split(':')
         .map((v) => parseInt(v, 10));
       if (hours < 8 || hours > 20) {
-        this.errorMessage = 'Wash time must be between 8:00 AM and 8:00 PM';
+        const msg =
+          'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
+        this.errorMessage = msg;
+        alert(msg);
         return false;
       }
     } catch {
@@ -660,7 +663,10 @@ export class AppointmentComponent implements OnInit {
 
     // Validate time is within 8:00 AM to 8:00 PM range
     if (hour24 < 8 || hour24 > 20) {
-      this.errorMessage = 'Please select a time between 8:00 AM and 8:00 PM';
+      const msg =
+        'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
+      this.errorMessage = msg;
+      alert(msg);
       return;
     }
 
@@ -681,7 +687,10 @@ export class AppointmentComponent implements OnInit {
     // Final validation: ensure the final time is still within business hours
     const finalHour24 = parseInt(finalTime.split(':')[0]);
     if (finalHour24 < 8 || finalHour24 > 20) {
-      this.errorMessage = 'Selected time must be between 8:00 AM and 8:00 PM';
+      const msg =
+        'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
+      this.errorMessage = msg;
+      alert(msg);
       return;
     }
 
@@ -710,7 +719,10 @@ export class AppointmentComponent implements OnInit {
       const m = parseInt(mStr, 10);
       if (isNaN(h) || isNaN(m)) return;
       if (h < 8 || h > 20) {
-        this.errorMessage = 'Please select a time between 8:00 AM and 8:00 PM';
+        const msg =
+          'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
+        this.errorMessage = msg;
+        alert(msg);
         // Do not clear the field; allow browser min/max UI to guide
         return;
       }
