@@ -1075,6 +1075,20 @@ class Post extends GlobalMethods
 
 
         try {
+            // Block creating a new booking if the customer has an active booking (Pending or Approved)
+            $checkSql = "SELECT COUNT(*) FROM bookings WHERE customer_id = ? AND status IN ('Pending','Approved')";
+            $checkStmt = $this->pdo->prepare($checkSql);
+            $checkStmt->execute([$data->customer_id]);
+            $activeCount = (int)$checkStmt->fetchColumn();
+
+            if ($activeCount > 0) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.",
+                    400
+                );
+            }
 
             // Find the next available booking ID starting from 1
 

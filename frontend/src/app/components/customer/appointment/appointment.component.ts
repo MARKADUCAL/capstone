@@ -171,6 +171,25 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  // Check if customer has an active booking (Pending or Approved)
+  private hasActiveBooking(): boolean {
+    try {
+      if (!Array.isArray(this.customerBookings)) return false;
+      const activeStatuses = new Set([
+        'Pending',
+        'Approved',
+        // handle possible lowercase backend or enum mappings just in case
+        'pending',
+        'approved',
+      ]);
+      return this.customerBookings.some((b: any) =>
+        activeStatuses.has(b?.status)
+      );
+    } catch {
+      return false;
+    }
+  }
+
   // Normalize a date-like value to local YYYY-MM-DD (no timezone shift)
   private normalizeWashDateForApi(dateValue: unknown): string {
     try {
@@ -368,6 +387,19 @@ export class AppointmentComponent implements OnInit {
 
   // Open booking modal
   openBookingModal(): void {
+    if (this.hasActiveBooking()) {
+      const msg =
+        'You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.';
+      this.errorMessage = msg;
+      Swal.fire({
+        icon: 'info',
+        title: 'Active booking found',
+        text: msg,
+        confirmButtonColor: '#3498db',
+      });
+      return;
+    }
+
     if (!this.userCustomerId) {
       this.errorMessage = 'Customer ID not found. Please log in again.';
       return;
@@ -407,6 +439,20 @@ export class AppointmentComponent implements OnInit {
   // Submit booking
   submitBooking(): void {
     if (!this.validateForm()) {
+      return;
+    }
+
+    // Prevent creating a new booking when an active one exists
+    if (this.hasActiveBooking()) {
+      const msg =
+        'You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.';
+      this.errorMessage = msg;
+      Swal.fire({
+        icon: 'info',
+        title: 'Active booking found',
+        text: msg,
+        confirmButtonColor: '#3498db',
+      });
       return;
     }
 
