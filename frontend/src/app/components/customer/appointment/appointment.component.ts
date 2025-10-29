@@ -100,7 +100,7 @@ export class AppointmentComponent implements OnInit {
   selectedHour = 8; // Default to 8 AM
   selectedMinute = '00';
   selectedPeriod = 'AM';
-  availableHours: number[] = [8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7]; // 8 AM to 8 PM
+  availableHours: number[] = [8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8]; // 8 AM to 8 PM
   availableMinutes: string[] = ['00', '15', '30', '45'];
   availablePeriods: string[] = ['AM', 'PM'];
 
@@ -636,7 +636,9 @@ export class AppointmentComponent implements OnInit {
   }
 
   selectHour(hour: number): void {
-    this.selectedHour = hour;
+    if (!this.isHourDisabledForCurrentPeriod(hour)) {
+      this.selectedHour = hour;
+    }
   }
 
   selectMinute(minute: string): void {
@@ -685,5 +687,47 @@ export class AppointmentComponent implements OnInit {
 
     this.bookingForm.washTime = finalTime;
     this.showTimePicker = false;
+  }
+
+  // Compute effective min time for the native time input
+  effectiveMinTime(): string | null {
+    const businessMin = '08:00';
+    const businessMax = '20:00';
+    const todayMin = this.minTimeForSelectedDate();
+    if (!todayMin) return businessMin;
+    // Clamp to business window
+    const minClamped = todayMin < businessMin ? businessMin : todayMin;
+    return minClamped > businessMax ? businessMax : minClamped;
+  }
+
+  // Handle manual/native time input changes
+  onTimeInputChange(value: string): void {
+    this.errorMessage = '';
+    if (!value) return;
+    try {
+      const [hStr, mStr] = value.split(':');
+      const h = parseInt(hStr, 10);
+      const m = parseInt(mStr, 10);
+      if (isNaN(h) || isNaN(m)) return;
+      if (h < 8 || h > 20) {
+        this.errorMessage = 'Please select a time between 8:00 AM and 8:00 PM';
+        // Do not clear the field; allow browser min/max UI to guide
+        return;
+      }
+      this.bookingForm.washTime = `${hStr.padStart(2, '0')}:${mStr.padStart(
+        2,
+        '0'
+      )}`;
+    } catch {}
+  }
+
+  // Disable hours that are invalid for the currently selected period
+  isHourDisabledForCurrentPeriod(hour: number): boolean {
+    if (this.selectedPeriod === 'AM') {
+      // AM allows 8,9,10,11 only
+      return !(hour >= 8 && hour <= 11);
+    }
+    // PM allows 12,1..8
+    return false;
   }
 }

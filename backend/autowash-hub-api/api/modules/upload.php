@@ -154,7 +154,21 @@ class UploadHandler {
 
     public function getFileUrl($relativePath) {
         // Always return an API-served URL to avoid static hosting restrictions
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        // Detect HTTPS correctly even when behind a proxy/CDN (e.g., Vercel, Cloudflare, Hostinger)
+        $protoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+        if ($protoHeader === '') {
+            // Some providers use this JSON header, e.g. {"scheme":"https"}
+            $cfVisitor = $_SERVER['HTTP_CF_VISITOR'] ?? '';
+            if ($cfVisitor && stripos($cfVisitor, 'https') !== false) {
+                $protoHeader = 'https';
+            }
+        }
+        $isHttps = (
+            (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+            (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ||
+            (strtolower($protoHeader) === 'https')
+        );
+        $protocol = $isHttps ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
 
         // Determine the api base path robustly across different host setups
