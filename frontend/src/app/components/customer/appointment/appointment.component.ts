@@ -171,6 +171,41 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  // Normalize a date-like value to local YYYY-MM-DD (no timezone shift)
+  private normalizeWashDateForApi(dateValue: unknown): string {
+    try {
+      if (!dateValue) return '';
+      // If already in YYYY-MM-DD, keep it
+      if (
+        typeof dateValue === 'string' &&
+        /^\d{4}-\d{2}-\d{2}$/.test(dateValue)
+      ) {
+        return dateValue;
+      }
+      const d = new Date(dateValue as any);
+      // Use local components to avoid UTC conversion issues
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    } catch {
+      return '';
+    }
+  }
+
+  // Normalize time to HH:MM:SS
+  private normalizeWashTimeForApi(timeValue: string): string {
+    if (!timeValue) return '';
+    try {
+      const [h, m] = timeValue.split(':');
+      const hh = (h ?? '').padStart(2, '0');
+      const mm = (m ?? '00').padStart(2, '0');
+      return `${hh}:${mm}:00`;
+    } catch {
+      return timeValue;
+    }
+  }
+
   // Load pricing data from database
   loadPricingData(): void {
     if (this.isBrowser) {
@@ -421,8 +456,8 @@ export class AppointmentComponent implements OnInit {
       nickname: this.bookingForm.nickname,
       phone: this.bookingForm.phone,
       additional_phone: this.bookingForm.additionalPhone,
-      wash_date: this.bookingForm.washDate,
-      wash_time: this.bookingForm.washTime,
+      wash_date: this.normalizeWashDateForApi(this.bookingForm.washDate),
+      wash_time: this.normalizeWashTimeForApi(this.bookingForm.washTime),
       payment_type: this.bookingForm.paymentType,
       online_payment_option: this.bookingForm.onlinePaymentOption,
       notes: this.bookingForm.notes,
@@ -537,6 +572,17 @@ export class AppointmentComponent implements OnInit {
   // Format date for display
   formatDate(dateString: string): string {
     if (!dateString) return '';
+    // If it's already YYYY-MM-DD, format using local components to avoid UTC shift
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [y, m, d] = dateString.split('-').map((v) => parseInt(v, 10));
+      const localDate = new Date(y, (m || 1) - 1, d || 1);
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      };
+      return localDate.toLocaleDateString(undefined, options);
+    }
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
