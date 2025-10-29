@@ -114,8 +114,87 @@
         <div class="form-actions">
           <button
             type="button"
+            class="save-btn"
+            (click)="openCustomerBookings(selectedUser)"
+          >
+            View Bookings
+          </button>
+          <button
+            type="button"
             class="cancel-btn"
             (click)="closeViewUserModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Bookings Modal -->
+  <div class="modal" [class.show-modal]="isCustomerBookingsModalOpen">
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <h2>Customer Bookings</h2>
+        <span class="close-btn" (click)="closeCustomerBookingsModal()"
+          >&times;</span
+        >
+      </div>
+      <div class="modal-body">
+        <div *ngIf="customerBookingsLoading" class="loading-container">
+          <p>Loading bookings...</p>
+        </div>
+        <div *ngIf="customerBookingsError" class="error-container">
+          <p>{{ customerBookingsError }}</p>
+        </div>
+        <div
+          *ngIf="
+            !customerBookingsLoading &&
+            !customerBookingsError &&
+            customerBookings.length === 0
+          "
+          class="empty-container"
+        >
+          <p>No bookings found for this customer.</p>
+        </div>
+        <div
+          class="table-container"
+          *ngIf="
+            !customerBookingsLoading &&
+            !customerBookingsError &&
+            customerBookings.length > 0
+          "
+        >
+          <table class="customer-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of customerBookings">
+                <td>{{ b.service }}</td>
+                <td>{{ b.date | date : "mediumDate" }}</td>
+                <td>{{ b.time }}</td>
+                <td>{{ b.status }}</td>
+                <td>
+                  {{
+                    b.totalAmount | currency : "PHP" : "symbol-narrow" : "1.2-2"
+                  }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeCustomerBookingsModal()"
           >
             Close
           </button>

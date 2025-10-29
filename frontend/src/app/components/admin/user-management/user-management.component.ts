@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { BookingService } from '../../../services/booking.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
@@ -65,11 +66,18 @@ export class UserManagementComponent implements OnInit {
   newUser: NewUser = this.createEmptyUser();
   isSubmitting: boolean = false;
 
+  // Customer bookings modal state
+  isCustomerBookingsModalOpen: boolean = false;
+  customerBookingsLoading: boolean = false;
+  customerBookingsError: string | null = null;
+  customerBookings: any[] = [];
+
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -415,5 +423,47 @@ export class UserManagementComponent implements OnInit {
       horizontalPosition: 'end',
       verticalPosition: 'top',
     });
+  }
+
+  // Open bookings modal for a customer
+  openCustomerBookings(user: User): void {
+    this.selectedUser = user;
+    this.customerBookings = [];
+    this.customerBookingsError = null;
+    this.customerBookingsLoading = true;
+    this.isCustomerBookingsModalOpen = true;
+
+    const customerId = String(user.id);
+    this.bookingService.getBookingsByCustomerId(customerId).subscribe({
+      next: (bookings: any[]) => {
+        this.customerBookings = (bookings || []).map((b: any) => ({
+          id: b.id,
+          service: b.services || b.serviceName || b.service || 'N/A',
+          date: b.washDate || b.date || b.booking_date || b.created_at,
+          time: b.washTime || b.time || b.booking_time || '',
+          status:
+            (b.status || b.booking_status || '')
+              .toString()
+              .charAt(0)
+              .toUpperCase() +
+            (b.status || b.booking_status || '').toString().slice(1),
+          totalAmount: b.price || b.total_amount || b.amount || 0,
+          raw: b,
+        }));
+        this.customerBookingsLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to fetch customer bookings:', err);
+        this.customerBookingsError = err?.message || 'Failed to load bookings.';
+        this.customerBookingsLoading = false;
+      },
+    });
+  }
+
+  closeCustomerBookingsModal(): void {
+    this.isCustomerBookingsModalOpen = false;
+    this.customerBookings = [];
+    this.customerBookingsError = null;
+    this.customerBookingsLoading = false;
   }
 }
