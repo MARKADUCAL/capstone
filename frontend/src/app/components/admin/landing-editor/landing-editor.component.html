@@ -40,6 +40,7 @@
                 <img
                   [src]="content.heroBackgroundUrl"
                   alt="Current hero background"
+                  (error)="handleImageError($event)"
                 />
               </div>
             </div>
@@ -136,6 +137,7 @@
                       [src]="image.url"
                       [alt]="image.alt || 'Gallery image'"
                       title="Current gallery image"
+                      (error)="handleImageError($event)"
                     />
                   </div>
                 </div>

@@ -288,9 +288,11 @@ export class LandingEditorComponent implements OnInit {
       .post<any>(`${environment.apiUrl}/upload_file`, formData)
       .subscribe({
         next: (response) => {
+          console.log('Upload response:', response);
           this.isUploading = false;
           if (response.status === 'success') {
             this.uploadSuccess = 'Image uploaded successfully!';
+            console.log('Upload URL:', response.data?.url);
             this.content.heroBackgroundUrl = response.data.url;
             this.updateValidation(); // Update validation after successful upload
 
@@ -570,9 +572,11 @@ export class LandingEditorComponent implements OnInit {
       .post<any>(`${environment.apiUrl}/upload_file`, formData)
       .subscribe({
         next: (response) => {
+          console.log('Gallery upload response:', response);
           this.isUploadingGallery[index] = false;
           if (response.status === 'success') {
             image.uploadSuccess = 'Image uploaded successfully!';
+            console.log('Gallery upload URL:', response.data?.url);
             image.url = response.data.url;
             this.updateValidation();
 
@@ -607,5 +611,13 @@ export class LandingEditorComponent implements OnInit {
   removeGalleryPreview(index: number): void {
     this.content.galleryImages[index].preview = undefined;
     this.content.galleryImages[index].selectedFile = undefined;
+  }
+
+  handleImageError(event: Event): void {
+    console.error(
+      'Image failed to load:',
+      (event.target as HTMLImageElement).src
+    );
+    // Optionally show an error message or handle the broken image
   }
 }

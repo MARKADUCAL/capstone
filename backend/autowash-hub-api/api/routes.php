@@ -776,17 +776,15 @@ if ($method === 'POST' && isset($_FILES)) {
     // Single file upload
     if (strpos($request, 'upload_file') !== false) {
         $category = $_POST['category'] ?? 'general';
-        $result = $uploadHandler->uploadFile($_FILES['file'], $category);
-        echo json_encode($result);
-        exit();
+        // uploadFile() already sends the response and exits, so no need to echo here
+        $uploadHandler->uploadFile($_FILES['file'], $category);
     }
     
     // Multiple files upload
     if (strpos($request, 'upload_multiple_files') !== false) {
         $category = $_POST['category'] ?? 'general';
-        $result = $uploadHandler->uploadMultipleFiles($_FILES['files'], $category);
-        echo json_encode($result);
-        exit();
+        // uploadMultipleFiles() already sends the response and exits, so no need to echo here
+        $uploadHandler->uploadMultipleFiles($_FILES['files'], $category);
     }
     
     // Delete file

@@ -32,8 +32,12 @@ class UploadHandler {
 
     public function uploadFile($file, $category = 'general') {
         try {
+            // Log upload attempt
+            error_log("Upload attempt - Category: $category, File: " . ($file['name'] ?? 'not set'));
+            
             // Validate file upload
             if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+                error_log("Upload validation failed - error: " . ($file['error'] ?? 'file not set'));
                 return $this->sendPayload(null, "failed", "No file uploaded or upload error", 400);
             }
 
@@ -70,15 +74,19 @@ class UploadHandler {
                 // Store file info in database
                 $this->storeFileInfo($fileName, $relativePath, $category, $file['size'], $fileType);
                 
+                $fileUrl = $this->getFileUrl($relativePath);
+                error_log("File uploaded successfully - URL: $fileUrl");
+                
                 return $this->sendPayload([
                     'filename' => $fileName,
                     'filepath' => $relativePath,
-                    'url' => $this->getFileUrl($relativePath),
+                    'url' => $fileUrl,
                     'size' => $file['size'],
                     'type' => $fileType,
                     'category' => $category
                 ], "success", "File uploaded successfully", 200);
             } else {
+                error_log("Failed to move uploaded file to: $filePath");
                 return $this->sendPayload(null, "failed", "Failed to save file", 500);
             }
 
@@ -192,6 +200,31 @@ class UploadHandler {
     public function serveFile($filename) {
         $safeName = basename($filename);
         $fullPath = $this->uploadDir . $safeName;
+
+        // Set CORS headers for image serving
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $allowedOrigins = [
+            'https://capstone-alpha-lac.vercel.app',
+            'https://capstone-70tgpmfq9-markaducals-projects.vercel.app',
+            'http://localhost:4200',
+            'http://127.0.0.1:4200',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'https://brown-octopus-872555.hostingersite.com'
+        ];
+        
+        $isAllowed = in_array($origin, $allowedOrigins)
+            || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin)
+            || preg_match('/^https:\/\/.*\.hostingersite\.com$/', $origin);
+        
+        if ($isAllowed) {
+            header("Access-Control-Allow-Origin: $origin");
+        } else {
+            header("Access-Control-Allow-Origin: http://localhost:4200");
+        }
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type");
+        header("Access-Control-Allow-Credentials: true");
 
         if (!file_exists($fullPath) || !is_file($fullPath)) {
             http_response_code(404);
