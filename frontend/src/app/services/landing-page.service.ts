@@ -176,15 +176,21 @@ export class LandingPageService {
 
   // Helper method to convert backend format to frontend format
   convertToFrontendFormat(backendContent: LandingPageContent): any {
-    const toApiFileUrl = (url: string | undefined | null): string => {
+    const normalizeFileUrl = (url: string | undefined | null): string => {
       if (!url) return '';
       const val = String(url);
-      // Already an absolute URL not pointing to uploads
-      if (/\/api\/file\//.test(val)) return val;
-      // If points to uploads as relative or absolute, convert to API route
-      const match = val.match(/(?:uploads\/)([^/?#]+)$/);
-      if (match && match[1]) {
-        return `${this.apiUrl}/file/${match[1]}`;
+      // If backend returned legacy API routes, prefer direct uploads path
+      const apiFileMatch = val.match(/\/api\/file\/([^\/?#]+)/);
+      if (apiFileMatch && apiFileMatch[1]) {
+        // Convert https://host/api/file/name.jpg -> https://host/uploads/name.jpg
+        return val
+          .replace(/\/api\/file\/[^\/?#]+$/, `/uploads/${apiFileMatch[1]}`)
+          .replace(/\/api\//, '/');
+      }
+      const queryMatch = val.match(/index\.php\?request=file\/([^&#]+)/);
+      if (queryMatch && queryMatch[1]) {
+        const base = val.split('/index.php?request=file/')[0].replace(/\/$/, '');
+        return `${base.replace(/\/api$/, '')}/uploads/${queryMatch[1]}`;
       }
       return val;
     };
@@ -192,13 +198,13 @@ export class LandingPageService {
       heroTitle: backendContent.hero?.title || '',
       heroDescription: backendContent.hero?.description || '',
       heroBackgroundUrl:
-        toApiFileUrl(backendContent.hero?.background_url) || '',
+        normalizeFileUrl(backendContent.hero?.background_url) || '',
       services: (backendContent.services || []).map((service: any) => ({
         name: service.name || '',
-        imageUrl: toApiFileUrl(service.image_url || service.imageUrl || ''),
+        imageUrl: normalizeFileUrl(service.image_url || service.imageUrl || ''),
       })),
       galleryImages: (backendContent.gallery || []).map((g: any) => ({
-        url: toApiFileUrl(g.url),
+        url: normalizeFileUrl(g.url),
         alt: g.alt,
       })),
       contactInfo: {

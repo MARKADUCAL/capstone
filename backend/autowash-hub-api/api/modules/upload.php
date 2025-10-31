@@ -189,15 +189,14 @@ class UploadHandler {
         }
 
         $filename = basename($relativePath);
-        // Prefer clean path, but some shared hosts (e.g., Hostinger) may not route nested paths correctly.
-        // Use the query-style router fallback that our routes.php supports: ?request=file/<filename>
-        $cleanUrl = $protocol . '://' . $host . $apiBase . '/file/' . $filename;
-        $queryUrl = $protocol . '://' . $host . $apiBase . '/index.php?request=file/' . $filename;
-        // Prefer the clean URL. Frontend will gracefully fall back to the query URL if needed.
-        return $cleanUrl;
+        // Prefer serving directly from public uploads path for maximum compatibility
+        $publicUrl = $protocol . '://' . $host . '/uploads/' . $filename;
+        return $publicUrl;
     }
 
     public function serveFile($filename) {
+        // Strip any query string or fragment from provided filename
+        $filename = preg_replace('/[\?#].*$/', '', (string)$filename);
         $safeName = basename($filename);
         $fullPath = $this->uploadDir . $safeName;
 

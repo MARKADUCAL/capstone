@@ -95,8 +95,9 @@ if ($method === 'OPTIONS') {
 // Handle GET requests
 if ($method === 'GET') {
     // Serve uploaded files via API to bypass static hosting restrictions
-    if (strpos($request, 'file/') !== false) {
-        $parts = explode('/', $request);
+    $pathOnly = parse_url($request, PHP_URL_PATH);
+    if ($pathOnly && strpos($pathOnly, 'file/') !== false) {
+        $parts = explode('/', $pathOnly);
         $filename = end($parts);
         $uploadHandler->serveFile($filename);
         exit();

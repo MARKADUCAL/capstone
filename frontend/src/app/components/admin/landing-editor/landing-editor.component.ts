@@ -127,16 +127,22 @@ export class LandingEditorComponent implements OnInit {
           this.content = this.landingPageService.convertToFrontendFormat(
             response.payload
           );
-          // Normalize any legacy query-style file URLs to clean path style
+          // Normalize any legacy query-style or API file URLs to direct /uploads paths
           const normalize = (url: string | undefined | null): string => {
             if (!url) return '';
             const val = String(url);
-            const match = val.match(/index\.php\?request=file\/([^&#]+)/);
-            if (match && match[1]) {
+            const q = val.match(/index\.php\?request=file\/([^&#]+)/);
+            if (q && q[1]) {
               const base = val
                 .split('/index.php?request=file/')[0]
                 .replace(/\/$/, '');
-              return `${base}/file/${match[1]}`;
+              return `${base.replace(/\/api$/, '')}/uploads/${q[1]}`;
+            }
+            const api = val.match(/\/api\/file\/([^\/?#]+)/);
+            if (api && api[1]) {
+              return val
+                .replace(/\/api\/file\/[^\/?#]+$/, `/uploads/${api[1]}`)
+                .replace(/\/api\//, '/');
             }
             return val;
           };
@@ -626,10 +632,14 @@ export class LandingEditorComponent implements OnInit {
     let nextSrc = '';
 
     const cleanMatch = currentSrc.match(/\/api\/file\/([^/?#]+)$/);
-    const queryMatch = currentSrc.match(/\/api\/index\.php\?request=file\/([^&#]+)/);
+    const queryMatch = currentSrc.match(
+      /\/api\/index\.php\?request=file\/([^&#]+)/
+    );
 
     if (cleanMatch && cleanMatch[1]) {
-      nextSrc = `${apiBase}/index.php?request=file/${cleanMatch[1]}&t=${Date.now()}`;
+      nextSrc = `${apiBase}/index.php?request=file/${
+        cleanMatch[1]
+      }&t=${Date.now()}`;
     } else if (queryMatch && queryMatch[1]) {
       nextSrc = `${apiBase}/file/${queryMatch[1]}?t=${Date.now()}`;
     }
