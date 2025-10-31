@@ -127,18 +127,18 @@ export class LandingEditorComponent implements OnInit {
           this.content = this.landingPageService.convertToFrontendFormat(
             response.payload
           );
-          // Normalize any legacy file URLs to query-style to bypass host routing issues
+          // Normalize any legacy query-style file URLs to clean path style
           const normalize = (url: string | undefined | null): string => {
             if (!url) return '';
-            if (url.includes('/file/') && !url.includes('request=file/')) {
-              const parts = url.split('/file/');
-              return (
-                parts[0].replace(/\/$/, '') +
-                '/index.php?request=file/' +
-                parts[1]
-              );
+            const val = String(url);
+            const match = val.match(/index\.php\?request=file\/([^&#]+)/);
+            if (match && match[1]) {
+              const base = val
+                .split('/index.php?request=file/')[0]
+                .replace(/\/$/, '');
+              return `${base}/file/${match[1]}`;
             }
-            return url;
+            return val;
           };
           this.content.heroBackgroundUrl = normalize(
             this.content.heroBackgroundUrl
@@ -614,10 +614,29 @@ export class LandingEditorComponent implements OnInit {
   }
 
   handleImageError(event: Event): void {
-    console.error(
-      'Image failed to load:',
-      (event.target as HTMLImageElement).src
-    );
-    // Optionally show an error message or handle the broken image
+    const img = event.target as HTMLImageElement;
+    const currentSrc = img?.src || '';
+    console.error('Image failed to load:', currentSrc);
+
+    // Prevent infinite swap loops
+    const attempts = Number((img as any).dataset?.attempts || 0);
+    if (attempts > 2) return;
+
+    const apiBase = environment.apiUrl.replace(/\/$/, '');
+    let nextSrc = '';
+
+    const cleanMatch = currentSrc.match(/\/api\/file\/([^/?#]+)$/);
+    const queryMatch = currentSrc.match(/\/api\/index\.php\?request=file\/([^&#]+)/);
+
+    if (cleanMatch && cleanMatch[1]) {
+      nextSrc = `${apiBase}/index.php?request=file/${cleanMatch[1]}&t=${Date.now()}`;
+    } else if (queryMatch && queryMatch[1]) {
+      nextSrc = `${apiBase}/file/${queryMatch[1]}?t=${Date.now()}`;
+    }
+
+    if (nextSrc) {
+      (img as any).dataset = { ...(img as any).dataset, attempts: String(attempts + 1) };
+      img.src = nextSrc;
+    }
   }
 }

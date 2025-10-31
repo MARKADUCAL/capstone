@@ -193,8 +193,8 @@ class UploadHandler {
         // Use the query-style router fallback that our routes.php supports: ?request=file/<filename>
         $cleanUrl = $protocol . '://' . $host . $apiBase . '/file/' . $filename;
         $queryUrl = $protocol . '://' . $host . $apiBase . '/index.php?request=file/' . $filename;
-        // Return the query-based URL to maximize compatibility with host routing/WAF rules
-        return $queryUrl;
+        // Prefer the clean URL. Frontend will gracefully fall back to the query URL if needed.
+        return $cleanUrl;
     }
 
     public function serveFile($filename) {
