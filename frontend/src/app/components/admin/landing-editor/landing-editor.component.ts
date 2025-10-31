@@ -619,7 +619,7 @@ export class LandingEditorComponent implements OnInit {
     console.error('Image failed to load:', currentSrc);
 
     // Prevent infinite swap loops
-    const attempts = Number((img as any).dataset?.attempts || 0);
+    const attempts = Number(img.getAttribute('data-attempts') || 0);
     if (attempts > 2) return;
 
     const apiBase = environment.apiUrl.replace(/\/$/, '');
@@ -635,7 +635,7 @@ export class LandingEditorComponent implements OnInit {
     }
 
     if (nextSrc) {
-      (img as any).dataset = { ...(img as any).dataset, attempts: String(attempts + 1) };
+      img.setAttribute('data-attempts', String(attempts + 1));
       img.src = nextSrc;
     }
   }
