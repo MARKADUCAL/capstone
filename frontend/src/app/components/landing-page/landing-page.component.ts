@@ -106,51 +106,14 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     private http: HttpClient
   ) {}
 
-  // Dynamic content (editable via admin pages)
-  content: FrontendLandingPageContent = {
-    heroTitle: 'CARWASHING MADE EASY',
-    heroDescription:
-      'AutoWash Hub is one of the most convenient indoor, in-bay, and outdoor carwash specialists offering quality services including body wash, interior vacuum, and more.',
-    heroBackgroundUrl: 'assets/homebackground.png',
-    services: [
-      { name: 'BASIC CAR WASH', imageUrl: 'assets/basiccarwash.png' },
-      { name: 'TIRE BLACK', imageUrl: 'assets/tireblack.png' },
-      { name: 'BODY WAX', imageUrl: 'assets/bodywax.png' },
-      { name: 'VACUUM', imageUrl: 'assets/vacuum.png' },
-    ],
-    galleryImages: [
-      { url: 'assets/car1.png', alt: 'Car 1' },
-      { url: 'assets/car2.png', alt: 'Car 2' },
-      { url: 'assets/car3.png', alt: 'Car 3' },
-      { url: 'assets/car4.png', alt: 'Car 4' },
-      { url: 'assets/car5.png', alt: 'Car 5' },
-      { url: 'assets/car6.png', alt: 'Car 6' },
-    ],
-    contactInfo: {
-      address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-      openingHours: 'MON - FRI, 8:00am - 9:00pm',
-      phone: '09123456789',
-      email: 'Example123email.com',
-    },
-    footer: {
-      address: '1234 Sunset Avenue, Downtown, Los Angeles, CA 90012',
-      phone: '09123456789',
-      email: 'info@autowashhub.com',
-      copyright:
-        'AutoWash Hub © 2025. All rights reserved. | Privacy Policy | Terms of Service',
-      facebook: '#',
-      instagram: '#',
-      twitter: '#',
-      tiktok: '#',
-    },
-  };
+  // Dynamic content loaded from database
+  content: FrontendLandingPageContent | null = null;
 
   ngOnInit() {
     // Only fetch on the client to avoid SSR build-time API calls
     if (isPlatformBrowser(this.platformId)) {
       this.loadLandingPageContent();
       this.loadPricingData();
-      this.loadServicesData();
     }
   }
 
@@ -165,8 +128,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           response.payload
         ) {
           const backendContent = response.payload;
-          this.content =
+          const convertedContent =
             this.landingPageService.convertToFrontendFormat(backendContent);
+
           // Normalize legacy file URLs to query-style to satisfy host routing/WAF
           const normalize = (url: string | undefined | null): string => {
             if (!url) return '';
@@ -180,15 +144,19 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             }
             return url;
           };
-          this.content.heroBackgroundUrl = normalize(
-            this.content.heroBackgroundUrl
+          convertedContent.heroBackgroundUrl = normalize(
+            convertedContent.heroBackgroundUrl
           );
-          this.content.galleryImages = (this.content.galleryImages || []).map(
-            (g) => ({
-              ...g,
-              url: normalize(g.url),
-            })
-          );
+          convertedContent.galleryImages = (
+            convertedContent.galleryImages || []
+          ).map((g: GalleryImage) => ({
+            ...g,
+            url: normalize(g.url),
+          }));
+
+          // Assign to this.content after normalization
+          this.content = convertedContent;
+
           // Clear old cache and save fresh data
           this.clearLocalStorageCache();
           this.saveToLocalStorage();
@@ -369,7 +337,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   private saveToLocalStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (!isPlatformBrowser(this.platformId) || !this.content) return;
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content));
     } catch (e) {}
@@ -543,40 +511,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Services methods
-  loadServicesData(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.servicesLoading = true;
-    this.servicesError = '';
-
-    // Load service categories from database
-    this.http
-      .get<any>(`${environment.apiUrl}/get_service_categories`)
-      .subscribe({
-        next: (response) => {
-          if (response.status && response.status.remarks === 'success') {
-            // Convert service categories to services format
-            this.services = response.payload.service_categories.map(
-              (category: any) => ({
-                name: category.name.toUpperCase(),
-                imageUrl: this.getServiceImageUrl(category.name),
-              })
-            );
-            console.log('Loaded services:', this.services);
-          } else {
-            console.error('Failed to load services:', response);
-            this.services = this.getDefaultServices();
-          }
-          this.servicesLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading services:', error);
-          this.services = this.getDefaultServices();
-          this.servicesLoading = false;
-        },
-      });
-  }
-
   private getServiceImageUrl(serviceName: string): string {
     // Map service names to image URLs
     const serviceImages: { [key: string]: string } = {
@@ -599,14 +533,5 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
     // Default image if no match found
     return 'assets/basiccarwash.png';
-  }
-
-  private getDefaultServices(): Service[] {
-    return [
-      { name: 'BASIC CAR WASH', imageUrl: 'assets/basiccarwash.png' },
-      { name: 'TIRE BLACK', imageUrl: 'assets/tireblack.png' },
-      { name: 'BODY WAX', imageUrl: 'assets/bodywax.png' },
-      { name: 'VACUUM', imageUrl: 'assets/vacuum.png' },
-    ];
   }
 }
