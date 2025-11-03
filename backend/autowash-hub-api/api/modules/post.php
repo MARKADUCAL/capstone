@@ -229,75 +229,15 @@ class Post extends GlobalMethods
                 return $this->sendPayload(null, "failed", "Email already registered", 400);
             }
 
-            // Require and validate 6-digit OTP code
-            if (!isset($data->verification_code) || !preg_match('/^\\d{6}$/', $data->verification_code)) {
-                return $this->sendPayload(null, "failed", "A 6-digit verification code is required", 400);
-            }
-
-            // Ensure email_verification_codes table exists
-            try {
-                $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(255) NOT NULL,
-                    code VARCHAR(6) NOT NULL,
-                    expires_at DATETIME NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE KEY unique_email (email),
-                    KEY idx_code (code)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-            } catch (\PDOException $e) {
-                error_log('Failed to ensure email_verification_codes table: ' . $e->getMessage());
-            }
-
-            $otpSql = "SELECT code, expires_at FROM email_verification_codes WHERE email = ?";
-            $otpStmt = $this->pdo->prepare($otpSql);
-            $otpStmt->execute([$data->email]);
-            $otpRow = $otpStmt->fetch(PDO::FETCH_ASSOC);
-            if (!$otpRow) {
-                return $this->sendPayload(null, "failed", "No verification code requested for this email", 400);
-            }
-            if ($otpRow['code'] !== $data->verification_code) {
-                return $this->sendPayload(null, "failed", "Invalid verification code", 400);
-            }
-            if (strtotime($otpRow['expires_at']) < time()) {
-                return $this->sendPayload(null, "failed", "Verification code has expired", 400);
-            }
-
-        
-
             // Find the next available ID starting from 1
 
             $nextId = $this->findNextAvailableCustomerId();
 
             
 
-            // Ensure email verification schema exists (tokens table and is_verified column)
-            try {
-                $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_tokens (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(255) NOT NULL,
-                    token VARCHAR(255) NOT NULL,
-                    expires_at DATETIME NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE KEY unique_email (email),
-                    KEY idx_token (token)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-                try {
-                    $this->pdo->exec("ALTER TABLE customers ADD COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0");
-                } catch (\PDOException $e) {
-                    // Column may already exist; ignore
-                }
-            } catch (\PDOException $e) {
-                error_log("Email verification schema ensure failed: " . $e->getMessage());
-            }
-
             // Proceed with registration using custom ID
 
-            $sql = "INSERT INTO customers (id, first_name, last_name, email, phone, password" .
-                   ($this->columnExists($this->pdo, 'customers', 'is_verified') ? ", is_verified" : "") .
-                   ") VALUES (?, ?, ?, ?, ?, ?" .
-                   ($this->columnExists($this->pdo, 'customers', 'is_verified') ? ", 0" : "") .
-                   ")";
+            $sql = "INSERT INTO customers (id, first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?, ?)";
 
             
 
@@ -326,11 +266,6 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
-                // Cleanup used OTP
-                try {
-                    $del = $this->pdo->prepare("DELETE FROM email_verification_codes WHERE email = ?");
-                    $del->execute([$data->email]);
-                } catch (\PDOException $e) {}
 
                 return $this->sendPayload(null, "success", "Successfully registered", 200);
 
@@ -393,13 +328,6 @@ class Post extends GlobalMethods
             // Check if customer exists and verify password
 
             if ($customer && password_verify($data->password, $customer['password'])) {
-                // Enforce email verification if supported by schema
-                if ($this->columnExists($this->pdo, 'customers', 'is_verified')) {
-                    $isVerified = isset($customer['is_verified']) ? ((int)$customer['is_verified'] === 1) : false;
-                    if (!$isVerified) {
-                        return $this->sendPayload(null, "failed", "Please verify your email before logging in.", 403);
-                    }
-                }
 
                 // Generate JWT token
 
@@ -1144,7 +1072,7 @@ class Post extends GlobalMethods
                 return $this->sendPayload(
                     null,
                     "failed",
-                    "You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.",
+                    "You already have an active booking. Please wait until it's completed, cancelled, or rejected before making a new one.",
                     400
                 );
             }

@@ -254,12 +254,7 @@ if ($method === 'GET') {
 </html>';
         exit();
     }
-    // Email verification endpoint (GET with token)
-    if (strpos($request, 'verify_customer_email') !== false) {
-        $result = $post->verify_customer_email();
-        echo json_encode($result);
-        exit();
-    }
+    
 
     if (strpos($request, 'get_customer_count') !== false) {
         $result = $get->get_customer_count();
@@ -589,11 +584,7 @@ if ($method === 'POST') {
         exit();
     }
 
-    if (strpos($request, 'send_registration_code') !== false) {
-        $result = $post->send_registration_code($data);
-        echo json_encode($result);
-        exit();
-    }
+    
     
     if (strpos($request, 'login_customer') !== false) {
         $result = $post->login_customer($data);
