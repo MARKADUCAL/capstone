@@ -23,6 +23,7 @@ export class CustomerRegisterComponent {
     phone: '',
     password: '',
     confirm_password: '',
+    verification_code: '',
   };
 
   termsAccepted = false;
@@ -57,9 +58,17 @@ export class CustomerRegisterComponent {
       !this.customer.email ||
       !this.customer.phone ||
       !this.customer.password ||
-      !this.customer.confirm_password
+      !this.customer.confirm_password ||
+      !this.customer.verification_code
     ) {
       this.errorMessage = 'Please fill in all required fields';
+      this.isLoading = false;
+      return;
+    }
+    // Verification code validation
+    if (!/^\d{6}$/.test(this.customer.verification_code)) {
+      this.errorMessage =
+        'Enter the 6-digit verification code sent to your email';
       this.isLoading = false;
       return;
     }
@@ -98,6 +107,7 @@ export class CustomerRegisterComponent {
       email: this.customer.email,
       phone: this.customer.phone,
       password: this.customer.password,
+      verification_code: this.customer.verification_code,
     };
 
     console.log('Sending registration data to API:', {
@@ -170,6 +180,68 @@ export class CustomerRegisterComponent {
           });
 
           this.errorMessage = errorMessage;
+        },
+      });
+  }
+
+  sendVerificationCode(): void {
+    // Basic email validation before calling API
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!this.customer.email || !emailRegex.test(this.customer.email)) {
+      Swal.fire({
+        title: 'Invalid Email',
+        text: 'Enter a valid email before requesting a code.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    this.isLoading = true;
+    this.http
+      .post(
+        `${environment.apiUrl}/send_registration_code`,
+        { email: this.customer.email },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          if (res && res.status && res.status.remarks === 'success') {
+            Swal.fire({
+              title: 'Code Sent',
+              text: 'A 6-digit verification code was sent to your email.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            });
+          } else {
+            const message =
+              (res && res.status && res.status.message) ||
+              'Failed to send code.';
+            Swal.fire({
+              title: 'Error',
+              text: message,
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          const message =
+            (error &&
+              error.error &&
+              error.error.status &&
+              error.error.status.message) ||
+            'Failed to send verification code. Please try again.';
+          Swal.fire({
+            title: 'Error',
+            text: message,
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
         },
       });
   }

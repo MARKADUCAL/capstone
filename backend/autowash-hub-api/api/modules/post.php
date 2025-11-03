@@ -221,21 +221,46 @@ class Post extends GlobalMethods
         try {
 
             // Check if email already exists
-
             $sql = "SELECT COUNT(*) FROM customers WHERE email = ?";
-
             $statement = $this->pdo->prepare($sql);
-
             $statement->execute([$data->email]);
-
             $count = $statement->fetchColumn();
-
-
-
             if ($count > 0) {
-
                 return $this->sendPayload(null, "failed", "Email already registered", 400);
+            }
 
+            // Require and validate 6-digit OTP code
+            if (!isset($data->verification_code) || !preg_match('/^\\d{6}$/', $data->verification_code)) {
+                return $this->sendPayload(null, "failed", "A 6-digit verification code is required", 400);
+            }
+
+            // Ensure email_verification_codes table exists
+            try {
+                $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    email VARCHAR(255) NOT NULL,
+                    code VARCHAR(6) NOT NULL,
+                    expires_at DATETIME NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY unique_email (email),
+                    KEY idx_code (code)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            } catch (\PDOException $e) {
+                error_log('Failed to ensure email_verification_codes table: ' . $e->getMessage());
+            }
+
+            $otpSql = "SELECT code, expires_at FROM email_verification_codes WHERE email = ?";
+            $otpStmt = $this->pdo->prepare($otpSql);
+            $otpStmt->execute([$data->email]);
+            $otpRow = $otpStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$otpRow) {
+                return $this->sendPayload(null, "failed", "No verification code requested for this email", 400);
+            }
+            if ($otpRow['code'] !== $data->verification_code) {
+                return $this->sendPayload(null, "failed", "Invalid verification code", 400);
+            }
+            if (strtotime($otpRow['expires_at']) < time()) {
+                return $this->sendPayload(null, "failed", "Verification code has expired", 400);
             }
 
         
@@ -301,37 +326,13 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
-                // Generate verification token
-                $verifyToken = bin2hex(random_bytes(32));
-                $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
-
+                // Cleanup used OTP
                 try {
-                    $sqlTok = "INSERT INTO email_verification_tokens (email, token, expires_at) VALUES (?, ?, ?) 
-                               ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP";
-                    $stmtTok = $this->pdo->prepare($sqlTok);
-                    $stmtTok->execute([$data->email, $verifyToken, $expiresAt]);
-                } catch (\PDOException $e) {
-                    error_log("Storing verification token failed: " . $e->getMessage());
-                }
+                    $del = $this->pdo->prepare("DELETE FROM email_verification_codes WHERE email = ?");
+                    $del->execute([$data->email]);
+                } catch (\PDOException $e) {}
 
-                $emailSent = false;
-                try {
-                    if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-                        $this->sendVerificationEmail($data->email, $data->first_name ?? '', $verifyToken);
-                        $emailSent = true;
-                    }
-                } catch (\Throwable $e) {
-                    error_log("Sending verification email failed: " . $e->getMessage());
-                }
-
-                return $this->sendPayload([
-                    'email' => $data->email,
-                    'verification' => [
-                        'sent' => $emailSent,
-                        'token' => $verifyToken,
-                        'expires_at' => $expiresAt
-                    ]
-                ], "success", "Successfully registered. Please verify your email.", 200);
+                return $this->sendPayload(null, "success", "Successfully registered", 200);
 
             } else {
 
@@ -3499,6 +3500,86 @@ class Post extends GlobalMethods
             error_log('Email verification error: ' . $e->getMessage());
             return $this->sendPayload(null, 'failed', 'An error occurred while verifying your email', 500);
         }
+    }
+
+    public function send_registration_code($data) {
+        if (!isset($data->email) || !filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendPayload(null, 'failed', 'Valid email is required', 400);
+        }
+
+        try {
+            // Fail if email already registered
+            $sql = "SELECT COUNT(*) FROM customers WHERE email = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->email]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                return $this->sendPayload(null, 'failed', 'Email already registered', 400);
+            }
+
+            // Ensure table exists
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                code VARCHAR(6) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_email (email),
+                KEY idx_code (code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Generate code and upsert
+            $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+            $up = $this->pdo->prepare("INSERT INTO email_verification_codes (email, code, expires_at) VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE code = VALUES(code), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP");
+            $up->execute([$data->email, $code, $expiresAt]);
+
+            // Send email via PHPMailer if available
+            $sent = false;
+            try {
+                if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+                    $this->sendOtpEmail($data->email, $code);
+                    $sent = true;
+                }
+            } catch (\Throwable $e) {
+                error_log('OTP email send failed: ' . $e->getMessage());
+            }
+
+            return $this->sendPayload([
+                'email' => $data->email,
+                'sent' => $sent,
+                // Include for testing only; remove in production
+                'code' => $code,
+                'expires_at' => $expiresAt
+            ], 'success', 'Verification code sent', 200);
+
+        } catch (\PDOException $e) {
+            error_log('send_registration_code error: ' . $e->getMessage());
+            return $this->sendPayload(null, 'failed', 'Unable to send verification code', 500);
+        }
+    }
+
+    private function sendOtpEmail(string $email, string $code): void {
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USER') ?: '';
+        $mail->Password = getenv('SMTP_PASS') ?: '';
+        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
+        $mail->Port = (int)(getenv('SMTP_PORT') ?: 587);
+
+        $fromEmail = getenv('MAIL_FROM_ADDRESS') ?: (getenv('SMTP_USER') ?: 'no-reply@example.com');
+        $fromName = getenv('MAIL_FROM_NAME') ?: 'AutoWash Hub';
+
+        $mail->setFrom($fromEmail, $fromName);
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Your verification code';
+        $mail->Body = '<p>Your verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">' . htmlspecialchars($code) . '</p><p>This code expires in 10 minutes.</p>';
+        $mail->AltBody = "Your verification code is: {$code}. It expires in 10 minutes.";
+        $mail->send();
     }
 
     // Landing Page Content Management Methods
