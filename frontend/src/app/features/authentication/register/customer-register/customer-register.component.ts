@@ -118,14 +118,14 @@ export class CustomerRegisterComponent {
             response.status &&
             response.status.remarks === 'success'
           ) {
-            // Show success message before redirecting
+            // Show success message guiding email verification
             Swal.fire({
-              title: 'Registration Complete!',
-              text: 'Your account has been created successfully!',
+              title: 'Verify your email',
+              text: "We've sent a verification link to your email. Please verify to activate your account.",
               icon: 'success',
-              confirmButtonText: 'OK',
+              confirmButtonText: 'Go to Login',
             }).then(() => {
-              this.router.navigate(['/customer']);
+              this.router.navigate(['/login']);
             });
           } else {
             const errorMessage =

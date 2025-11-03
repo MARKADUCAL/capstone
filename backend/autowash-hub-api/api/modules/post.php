@@ -246,11 +246,33 @@ class Post extends GlobalMethods
 
             
 
+            // Ensure email verification schema exists (tokens table and is_verified column)
+            try {
+                $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_tokens (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    email VARCHAR(255) NOT NULL,
+                    token VARCHAR(255) NOT NULL,
+                    expires_at DATETIME NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY unique_email (email),
+                    KEY idx_token (token)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+                try {
+                    $this->pdo->exec("ALTER TABLE customers ADD COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0");
+                } catch (\PDOException $e) {
+                    // Column may already exist; ignore
+                }
+            } catch (\PDOException $e) {
+                error_log("Email verification schema ensure failed: " . $e->getMessage());
+            }
+
             // Proceed with registration using custom ID
 
-            $sql = "INSERT INTO customers (id, first_name, last_name, email, phone, password) 
-
-                    VALUES (?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO customers (id, first_name, last_name, email, phone, password" .
+                   ($this->columnExists($this->pdo, 'customers', 'is_verified') ? ", is_verified" : "") .
+                   ") VALUES (?, ?, ?, ?, ?, ?" .
+                   ($this->columnExists($this->pdo, 'customers', 'is_verified') ? ", 0" : "") .
+                   ")";
 
             
 
@@ -279,8 +301,37 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
+                // Generate verification token
+                $verifyToken = bin2hex(random_bytes(32));
+                $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-                return $this->sendPayload(null, "success", "Successfully registered", 200);
+                try {
+                    $sqlTok = "INSERT INTO email_verification_tokens (email, token, expires_at) VALUES (?, ?, ?) 
+                               ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP";
+                    $stmtTok = $this->pdo->prepare($sqlTok);
+                    $stmtTok->execute([$data->email, $verifyToken, $expiresAt]);
+                } catch (\PDOException $e) {
+                    error_log("Storing verification token failed: " . $e->getMessage());
+                }
+
+                $emailSent = false;
+                try {
+                    if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+                        $this->sendVerificationEmail($data->email, $data->first_name ?? '', $verifyToken);
+                        $emailSent = true;
+                    }
+                } catch (\Throwable $e) {
+                    error_log("Sending verification email failed: " . $e->getMessage());
+                }
+
+                return $this->sendPayload([
+                    'email' => $data->email,
+                    'verification' => [
+                        'sent' => $emailSent,
+                        'token' => $verifyToken,
+                        'expires_at' => $expiresAt
+                    ]
+                ], "success", "Successfully registered. Please verify your email.", 200);
 
             } else {
 
@@ -341,6 +392,13 @@ class Post extends GlobalMethods
             // Check if customer exists and verify password
 
             if ($customer && password_verify($data->password, $customer['password'])) {
+                // Enforce email verification if supported by schema
+                if ($this->columnExists($this->pdo, 'customers', 'is_verified')) {
+                    $isVerified = isset($customer['is_verified']) ? ((int)$customer['is_verified'] === 1) : false;
+                    if (!$isVerified) {
+                        return $this->sendPayload(null, "failed", "Please verify your email before logging in.", 403);
+                    }
+                }
 
                 // Generate JWT token
 
@@ -3362,6 +3420,84 @@ class Post extends GlobalMethods
         } catch (\PDOException $e) {
             error_log("Password reset error: " . $e->getMessage());
             return $this->sendPayload(null, "failed", "An error occurred while resetting your password", 500);
+        }
+    }
+
+    private function columnExists(\PDO $pdo, string $table, string $column): bool {
+        try {
+            $stmt = $pdo->prepare("SHOW COLUMNS FROM `{$table}` LIKE ?");
+            $stmt->execute([$column]);
+            return (bool)$stmt->fetch();
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    private function sendVerificationEmail(string $email, string $firstName, string $token): void {
+        // Build verification URL (served by this API)
+        $apiBase = rtrim((getenv('API_BASE_URL') ?: ''), '/');
+        $verifyUrl = $apiBase ? ($apiBase . '/verify_customer_email?token=' . urlencode($token))
+                              : (rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/verify_customer_email?token=' . urlencode($token));
+
+        // Use PHPMailer if available
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USER') ?: '';
+        $mail->Password = getenv('SMTP_PASS') ?: '';
+        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
+        $mail->Port = (int)(getenv('SMTP_PORT') ?: 587);
+
+        $fromEmail = getenv('MAIL_FROM_ADDRESS') ?: (getenv('SMTP_USER') ?: 'no-reply@example.com');
+        $fromName = getenv('MAIL_FROM_NAME') ?: 'AutoWash Hub';
+
+        $mail->setFrom($fromEmail, $fromName);
+        $mail->addAddress($email, $firstName ?: $email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Verify your email address';
+        $mail->Body = '<p>Hi ' . htmlspecialchars($firstName ?: 'there') . ',</p>' .
+                      '<p>Thanks for registering. Please verify your email by clicking the button below:</p>' .
+                      '<p><a href="' . htmlspecialchars($verifyUrl) . '" style="display:inline-block;padding:10px 16px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px">Verify Email</a></p>' .
+                      '<p>If the button does not work, copy and paste this link into your browser:<br>' . htmlspecialchars($verifyUrl) . '</p>' .
+                      '<p>This link will expire in 24 hours.</p>';
+        $mail->AltBody = "Please verify your email by visiting: {$verifyUrl}";
+
+        $mail->send();
+    }
+
+    public function verify_customer_email(): array {
+        $token = isset($_GET['token']) ? $_GET['token'] : '';
+        if (!$token) {
+            return $this->sendPayload(null, 'failed', 'Verification token is required', 400);
+        }
+
+        try {
+            $sql = "SELECT email, expires_at FROM email_verification_tokens WHERE token = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$token]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                return $this->sendPayload(null, 'failed', 'Invalid or expired verification token', 400);
+            }
+            if (strtotime($row['expires_at']) < time()) {
+                $del = $this->pdo->prepare("DELETE FROM email_verification_tokens WHERE token = ?");
+                $del->execute([$token]);
+                return $this->sendPayload(null, 'failed', 'Verification token has expired', 400);
+            }
+
+            if ($this->columnExists($this->pdo, 'customers', 'is_verified')) {
+                $up = $this->pdo->prepare("UPDATE customers SET is_verified = 1 WHERE email = ?");
+                $up->execute([$row['email']]);
+            }
+
+            $del = $this->pdo->prepare("DELETE FROM email_verification_tokens WHERE token = ?");
+            $del->execute([$token]);
+
+            return $this->sendPayload(['email' => $row['email']], 'success', 'Email verified successfully', 200);
+        } catch (\PDOException $e) {
+            error_log('Email verification error: ' . $e->getMessage());
+            return $this->sendPayload(null, 'failed', 'An error occurred while verifying your email', 500);
         }
     }
 

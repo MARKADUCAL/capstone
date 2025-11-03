@@ -57,6 +57,13 @@ require_once "./config/database.php";
 // Manually include JWT library to ensure it's loaded
 require_once "./vendor/firebase/php-jwt/JWT.php";
 
+// Optionally include PHPMailer if available
+if (file_exists(__DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php')) {
+    require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
+    require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
+    require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
+}
+
 // Import JWT for token validation
 use Firebase\JWT\JWT;
 
@@ -247,7 +254,13 @@ if ($method === 'GET') {
 </html>';
         exit();
     }
-    
+    // Email verification endpoint (GET with token)
+    if (strpos($request, 'verify_customer_email') !== false) {
+        $result = $post->verify_customer_email();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_customer_count') !== false) {
         $result = $get->get_customer_count();
         echo json_encode($result);
