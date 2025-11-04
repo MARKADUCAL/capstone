@@ -844,12 +844,14 @@ if ($method === 'PUT') {
     }
 
     if (strpos($request, 'approve_employee') !== false) {
+        header('Content-Type: application/json');
         $result = $put->approve_employee($data);
         echo json_encode($result);
         exit();
     }
 
     if (strpos($request, 'reject_employee') !== false) {
+        header('Content-Type: application/json');
         $result = $put->reject_employee($data);
         echo json_encode($result);
         exit();

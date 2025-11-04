@@ -221,7 +221,7 @@ class Put {
         return array(
             "status" => $status,
             "payload" => $payload,
-            "timestamp" => date_create()
+            "timestamp" => date('Y-m-d H:i:s')
         );
     }
 

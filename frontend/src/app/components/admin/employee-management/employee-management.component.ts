@@ -248,9 +248,31 @@ export class EmployeeManagementComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error approving employee:', error);
+              console.error('Error details:', {
+                status: error.status,
+                statusText: error.statusText,
+                error: error.error,
+                message: error.message
+              });
+              
+              // Try to parse the error response
+              let errorMessage = 'Error approving employee. Please try again.';
+              if (error.error) {
+                if (typeof error.error === 'string') {
+                  try {
+                    const parsed = JSON.parse(error.error);
+                    errorMessage = parsed?.status?.message || errorMessage;
+                  } catch (e) {
+                    errorMessage = error.error;
+                  }
+                } else if (error.error.status?.message) {
+                  errorMessage = error.error.status.message;
+                }
+              }
+              
               Swal.fire({
                 title: 'Error!',
-                text: error?.error?.status?.message || 'Error approving employee. Please try again.',
+                text: errorMessage,
                 icon: 'error',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#f44336',
@@ -306,9 +328,31 @@ export class EmployeeManagementComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error rejecting employee:', error);
+              console.error('Error details:', {
+                status: error.status,
+                statusText: error.statusText,
+                error: error.error,
+                message: error.message
+              });
+              
+              // Try to parse the error response
+              let errorMessage = 'Error rejecting employee. Please try again.';
+              if (error.error) {
+                if (typeof error.error === 'string') {
+                  try {
+                    const parsed = JSON.parse(error.error);
+                    errorMessage = parsed?.status?.message || errorMessage;
+                  } catch (e) {
+                    errorMessage = error.error;
+                  }
+                } else if (error.error.status?.message) {
+                  errorMessage = error.error.status.message;
+                }
+              }
+              
               Swal.fire({
                 title: 'Error!',
-                text: error?.error?.status?.message || 'Error rejecting employee. Please try again.',
+                text: errorMessage,
                 icon: 'error',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#f44336',
