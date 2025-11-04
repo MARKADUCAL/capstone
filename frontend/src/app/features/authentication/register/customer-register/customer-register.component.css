@@ -422,6 +422,44 @@ input.ng-valid {
   }
 }
 
+/* Password input container (match login positioning) */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  padding-right: 45px; /* room for the toggle button inside input */
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #78bedb;
+}
+
+.password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* Landscape orientation adjustments for mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .register-container {
