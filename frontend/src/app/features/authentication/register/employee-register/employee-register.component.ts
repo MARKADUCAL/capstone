@@ -189,7 +189,7 @@ export class EmployeeRegisterComponent implements OnInit {
               try {
                 Swal.fire({
                   title: 'Registration Complete!',
-                  text: 'Your account has been created successfully!',
+                  text: 'Your account has been created successfully! Your registration is pending admin approval. You will be able to login once your account is approved.',
                   icon: 'success',
                   confirmButtonText: 'OK',
                 }).then(() => {

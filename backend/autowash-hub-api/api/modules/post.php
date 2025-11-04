@@ -750,10 +750,13 @@ class Post extends GlobalMethods
 
 
             // Proceed with registration (explicit id to keep sequence consistent)
+            // New registrations are set to is_approved = 0 (pending) by default
+            // If is_approved is explicitly provided (e.g., by admin), use that value
+            $isApproved = isset($data->is_approved) ? (int)$data->is_approved : 0;
 
-            $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position) 
+            $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position, is_approved) 
 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
 
@@ -779,7 +782,9 @@ class Post extends GlobalMethods
 
                 $hashedPassword,
 
-                $data->position
+                $data->position,
+
+                $isApproved // is_approved: 0 for self-registration, 1 for admin-created
 
             ]);
 
@@ -916,6 +921,12 @@ class Post extends GlobalMethods
             // Check if employee exists and verify password
 
             if ($employee && password_verify($data->password, $employee['password'])) {
+
+                // Check if employee is approved
+                $isApproved = isset($employee['is_approved']) ? (int)$employee['is_approved'] : 1;
+                if ($isApproved !== 1) {
+                    return $this->sendPayload(null, "failed", "Your account is pending admin approval. Please wait for approval before logging in.", 403);
+                }
 
                 // Generate JWT token
 

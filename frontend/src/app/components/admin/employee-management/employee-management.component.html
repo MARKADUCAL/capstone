@@ -152,6 +152,7 @@
                 <th>Phone</th>
                 <th>Role</th>
                 <th>Registered</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -162,6 +163,24 @@
                 <td>{{ emp.phone }}</td>
                 <td>{{ emp.role }}</td>
                 <td>{{ emp.registrationDate }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="action-btn approve-btn"
+                      (click)="approveEmployee(emp)"
+                      title="Approve Employee"
+                    >
+                      <mat-icon>check_circle</mat-icon>
+                    </button>
+                    <button
+                      class="action-btn reject-btn"
+                      (click)="rejectEmployee(emp)"
+                      title="Reject Employee"
+                    >
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>

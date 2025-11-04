@@ -842,6 +842,18 @@ if ($method === 'PUT') {
         echo json_encode($result);
         exit();
     }
+
+    if (strpos($request, 'approve_employee') !== false) {
+        $result = $put->approve_employee($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'reject_employee') !== false) {
+        $result = $put->reject_employee($data);
+        echo json_encode($result);
+        exit();
+    }
     
 
 

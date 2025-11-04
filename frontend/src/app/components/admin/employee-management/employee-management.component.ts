@@ -186,6 +186,122 @@ export class EmployeeManagementComponent implements OnInit {
     this.isPendingModalOpen = false;
   }
 
+  approveEmployee(employee: Employee): void {
+    Swal.fire({
+      title: 'Approve Employee?',
+      text: `Are you sure you want to approve ${employee.name}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#4CAF50',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, approve',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http
+          .put(`${this.apiUrl}/approve_employee`, { id: employee.id })
+          .subscribe({
+            next: (response: any) => {
+              if (
+                response &&
+                response.status &&
+                response.status.remarks === 'success'
+              ) {
+                Swal.fire({
+                  title: 'Approved!',
+                  text: `${employee.name} has been approved successfully.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#4CAF50',
+                });
+                // Remove from pending list and reload employees
+                this.pendingEmployees = this.pendingEmployees.filter(
+                  (e) => e.id !== employee.id
+                );
+                this.loadEmployees();
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: response?.status?.message || 'Failed to approve employee',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#f44336',
+                });
+              }
+            },
+            error: (error) => {
+              console.error('Error approving employee:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.status?.message || 'Error approving employee. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            },
+          });
+      }
+    });
+  }
+
+  rejectEmployee(employee: Employee): void {
+    Swal.fire({
+      title: 'Reject Employee?',
+      text: `Are you sure you want to reject ${employee.name}'s registration? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, reject',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http
+          .put(`${this.apiUrl}/reject_employee`, { id: employee.id })
+          .subscribe({
+            next: (response: any) => {
+              if (
+                response &&
+                response.status &&
+                response.status.remarks === 'success'
+              ) {
+                Swal.fire({
+                  title: 'Rejected!',
+                  text: `${employee.name}'s registration has been rejected and removed.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#4CAF50',
+                });
+                // Remove from pending list and reload employees
+                this.pendingEmployees = this.pendingEmployees.filter(
+                  (e) => e.id !== employee.id
+                );
+                this.loadEmployees();
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: response?.status?.message || 'Failed to reject employee',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#f44336',
+                });
+              }
+            },
+            error: (error) => {
+              console.error('Error rejecting employee:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.status?.message || 'Error rejecting employee. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            },
+          });
+      }
+    });
+  }
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -246,6 +362,7 @@ export class EmployeeManagementComponent implements OnInit {
         phone: this.newEmployee.phone,
         password: this.newEmployee.password,
         position: this.newEmployee.position,
+        is_approved: 1, // Admin-created employees are auto-approved
       };
 
       this.http

@@ -141,6 +141,47 @@ class Put {
         }
     }
 
+    public function approve_employee($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Employee ID is required", 400);
+            }
+
+            $sql = "UPDATE employees SET is_approved = 1 WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->id]);
+
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Employee approved successfully", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Employee not found", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function reject_employee($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Employee ID is required", 400);
+            }
+
+            // Delete the employee registration if rejected
+            $sql = "DELETE FROM employees WHERE id = ? AND is_approved = 0";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data->id]);
+
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Employee registration rejected and removed", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Employee not found or already approved", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     private function sendPayload($payload, $remarks, $message, $code) {
         $status = array(
             "remarks" => $remarks,

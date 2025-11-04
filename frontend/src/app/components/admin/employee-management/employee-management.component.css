@@ -187,6 +187,22 @@
   background: #d32f2f;
 }
 
+.approve-btn {
+  background: #4CAF50;
+}
+
+.approve-btn:hover {
+  background: #45a049;
+}
+
+.reject-btn {
+  background: #f44336;
+}
+
+.reject-btn:hover {
+  background: #d32f2f;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .employee-table {
