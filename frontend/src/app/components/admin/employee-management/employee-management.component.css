@@ -49,6 +49,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border: none;
+  white-space: nowrap;
 }
 
 .employee-table tbody tr {
@@ -64,6 +65,30 @@
   padding: 16px 12px;
   vertical-align: middle;
   border: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 200px;
+}
+
+.employee-table td:first-child {
+  max-width: 120px;
+  min-width: 100px;
+}
+
+.employee-table td:nth-child(2) {
+  max-width: 180px;
+  min-width: 150px;
+}
+
+.employee-table td:nth-child(3) {
+  max-width: 250px;
+  min-width: 200px;
+}
+
+.employee-table td:nth-child(4) {
+  max-width: 150px;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 /* Table Cell Specific Styles */
@@ -404,7 +429,47 @@
 
 /* Wider modal variant for tables */
 .modal-content.modal-wide {
-  max-width: 900px;
+  max-width: 1000px;
+  width: 95%;
+}
+
+/* Pending modal should be wide to accommodate table */
+.modal-body .table-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+  width: 100%;
+}
+
+.modal-body .employee-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.modal-body .employee-table th,
+.modal-body .employee-table td {
+  white-space: normal;
+  word-break: break-word;
+  max-width: none;
+  min-width: auto;
+}
+
+.modal-body .employee-table td:nth-child(1) {
+  min-width: 100px;
+}
+
+.modal-body .employee-table td:nth-child(2) {
+  min-width: 150px;
+}
+
+.modal-body .employee-table td:nth-child(3) {
+  min-width: 200px;
+}
+
+.modal-body .employee-table td:nth-child(4) {
+  white-space: normal;
+  word-break: break-all;
+  min-width: 120px;
 }
 
 .modal.show-modal .modal-content {
@@ -596,6 +661,12 @@
   .modal-content {
     width: 95%;
     margin: 10px;
+    max-width: 95%;
+  }
+
+  .modal-content.modal-wide {
+    width: 95%;
+    max-width: 95%;
   }
 
   .modal-header,
@@ -610,5 +681,24 @@
   .cancel-btn,
   .save-btn {
     width: 100%;
+  }
+
+  /* Make table scrollable horizontally in modal on mobile */
+  .modal-body .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-body .employee-table {
+    min-width: 600px;
+  }
+
+  .modal-body .employee-table td {
+    max-width: none;
+    white-space: normal;
+  }
+
+  .modal-body .employee-table td:nth-child(4) {
+    white-space: normal;
   }
 }
