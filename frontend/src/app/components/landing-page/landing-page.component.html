@@ -50,12 +50,12 @@
       : 'none'
   }"
 >
-  <div class="hero-content">
-    <h2 *ngIf="content">
+  <div class="hero-content" *ngIf="content && !isLoadingContent">
+    <h2>
       {{ content.heroTitle.split(" ").slice(0, 1).join(" ") }} <br />
       {{ content.heroTitle.split(" ").slice(1).join(" ") || "" }}
     </h2>
-    <p *ngIf="content">
+    <p>
       {{ content.heroDescription }}
     </p>
     <a (click)="onBookNowClick()" class="book-now-btn">Book Now</a>
@@ -200,7 +200,11 @@
   <h2>GALLERY</h2>
   <div class="gallery-container" *ngIf="content">
     <div class="gallery-item" *ngFor="let g of content.galleryImages">
-      <img [src]="g.url" [alt]="g.alt" [title]="g.alt" />
+      <img
+        [src]="g.url"
+        [alt]="g.alt || 'Gallery image'"
+        [title]="g.alt || 'Gallery image'"
+      />
     </div>
   </div>
 </section>

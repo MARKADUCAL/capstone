@@ -108,10 +108,18 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Dynamic content loaded from database
   content: FrontendLandingPageContent | null = null;
+  isLoadingContent = true;
 
   ngOnInit() {
     // Only fetch on the client to avoid SSR build-time API calls
     if (isPlatformBrowser(this.platformId)) {
+      // Load from localStorage immediately for instant display
+      const cachedContent = this.loadFromLocalStorage();
+      if (cachedContent) {
+        this.content = cachedContent;
+        this.isLoadingContent = false;
+      }
+      // Then fetch fresh content from API
       this.loadLandingPageContent();
       this.loadPricingData();
     }
@@ -156,6 +164,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
           // Assign to this.content after normalization
           this.content = convertedContent;
+          this.isLoadingContent = false;
 
           // Clear old cache and save fresh data
           this.clearLocalStorageCache();
@@ -170,12 +179,14 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           );
           // Try localStorage as fallback
           this.loadFromLocalStorageFallback();
+          this.isLoadingContent = false;
         }
       },
       error: (error: any) => {
         console.error('Error loading landing page content from API:', error);
         // Try localStorage as fallback
         this.loadFromLocalStorageFallback();
+        this.isLoadingContent = false;
       },
     });
   }
@@ -330,8 +341,10 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     const local = this.loadFromLocalStorage();
     if (local) {
       this.content = local;
+      this.isLoadingContent = false;
       console.log('Landing page content loaded from localStorage as fallback.');
     } else {
+      this.isLoadingContent = false;
       console.log('No cached content available, using default content.');
     }
   }
