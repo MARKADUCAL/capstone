@@ -28,8 +28,18 @@ export class CustomerRegisterComponent {
   termsAccepted = false;
   errorMessage = '';
   isLoading = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(private http: HttpClient, private router: Router) {}
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   onSubmit(): void {
     // Reset error message

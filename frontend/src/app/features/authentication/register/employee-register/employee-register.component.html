@@ -131,17 +131,28 @@
 
           <div class="form-group">
             <label for="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              [(ngModel)]="employee.password"
-              name="password"
-              placeholder="Create a password (min. 8 characters)"
-              required
-              minlength="8"
-              #password="ngModel"
-              [disabled]="isLoading"
-            />
+            <div class="password-input-container">
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="employee.password"
+                name="password"
+                placeholder="Create a password (min. 8 characters)"
+                required
+                minlength="8"
+                #password="ngModel"
+                [disabled]="isLoading"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [disabled]="isLoading"
+                aria-label="Toggle password visibility"
+              >
+                <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
             <small
               class="validation-error"
               *ngIf="password.invalid && password.touched"
@@ -151,16 +162,27 @@
 
           <div class="form-group">
             <label for="confirm_password">Confirm Password</label>
-            <input
-              id="confirm_password"
-              type="password"
-              [(ngModel)]="employee.confirm_password"
-              name="confirm_password"
-              placeholder="Confirm your password"
-              required
-              #confirmPassword="ngModel"
-              [disabled]="isLoading"
-            />
+            <div class="password-input-container">
+              <input
+                id="confirm_password"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                [(ngModel)]="employee.confirm_password"
+                name="confirm_password"
+                placeholder="Confirm your password"
+                required
+                #confirmPassword="ngModel"
+                [disabled]="isLoading"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="toggleConfirmPasswordVisibility()"
+                [disabled]="isLoading"
+                aria-label="Toggle confirm password visibility"
+              >
+                <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
             <small
               class="validation-error"
               *ngIf="confirmPassword.invalid && confirmPassword.touched"

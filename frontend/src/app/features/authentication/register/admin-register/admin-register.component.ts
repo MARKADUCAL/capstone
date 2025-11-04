@@ -30,6 +30,8 @@ export class AdminRegisterComponent {
   errorMessage = '';
   isLoading = false;
   isBrowser: boolean;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private http: HttpClient,
@@ -37,6 +39,14 @@ export class AdminRegisterComponent {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {

@@ -30,6 +30,8 @@ export class EmployeeRegisterComponent implements OnInit {
   errorMessage = '';
   isLoading = false;
   isBrowser: boolean;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private http: HttpClient,
@@ -84,6 +86,14 @@ export class EmployeeRegisterComponent implements OnInit {
 
   private formatEmployeeId(n: number): string {
     return `EMP-${n.toString().padStart(3, '0')}`;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {
