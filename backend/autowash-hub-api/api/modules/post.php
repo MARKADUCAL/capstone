@@ -754,39 +754,51 @@ class Post extends GlobalMethods
             // If is_approved is explicitly provided (e.g., by admin), use that value
             $isApproved = isset($data->is_approved) ? (int)$data->is_approved : 0;
 
-            $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position, is_approved) 
-
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-
-
-            $statement = $this->pdo->prepare($sql);
+            // Check if is_approved column exists in the employees table
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (\PDOException $e) {
+                // If check fails, assume column doesn't exist
+                $hasIsApprovedColumn = false;
+            }
 
             $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
 
-
-
-            $statement->execute([
-
-                $nextId,
-
-                $employeeIdToUse,
-
-                $data->first_name,
-
-                $data->last_name ?? '',
-
-                $data->email,
-
-                $data->phone ?? '',
-
-                $hashedPassword,
-
-                $data->position,
-
-                $isApproved // is_approved: 0 for self-registration, 1 for admin-created
-
-            ]);
+            if ($hasIsApprovedColumn) {
+                // Use query with is_approved column
+                $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position, is_approved) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([
+                    $nextId,
+                    $employeeIdToUse,
+                    $data->first_name,
+                    $data->last_name ?? '',
+                    $data->email,
+                    $data->phone ?? '',
+                    $hashedPassword,
+                    $data->position,
+                    $isApproved
+                ]);
+            } else {
+                // Use query without is_approved column (for backward compatibility)
+                $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([
+                    $nextId,
+                    $employeeIdToUse,
+                    $data->first_name,
+                    $data->last_name ?? '',
+                    $data->email,
+                    $data->phone ?? '',
+                    $hashedPassword,
+                    $data->position
+                ]);
+            }
 
 
 
@@ -922,11 +934,14 @@ class Post extends GlobalMethods
 
             if ($employee && password_verify($data->password, $employee['password'])) {
 
-                // Check if employee is approved
-                $isApproved = isset($employee['is_approved']) ? (int)$employee['is_approved'] : 1;
-                if ($isApproved !== 1) {
-                    return $this->sendPayload(null, "failed", "Your account is pending admin approval. Please wait for approval before logging in.", 403);
+                // Check if employee is approved (only if is_approved column exists)
+                if (isset($employee['is_approved'])) {
+                    $isApproved = (int)$employee['is_approved'];
+                    if ($isApproved !== 1) {
+                        return $this->sendPayload(null, "failed", "Your account is pending admin approval. Please wait for approval before logging in.", 403);
+                    }
                 }
+                // If is_approved column doesn't exist, allow login (backward compatibility)
 
                 // Generate JWT token
 

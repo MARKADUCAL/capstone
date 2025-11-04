@@ -107,7 +107,23 @@ class Get extends GlobalMethods {
 
     public function get_all_employees() {
         try {
-            $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at FROM employees ORDER BY id DESC";
+            // Check if is_approved column exists
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (\PDOException $e) {
+                $hasIsApprovedColumn = false;
+            }
+
+            // Include is_approved in SELECT if column exists
+            if ($hasIsApprovedColumn) {
+                $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at, is_approved FROM employees ORDER BY id DESC";
+            } else {
+                $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at FROM employees ORDER BY id DESC";
+            }
+            
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
             $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);

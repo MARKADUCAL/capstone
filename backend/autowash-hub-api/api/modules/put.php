@@ -147,12 +147,26 @@ class Put {
                 return $this->sendPayload(null, "failed", "Employee ID is required", 400);
             }
 
-            $sql = "UPDATE employees SET is_approved = 1 WHERE id = ?";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->id]);
+            // Check if is_approved column exists
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (Exception $e) {
+                $hasIsApprovedColumn = false;
+            }
 
-            if ($stmt->rowCount() > 0) {
-                return $this->sendPayload(null, "success", "Employee approved successfully", 200);
+            if ($hasIsApprovedColumn) {
+                $sql = "UPDATE employees SET is_approved = 1 WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$data->id]);
+
+                if ($stmt->rowCount() > 0) {
+                    return $this->sendPayload(null, "success", "Employee approved successfully", 200);
+                }
+            } else {
+                return $this->sendPayload(null, "failed", "Approval feature is not available. Please add is_approved column to employees table.", 400);
             }
 
             return $this->sendPayload(null, "failed", "Employee not found", 404);
@@ -167,16 +181,30 @@ class Put {
                 return $this->sendPayload(null, "failed", "Employee ID is required", 400);
             }
 
-            // Delete the employee registration if rejected
-            $sql = "DELETE FROM employees WHERE id = ? AND is_approved = 0";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->id]);
-
-            if ($stmt->rowCount() > 0) {
-                return $this->sendPayload(null, "success", "Employee registration rejected and removed", 200);
+            // Check if is_approved column exists
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (Exception $e) {
+                $hasIsApprovedColumn = false;
             }
 
-            return $this->sendPayload(null, "failed", "Employee not found or already approved", 404);
+            if ($hasIsApprovedColumn) {
+                // Delete the employee registration if rejected
+                $sql = "DELETE FROM employees WHERE id = ? AND is_approved = 0";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$data->id]);
+
+                if ($stmt->rowCount() > 0) {
+                    return $this->sendPayload(null, "success", "Employee registration rejected and removed", 200);
+                }
+
+                return $this->sendPayload(null, "failed", "Employee not found or already approved", 404);
+            } else {
+                return $this->sendPayload(null, "failed", "Rejection feature is not available. Please add is_approved column to employees table.", 400);
+            }
         } catch (Exception $e) {
             return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }

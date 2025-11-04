@@ -120,14 +120,25 @@ export class EmployeeManagementComponent implements OnInit {
 
           // Build pending list if backend exposes is_approved
           const hasApprovalFlag = response.payload.employees.some(
-            (e: any) => 'is_approved' in e
+            (e: any) => 'is_approved' in e && e.is_approved !== undefined
           );
-          this.pendingEmployees = hasApprovalFlag
-            ? this.employees.filter(
-                (_, idx) =>
-                  Number(response.payload.employees[idx].is_approved) !== 1
-              )
-            : [];
+          
+          if (hasApprovalFlag) {
+            // Filter employees where is_approved is 0 or null (pending)
+            this.pendingEmployees = this.employees.filter(
+              (employee, idx) => {
+                const emp = response.payload.employees[idx];
+                const isApproved = emp.is_approved;
+                // Pending if is_approved is 0, null, or undefined
+                return isApproved === 0 || isApproved === null || isApproved === undefined;
+              }
+            );
+            console.log('Pending employees found:', this.pendingEmployees.length);
+            console.log('All employees approval status:', response.payload.employees.map((e: any) => ({ id: e.id, name: `${e.first_name} ${e.last_name}`, is_approved: e.is_approved })));
+          } else {
+            this.pendingEmployees = [];
+            console.log('No is_approved field found in employee data. Please add the column to the database.');
+          }
         } else {
           this.error = 'Failed to load employees';
           this.showNotification('Failed to load employees');
@@ -146,40 +157,46 @@ export class EmployeeManagementComponent implements OnInit {
 
   openPendingModal(): void {
     this.pendingError = null;
-    // If we don't have pending list yet (no is_approved), try to refetch once
-    if (this.pendingEmployees.length === 0) {
-      this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
-        next: (response: any) => {
-          const list = response?.payload?.employees || [];
-          const hasApprovalFlag = list.some((e: any) => 'is_approved' in e);
-          if (hasApprovalFlag) {
-            const mapped = list.map((e: any, i: number) => ({
-              id: e.id,
-              employeeId: e.employee_id,
-              name: `${e.first_name} ${e.last_name}`,
-              email: e.email,
-              phone: e.phone || 'N/A',
-              role: e.position || 'Employee',
-              status: 'Inactive',
-              registrationDate: this.formatDate(e.created_at),
-            }));
-            this.pendingEmployees = mapped.filter(
-              (_: Employee, i: number) =>
-                Number((list[i] as any).is_approved) !== 1
-            );
-          } else {
-            this.pendingEmployees = [];
-          }
-          this.isPendingModalOpen = true;
-        },
-        error: () => {
-          this.pendingError = 'Failed to load pending registrations.';
-          this.isPendingModalOpen = true;
-        },
-      });
-    } else {
-      this.isPendingModalOpen = true;
-    }
+    // Always refresh the pending list when opening the modal
+    this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
+      next: (response: any) => {
+        const list = response?.payload?.employees || [];
+        const hasApprovalFlag = list.some((e: any) => 'is_approved' in e && e.is_approved !== undefined);
+        
+        if (hasApprovalFlag) {
+          const mapped = list.map((e: any) => ({
+            id: e.id,
+            employeeId: e.employee_id,
+            name: `${e.first_name} ${e.last_name}`,
+            email: e.email,
+            phone: e.phone || 'N/A',
+            role: e.position || 'Employee',
+            status: 'Inactive' as 'Active' | 'Inactive',
+            registrationDate: this.formatDate(e.created_at),
+          }));
+          
+          // Filter for pending employees (is_approved = 0, null, or undefined)
+          this.pendingEmployees = mapped.filter(
+            (emp: Employee, i: number) => {
+              const isApproved = list[i].is_approved;
+              return isApproved === 0 || isApproved === null || isApproved === undefined;
+            }
+          );
+          
+          console.log('Refreshed pending employees:', this.pendingEmployees.length);
+        } else {
+          this.pendingEmployees = [];
+          this.pendingError = 'Approval feature is not enabled. Please add the is_approved column to the employees table.';
+          console.warn('is_approved column not found in database');
+        }
+        this.isPendingModalOpen = true;
+      },
+      error: (error) => {
+        console.error('Error loading pending registrations:', error);
+        this.pendingError = 'Failed to load pending registrations.';
+        this.isPendingModalOpen = true;
+      },
+    });
   }
 
   closePendingModal(): void {
