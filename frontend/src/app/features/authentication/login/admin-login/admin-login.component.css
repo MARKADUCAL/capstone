@@ -278,6 +278,12 @@ html {
   transition: color 0.2s ease;
 }
 
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 .password-toggle:hover {
   color: #78bedb;
 }
