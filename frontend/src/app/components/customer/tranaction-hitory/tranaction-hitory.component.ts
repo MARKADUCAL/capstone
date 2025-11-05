@@ -588,7 +588,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       case 'cancelled':
         return 'This booking has been cancelled.';
       case 'rejected':
-        return 'This booking has been rejected.';
+        return 'This booking has been declined.';
       default:
         return 'Your booking status is being updated.';
     }

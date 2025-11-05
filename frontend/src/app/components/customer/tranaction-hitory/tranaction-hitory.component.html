@@ -78,7 +78,7 @@
         (click)="setFilter('rejected')"
       >
         <span class="tab-icon">🚫</span>
-        <span class="tab-text">Rejected</span>
+        <span class="tab-text">Decline</span>
         <span class="tab-count">{{ getFilterCount("rejected") }}</span>
       </button>
     </div>
@@ -251,7 +251,7 @@
           <span class="price-label">Total Amount</span>
         </div>
 
-        <!-- Rejection Reason Section (only for rejected bookings) -->
+        <!-- Decline Reason Section (only for rejected bookings) -->
         <div
           class="rejection-section"
           *ngIf="
@@ -261,7 +261,7 @@
         >
           <div class="rejection-header">
             <span class="rejection-icon">🚫</span>
-            <span class="rejection-title">Rejection Reason</span>
+            <span class="rejection-title">Decline Reason</span>
           </div>
           <div class="rejection-content">
             {{ getRejectionReason(booking) }}
@@ -606,7 +606,7 @@
           </div>
         </div>
 
-        <!-- Rejection Reason Card (only for rejected bookings) -->
+        <!-- Decline Reason Card (only for rejected bookings) -->
         <div
           class="detail-card rejection-card"
           *ngIf="
@@ -616,7 +616,7 @@
         >
           <div class="detail-header">
             <span class="detail-icon">🚫</span>
-            <h4>Rejection Information</h4>
+            <h4>Decline Information</h4>
           </div>
           <div class="detail-content">
             <div class="detail-row">
