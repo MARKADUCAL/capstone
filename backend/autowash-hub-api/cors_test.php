@@ -12,11 +12,12 @@ $allowedOrigins = [
     'http://localhost:4200',
     'http://127.0.0.1:4200',
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'https://autowashhub.online'
 ];
 
 // Check if origin is allowed
-$isAllowed = in_array($origin, $allowedOrigins) || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin);
+$isAllowed = in_array($origin, $allowedOrigins) || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin) || preg_match('/^https:\/\/.*autowashhub\.online$/', $origin);
 
 if ($isAllowed) {
     header("Access-Control-Allow-Origin: $origin");

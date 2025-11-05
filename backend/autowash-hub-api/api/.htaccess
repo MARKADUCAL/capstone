@@ -6,6 +6,7 @@
     SetEnvIf Origin "http://localhost:4200$" AccessControlAllowOrigin=$0
     SetEnvIf Origin "http://127\.0\.0\.1:4200$" AccessControlAllowOrigin=$0
     SetEnvIf Origin "https://.*\.vercel\.app$" AccessControlAllowOrigin=$0
+    SetEnvIf Origin "https://autowashhub\.online$" AccessControlAllowOrigin=$0
     Header always set Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
     Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"

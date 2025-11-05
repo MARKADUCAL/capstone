@@ -209,12 +209,14 @@ class UploadHandler {
             'http://127.0.0.1:4200',
             'http://localhost:3000',
             'http://127.0.0.1:3000',
-            'https://brown-octopus-872555.hostingersite.com'
+            'https://brown-octopus-872555.hostingersite.com',
+            'https://autowashhub.online'
         ];
         
         $isAllowed = in_array($origin, $allowedOrigins)
             || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin)
-            || preg_match('/^https:\/\/.*\.hostingersite\.com$/', $origin);
+            || preg_match('/^https:\/\/.*\.hostingersite\.com$/', $origin)
+            || preg_match('/^https:\/\/.*autowashhub\.online$/', $origin);
         
         if ($isAllowed) {
             header("Access-Control-Allow-Origin: $origin");
