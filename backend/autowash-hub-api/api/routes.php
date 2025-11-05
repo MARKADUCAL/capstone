@@ -860,6 +860,20 @@ if ($method === 'PUT') {
         exit();
     }
     
+    if (strpos($request, 'approve_admin') !== false) {
+        header('Content-Type: application/json');
+        $result = $put->approve_admin($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'reject_admin') !== false) {
+        header('Content-Type: application/json');
+        $result = $put->reject_admin($data);
+        echo json_encode($result);
+        exit();
+    }
+    
 
 
     if (strpos($request, 'update_booking_status') !== false) {

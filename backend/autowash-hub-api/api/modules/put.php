@@ -210,6 +210,75 @@ class Put {
         }
     }
 
+    public function approve_admin($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Admin ID is required", 400);
+            }
+
+            // Check if is_approved column exists on admins
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM admins LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (Exception $e) {
+                $hasIsApprovedColumn = false;
+            }
+
+            if ($hasIsApprovedColumn) {
+                $sql = "UPDATE admins SET is_approved = 1 WHERE id = ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$data->id]);
+
+                if ($stmt->rowCount() > 0) {
+                    return $this->sendPayload(null, "success", "Admin approved successfully", 200);
+                }
+            } else {
+                return $this->sendPayload(null, "failed", "Approval feature is not available. Please add is_approved column to admins table.", 400);
+            }
+
+            return $this->sendPayload(null, "failed", "Admin not found", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
+    public function reject_admin($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Admin ID is required", 400);
+            }
+
+            // Check if is_approved column exists on admins
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM admins LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (Exception $e) {
+                $hasIsApprovedColumn = false;
+            }
+
+            if ($hasIsApprovedColumn) {
+                // Only delete if still pending (is_approved = 0)
+                $sql = "DELETE FROM admins WHERE id = ? AND (is_approved = 0 OR is_approved IS NULL)";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$data->id]);
+
+                if ($stmt->rowCount() > 0) {
+                    return $this->sendPayload(null, "success", "Admin registration rejected and removed", 200);
+                }
+
+                return $this->sendPayload(null, "failed", "Admin not found or already approved", 404);
+            } else {
+                return $this->sendPayload(null, "failed", "Rejection feature is not available. Please add is_approved column to admins table.", 400);
+            }
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     private function sendPayload($payload, $remarks, $message, $code) {
         $status = array(
             "remarks" => $remarks,

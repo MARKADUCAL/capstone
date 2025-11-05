@@ -442,107 +442,77 @@ class Post extends GlobalMethods
 
 
         try {
-
             // Check if email already exists
-
             $sql = "SELECT COUNT(*) FROM admins WHERE email = ?";
-
             $statement = $this->pdo->prepare($sql);
-
             $statement->execute([$data->email]);
-
             $count = $statement->fetchColumn();
-
-
-
+            
             if ($count > 0) {
-
                 return $this->sendPayload(null, "failed", "Email already registered", 400);
-
             }
-
             
-
             // Check if admin_id already exists
-
             $sql = "SELECT COUNT(*) FROM admins WHERE admin_id = ?";
-
             $statement = $this->pdo->prepare($sql);
-
             $statement->execute([$data->admin_id]);
-
             $count = $statement->fetchColumn();
-
-
-
+            
             if ($count > 0) {
-
                 return $this->sendPayload(null, "failed", "Admin ID already exists", 400);
-
+            }
+        
+            // Proceed with registration (default pending if is_approved exists)
+            $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
+            $hasIsApprovedColumn = false;
+            try {
+                $checkSql = "SHOW COLUMNS FROM admins LIKE 'is_approved'";
+                $checkStmt = $this->pdo->query($checkSql);
+                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
+            } catch (\PDOException $e) {
+                $hasIsApprovedColumn = false;
             }
 
-        
-
-            // Proceed with registration
-
-            $sql = "INSERT INTO admins (admin_id, first_name, last_name, email, phone, password) 
-
-                    VALUES (?, ?, ?, ?, ?, ?)";
-
-            
-
-            $statement = $this->pdo->prepare($sql);
-
-            $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
-
-
-
-            $statement->execute([
-
-                $data->admin_id,
-
-                $data->first_name,
-
-                $data->last_name ?? '',
-
-                $data->email,
-
-                $data->phone ?? '',
-
-                $hashedPassword
-
-            ]);
-
-
+            if ($hasIsApprovedColumn) {
+                $sql = "INSERT INTO admins (admin_id, first_name, last_name, email, phone, password, is_approved) 
+                        VALUES (?, ?, ?, ?, ?, ?, 0)";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([
+                    $data->admin_id,
+                    $data->first_name,
+                    $data->last_name ?? '',
+                    $data->email,
+                    $data->phone ?? '',
+                    $hashedPassword
+                ]);
+            } else {
+                $sql = "INSERT INTO admins (admin_id, first_name, last_name, email, phone, password) 
+                        VALUES (?, ?, ?, ?, ?, ?)";
+                $statement = $this->pdo->prepare($sql);
+                $statement->execute([
+                    $data->admin_id,
+                    $data->first_name,
+                    $data->last_name ?? '',
+                    $data->email,
+                    $data->phone ?? '',
+                    $hashedPassword
+                ]);
+            }
 
             if ($statement->rowCount() > 0) {
-
                 return $this->sendPayload(null, "success", "Admin successfully registered", 200);
-
             } else {
-
                 return $this->sendPayload(null, "failed", "Registration failed", 400);
-
             }
-
-
-
+        
         } catch (\PDOException $e) {
-
             error_log("Admin registration error: " . $e->getMessage());
-
             return $this->sendPayload(
-
                 null, 
-
                 "failed", 
-
                 "Database error occurred. Please try again.", 
-
                 500
-
             );
-
         }
 
     }

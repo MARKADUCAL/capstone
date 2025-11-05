@@ -42,6 +42,11 @@ export class AdminManagementComponent implements OnInit {
   selectedAdmin: Admin | null = null;
   isViewModalOpen: boolean = false;
 
+  // Pending approval modal
+  isPendingModalOpen: boolean = false;
+  pendingAdmins: Admin[] = [];
+  pendingError: string | null = null;
+
   constructor(
     private snackBar: MatSnackBar,
     private http: HttpClient,
@@ -119,6 +124,157 @@ export class AdminManagementComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
     }
+  }
+
+  openPendingModal(): void {
+    this.pendingError = null;
+    this.http.get(`${this.apiUrl}/get_all_admins`).subscribe({
+      next: (response: any) => {
+        const list = response?.payload?.admins || [];
+        const hasApprovalFlag = list.some(
+          (a: any) => 'is_approved' in a && a.is_approved !== undefined
+        );
+
+        if (hasApprovalFlag) {
+          const mapped = list.map((a: any) => ({
+            id: a.id,
+            adminId: a.admin_id,
+            name: `${a.first_name} ${a.last_name}`,
+            email: a.email,
+            phone: a.phone || 'N/A',
+            status: 'Inactive' as 'Active' | 'Inactive',
+            registrationDate: this.formatDate(a.created_at),
+          }));
+
+          this.pendingAdmins = mapped.filter((adm: Admin, i: number) => {
+            const isApproved = list[i].is_approved;
+            return (
+              isApproved === 0 ||
+              isApproved === null ||
+              isApproved === undefined
+            );
+          });
+        } else {
+          this.pendingAdmins = [];
+          this.pendingError =
+            'Approval feature is not enabled. Please add the is_approved column to the admins table.';
+        }
+        this.isPendingModalOpen = true;
+      },
+      error: (err) => {
+        console.error('Error loading pending admins:', err);
+        this.pendingError = 'Failed to load pending registrations.';
+        this.isPendingModalOpen = true;
+      },
+    });
+  }
+
+  closePendingModal(): void {
+    this.isPendingModalOpen = false;
+  }
+
+  approveAdmin(admin: Admin): void {
+    Swal.fire({
+      title: 'Approve Admin?',
+      text: `Are you sure you want to approve ${admin.name}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#4CAF50',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, approve',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http
+          .put(`${this.apiUrl}/approve_admin`, { id: admin.id })
+          .subscribe({
+            next: (response: any) => {
+              if (response?.status?.remarks === 'success') {
+                Swal.fire({
+                  title: 'Approved!',
+                  text: `${admin.name} has been approved successfully.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#4CAF50',
+                });
+                this.pendingAdmins = this.pendingAdmins.filter(
+                  (a) => a.id !== admin.id
+                );
+                this.loadAdmins();
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: response?.status?.message || 'Failed to approve admin',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#f44336',
+                });
+              }
+            },
+            error: () => {
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to approve admin',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            },
+          });
+      }
+    });
+  }
+
+  rejectAdmin(admin: Admin): void {
+    Swal.fire({
+      title: 'Reject Admin?',
+      text: `Are you sure you want to decline ${admin.name}? This will remove their registration.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, decline',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http
+          .put(`${this.apiUrl}/reject_admin`, { id: admin.id })
+          .subscribe({
+            next: (response: any) => {
+              if (response?.status?.remarks === 'success') {
+                Swal.fire({
+                  title: 'Declined',
+                  text: `${admin.name}'s registration has been removed.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#4CAF50',
+                });
+                this.pendingAdmins = this.pendingAdmins.filter(
+                  (a) => a.id !== admin.id
+                );
+                this.loadAdmins();
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: response?.status?.message || 'Failed to decline admin',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#f44336',
+                });
+              }
+            },
+            error: () => {
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to decline admin',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#f44336',
+              });
+            },
+          });
+      }
+    });
   }
 
   getUserInitials(name: string): string {

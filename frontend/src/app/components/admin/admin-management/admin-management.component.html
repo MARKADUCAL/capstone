@@ -1,6 +1,15 @@
 <div class="admin-container">
   <div class="header">
     <h2>Admin Management</h2>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="openPendingModal()"
+      class="pending-btn"
+    >
+      <mat-icon>hourglass_empty</mat-icon>
+      View Pending Registrations
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -85,6 +94,80 @@
     </table>
   </div>
   }
+
+  <!-- Pending Registrations Modal -->
+  <div class="modal" [class.show-modal]="isPendingModalOpen">
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <h2>Pending Admin Registrations</h2>
+        <span class="close-btn" (click)="closePendingModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="pendingError" class="error-container">
+          <p>{{ pendingError }}</p>
+        </div>
+        <div
+          *ngIf="!pendingError && pendingAdmins.length === 0"
+          class="empty-container"
+        >
+          <p>No pending registrations found.</p>
+        </div>
+        <div
+          class="table-container"
+          *ngIf="!pendingError && pendingAdmins.length > 0"
+        >
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registered</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let adm of pendingAdmins">
+                <td>{{ adm.adminId || "N/A" }}</td>
+                <td>{{ adm.name }}</td>
+                <td>{{ adm.email }}</td>
+                <td>{{ adm.phone }}</td>
+                <td>{{ adm.registrationDate }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="action-btn approve-btn text-action-btn"
+                      (click)="approveAdmin(adm)"
+                      title="Approve"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="action-btn reject-btn text-action-btn"
+                      (click)="rejectAdmin(adm)"
+                      title="Decline"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closePendingModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- View Admin Modal -->
   <div class="modal" [class.show-modal]="isViewModalOpen">

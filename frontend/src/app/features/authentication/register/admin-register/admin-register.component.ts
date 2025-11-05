@@ -113,8 +113,8 @@ export class AdminRegisterComponent {
             if (this.isBrowser) {
               try {
                 Swal.fire({
-                  title: 'Registration Complete!',
-                  text: 'Your account has been created successfully!',
+                  title: 'Registration Submitted!',
+                  text: 'Your account is pending approval by a super admin. You will be able to sign in once approved.',
                   icon: 'success',
                   confirmButtonText: 'OK',
                 }).then(() => {
