@@ -428,6 +428,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Display-friendly status mapping
+  displayStatus(status: string): string {
+    const s = (status || '').toString();
+    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+  }
+
   // Helper method to get status icon
   getStatusIcon(status: string): string {
     switch (status.toLowerCase()) {

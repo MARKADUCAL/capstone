@@ -105,7 +105,20 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     const raw = (status ?? '').toString().trim();
     if (!raw) return 'pending';
     const s = this.normalizeStatus(raw);
-    return s || 'pending';
+    switch (s) {
+      case 'pending':
+        return 'Pending';
+      case 'approved':
+        return 'Approved';
+      case 'completed':
+        return 'Completed';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'rejected':
+        return 'Declined';
+      default:
+        return s || 'pending';
+    }
   }
 
   normalizeStatus(

@@ -85,7 +85,7 @@ interface BookingDetails {
                   <mat-icon class="status-icon">{{
                     getStatusIcon(data.status)
                   }}</mat-icon>
-                  {{ data.status }}
+                  {{ displayStatus(data.status) }}
                 </span>
               </span>
             </div>
@@ -420,5 +420,10 @@ export class BookingDetailsDialog {
       default:
         return 'info';
     }
+  }
+
+  displayStatus(status: string): string {
+    const s = (status || '').toString();
+    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
   }
 }

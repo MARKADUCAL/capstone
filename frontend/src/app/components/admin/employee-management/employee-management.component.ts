@@ -122,22 +122,36 @@ export class EmployeeManagementComponent implements OnInit {
           const hasApprovalFlag = response.payload.employees.some(
             (e: any) => 'is_approved' in e && e.is_approved !== undefined
           );
-          
+
           if (hasApprovalFlag) {
             // Filter employees where is_approved is 0 or null (pending)
-            this.pendingEmployees = this.employees.filter(
-              (employee, idx) => {
-                const emp = response.payload.employees[idx];
-                const isApproved = emp.is_approved;
-                // Pending if is_approved is 0, null, or undefined
-                return isApproved === 0 || isApproved === null || isApproved === undefined;
-              }
+            this.pendingEmployees = this.employees.filter((employee, idx) => {
+              const emp = response.payload.employees[idx];
+              const isApproved = emp.is_approved;
+              // Pending if is_approved is 0, null, or undefined
+              return (
+                isApproved === 0 ||
+                isApproved === null ||
+                isApproved === undefined
+              );
+            });
+            console.log(
+              'Pending employees found:',
+              this.pendingEmployees.length
             );
-            console.log('Pending employees found:', this.pendingEmployees.length);
-            console.log('All employees approval status:', response.payload.employees.map((e: any) => ({ id: e.id, name: `${e.first_name} ${e.last_name}`, is_approved: e.is_approved })));
+            console.log(
+              'All employees approval status:',
+              response.payload.employees.map((e: any) => ({
+                id: e.id,
+                name: `${e.first_name} ${e.last_name}`,
+                is_approved: e.is_approved,
+              }))
+            );
           } else {
             this.pendingEmployees = [];
-            console.log('No is_approved field found in employee data. Please add the column to the database.');
+            console.log(
+              'No is_approved field found in employee data. Please add the column to the database.'
+            );
           }
         } else {
           this.error = 'Failed to load employees';
@@ -161,8 +175,10 @@ export class EmployeeManagementComponent implements OnInit {
     this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
       next: (response: any) => {
         const list = response?.payload?.employees || [];
-        const hasApprovalFlag = list.some((e: any) => 'is_approved' in e && e.is_approved !== undefined);
-        
+        const hasApprovalFlag = list.some(
+          (e: any) => 'is_approved' in e && e.is_approved !== undefined
+        );
+
         if (hasApprovalFlag) {
           const mapped = list.map((e: any) => ({
             id: e.id,
@@ -174,19 +190,25 @@ export class EmployeeManagementComponent implements OnInit {
             status: 'Inactive' as 'Active' | 'Inactive',
             registrationDate: this.formatDate(e.created_at),
           }));
-          
+
           // Filter for pending employees (is_approved = 0, null, or undefined)
-          this.pendingEmployees = mapped.filter(
-            (emp: Employee, i: number) => {
-              const isApproved = list[i].is_approved;
-              return isApproved === 0 || isApproved === null || isApproved === undefined;
-            }
+          this.pendingEmployees = mapped.filter((emp: Employee, i: number) => {
+            const isApproved = list[i].is_approved;
+            return (
+              isApproved === 0 ||
+              isApproved === null ||
+              isApproved === undefined
+            );
+          });
+
+          console.log(
+            'Refreshed pending employees:',
+            this.pendingEmployees.length
           );
-          
-          console.log('Refreshed pending employees:', this.pendingEmployees.length);
         } else {
           this.pendingEmployees = [];
-          this.pendingError = 'Approval feature is not enabled. Please add the is_approved column to the employees table.';
+          this.pendingError =
+            'Approval feature is not enabled. Please add the is_approved column to the employees table.';
           console.warn('is_approved column not found in database');
         }
         this.isPendingModalOpen = true;
@@ -239,7 +261,8 @@ export class EmployeeManagementComponent implements OnInit {
               } else {
                 Swal.fire({
                   title: 'Error!',
-                  text: response?.status?.message || 'Failed to approve employee',
+                  text:
+                    response?.status?.message || 'Failed to approve employee',
                   icon: 'error',
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#f44336',
@@ -252,9 +275,9 @@ export class EmployeeManagementComponent implements OnInit {
                 status: error.status,
                 statusText: error.statusText,
                 error: error.error,
-                message: error.message
+                message: error.message,
               });
-              
+
               // Try to parse the error response
               let errorMessage = 'Error approving employee. Please try again.';
               if (error.error) {
@@ -269,7 +292,7 @@ export class EmployeeManagementComponent implements OnInit {
                   errorMessage = error.error.status.message;
                 }
               }
-              
+
               Swal.fire({
                 title: 'Error!',
                 text: errorMessage,
@@ -305,8 +328,8 @@ export class EmployeeManagementComponent implements OnInit {
                 response.status.remarks === 'success'
               ) {
                 Swal.fire({
-                  title: 'Rejected!',
-                  text: `${employee.name}'s registration has been rejected and removed.`,
+                  title: 'Declined!',
+                  text: `${employee.name}'s registration has been declined and removed.`,
                   icon: 'success',
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#4CAF50',
@@ -319,7 +342,8 @@ export class EmployeeManagementComponent implements OnInit {
               } else {
                 Swal.fire({
                   title: 'Error!',
-                  text: response?.status?.message || 'Failed to reject employee',
+                  text:
+                    response?.status?.message || 'Failed to reject employee',
                   icon: 'error',
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#f44336',
@@ -332,9 +356,9 @@ export class EmployeeManagementComponent implements OnInit {
                 status: error.status,
                 statusText: error.statusText,
                 error: error.error,
-                message: error.message
+                message: error.message,
               });
-              
+
               // Try to parse the error response
               let errorMessage = 'Error rejecting employee. Please try again.';
               if (error.error) {
@@ -349,7 +373,7 @@ export class EmployeeManagementComponent implements OnInit {
                   errorMessage = error.error.status.message;
                 }
               }
-              
+
               Swal.fire({
                 title: 'Error!',
                 text: errorMessage,

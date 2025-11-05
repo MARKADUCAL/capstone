@@ -118,15 +118,15 @@ export class ConfirmDeleteDialogComponent {
   ],
   template: `
     <div class="rejection-dialog">
-      <h2 mat-dialog-title>Reject Booking</h2>
+      <h2 mat-dialog-title>Decline Booking</h2>
       <mat-dialog-content>
-        <p>Please provide a reason for rejecting this booking:</p>
+        <p>Please provide a reason for declining this booking:</p>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Rejection Reason</mat-label>
+          <mat-label>Decline Reason</mat-label>
           <textarea
             matInput
             [(ngModel)]="rejectionReason"
-            placeholder="Enter the reason for rejection..."
+            placeholder="Enter the reason for decline..."
             rows="4"
             required
           ></textarea>
@@ -140,7 +140,7 @@ export class ConfirmDeleteDialogComponent {
           [disabled]="!rejectionReason || !rejectionReason.trim()"
           (click)="confirmRejection()"
         >
-          Reject Booking
+          Decline Booking
         </button>
       </mat-dialog-actions>
     </div>
@@ -299,11 +299,11 @@ export class CarWashBookingComponent implements OnInit {
         this.bookingService
           .updateBookingStatus(booking.id, 'Rejected', reason)
           .subscribe({
-            next: () => this.showNotification('Booking rejected successfully'),
+            next: () => this.showNotification('Booking declined successfully'),
             error: (err) => {
               booking.status = prev;
               delete booking.rejectionReason;
-              this.showNotification(err.message || 'Failed to reject booking');
+              this.showNotification(err.message || 'Failed to decline booking');
             },
           });
       }
@@ -1355,7 +1355,7 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
-        <!-- Rejection Reason Section (only for rejected bookings) -->
+        <!-- Decline Reason Section (only for rejected bookings) -->
         <div
           class="info-section"
           *ngIf="
@@ -1364,11 +1364,11 @@ export class CreateWalkInBookingDialogComponent {
         >
           <div class="section-header">
             <mat-icon class="section-icon">cancel</mat-icon>
-            <h3>Rejection Reason</h3>
+            <h3>Decline Reason</h3>
           </div>
           <div class="info-grid">
             <div class="info-item notes-item">
-              <span class="label">Reason for Rejection</span>
+              <span class="label">Reason for Decline</span>
               <span class="value notes-text rejection-reason">{{
                 data.booking.rejectionReason
               }}</span>

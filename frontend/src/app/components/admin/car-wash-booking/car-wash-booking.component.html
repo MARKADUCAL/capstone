@@ -15,7 +15,7 @@
           <mat-option value="All">All Bookings</mat-option>
           <mat-option value="Pending">Pending</mat-option>
           <mat-option value="Approved">Approved</mat-option>
-          <mat-option value="Rejected">Rejected</mat-option>
+          <mat-option value="Rejected">Declined</mat-option>
           <mat-option value="Cancelled">Cancelled</mat-option>
           <mat-option value="Completed">Completed</mat-option>
         </mat-select>
@@ -115,13 +115,13 @@
           </div>
         </div>
 
-        <!-- Rejection Reason Indicator -->
+        <!-- Decline Reason Indicator -->
         <div
           class="rejection-indicator"
           *ngIf="booking.status === 'Rejected' && booking.rejectionReason"
         >
           <mat-icon class="rejection-icon">info</mat-icon>
-          <span class="rejection-text">Rejection reason provided</span>
+          <span class="rejection-text">Decline reason provided</span>
         </div>
       </div>
 
@@ -140,7 +140,7 @@
         </button>
         <button class="action-btn reject-btn" (click)="rejectBooking(booking)">
           <mat-icon>cancel</mat-icon>
-          Reject
+          Decline
         </button>
         } @else if (booking.status === 'Approved') {
         <div class="approved-badge">

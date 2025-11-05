@@ -127,7 +127,7 @@
                   class="status-badge"
                   [class]="booking.status.toLowerCase().replace(' ', '-')"
                 >
-                  {{ booking.status }}
+                  {{ displayStatus(booking.status) }}
                 </span>
               </td>
             </ng-container>
@@ -173,7 +173,7 @@
                 class="status-badge"
                 [class]="booking.status.toLowerCase().replace(' ', '-')"
               >
-                {{ booking.status }}
+                {{ displayStatus(booking.status) }}
               </span>
             </div>
             <div class="booking-card-content">
