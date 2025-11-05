@@ -129,12 +129,12 @@
             </thead>
             <tbody>
               <tr *ngFor="let adm of pendingAdmins">
-                <td>{{ adm.adminId || "N/A" }}</td>
-                <td>{{ adm.name }}</td>
-                <td>{{ adm.email }}</td>
-                <td>{{ adm.phone }}</td>
-                <td>{{ adm.registrationDate }}</td>
-                <td>
+                <td data-label="ID">{{ adm.adminId || "N/A" }}</td>
+                <td data-label="Name">{{ adm.name }}</td>
+                <td data-label="Email">{{ adm.email }}</td>
+                <td data-label="Phone">{{ adm.phone }}</td>
+                <td data-label="Registered">{{ adm.registrationDate }}</td>
+                <td data-label="Actions">
                   <div class="action-buttons">
                     <button
                       class="action-btn approve-btn text-action-btn"

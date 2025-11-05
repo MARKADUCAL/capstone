@@ -28,6 +28,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .admin-table {
@@ -356,6 +357,12 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transform: scale(0.7);
   transition: transform 0.3s ease;
+}
+
+/* Wider modal for tables */
+.modal-content.modal-wide {
+  max-width: 960px;
+  width: 95%;
 }
 
 .modal.show-modal .modal-content {
