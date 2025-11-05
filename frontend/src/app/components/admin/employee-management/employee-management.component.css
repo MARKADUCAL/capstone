@@ -228,6 +228,19 @@
   background: #d32f2f;
 }
 
+/* Allow text labels for approve/decline without affecting icon-only buttons */
+.text-action-btn {
+  width: auto;
+  min-width: 96px;
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #fff;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .employee-table {
