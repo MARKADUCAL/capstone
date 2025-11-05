@@ -362,6 +362,12 @@ export class CarWashBookingComponent implements OnInit {
     });
   }
 
+  // Display-friendly mapping for status labels
+  displayStatus(status: string): string {
+    const s = (status || '').toString();
+    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+  }
+
   getUserInitials(name: string): string {
     return name
       .split(' ')
@@ -1345,7 +1351,7 @@ export class CreateWalkInBookingDialogComponent {
                 }}"
               >
                 <span class="status-dot"></span>
-                {{ data.booking.status }}
+                {{ displayStatus(data.booking.status) }}
               </span>
             </div>
             <div class="info-item">
@@ -1402,7 +1408,7 @@ export class CreateWalkInBookingDialogComponent {
               <mat-select [(ngModel)]="editableStatus" class="status-select">
                 <mat-option value="Pending">Pending</mat-option>
                 <mat-option value="Approved">Approved</mat-option>
-                <mat-option value="Rejected">Rejected</mat-option>
+                <mat-option value="Rejected">Declined</mat-option>
                 <mat-option value="Completed">Completed</mat-option>
               </mat-select>
             </div>

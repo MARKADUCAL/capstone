@@ -90,7 +90,7 @@
             [ngClass]="'status-' + booking.status.toLowerCase()"
           >
             <span class="dot"></span>
-            {{ booking.status }}
+            {{ displayStatus(booking.status) }}
           </span>
         </div>
       </div>
