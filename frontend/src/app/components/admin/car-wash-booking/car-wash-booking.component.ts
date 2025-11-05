@@ -1811,6 +1811,12 @@ export class BookingDetailsDialogComponent {
 
     return timeString; // Return original if formatting fails
   }
+
+  // Display-friendly status mapping for this dialog
+  displayStatus(status: string): string {
+    const s = (status || '').toString();
+    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+  }
 }
 
 @Component({
