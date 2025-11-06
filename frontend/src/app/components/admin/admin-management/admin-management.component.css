@@ -161,6 +161,54 @@
   background: #1976d2;
 }
 
+/* Text Action Buttons for Pending Modal */
+.text-action-btn {
+  width: auto !important;
+  height: auto !important;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  min-width: 80px;
+}
+
+.approve-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.approve-btn:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.reject-btn {
+  background: #f44336;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #da190b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+/* Action buttons in modal table */
+.modal-body .action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .modal-body .action-buttons {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .admin-table {

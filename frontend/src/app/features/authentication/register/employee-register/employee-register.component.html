@@ -112,16 +112,19 @@
 
           <div class="form-group">
             <label for="position">Position</label>
-            <input
+            <select
               id="position"
-              type="text"
               [(ngModel)]="employee.position"
               name="position"
-              placeholder="Enter your position (e.g., Car Washer, Cashier)"
               required
               #position="ngModel"
               [disabled]="isLoading"
-            />
+            >
+              <option value="" disabled selected>Select position</option>
+              <option value="Trainee">Trainee</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+            </select>
             <small
               class="validation-error"
               *ngIf="position.invalid && position.touched"
