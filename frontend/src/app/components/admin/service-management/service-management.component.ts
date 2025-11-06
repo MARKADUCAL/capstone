@@ -238,7 +238,6 @@ export class ServiceManagementComponent implements OnInit {
 
   // Service Package CRUD
   loadServicePackages(): void {
-    // Try to load from API; fallback to defaults if not available
     if (this.isBrowser) {
       const token = localStorage.getItem('admin_token');
       if (token) {
@@ -265,13 +264,27 @@ export class ServiceManagementComponent implements OnInit {
                       isActive: p.is_active === 1 || p.is_active === true,
                     })
                   );
+                } else {
+                  // If no packages in response, keep default packages
+                  console.warn('No service packages found in API response');
                 }
+              } else {
+                this.showAlert(
+                  response.status?.message || 'Failed to load service packages',
+                  'error'
+                );
               }
             },
-            error: () => {
-              // silent fallback to defaults
+            error: (error) => {
+              console.error('Error loading service packages:', error);
+              this.showAlert(
+                'Failed to load service packages from database. Please refresh the page.',
+                'error'
+              );
             },
           });
+      } else {
+        this.showAlert('Authentication token not found', 'warning');
       }
     }
   }
@@ -320,12 +333,13 @@ export class ServiceManagementComponent implements OnInit {
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
-                this.servicePackages.push({ ...this.newServicePackage });
                 this.resetServicePackageForm();
                 this.showAlert(
                   'Service package added successfully!',
                   'success'
                 );
+                // Reload from database to get the updated list
+                this.loadServicePackages();
               } else {
                 this.showAlert(
                   response.status?.message || 'Failed to add service package',
@@ -333,17 +347,23 @@ export class ServiceManagementComponent implements OnInit {
                 );
               }
             },
-            error: () => {
+            error: (error) => {
               this.isLoading = false;
-              // If API not available, fall back to local add
-              this.servicePackages.push({ ...this.newServicePackage });
-              this.resetServicePackageForm();
-              this.showAlert('Service package added (local only).', 'info');
+              console.error('Error adding service package:', error);
+              this.showAlert(
+                'Failed to add service package to database. Please try again.',
+                'error'
+              );
             },
           });
       } else {
         this.showAlert('Authentication token not found', 'warning');
       }
+    } else {
+      this.showAlert(
+        'Cannot add service packages in server environment',
+        'error'
+      );
     }
   }
 
@@ -377,19 +397,14 @@ export class ServiceManagementComponent implements OnInit {
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
-                const idx = this.servicePackages.findIndex(
-                  (sp) =>
-                    sp.code.toLowerCase() ===
-                    this.newServicePackage.code.toLowerCase()
-                );
-                if (idx >= 0)
-                  this.servicePackages[idx] = { ...this.newServicePackage };
                 this.resetServicePackageForm();
                 this.packageEditMode = false;
                 this.showAlert(
                   'Service package updated successfully!',
                   'success'
                 );
+                // Reload from database to get the updated list
+                this.loadServicePackages();
               } else {
                 this.showAlert(
                   response.status?.message ||
@@ -398,23 +413,29 @@ export class ServiceManagementComponent implements OnInit {
                 );
               }
             },
-            error: () => {
+            error: (error) => {
               this.isLoading = false;
-              const idx = this.servicePackages.findIndex(
-                (sp) =>
-                  sp.code.toLowerCase() ===
-                  this.newServicePackage.code.toLowerCase()
+              console.error('Error updating service package:', error);
+              this.showAlert(
+                'Failed to update service package in database. Please try again.',
+                'error'
               );
-              if (idx >= 0)
-                this.servicePackages[idx] = { ...this.newServicePackage };
-              this.resetServicePackageForm();
-              this.packageEditMode = false;
-              this.showAlert('Service package updated (local only).', 'info');
             },
           });
       } else {
+        this.isLoading = false;
         this.showAlert('Authentication token not found', 'warning');
+        this.resetServicePackageForm();
+        this.packageEditMode = false;
       }
+    } else {
+      this.isLoading = false;
+      this.showAlert(
+        'Cannot update service packages in server environment',
+        'error'
+      );
+      this.resetServicePackageForm();
+      this.packageEditMode = false;
     }
   }
 
@@ -428,6 +449,7 @@ export class ServiceManagementComponent implements OnInit {
   deleteServicePackage(): void {
     if (!this.deletePackageCode) {
       this.showAlert('Invalid service package code for deletion.', 'error');
+      this.closeModal();
       return;
     }
 
@@ -449,12 +471,15 @@ export class ServiceManagementComponent implements OnInit {
             next: (response) => {
               this.isLoading = false;
               if (response.status && response.status.remarks === 'success') {
-                this.removePackageLocally(this.deletePackageCode);
                 this.closeModal();
                 this.showAlert(
                   'Service package deleted successfully!',
                   'success'
                 );
+                // Reload from database to get the updated list
+                this.loadServicePackages();
+                // Also reload pricing entries as they may be affected
+                this.loadPricingEntries();
               } else {
                 this.closeModal();
                 this.showAlert(
@@ -464,29 +489,29 @@ export class ServiceManagementComponent implements OnInit {
                 );
               }
             },
-            error: () => {
+            error: (error) => {
               this.isLoading = false;
-              this.removePackageLocally(this.deletePackageCode);
+              console.error('Error deleting service package:', error);
               this.closeModal();
-              this.showAlert('Service package deleted (local only).', 'info');
+              this.showAlert(
+                'Failed to delete service package from database. Please try again.',
+                'error'
+              );
             },
           });
       } else {
+        this.isLoading = false;
         this.closeModal();
         this.showAlert('Authentication token not found', 'warning');
       }
+    } else {
+      this.isLoading = false;
+      this.closeModal();
+      this.showAlert(
+        'Cannot delete service packages in server environment',
+        'error'
+      );
     }
-  }
-
-  private removePackageLocally(code: string): void {
-    this.servicePackages = this.servicePackages.filter(
-      (sp) => sp.code.toLowerCase() !== code.toLowerCase()
-    );
-    // Also remove or mark related pricing entries
-    this.pricingEntries = this.pricingEntries.filter(
-      (pe) => pe.servicePackage.toLowerCase() !== code.toLowerCase()
-    );
-    this.filterPricingEntries();
   }
 
   resetServicePackageForm(): void {
@@ -895,5 +920,6 @@ export class ServiceManagementComponent implements OnInit {
     this.modalMessage = '';
     this.modalType = '';
     this.deleteId = 0;
+    this.deletePackageCode = '';
   }
 }
