@@ -252,7 +252,11 @@ export class ServiceManagementComponent implements OnInit {
           })
           .subscribe({
             next: (response) => {
-              if (response.status && response.status.remarks === 'success') {
+              if (
+                response &&
+                response.status &&
+                response.status.remarks === 'success'
+              ) {
                 if (
                   response.payload &&
                   Array.isArray(response.payload.packages)
@@ -266,25 +270,43 @@ export class ServiceManagementComponent implements OnInit {
                   );
                 } else {
                   // If no packages in response, keep default packages
-                  console.warn('No service packages found in API response');
+                  console.warn(
+                    'No service packages found in API response, using defaults'
+                  );
                 }
               } else {
-                this.showAlert(
-                  response.status?.message || 'Failed to load service packages',
-                  'error'
+                // Invalid response format, keep defaults
+                console.warn(
+                  'Invalid API response format, using default service packages'
                 );
               }
             },
             error: (error) => {
-              console.error('Error loading service packages:', error);
-              this.showAlert(
-                'Failed to load service packages from database. Please refresh the page.',
-                'error'
-              );
+              // If endpoint doesn't exist (404) or other errors, use defaults silently
+              // Only log for debugging, don't show alert to user
+              if (error.status === 404) {
+                console.log(
+                  'Service packages endpoint not found, using default packages'
+                );
+              } else if (error.status && error.status >= 500) {
+                // Only show error for server errors (500+)
+                console.error('Server error loading service packages:', error);
+                this.showAlert(
+                  'Failed to load service packages from database. Using default packages.',
+                  'warning'
+                );
+              } else {
+                // For other errors (401, 403, etc.), use defaults silently
+                console.warn(
+                  'Error loading service packages, using defaults:',
+                  error.status
+                );
+              }
             },
           });
       } else {
-        this.showAlert('Authentication token not found', 'warning');
+        // No token, use defaults
+        console.warn('No authentication token, using default service packages');
       }
     }
   }
@@ -350,10 +372,17 @@ export class ServiceManagementComponent implements OnInit {
             error: (error) => {
               this.isLoading = false;
               console.error('Error adding service package:', error);
-              this.showAlert(
-                'Failed to add service package to database. Please try again.',
-                'error'
-              );
+              if (error.status === 404) {
+                this.showAlert(
+                  'Service package endpoint not found. Please ensure the backend API is properly configured.',
+                  'error'
+                );
+              } else {
+                this.showAlert(
+                  'Failed to add service package to database. Please try again.',
+                  'error'
+                );
+              }
             },
           });
       } else {
@@ -416,10 +445,17 @@ export class ServiceManagementComponent implements OnInit {
             error: (error) => {
               this.isLoading = false;
               console.error('Error updating service package:', error);
-              this.showAlert(
-                'Failed to update service package in database. Please try again.',
-                'error'
-              );
+              if (error.status === 404) {
+                this.showAlert(
+                  'Service package endpoint not found. Please ensure the backend API is properly configured.',
+                  'error'
+                );
+              } else {
+                this.showAlert(
+                  'Failed to update service package in database. Please try again.',
+                  'error'
+                );
+              }
             },
           });
       } else {
@@ -493,10 +529,17 @@ export class ServiceManagementComponent implements OnInit {
               this.isLoading = false;
               console.error('Error deleting service package:', error);
               this.closeModal();
-              this.showAlert(
-                'Failed to delete service package from database. Please try again.',
-                'error'
-              );
+              if (error.status === 404) {
+                this.showAlert(
+                  'Service package endpoint not found. Please ensure the backend API is properly configured.',
+                  'error'
+                );
+              } else {
+                this.showAlert(
+                  'Failed to delete service package from database. Please try again.',
+                  'error'
+                );
+              }
             },
           });
       } else {
