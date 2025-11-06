@@ -8,141 +8,6 @@
   </div>
 
   <div class="content-container">
-    <!-- Service Package Management -->
-    <div class="form-container">
-      <div class="form-header">
-        <h3>
-          {{
-            packageEditMode ? "Edit Service Package" : "Add New Service Package"
-          }}
-        </h3>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group half">
-          <label for="pkgCode">Service Package*</label>
-          <input
-            id="pkgCode"
-            type="text"
-            [(ngModel)]="newServicePackage.code"
-            [readonly]="packageEditMode"
-            placeholder="e.g. p5"
-            required
-          />
-        </div>
-        <div class="form-group half">
-          <label for="pkgDesc">Description*</label>
-          <input
-            id="pkgDesc"
-            type="text"
-            [(ngModel)]="newServicePackage.description"
-            placeholder="e.g. Full Detail"
-            required
-          />
-        </div>
-      </div>
-
-      <div class="form-group checkbox">
-        <input
-          type="checkbox"
-          id="pkgActive"
-          [(ngModel)]="newServicePackage.isActive"
-        />
-        <label for="pkgActive">Active (available for booking)</label>
-      </div>
-
-      <div class="form-actions">
-        <button
-          *ngIf="!packageEditMode"
-          class="btn-primary"
-          (click)="addServicePackage()"
-          [disabled]="isLoading"
-        >
-          <span *ngIf="!isLoading">Add Service Package</span>
-          <span *ngIf="isLoading">Adding...</span>
-        </button>
-        <button
-          *ngIf="packageEditMode"
-          class="btn-primary"
-          (click)="updateServicePackage()"
-          [disabled]="isLoading"
-        >
-          <span *ngIf="!isLoading">Update Service Package</span>
-          <span *ngIf="isLoading">Updating...</span>
-        </button>
-        <button
-          *ngIf="packageEditMode"
-          class="btn-secondary"
-          (click)="packageEditMode = false; resetServicePackageForm()"
-          [disabled]="isLoading"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-
-    <div class="pricing-entries-list">
-      <div class="list-header">
-        <h3>Service Packages</h3>
-      </div>
-      <div class="table-container">
-        <div class="table-scroll-indicator">
-          <i class="fas fa-arrows-alt-h"></i>
-          <span>Scroll horizontally to view all columns</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              *ngFor="let sp of servicePackages"
-              [class.inactive]="!sp.isActive"
-            >
-              <td>
-                <strong>{{ sp.code }}</strong>
-              </td>
-              <td>{{ sp.description }}</td>
-              <td>
-                <span
-                  class="status-badge"
-                  [class.active]="sp.isActive"
-                  [class.inactive]="!sp.isActive"
-                >
-                  {{ sp.isActive ? "Active" : "Inactive" }}
-                </span>
-              </td>
-              <td class="actions-cell">
-                <button
-                  class="btn-icon edit"
-                  (click)="editServicePackage(sp)"
-                  [disabled]="isLoading"
-                  title="Edit"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="btn-icon delete"
-                  (click)="confirmDeleteServicePackage(sp.code)"
-                  [disabled]="isLoading"
-                  title="Delete"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="servicePackages.length === 0">
-              <td colspan="4" class="no-data">No service packages found.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     <div class="form-container">
       <div class="form-header">
         <h3>{{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}</h3>
@@ -430,7 +295,6 @@
   <div class="modal-container" [ngClass]="modalType">
     <div class="modal-header">
       <h3 *ngIf="modalType === 'delete'">Confirm Delete</h3>
-      <h3 *ngIf="modalType === 'deletePackage'">Confirm Delete</h3>
       <h3 *ngIf="modalType === 'success'">Success</h3>
       <h3 *ngIf="modalType === 'error'">Error</h3>
       <h3 *ngIf="modalType === 'warning'">Warning</h3>
@@ -450,16 +314,7 @@
         <span *ngIf="isLoading">Deleting...</span>
       </button>
       <button
-        *ngIf="modalType === 'deletePackage'"
-        class="btn-danger"
-        (click)="deleteServicePackage()"
-        [disabled]="isLoading"
-      >
-        <span *ngIf="!isLoading">Delete</span>
-        <span *ngIf="isLoading">Deleting...</span>
-      </button>
-      <button
-        *ngIf="modalType === 'delete' || modalType === 'deletePackage'"
+        *ngIf="modalType === 'delete'"
         class="btn-secondary"
         (click)="closeModal()"
       >
