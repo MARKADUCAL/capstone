@@ -3524,15 +3524,36 @@ class Post extends GlobalMethods
     }
 
     public function send_registration_code($data) {
+        // Validate email format - accepts ANY valid email address (Gmail, Yahoo, Outlook, etc.)
         if (!isset($data->email) || !filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
             return $this->sendPayload(null, 'failed', 'Valid email is required', 400);
         }
+        
+        // No domain restrictions - all email providers are allowed (Gmail, Yahoo, Outlook, etc.)
+        $email = trim($data->email);
 
         try {
-            // Fail if email already registered
+            // Fail if email already registered in ANY table (customers, admins, or employees)
+            // Check customers table
             $sql = "SELECT COUNT(*) FROM customers WHERE email = ?";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data->email]);
+            $stmt->execute([$email]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                return $this->sendPayload(null, 'failed', 'Email already registered', 400);
+            }
+            
+            // Check admins table
+            $sql = "SELECT COUNT(*) FROM admins WHERE email = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$email]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                return $this->sendPayload(null, 'failed', 'Email already registered', 400);
+            }
+            
+            // Check employees table
+            $sql = "SELECT COUNT(*) FROM employees WHERE email = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$email]);
             if ((int)$stmt->fetchColumn() > 0) {
                 return $this->sendPayload(null, 'failed', 'Email already registered', 400);
             }
@@ -3554,22 +3575,38 @@ class Post extends GlobalMethods
 
             $up = $this->pdo->prepare("INSERT INTO email_verification_codes (email, code, expires_at) VALUES (?, ?, ?) 
                 ON DUPLICATE KEY UPDATE code = VALUES(code), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP");
-            $up->execute([$data->email, $code, $expiresAt]);
+            $up->execute([$email, $code, $expiresAt]);
 
-            // Send email via Resend API
+            // Send email via Resend API - works with ANY email provider (Gmail, Yahoo, Outlook, etc.)
             $sent = false;
+            $emailError = null;
             try {
-                $this->sendOtpEmail($data->email, $code);
+                $this->sendOtpEmail($email, $code);
                 $sent = true;
+                error_log("Verification code email sent successfully to: {$email}");
             } catch (\Throwable $e) {
-                error_log('OTP email send failed: ' . $e->getMessage());
+                $emailError = $e->getMessage();
+                error_log('OTP email send failed for ' . $email . ': ' . $emailError);
+                // Log full error details for debugging
+                error_log('Full error details: ' . $e->getTraceAsString());
             }
 
+            // If email failed to send, return error instead of success
+            if (!$sent) {
+                return $this->sendPayload([
+                    'email' => $email,
+                    'sent' => false,
+                    'error' => $emailError ?: 'Failed to send email'
+                ], 'failed', 'Verification code generated but email failed to send: ' . ($emailError ?: 'Unknown error'), 500);
+            }
+
+            $appEnv = getenv('APP_ENV') ?: 'development';
+            
             return $this->sendPayload([
-                'email' => $data->email,
+                'email' => $email,
                 'sent' => $sent,
                 // Include for testing only; remove in production
-                'code' => $code,
+                'code' => $appEnv === 'development' ? $code : null,
                 'expires_at' => $expiresAt
             ], 'success', 'Verification code sent', 200);
 
@@ -3580,62 +3617,68 @@ class Post extends GlobalMethods
     }
 
     private function sendOtpEmail(string $email, string $code): void {
-        // Use Resend.com API instead of PHPMailer
+        // Use Resend.com API - works with ANY email provider (Gmail, Yahoo, Outlook, custom domains, etc.)
+        // No restrictions on recipient email addresses
         $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
         $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev';
         
+        error_log("Attempting to send verification code to: $email (any email provider allowed)");
+        
         // Prepare email payload for Resend API
+        // The 'to' field accepts ANY valid email address - no restrictions
         $payload = [
             'from' => $resendFromEmail,
-            'to' => $email,
+            'to' => $email, // Can be any email: Gmail, Yahoo, Outlook, custom domains, etc.
             'subject' => 'Your verification code',
             'html' => '<p>Your verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">' . htmlspecialchars($code) . '</p><p>This code expires in 10 minutes.</p>',
             'text' => "Your verification code is: {$code}\n\nThis code expires in 10 minutes."
         ];
         
-        try {
-            // Send via Resend API using cURL
-            $ch = curl_init('https://api.resend.com/emails');
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode($payload),
-                CURLOPT_HTTPHEADER => [
-                    'Authorization: Bearer ' . $resendApiKey,
-                    'Content-Type: application/json'
-                ],
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_TIMEOUT => 30
-            ]);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-            
-            // Handle errors
-            if ($curlError) {
-                error_log('Resend API cURL error: ' . $curlError);
-                throw new \Exception('Connection error: ' . $curlError);
+        // Check if cURL is available
+        if (!function_exists('curl_init')) {
+            error_log('cURL is not available');
+            throw new \Exception('cURL extension is not available');
+        }
+        
+        // Send via Resend API using cURL
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $resendApiKey,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        // Handle errors
+        if ($curlError) {
+            error_log('Resend API cURL error for ' . $email . ': ' . $curlError);
+            throw new \Exception('Connection error: ' . $curlError);
+        }
+        
+        $responseData = json_decode($response, true);
+        
+        if ($httpCode >= 200 && $httpCode < 300) {
+            // Success
+            error_log("Resend email sent successfully to $email. ID: " . ($responseData['id'] ?? 'unknown'));
+        } else {
+            // API error
+            $errorMsg = $responseData['message'] ?? 'Unknown error';
+            if (isset($responseData['errors'])) {
+                $errorMsg .= ' - ' . json_encode($responseData['errors']);
             }
-            
-            $responseData = json_decode($response, true);
-            
-            if ($httpCode >= 200 && $httpCode < 300) {
-                // Success
-                error_log("Resend email sent successfully to $email. ID: " . ($responseData['id'] ?? 'unknown'));
-            } else {
-                // API error
-                $errorMsg = $responseData['message'] ?? 'Unknown error';
-                if (isset($responseData['errors'])) {
-                    $errorMsg .= ' - ' . json_encode($responseData['errors']);
-                }
-                error_log('Resend API error (HTTP ' . $httpCode . '): ' . $errorMsg);
-                throw new \Exception($errorMsg);
-            }
-        } catch (\Throwable $e) {
-            error_log('Resend sendOtpEmail error: ' . $e->getMessage());
-            throw $e;
+            error_log('Resend API error for ' . $email . ' (HTTP ' . $httpCode . '): ' . $errorMsg);
+            error_log('Resend API response: ' . $response);
+            throw new \Exception($errorMsg);
         }
     }
 
