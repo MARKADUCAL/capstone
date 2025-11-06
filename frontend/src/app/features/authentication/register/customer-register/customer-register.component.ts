@@ -115,73 +115,108 @@ export class CustomerRegisterComponent {
       password: '[REDACTED]',
     });
 
+    // Step 1: request a verification code
     this.http
-      .post(`${environment.apiUrl}/register_customer`, registrationData, {
-        headers: { 'Content-Type': 'application/json' },
-      })
+      .post(
+        `${environment.apiUrl}/send_registration_code`,
+        { email: this.customer.email },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
       .subscribe({
-        next: (response: any) => {
-          this.isLoading = false;
-          console.log('Registration response:', response);
-          if (
-            response &&
-            response.status &&
-            response.status.remarks === 'success'
-          ) {
-            Swal.fire({
-              title: 'Registration Successful',
-              text: 'Your account has been created. You can now sign in.',
-              icon: 'success',
-              confirmButtonText: 'Go to Login',
-            }).then(() => {
-              this.router.navigate(['/login']);
-            });
-          } else {
-            const errorMessage =
-              (response && response.status && response.status.message) ||
-              'Registration failed with unknown error';
-            this.errorMessage = errorMessage;
+        next: async (codeResp: any) => {
+          console.log('Verification code response:', codeResp);
 
-            // Show error message
-            Swal.fire({
-              title: 'Registration Failed!',
-              text: errorMessage,
-              icon: 'error',
-              confirmButtonText: 'OK',
-            });
+          // Step 2: prompt for 6-digit code
+          const { value: code } = await Swal.fire({
+            title: 'Enter Verification Code',
+            input: 'text',
+            inputLabel: 'A 6-digit code was sent to your email',
+            inputPlaceholder: '123456',
+            inputAttributes: {
+              maxlength: '6',
+              inputmode: 'numeric',
+              autocapitalize: 'off',
+              autocorrect: 'off',
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Verify & Register',
+            preConfirm: (value) => {
+              if (!/^\d{6}$/.test(value)) {
+                Swal.showValidationMessage('Please enter a valid 6-digit code');
+              }
+              return value;
+            },
+          });
+
+          if (!code) {
+            this.isLoading = false;
+            return;
           }
+
+          const payload: any = { ...registrationData, verification_code: code };
+
+          // Step 3: submit registration with code
+          this.http
+            .post(`${environment.apiUrl}/register_customer`, payload, {
+              headers: { 'Content-Type': 'application/json' },
+            })
+            .subscribe({
+              next: (response: any) => {
+                this.isLoading = false;
+                console.log('Registration response:', response);
+                if (
+                  response &&
+                  response.status &&
+                  response.status.remarks === 'success'
+                ) {
+                  Swal.fire({
+                    title: 'Registration Successful',
+                    text: 'Your account has been created. You can now sign in.',
+                    icon: 'success',
+                    confirmButtonText: 'Go to Login',
+                  }).then(() => {
+                    this.router.navigate(['/login']);
+                  });
+                } else {
+                  const errorMessage =
+                    (response && response.status && response.status.message) ||
+                    'Registration failed with unknown error';
+                  this.errorMessage = errorMessage;
+                  Swal.fire({
+                    title: 'Registration Failed!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                  });
+                }
+              },
+              error: (err) => {
+                this.isLoading = false;
+                console.error('Registration error:', err);
+                this.errorMessage = 'Registration failed. Please try again.';
+                Swal.fire({
+                  title: 'Registration Failed!',
+                  text: 'Registration failed. Please try again.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                });
+              },
+            });
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Registration error:', error);
-
-          let errorMessage = '';
-          if (error.error && error.error.status && error.error.status.message) {
-            errorMessage = error.error.status.message;
-          } else if (error.status === 0) {
-            errorMessage =
-              'Cannot connect to server. Please check if the backend is running and accessible.';
-          } else if (error.status === 400) {
-            errorMessage =
-              'Invalid registration data. Please check your inputs.';
-          } else if (error.status === 500) {
-            errorMessage = 'Server error. Please try again later.';
-          } else {
-            errorMessage = `Registration failed with status ${error.status}. Please try again.`;
-          }
-
-          // Show error message
+          console.error('Send code error:', error);
+          const msg =
+            (error?.error?.status?.message as string) ||
+            'Failed to send verification code.';
+          this.errorMessage = msg;
           Swal.fire({
-            title: 'Registration Failed!',
-            text: errorMessage,
+            title: 'Verification Failed!',
+            text: msg,
             icon: 'error',
             confirmButtonText: 'OK',
           });
-
-          this.errorMessage = errorMessage;
         },
       });
   }
-
-  
 }

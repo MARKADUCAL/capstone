@@ -587,6 +587,13 @@ if ($method === 'POST') {
         exit();
     }
 
+    // Send registration verification code
+    if (strpos($request, 'send_registration_code') !== false) {
+        $result = $post->send_registration_code($data);
+        echo json_encode($result);
+        exit();
+    }
+
     
     
     if (strpos($request, 'login_customer') !== false) {

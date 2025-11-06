@@ -11,6 +11,15 @@ error_reporting(E_ALL);
 
 
 require_once "global.php";
+// PHPMailer (no composer) - load classes directly if available
+if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+    $phpMailerBase = __DIR__ . '/../PHPMailer/src';
+    if (file_exists($phpMailerBase . '/PHPMailer.php')) {
+        require_once $phpMailerBase . '/Exception.php';
+        require_once $phpMailerBase . '/PHPMailer.php';
+        require_once $phpMailerBase . '/SMTP.php';
+    }
+}
 
 
 
@@ -219,6 +228,32 @@ class Post extends GlobalMethods
 
 
         try {
+            // Require 6-digit verification code sent to this email
+            if (!isset($data->verification_code) || !preg_match('/^\d{6}$/', $data->verification_code)) {
+                return $this->sendPayload(null, "failed", "Verification code is required", 400);
+            }
+
+            // Ensure verification table exists
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                code VARCHAR(6) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_email (email),
+                KEY idx_code (code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Validate code for this email and not expired
+            $verifyStmt = $this->pdo->prepare("SELECT code, expires_at FROM email_verification_codes WHERE email = ?");
+            $verifyStmt->execute([$data->email]);
+            $row = $verifyStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row || $row['code'] !== $data->verification_code) {
+                return $this->sendPayload(null, "failed", "Invalid verification code", 400);
+            }
+            if (strtotime($row['expires_at']) < time()) {
+                return $this->sendPayload(null, "failed", "Verification code has expired", 400);
+            }
 
             // Check if email already exists
             $sql = "SELECT COUNT(*) FROM customers WHERE email = ?";
@@ -266,6 +301,9 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
+                // Consume code on successful registration
+                $del = $this->pdo->prepare("DELETE FROM email_verification_codes WHERE email = ?");
+                $del->execute([$data->email]);
 
                 return $this->sendPayload(null, "success", "Successfully registered", 200);
 
