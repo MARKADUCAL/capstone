@@ -320,6 +320,14 @@
   position: relative;
 }
 
+/* Ensure icons match the text color and remain visible */
+.action-btn mat-icon {
+  color: currentColor;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
 .action-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
@@ -338,6 +346,14 @@
   background-color: #f0f0f0; /* Light gray */
   color: #333; /* Dark text for contrast */
   border: 1px solid #ddd;
+}
+
+/* Reinforce readable text color on colored buttons */
+.view-btn,
+.approve-btn,
+.reject-btn,
+.complete-btn {
+  color: #ffffff;
 }
 
 .approve-btn {
