@@ -77,6 +77,15 @@ export class ServiceManagementComponent implements OnInit {
     { code: 'p4', description: 'Wash / Vacuum / Buffing Wax', isActive: true },
   ];
 
+  // Service Package editor state
+  packageEditMode = false;
+  newServicePackage: ServicePackage = {
+    code: '',
+    description: '',
+    isActive: true,
+  };
+  deletePackageCode: string = '';
+
   // Dynamic pricing matrix built from database data
   get pricingMatrix(): { [key: string]: { [key: string]: number } } {
     const matrix: { [key: string]: { [key: string]: number } } = {};
@@ -123,6 +132,7 @@ export class ServiceManagementComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loadServicePackages();
     this.loadPricingEntries();
   }
 
@@ -224,6 +234,267 @@ export class ServiceManagementComponent implements OnInit {
     } else {
       this.isLoading = false;
     }
+  }
+
+  // Service Package CRUD
+  loadServicePackages(): void {
+    // Try to load from API; fallback to defaults if not available
+    if (this.isBrowser) {
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        const headers = new HttpHeaders().set(
+          'Authorization',
+          `Bearer ${token}`
+        );
+
+        this.http
+          .get<ApiResponse>(`${this.apiUrl}/get_all_service_packages`, {
+            headers,
+          })
+          .subscribe({
+            next: (response) => {
+              if (response.status && response.status.remarks === 'success') {
+                if (
+                  response.payload &&
+                  Array.isArray(response.payload.packages)
+                ) {
+                  this.servicePackages = response.payload.packages.map(
+                    (p: any) => ({
+                      code: p.code,
+                      description: p.description,
+                      isActive: p.is_active === 1 || p.is_active === true,
+                    })
+                  );
+                }
+              }
+            },
+            error: () => {
+              // silent fallback to defaults
+            },
+          });
+      }
+    }
+  }
+
+  validateServicePackage(): boolean {
+    if (
+      !this.newServicePackage.code.trim() ||
+      !this.newServicePackage.description.trim()
+    ) {
+      this.showAlert('Please provide package code and description.', 'error');
+      return false;
+    }
+    const dup = this.servicePackages.find(
+      (sp) =>
+        sp.code.toLowerCase() === this.newServicePackage.code.toLowerCase()
+    );
+    if (!this.packageEditMode && dup) {
+      this.showAlert('Service package code already exists.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  addServicePackage(): void {
+    if (!this.validateServicePackage()) return;
+
+    if (this.isBrowser) {
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        this.isLoading = true;
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+
+        const payload = {
+          code: this.newServicePackage.code,
+          description: this.newServicePackage.description,
+          is_active: this.newServicePackage.isActive ? 1 : 0,
+        };
+
+        this.http
+          .post<ApiResponse>(`${this.apiUrl}/add_service_package`, payload, {
+            headers,
+          })
+          .subscribe({
+            next: (response) => {
+              this.isLoading = false;
+              if (response.status && response.status.remarks === 'success') {
+                this.servicePackages.push({ ...this.newServicePackage });
+                this.resetServicePackageForm();
+                this.showAlert(
+                  'Service package added successfully!',
+                  'success'
+                );
+              } else {
+                this.showAlert(
+                  response.status?.message || 'Failed to add service package',
+                  'error'
+                );
+              }
+            },
+            error: () => {
+              this.isLoading = false;
+              // If API not available, fall back to local add
+              this.servicePackages.push({ ...this.newServicePackage });
+              this.resetServicePackageForm();
+              this.showAlert('Service package added (local only).', 'info');
+            },
+          });
+      } else {
+        this.showAlert('Authentication token not found', 'warning');
+      }
+    }
+  }
+
+  editServicePackage(pkg: ServicePackage): void {
+    this.packageEditMode = true;
+    this.newServicePackage = { ...pkg };
+  }
+
+  updateServicePackage(): void {
+    if (!this.validateServicePackage()) return;
+
+    if (this.isBrowser) {
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        this.isLoading = true;
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+
+        const payload = {
+          code: this.newServicePackage.code,
+          description: this.newServicePackage.description,
+          is_active: this.newServicePackage.isActive ? 1 : 0,
+        };
+
+        this.http
+          .put<ApiResponse>(`${this.apiUrl}/update_service_package`, payload, {
+            headers,
+          })
+          .subscribe({
+            next: (response) => {
+              this.isLoading = false;
+              if (response.status && response.status.remarks === 'success') {
+                const idx = this.servicePackages.findIndex(
+                  (sp) =>
+                    sp.code.toLowerCase() ===
+                    this.newServicePackage.code.toLowerCase()
+                );
+                if (idx >= 0)
+                  this.servicePackages[idx] = { ...this.newServicePackage };
+                this.resetServicePackageForm();
+                this.packageEditMode = false;
+                this.showAlert(
+                  'Service package updated successfully!',
+                  'success'
+                );
+              } else {
+                this.showAlert(
+                  response.status?.message ||
+                    'Failed to update service package',
+                  'error'
+                );
+              }
+            },
+            error: () => {
+              this.isLoading = false;
+              const idx = this.servicePackages.findIndex(
+                (sp) =>
+                  sp.code.toLowerCase() ===
+                  this.newServicePackage.code.toLowerCase()
+              );
+              if (idx >= 0)
+                this.servicePackages[idx] = { ...this.newServicePackage };
+              this.resetServicePackageForm();
+              this.packageEditMode = false;
+              this.showAlert('Service package updated (local only).', 'info');
+            },
+          });
+      } else {
+        this.showAlert('Authentication token not found', 'warning');
+      }
+    }
+  }
+
+  confirmDeleteServicePackage(code: string): void {
+    this.deletePackageCode = code;
+    this.showModal = true;
+    this.modalMessage = 'Are you sure you want to delete this service package?';
+    this.modalType = 'deletePackage';
+  }
+
+  deleteServicePackage(): void {
+    if (!this.deletePackageCode) {
+      this.showAlert('Invalid service package code for deletion.', 'error');
+      return;
+    }
+
+    if (this.isBrowser) {
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        this.isLoading = true;
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+
+        this.http
+          .post<ApiResponse>(
+            `${this.apiUrl}/delete_service_package`,
+            { code: this.deletePackageCode },
+            { headers }
+          )
+          .subscribe({
+            next: (response) => {
+              this.isLoading = false;
+              if (response.status && response.status.remarks === 'success') {
+                this.removePackageLocally(this.deletePackageCode);
+                this.closeModal();
+                this.showAlert(
+                  'Service package deleted successfully!',
+                  'success'
+                );
+              } else {
+                this.closeModal();
+                this.showAlert(
+                  response.status?.message ||
+                    'Failed to delete service package',
+                  'error'
+                );
+              }
+            },
+            error: () => {
+              this.isLoading = false;
+              this.removePackageLocally(this.deletePackageCode);
+              this.closeModal();
+              this.showAlert('Service package deleted (local only).', 'info');
+            },
+          });
+      } else {
+        this.closeModal();
+        this.showAlert('Authentication token not found', 'warning');
+      }
+    }
+  }
+
+  private removePackageLocally(code: string): void {
+    this.servicePackages = this.servicePackages.filter(
+      (sp) => sp.code.toLowerCase() !== code.toLowerCase()
+    );
+    // Also remove or mark related pricing entries
+    this.pricingEntries = this.pricingEntries.filter(
+      (pe) => pe.servicePackage.toLowerCase() !== code.toLowerCase()
+    );
+    this.filterPricingEntries();
+  }
+
+  resetServicePackageForm(): void {
+    this.newServicePackage = {
+      code: '',
+      description: '',
+      isActive: true,
+    };
   }
 
   createDefaultPricingEntries(): void {
