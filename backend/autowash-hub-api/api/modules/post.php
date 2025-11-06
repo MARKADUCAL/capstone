@@ -3497,13 +3497,11 @@ class Post extends GlobalMethods
                 ON DUPLICATE KEY UPDATE code = VALUES(code), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP");
             $up->execute([$data->email, $code, $expiresAt]);
 
-            // Send email via PHPMailer if available
+            // Send email via Resend API
             $sent = false;
             try {
-                if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-                    $this->sendOtpEmail($data->email, $code);
-                    $sent = true;
-                }
+                $this->sendOtpEmail($data->email, $code);
+                $sent = true;
             } catch (\Throwable $e) {
                 error_log('OTP email send failed: ' . $e->getMessage());
             }
@@ -3523,25 +3521,63 @@ class Post extends GlobalMethods
     }
 
     private function sendOtpEmail(string $email, string $code): void {
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = getenv('SMTP_USER') ?: '';
-        $mail->Password = getenv('SMTP_PASS') ?: '';
-        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
-        $mail->Port = (int)(getenv('SMTP_PORT') ?: 587);
-
-        $fromEmail = getenv('MAIL_FROM_ADDRESS') ?: (getenv('SMTP_USER') ?: 'no-reply@example.com');
-        $fromName = getenv('MAIL_FROM_NAME') ?: 'AutoWash Hub';
-
-        $mail->setFrom($fromEmail, $fromName);
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        $mail->Subject = 'Your verification code';
-        $mail->Body = '<p>Your verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">' . htmlspecialchars($code) . '</p><p>This code expires in 10 minutes.</p>';
-        $mail->AltBody = "Your verification code is: {$code}. It expires in 10 minutes.";
-        $mail->send();
+        // Use Resend.com API instead of PHPMailer
+        $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
+        $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev';
+        
+        // Prepare email payload for Resend API
+        $payload = [
+            'from' => $resendFromEmail,
+            'to' => $email,
+            'subject' => 'Your verification code',
+            'html' => '<p>Your verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">' . htmlspecialchars($code) . '</p><p>This code expires in 10 minutes.</p>',
+            'text' => "Your verification code is: {$code}\n\nThis code expires in 10 minutes."
+        ];
+        
+        try {
+            // Send via Resend API using cURL
+            $ch = curl_init('https://api.resend.com/emails');
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $resendApiKey,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_TIMEOUT => 30
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            
+            // Handle errors
+            if ($curlError) {
+                error_log('Resend API cURL error: ' . $curlError);
+                throw new \Exception('Connection error: ' . $curlError);
+            }
+            
+            $responseData = json_decode($response, true);
+            
+            if ($httpCode >= 200 && $httpCode < 300) {
+                // Success
+                error_log("Resend email sent successfully to $email. ID: " . ($responseData['id'] ?? 'unknown'));
+            } else {
+                // API error
+                $errorMsg = $responseData['message'] ?? 'Unknown error';
+                if (isset($responseData['errors'])) {
+                    $errorMsg .= ' - ' . json_encode($responseData['errors']);
+                }
+                error_log('Resend API error (HTTP ' . $httpCode . '): ' . $errorMsg);
+                throw new \Exception($errorMsg);
+            }
+        } catch (\Throwable $e) {
+            error_log('Resend sendOtpEmail error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     // Landing Page Content Management Methods
