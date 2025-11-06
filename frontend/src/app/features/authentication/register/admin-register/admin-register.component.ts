@@ -100,69 +100,119 @@ export class AdminRegisterComponent {
       // admin_key removed from data
     };
 
-    this.http
-      .post(`${environment.apiUrl}/register_admin`, registrationData, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-      .subscribe({
-        next: (response: any) => {
-          this.isLoading = false;
-          console.log('Response:', response);
-          if (response.status.remarks === 'success') {
-            // Show success message before redirecting (only if in browser)
-            if (this.isBrowser) {
-              try {
-                Swal.fire({
-                  title: 'Registration Submitted!',
-                  text: 'Your account is pending approval by a super admin. You will be able to sign in once approved.',
-                  icon: 'success',
-                  confirmButtonText: 'OK',
-                }).then(() => {
-                  this.router.navigate(['/admin-login']);
-                });
-              } catch (err) {
-                console.error('Error with browser API:', err);
-                this.router.navigate(['/admin-login']);
-              }
-            } else {
-              this.router.navigate(['/admin-login']);
-            }
-          } else {
-            const errorMessage =
-              response.status.message || 'Registration failed';
-            this.errorMessage = errorMessage;
+    console.log('Sending registration data to API:', {
+      ...registrationData,
+      password: '[REDACTED]',
+    });
 
-            // Show error message
-            Swal.fire({
-              title: 'Registration Failed!',
-              text: errorMessage,
-              icon: 'error',
-              confirmButtonText: 'OK',
-            });
+    // Step 1: request a verification code
+    this.http
+      .post(
+        `${environment.apiUrl}/send_registration_code`,
+        { email: this.admin.email },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .subscribe({
+        next: async (codeResp: any) => {
+          console.log('Verification code response:', codeResp);
+
+          // Step 2: prompt for 6-digit code
+          const { value: code } = await Swal.fire({
+            title: 'Enter Verification Code',
+            input: 'text',
+            inputLabel: 'A 6-digit code was sent to your email',
+            inputPlaceholder: '123456',
+            inputAttributes: {
+              maxlength: '6',
+              inputmode: 'numeric',
+              autocapitalize: 'off',
+              autocorrect: 'off',
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Verify & Register',
+            preConfirm: (value) => {
+              if (!/^\d{6}$/.test(value)) {
+                Swal.showValidationMessage('Please enter a valid 6-digit code');
+              }
+              return value;
+            },
+          });
+
+          if (!code) {
+            this.isLoading = false;
+            return;
           }
+
+          const payload: any = { ...registrationData, verification_code: code };
+
+          // Step 3: submit registration with code
+          this.http
+            .post(`${environment.apiUrl}/register_admin`, payload, {
+              headers: { 'Content-Type': 'application/json' },
+            })
+            .subscribe({
+              next: (response: any) => {
+                this.isLoading = false;
+                console.log('Response:', response);
+                if (response.status.remarks === 'success') {
+                  // Show success message before redirecting (only if in browser)
+                  if (this.isBrowser) {
+                    try {
+                      Swal.fire({
+                        title: 'Registration Submitted!',
+                        text: 'Your account is pending approval by a super admin. You will be able to sign in once approved.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                      }).then(() => {
+                        this.router.navigate(['/admin-login']);
+                      });
+                    } catch (err) {
+                      console.error('Error with browser API:', err);
+                      this.router.navigate(['/admin-login']);
+                    }
+                  } else {
+                    this.router.navigate(['/admin-login']);
+                  }
+                } else {
+                  const errorMessage =
+                    response.status.message || 'Registration failed';
+                  this.errorMessage = errorMessage;
+
+                  // Show error message
+                  Swal.fire({
+                    title: 'Registration Failed!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                  });
+                }
+              },
+              error: (err) => {
+                this.isLoading = false;
+                console.error('Registration error:', err);
+                this.errorMessage = 'Registration failed. Please try again.';
+                Swal.fire({
+                  title: 'Registration Failed!',
+                  text: 'Registration failed. Please try again.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                });
+              },
+            });
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Registration error', error);
-
-          let errorMessage = '';
-          if (error.error?.status?.message) {
-            errorMessage = error.error.status.message;
-          } else if (error.status === 0) {
-            errorMessage = 'Cannot connect to server. Please try again later.';
-          } else {
-            errorMessage = 'Registration failed. Please try again.';
-          }
-
-          // Show error message
+          console.error('Send code error:', error);
+          const msg =
+            (error?.error?.status?.message as string) ||
+            'Failed to send verification code.';
+          this.errorMessage = msg;
           Swal.fire({
-            title: 'Registration Failed!',
-            text: errorMessage,
+            title: 'Verification Failed!',
+            text: msg,
             icon: 'error',
             confirmButtonText: 'OK',
           });
-
-          this.errorMessage = errorMessage;
         },
       });
   }
