@@ -37,9 +37,6 @@ interface BookingDetails {
             <mat-icon class="header-icon">receipt_long</mat-icon>
             <h2 mat-dialog-title>Booking Details</h2>
           </div>
-          <div class="booking-id-badge">
-            <span class="id-text">#{{ data.id }}</span>
-          </div>
         </div>
       </div>
 
@@ -115,6 +112,10 @@ interface BookingDetails {
               <span class="label">Booking Date:</span>
               <span class="value date-value">{{ formatDate(data.date) }}</span>
             </div>
+            <div class="detail-row" *ngIf="formatTime(data.date)">
+              <span class="label">Booking Time:</span>
+              <span class="value date-value">{{ formatTime(data.date) }}</span>
+            </div>
           </div>
         </div>
       </mat-dialog-content>
@@ -172,20 +173,6 @@ interface BookingDetails {
         color: white;
         font-size: 24px;
         font-weight: 600;
-      }
-
-      .booking-id-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 8px 16px;
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .id-text {
-        font-weight: 700;
-        font-size: 16px;
-        color: white;
       }
 
       /* Content Styles */
@@ -400,10 +387,29 @@ export class BookingDetailsDialog {
     if (!dateString || dateString === 'Unknown Date') {
       return 'Unknown Date';
     }
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Unknown Date';
+    }
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+    });
+  }
+
+  formatTime(dateString: string): string | null {
+    if (!dateString || dateString === 'Unknown Date') {
+      return null;
+    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
     });
   }
 

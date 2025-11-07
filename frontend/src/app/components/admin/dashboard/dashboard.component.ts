@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Inject,
-  PLATFORM_ID,
-  OnDestroy,
-} from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,8 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-import { Subject, interval } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 
@@ -57,7 +49,7 @@ interface RecentBooking {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   businessStats: BusinessStats = {
     totalCustomers: 0,
     totalBookings: 0,
@@ -78,16 +70,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     'actions',
   ];
 
-  private destroy$ = new Subject<void>();
   private apiUrl = environment.apiUrl;
 
   // Loading states
   isLoading = true;
   isLoadingStats = true;
   isLoadingBookings = true;
-
-  // Auto-refresh interval (5 minutes)
-  private readonly REFRESH_INTERVAL = 5 * 60 * 1000;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -98,18 +86,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDashboardData();
-
-    // Set up auto-refresh
-    interval(this.REFRESH_INTERVAL)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.loadDashboardData();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   loadDashboardData(): void {
