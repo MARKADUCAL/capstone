@@ -15,6 +15,10 @@ interface CustomerBooking {
   customerId?: number;
   averageRating?: number;
   totalRatings?: number;
+  vehicleType?: string;
+  serviceDescription?: string;
+  paymentType?: string;
+  assignedEmployeeName?: string;
   raw?: any;
 }
 
@@ -61,6 +65,35 @@ export class CustomerRecordsComponent implements OnInit {
           const washDate: string = b.washDate || b.wash_date || b.date || '';
           const washTime: string = b.washTime || b.wash_time || b.time || '';
 
+          const vehicleType =
+            b.vehicleType ||
+            b.vehicle_type ||
+            b.vehicleCategory ||
+            b.vehicle_category ||
+            undefined;
+
+          const serviceDescription =
+            b.serviceDescription ||
+            b.service_description ||
+            b.serviceDetails ||
+            b.service_details ||
+            undefined;
+
+          const paymentType =
+            b.paymentType ||
+            b.payment_type ||
+            b.paymentMethod ||
+            b.payment_method ||
+            undefined;
+
+          const assignedEmployeeName =
+            b.assignedEmployeeName ||
+            b.assigned_employee_name ||
+            this.buildEmployeeName(
+              b.employeeFirstName || b.employee_first_name,
+              b.employeeLastName || b.employee_last_name
+            );
+
           return {
             id: Number(b.id ?? 0),
             customerName,
@@ -69,6 +102,10 @@ export class CustomerRecordsComponent implements OnInit {
             time: washTime || '—',
             status,
             customerId: b.customerId || b.customer_id,
+            vehicleType,
+            serviceDescription,
+            paymentType,
+            assignedEmployeeName,
             raw: b,
           } as CustomerBooking;
         });
@@ -162,5 +199,49 @@ export class CustomerRecordsComponent implements OnInit {
     if (rating >= 4.0) return '#ff6b35'; // Orange for good ratings
     if (rating >= 3.0) return '#ffa500'; // Orange for average ratings
     return '#ff4444'; // Red for low ratings
+  }
+
+  formatTime(time: string | undefined | null): string {
+    if (!time) return '—';
+
+    const trimmed = time.trim();
+    if (!trimmed || trimmed === '—') return '—';
+
+    const match = trimmed.match(
+      /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i
+    );
+
+    if (!match) {
+      return trimmed;
+    }
+
+    let hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const seconds = match[3] ? Number(match[3]) : 0;
+    const period = match[4]?.toUpperCase();
+
+    if (period === 'PM' && hours < 12) {
+      hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    const reference = new Date();
+    reference.setHours(hours, minutes, seconds, 0);
+
+    return reference.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  }
+
+  private buildEmployeeName(
+    firstName?: string,
+    lastName?: string
+  ): string | undefined {
+    const first = (firstName || '').trim();
+    const last = (lastName || '').trim();
+    const combined = [first, last].filter((part) => part.length > 0).join(' ');
+    return combined.length > 0 ? combined : undefined;
   }
 }
