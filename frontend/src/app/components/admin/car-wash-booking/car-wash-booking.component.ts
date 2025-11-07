@@ -28,6 +28,33 @@ import {
   ONLINE_PAYMENT_OPTIONS,
 } from '../../../models/booking.model';
 
+const SERVICE_PACKAGE_DETAILS: Record<
+  string,
+  { label: string; description: string }
+> = {
+  p1: {
+    label: 'Wash only',
+    description: 'Exterior wash focused on removing dirt and surface grime.',
+  },
+  p2: {
+    label: 'Wash / Vacuum',
+    description:
+      'Exterior wash with complete interior vacuum for seats, mats, and cargo area.',
+  },
+  p3: {
+    label: 'Wash / Vacuum / Hand Wax',
+    description:
+      'Wash and vacuum service finished with protective hand wax for added shine.',
+  },
+  p4: {
+    label: 'Wash / Vacuum / Buffing Wax',
+    description:
+      'Full wash and vacuum including machine buffing wax for long-lasting gloss.',
+  },
+};
+
+const SERVICE_PACKAGE_CODE_SET = new Set(Object.keys(SERVICE_PACKAGE_DETAILS));
+
 interface CarWashBooking {
   id: number;
   customerName: string;
@@ -40,6 +67,7 @@ interface CarWashBooking {
   imageUrl?: string;
   notes?: string;
   // Additional fields for comprehensive details
+  servicePackageCode?: string;
   firstName?: string;
   lastName?: string;
   nickname?: string;
@@ -396,6 +424,24 @@ export class CarWashBookingComponent implements OnInit {
     this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
         this.bookings = bookings.map((b: any, idx: number) => {
+          const servicePackageCode = this.extractServicePackageCode(b);
+          const serviceDetails = servicePackageCode
+            ? SERVICE_PACKAGE_DETAILS[servicePackageCode]
+            : undefined;
+          const rawServiceName =
+            b.serviceName ?? b.service_name ?? b.serviceType ?? b.service_type;
+          const shouldUseDetailsLabel =
+            !rawServiceName ||
+            this.normalizeServicePackageCode(rawServiceName) !== null;
+          const resolvedServiceType =
+            (shouldUseDetailsLabel
+              ? serviceDetails?.label || rawServiceName
+              : rawServiceName) || 'Standard Wash';
+          const resolvedServiceDescription =
+            b.serviceDescription ??
+            b.service_description ??
+            serviceDetails?.description;
+
           const booking = {
             id: Number(b.id ?? idx + 1),
             customerName: this.resolveCustomerName(b.customerName, b.nickname),
@@ -408,11 +454,12 @@ export class CarWashBookingComponent implements OnInit {
               | 'Rejected'
               | 'Done'
               | 'Completed',
-            serviceType: b.serviceName ?? 'Standard Wash',
+            serviceType: resolvedServiceType,
             price: b.price ? Number(b.price) : undefined,
             imageUrl: 'assets/images/profile-placeholder.jpg',
             notes: b.notes ?? undefined,
             // Additional comprehensive details
+            servicePackageCode: servicePackageCode ?? undefined,
             firstName: b.firstName ?? b.first_name,
             lastName: b.lastName ?? b.last_name,
             nickname: b.nickname,
@@ -421,7 +468,7 @@ export class CarWashBookingComponent implements OnInit {
             paymentType: b.paymentType ?? b.payment_type,
             onlinePaymentOption:
               b.onlinePaymentOption ?? b.online_payment_option,
-            serviceDescription: b.serviceDescription ?? b.service_description,
+            serviceDescription: resolvedServiceDescription,
             serviceDuration: b.serviceDuration ?? b.service_duration,
             assignedEmployeeId: b.assignedEmployeeId ?? b.assigned_employee_id,
             assignedEmployeeName:
@@ -446,6 +493,75 @@ export class CarWashBookingComponent implements OnInit {
         this.showNotification(err.message || 'Failed to load bookings');
       },
     });
+  }
+
+  private extractServicePackageCode(raw: any): string | null {
+    if (!raw) return null;
+
+    const candidates = [
+      raw.servicePackage,
+      raw.service_package,
+      raw.servicePackageCode,
+      raw.service_package_code,
+      raw.serviceCode,
+      raw.service_code,
+      raw.serviceName,
+      raw.service_name,
+      raw.serviceType,
+      raw.service_type,
+    ];
+
+    for (const candidate of candidates) {
+      const code = this.normalizeServicePackageCode(candidate);
+      if (code) {
+        return code;
+      }
+    }
+
+    return null;
+  }
+
+  private normalizeServicePackageCode(value: unknown): string | null {
+    if (value === undefined || value === null) return null;
+    const text = String(value).trim();
+    if (!text) return null;
+
+    const lower = text.toLowerCase();
+
+    if (SERVICE_PACKAGE_CODE_SET.has(lower)) {
+      return lower;
+    }
+
+    if (/^p\d$/.test(lower)) {
+      return SERVICE_PACKAGE_CODE_SET.has(lower) ? lower : null;
+    }
+
+    if (/^\d$/.test(lower)) {
+      const prefixed = `p${lower}`;
+      return SERVICE_PACKAGE_CODE_SET.has(prefixed) ? prefixed : null;
+    }
+
+    const hyphenIndex = lower.indexOf('-');
+    if (hyphenIndex > 0) {
+      const prefix = lower.slice(0, hyphenIndex).trim();
+      const normalized = this.normalizeServicePackageCode(prefix);
+      if (normalized) {
+        return normalized;
+      }
+    }
+
+    if (lower.includes(' ')) {
+      const pieces = lower.split(/\s+/);
+      for (const piece of pieces) {
+        if (!piece || piece === lower) continue;
+        const normalized = this.normalizeServicePackageCode(piece);
+        if (normalized) {
+          return normalized;
+        }
+      }
+    }
+
+    return null;
   }
 
   private resolveCustomerName(dbFullName?: string, nickname?: string): string {
@@ -1353,10 +1469,6 @@ export class CreateWalkInBookingDialogComponent {
                 <span class="status-dot"></span>
                 {{ displayStatus(data.booking.status) }}
               </span>
-            </div>
-            <div class="info-item">
-              <span class="label">Booking ID</span>
-              <span class="value">{{ data.booking.id }}</span>
             </div>
           </div>
         </div>
