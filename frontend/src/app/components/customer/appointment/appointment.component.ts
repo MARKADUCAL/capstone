@@ -389,7 +389,7 @@ export class AppointmentComponent implements OnInit {
   openBookingModal(): void {
     if (this.hasActiveBooking()) {
       const msg =
-        'You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.';
+        'You already have an active booking. Please wait until it’s completed, cancelled, or declined before making a new one.';
       this.errorMessage = msg;
       Swal.fire({
         icon: 'info',
@@ -445,7 +445,7 @@ export class AppointmentComponent implements OnInit {
     // Prevent creating a new booking when an active one exists
     if (this.hasActiveBooking()) {
       const msg =
-        'You already have an active booking. Please wait until it’s completed, cancelled, or rejected before making a new one.';
+        'You already have an active booking. Please wait until it’s completed, cancelled, or declined before making a new one.';
       this.errorMessage = msg;
       Swal.fire({
         icon: 'info',
@@ -514,6 +514,13 @@ export class AppointmentComponent implements OnInit {
         this.isSubmitting = false;
         this.successMessage = 'Booking created successfully!';
         this.loadBookings(); // Refresh the bookings list
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Booking created',
+          text: 'Your booking has been submitted successfully.',
+          confirmButtonColor: '#3498db',
+        });
 
         // Close modal after 2 seconds on success
         setTimeout(() => {

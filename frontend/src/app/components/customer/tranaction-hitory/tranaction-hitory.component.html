@@ -78,7 +78,7 @@
         (click)="setFilter('rejected')"
       >
         <span class="tab-icon">🚫</span>
-        <span class="tab-text">Decline</span>
+        <span class="tab-text">Declined</span>
         <span class="tab-count">{{ getFilterCount("rejected") }}</span>
       </button>
     </div>
@@ -126,7 +126,7 @@
       You haven't made any car wash bookings yet. Book your first service to get
       started!
     </p>
-    <button class="book-now-btn">
+    <button class="book-now-btn" (click)="navigateToBooking()">
       <span class="book-icon">🚗</span>
       Book Now
     </button>
@@ -437,7 +437,10 @@
             </div>
             <div
               class="detail-row"
-              *ngIf="hasEmployeeAssigned(selectedBooking)"
+              *ngIf="
+                hasEmployeeAssigned(selectedBooking) &&
+                normalizeStatus(selectedBooking.status) !== 'completed'
+              "
             >
               <span class="label">Employee ID:</span>
               <span class="value">{{
@@ -481,11 +484,48 @@
             </div>
             <div
               class="detail-row"
+              *ngIf="getCustomerRatingLabel(selectedBooking)"
+            >
+              <span class="label">Feedback Summary:</span>
+              <span class="value">{{
+                getCustomerRatingLabel(selectedBooking)
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
               *ngIf="getCustomerRatingComment(selectedBooking)"
             >
               <span class="label">Comment:</span>
               <span class="value rating-comment">{{
                 getCustomerRatingComment(selectedBooking)
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).feedbackCustomerName"
+            >
+              <span class="label">Submitted By:</span>
+              <span class="value">{{
+                $any(selectedBooking).feedbackCustomerName
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).feedbackCreatedAt"
+            >
+              <span class="label">Submitted On:</span>
+              <span class="value">{{
+                $any(selectedBooking).feedbackCreatedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="getFeedbackVisibility(selectedBooking)"
+            >
+              <span class="label">Visibility:</span>
+              <span class="value">{{
+                getFeedbackVisibility(selectedBooking)
               }}</span>
             </div>
           </div>

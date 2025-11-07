@@ -14,6 +14,8 @@ import {
 } from '../../../services/feedback.service';
 import { Booking, BookingStatus } from '../../../models/booking.model';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-tranaction-hitory',
@@ -51,7 +53,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookingService: BookingService,
-    private feedbackService: FeedbackService
+    private feedbackService: FeedbackService,
+    private router: Router
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -66,6 +69,17 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         this.handleVisibilityChange.bind(this)
       );
     }
+  }
+
+  navigateToBooking(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    this.router.navigate(['/customer-view/appointment']).catch((error) => {
+      console.error('Failed to navigate to appointment page:', error);
+      this.errorMessage = 'Unable to open booking page. Please try again.';
+    });
   }
 
   ngOnDestroy(): void {
@@ -350,6 +364,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           result.message || 'Booking cancelled successfully!';
         this.errorMessage = null;
 
+        Swal.fire({
+          icon: 'success',
+          title: 'Booking cancelled',
+          text: 'The booking has been cancelled successfully.',
+          confirmButtonColor: '#3498db',
+        });
+
         console.log('🎉 Booking cancelled successfully:', result.message);
 
         // Reload data from backend to ensure consistency
@@ -364,6 +385,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       console.error('💥 Error cancelling booking:', error);
       this.errorMessage = 'Failed to cancel booking. Please try again.';
       this.successMessage = null;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Cancellation failed',
+        text: 'We could not cancel the booking. Please try again.',
+        confirmButtonColor: '#e74c3c',
+      });
     } finally {
       this.isCancelling = false;
     }
@@ -497,6 +525,14 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
             (booking as any).rating = feedbackForBooking.rating;
             (booking as any).customerRatingComment = feedbackForBooking.comment;
             (booking as any).ratingComment = feedbackForBooking.comment;
+            (booking as any).feedbackCreatedAt = feedbackForBooking.created_at;
+            (booking as any).feedbackCustomerName =
+              feedbackForBooking.customer_name;
+            (booking as any).feedbackServiceName =
+              feedbackForBooking.service_name;
+            (booking as any).feedbackVisibility = feedbackForBooking.is_public
+              ? 'Public'
+              : 'Private';
           }
           // Attach admin comment to booking for display if present
           if (
@@ -533,6 +569,14 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           (booking as any).rating = feedbackForBooking.rating;
           (booking as any).customerRatingComment = feedbackForBooking.comment;
           (booking as any).ratingComment = feedbackForBooking.comment;
+          (booking as any).feedbackCreatedAt = feedbackForBooking.created_at;
+          (booking as any).feedbackCustomerName =
+            feedbackForBooking.customer_name;
+          (booking as any).feedbackServiceName =
+            feedbackForBooking.service_name;
+          (booking as any).feedbackVisibility = feedbackForBooking.is_public
+            ? 'Public'
+            : 'Private';
           if (
             (feedbackForBooking.admin_comment || '').toString().trim().length >
             0
@@ -752,6 +796,22 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   getCustomerRatingComment(booking: any): string | null {
     return booking.customerRatingComment || booking.ratingComment || null;
+  }
+
+  getCustomerRatingLabel(booking: Booking): string {
+    const rating = this.getCustomerRating(booking);
+    if (!rating || rating < 0 || rating >= this.ratingTexts.length) {
+      return '';
+    }
+    return this.ratingTexts[Math.round(rating)] || '';
+  }
+
+  getFeedbackVisibility(booking: Booking): string {
+    const visibility = (booking as any).feedbackVisibility;
+    if (!visibility) {
+      return '';
+    }
+    return visibility;
   }
 
   getStarDisplay(rating: number): string {
