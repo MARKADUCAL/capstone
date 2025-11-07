@@ -21,6 +21,7 @@ import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { Employee } from '../../../models/booking.model';
+import Swal from 'sweetalert2';
 import {
   VEHICLE_TYPE_CODES,
   SERVICE_CODES,
@@ -282,6 +283,12 @@ export class CarWashBookingComponent implements OnInit {
                 .updateBookingStatus(booking.id, 'Approved')
                 .subscribe({
                   next: () => {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Booking Approved',
+                      text: 'Employee assigned and booking approved successfully.',
+                      confirmButtonColor: '#2563eb',
+                    });
                     this.showNotification(
                       'Employee assigned and booking approved successfully'
                     );
@@ -1419,12 +1426,6 @@ export class CreateWalkInBookingDialogComponent {
               <span class="value">{{ data.booking.employeePosition }}</span>
             </div>
 
-            <!-- Show employee ID if available -->
-            <div class="info-item" *ngIf="data.booking.assignedEmployeeId">
-              <span class="label">Employee ID</span>
-              <span class="value">{{ data.booking.assignedEmployeeId }}</span>
-            </div>
-
             <!-- Show assignment status if no employee data is available -->
             <div
               class="info-item"
@@ -1980,7 +1981,11 @@ export class BookingDetailsDialogComponent {
           <mat-icon>access_time</mat-icon>
           <div class="detail-text">
             <div class="label">Time</div>
-            <div class="value">{{ data.booking.time }}</div>
+            <div class="value">
+              {{
+                formatBookingTime(data.booking.time || data.booking.washTime)
+              }}
+            </div>
           </div>
         </div>
         <div class="detail">
@@ -1991,7 +1996,7 @@ export class BookingDetailsDialogComponent {
           </div>
         </div>
         <div class="detail">
-          <mat-icon>attach_money</mat-icon>
+          <span class="peso-icon">₱</span>
           <div class="detail-text">
             <div class="label">Price</div>
             <div class="value">
@@ -2094,6 +2099,18 @@ export class BookingDetailsDialogComponent {
       .detail mat-icon {
         color: #666;
       }
+      .detail .peso-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(37, 99, 235, 0.12);
+        color: #1d4ed8;
+        font-weight: 600;
+        font-size: 14px;
+      }
       .detail .label {
         font-size: 12px;
         color: #777;
@@ -2130,6 +2147,35 @@ export class EmployeeAssignmentDialogComponent {
       employees: Employee[];
     }
   ) {}
+
+  formatBookingTime(time?: string | null): string {
+    if (!time) {
+      return 'Not set';
+    }
+
+    const trimmed = String(time).trim();
+    if (!trimmed) {
+      return 'Not set';
+    }
+
+    const parts = trimmed.split(':');
+    if (parts.length < 2) {
+      return trimmed;
+    }
+
+    const hours = parseInt(parts[0], 10);
+    const minutes = parseInt(parts[1], 10);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+      return trimmed;
+    }
+
+    const period = hours >= 12 ? 'pm' : 'am';
+    const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+
+    return `${displayHours}:${displayMinutes}${period}`;
+  }
 
   onClose(): void {
     this.dialogRef.close();
