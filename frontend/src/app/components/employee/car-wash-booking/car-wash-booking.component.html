@@ -6,12 +6,7 @@
         View and complete your assigned car wash bookings
       </p>
     </div>
-    <div class="header-right">
-      <button mat-raised-button color="accent" (click)="refreshBookings()">
-        <mat-icon>refresh</mat-icon>
-        Refresh
-      </button>
-    </div>
+    <div class="header-right"></div>
   </div>
 
   <!-- Loading State -->
@@ -94,7 +89,13 @@
           </div>
           <div class="info price">
             <span class="peso-symbol">₱</span>
-            >{{ booking.price | number : "1.2-2" }}
+            <span class="price-value">
+              {{
+                booking.price !== null && booking.price !== undefined
+                  ? (booking.price | number : "1.2-2")
+                  : "0.00"
+              }}
+            </span>
           </div>
         </div>
       </div>

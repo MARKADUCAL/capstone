@@ -18,6 +18,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 interface CarWashBooking {
   id: number;
@@ -27,7 +28,7 @@ interface CarWashBooking {
   time: string;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
   serviceType?: string;
-  price?: number;
+  price?: number | null;
   imageUrl?: string;
 }
 
@@ -74,10 +75,21 @@ export class CarWashBookingComponent implements OnInit {
     const prev = booking.status;
     booking.status = 'Approved';
     this.bookingService.updateBookingStatus(booking.id, 'Approved').subscribe({
-      next: () => this.showNotification('Booking approved successfully'),
+      next: () =>
+        Swal.fire({
+          title: 'Booking Approved!',
+          text: 'The booking status has been updated to Approved.',
+          icon: 'success',
+          confirmButtonColor: '#047857',
+        }),
       error: (err) => {
         booking.status = prev;
-        this.showNotification(err.message || 'Failed to approve booking');
+        Swal.fire({
+          title: 'Approval Failed',
+          text: err.message || 'Failed to approve booking.',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
       },
     });
   }
@@ -86,10 +98,21 @@ export class CarWashBookingComponent implements OnInit {
     const prev = booking.status;
     booking.status = 'Rejected';
     this.bookingService.updateBookingStatus(booking.id, 'Rejected').subscribe({
-      next: () => this.showNotification('Booking rejected successfully'),
+      next: () =>
+        Swal.fire({
+          title: 'Booking Rejected',
+          text: 'The booking status has been updated to Rejected.',
+          icon: 'success',
+          confirmButtonColor: '#047857',
+        }),
       error: (err) => {
         booking.status = prev;
-        this.showNotification(err.message || 'Failed to reject booking');
+        Swal.fire({
+          title: 'Rejection Failed',
+          text: err.message || 'Failed to reject booking.',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
       },
     });
   }
@@ -99,19 +122,48 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   markAsDone(booking: CarWashBooking): void {
-    const prev = booking.status;
-    booking.status = 'Done';
-    this.bookingService.updateBookingStatus(booking.id, 'Done').subscribe({
-      next: () => {
-        this.showNotification(
-          'Car wash marked as done! Admin will review and complete the booking.'
-        );
-        this.loadBookings(); // Refresh the list to show updated status
+    Swal.fire({
+      title: 'Mark as Done?',
+      text: 'Confirm that you have completed this car wash.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, mark as done',
+      cancelButtonText: 'Cancel',
+      focusCancel: true,
+      confirmButtonColor: '#047857',
+      cancelButtonColor: '#9ca3af',
+      customClass: {
+        confirmButton: 'swal-confirm-btn',
+        cancelButton: 'swal-cancel-btn',
       },
-      error: (err) => {
-        booking.status = prev;
-        this.showNotification(err.message || 'Failed to mark booking as done');
-      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const previousStatus = booking.status;
+        booking.status = 'Done';
+
+        this.bookingService.updateBookingStatus(booking.id, 'Done').subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Marked as Done!',
+              text: 'Admin has been notified to review this booking.',
+              icon: 'success',
+              confirmButtonColor: '#047857',
+            });
+            this.loadBookings();
+          },
+          error: (err) => {
+            booking.status = previousStatus;
+            Swal.fire({
+              title: 'Update Failed',
+              text:
+                err.message ||
+                'We could not update the booking status. Please try again.',
+              icon: 'error',
+              confirmButtonColor: '#dc2626',
+            });
+          },
+        });
+      }
     });
   }
 
@@ -121,14 +173,6 @@ export class CarWashBookingComponent implements OnInit {
     return this.bookings.filter(
       (booking) => booking.status.toLowerCase() === selected
     );
-  }
-
-  private showNotification(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-    });
   }
 
   getUserInitials(name: string): string {
@@ -167,10 +211,21 @@ export class CarWashBookingComponent implements OnInit {
     const prev = booking.status;
     booking.status = 'Completed';
     this.bookingService.updateBookingStatus(booking.id, 'Completed').subscribe({
-      next: () => this.showNotification('Booking marked as completed'),
+      next: () =>
+        Swal.fire({
+          title: 'Booking Completed',
+          text: 'The booking has been marked as completed.',
+          icon: 'success',
+          confirmButtonColor: '#047857',
+        }),
       error: (err) => {
         booking.status = prev;
-        this.showNotification(err.message || 'Failed to complete booking');
+        Swal.fire({
+          title: 'Update Failed',
+          text: err.message || 'Failed to complete booking.',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+        });
       },
     });
   }
@@ -210,11 +265,11 @@ export class CarWashBookingComponent implements OnInit {
                 b.nickname
               ),
               vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
-              date: b.washDate ?? '',
-              time: b.washTime ?? '',
+              date: b.washDate ? this.formatDate(b.washDate) : 'Date TBD',
+              time: this.formatTime(b.washTime),
               status: normalizedStatus,
               serviceType: b.serviceName ?? 'Standard Wash',
-              price: b.price ? Number(b.price) : undefined,
+              price: this.normalizePrice(b.price),
               imageUrl: 'assets/images/profile-placeholder.jpg',
             };
           });
@@ -233,6 +288,77 @@ export class CarWashBookingComponent implements OnInit {
     }
   }
 
+  private formatDate(dateString: string): string {
+    if (!dateString) {
+      return 'Date TBD';
+    }
+
+    const parsed = new Date(dateString);
+    if (isNaN(parsed.getTime())) {
+      return dateString;
+    }
+
+    return parsed.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  private formatTime(timeString?: string): string {
+    if (!timeString) {
+      return 'Time TBD';
+    }
+
+    const trimmed = timeString.trim();
+    if (!trimmed || /^tbd$/i.test(trimmed)) {
+      return 'Time TBD';
+    }
+
+    const amPmMatch = trimmed.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+    );
+    if (amPmMatch) {
+      const hours = parseInt(amPmMatch[1], 10) % 12 || 12;
+      const minutes = amPmMatch[2];
+      const period = amPmMatch[3].toUpperCase();
+      return `${hours}:${minutes} ${period}`;
+    }
+
+    const hhmmMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (hhmmMatch) {
+      const hours24 = parseInt(hhmmMatch[1], 10);
+      const minutes = hhmmMatch[2];
+      const period = hours24 >= 12 ? 'PM' : 'AM';
+      const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+      return `${hours12}:${minutes} ${period}`;
+    }
+
+    const parsed = new Date(`1970-01-01T${trimmed}`);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    }
+
+    return trimmed;
+  }
+
+  private normalizePrice(price: any): number | null {
+    if (price === null || price === undefined || price === '') {
+      return null;
+    }
+
+    const numeric = Number(price);
+    if (isNaN(numeric)) {
+      return null;
+    }
+
+    return Math.round(numeric * 100) / 100;
+  }
+
   private resolveCustomerName(dbFullName?: string, nickname?: string): string {
     const full = (dbFullName || '').trim();
     if (full.length > 0) return full;
@@ -243,8 +369,10 @@ export class CarWashBookingComponent implements OnInit {
   private openBookingDialog(booking: CarWashBooking, mode: 'view') {
     const dialogRef = this.dialog.open(BookingDetailsDialogComponent, {
       width: '600px',
-      maxWidth: '90vw',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
       data: { booking: { ...booking }, mode },
+      panelClass: 'booking-details-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -678,7 +806,7 @@ export class BookingDetailsDialogComponent {
       // Check if it's currently morning or afternoon based on current time
       const now = new Date();
       const isMorning = now.getHours() < 12;
-      return isMorning ? '1:00am' : '1:00pm';
+      return isMorning ? '1:00 AM' : '1:00 PM';
     }
 
     // For other vehicle types, format the time to 12-hour format with AM/PM
@@ -686,7 +814,7 @@ export class BookingDetailsDialogComponent {
       return this.formatTimeTo12Hour(timeString);
     }
 
-    return '';
+    return 'Time TBD';
   }
 
   formatTimeTo12Hour(timeString: string): string {
@@ -702,11 +830,11 @@ export class BookingDetailsDialogComponent {
         }
 
         // Convert to 12-hour format
-        const period = hours >= 12 ? 'pm' : 'am';
+        const period = hours >= 12 ? 'PM' : 'AM';
         const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
         const displayMinutes = minutes.toString().padStart(2, '0');
 
-        return `${displayHours}:${displayMinutes}${period}`;
+        return `${displayHours}:${displayMinutes} ${period}`;
       }
     } catch (error) {
       console.warn('Error formatting time:', error);
