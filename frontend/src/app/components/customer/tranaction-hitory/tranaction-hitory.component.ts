@@ -146,43 +146,84 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return s;
   }
 
+  private resolveServicePackageCode(booking: any): string | null {
+    const rawValue =
+      booking?.servicePackage ??
+      booking?.service_package ??
+      booking?.serviceCode ??
+      booking?.service_code;
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const normalized = rawValue
+      .toString()
+      .trim()
+      .split(' ') // handle values like "p1 - Wash only"
+      .shift()
+      ?.split('-') // handle values like "p1- Wash"
+      .shift();
+
+    if (!normalized) {
+      return null;
+    }
+
+    return normalized.toLowerCase();
+  }
+
   getServiceName(booking: any): string {
-    // If serviceName is provided by the backend, use it
     if (booking.serviceName) {
       return booking.serviceName;
     }
 
-    // Otherwise, generate service name from servicePackage
-    const packageMap: { [key: string]: string } = {
+    const packageCode = this.resolveServicePackageCode(booking);
+
+    if (!packageCode) {
+      return `Package ${booking.servicePackage || 'Unknown'}`;
+    }
+
+    const packageMap: Record<string, string> = {
       '1': 'Body Wash',
       '1.5': 'Body Wash + Tire Black',
       '2': 'Body Wash + Tire Black + Vacuum',
       '3': 'Body Wash + Body Wax + Tire Black',
       '4': 'Body Wash + Body Wax + Tire Black + Vacuum',
+      p1: 'Wash Only',
+      p1_5: 'Wash + Tire Black',
+      p2: 'Wash + Vacuum',
+      p3: 'Wash + Vacuum + Hand Wax',
+      p4: 'Wash + Vacuum + Buffing Wax',
     };
 
-    return (
-      packageMap[booking.servicePackage] ||
-      `Package ${booking.servicePackage || 'Unknown'}`
-    );
+    return packageMap[packageCode] || `Package ${packageCode.toUpperCase()}`;
   }
 
   getServiceDescription(booking: any): string {
-    // If serviceDescription is provided by the backend, use it
     if (booking.serviceDescription) {
       return booking.serviceDescription;
     }
 
-    // Otherwise, generate description from servicePackage
-    const descriptionMap: { [key: string]: string } = {
+    const packageCode = this.resolveServicePackageCode(booking);
+
+    if (!packageCode) {
+      return 'Car wash service';
+    }
+
+    const descriptionMap: Record<string, string> = {
       '1': 'Basic exterior wash with hand drying',
       '1.5': 'Exterior wash with tire black application',
       '2': 'Exterior wash, tire black, and interior vacuum',
       '3': 'Exterior wash with wax and tire black',
       '4': 'Complete wash with wax, tire black, and vacuum',
+      p1: 'Quick exterior wash to refresh your vehicle.',
+      p1_5: 'Exterior wash with tire black for extra shine.',
+      p2: 'Comprehensive wash plus interior vacuum cleaning.',
+      p3: 'Premium wash including vacuum and hand wax finish.',
+      p4: 'Full-service wash with buffing wax for lasting protection.',
     };
 
-    return descriptionMap[booking.servicePackage] || 'Car wash service';
+    return descriptionMap[packageCode] || 'Car wash service';
   }
 
   loadBookings(): void {
@@ -798,6 +839,34 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return booking.customerRatingComment || booking.ratingComment || null;
   }
 
+  getBookingNotes(booking: Booking): string | null {
+    const notes = (booking?.notes || '').toString();
+    if (!notes.trim()) {
+      return null;
+    }
+
+    if (this.normalizeStatus(booking.status) === 'rejected') {
+      const rejectionPrefix = 'Rejection reason:';
+      const legacyPrefix = 'Customer reason:';
+
+      if (notes.includes(rejectionPrefix)) {
+        const originalNotes = notes.split(rejectionPrefix)[0]?.trim();
+        if (originalNotes) {
+          return originalNotes;
+        }
+      }
+
+      if (notes.includes(legacyPrefix)) {
+        const originalNotes = notes.split(legacyPrefix)[0]?.trim();
+        if (originalNotes) {
+          return originalNotes;
+        }
+      }
+    }
+
+    return notes.trim();
+  }
+
   getCustomerRatingLabel(booking: Booking): string {
     const rating = this.getCustomerRating(booking);
     if (!rating || rating < 0 || rating >= this.ratingTexts.length) {
@@ -827,7 +896,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   hasAdditionalInfo(booking: any): boolean {
     return !!(
-      booking.notes ||
+      this.getBookingNotes(booking) ||
       booking.specialRequests ||
       booking.bookingSource ||
       booking.estimatedDuration
