@@ -895,6 +895,31 @@
   max-width: 500px;
 }
 
+.feedback-context-card {
+  margin-bottom: 24px;
+}
+
+.feedback-context-card .detail-content {
+  display: grid;
+  gap: 12px;
+}
+
+.feedback-context-card .detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feedback-context-card .label {
+  font-weight: 600;
+  color: #475569;
+}
+
+.feedback-context-card .value {
+  color: #1f2937;
+  text-align: right;
+}
+
 .rating-section {
   text-align: center;
   margin-bottom: 32px;
@@ -941,6 +966,24 @@
   margin: 0;
   height: 24px;
   font-size: 16px;
+}
+
+.rating-guidelines {
+  text-align: left;
+  margin: 16px auto 0;
+  padding-left: 20px;
+  max-width: 420px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rating-guidelines li {
+  margin-bottom: 6px;
+}
+
+.rating-guidelines li strong {
+  color: #1e293b;
 }
 
 .feedback-section label {

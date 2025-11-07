@@ -699,6 +699,40 @@
     </div>
 
     <div class="modal-body">
+      <div class="detail-card feedback-context-card" *ngIf="selectedBooking">
+        <div class="detail-header">
+          <span class="detail-icon">🧾</span>
+          <h4>Booking Summary</h4>
+        </div>
+        <div class="detail-content">
+          <div class="detail-row">
+            <span class="label">Service:</span>
+            <span class="value">{{ getServiceName(selectedBooking) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Description:</span>
+            <span class="value">{{
+              getServiceDescription(selectedBooking)
+            }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Schedule:</span>
+            <span class="value"
+              >{{ formatDate(selectedBooking.washDate) }} •
+              {{ formatTime(selectedBooking.washTime) }}</span
+            >
+          </div>
+          <div class="detail-row" *ngIf="selectedBooking.price">
+            <span class="label">Amount Paid:</span>
+            <span class="value">₱{{ selectedBooking.price }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Booking ID:</span>
+            <span class="value">{{ selectedBooking.id }}</span>
+          </div>
+        </div>
+      </div>
+
       <div class="rating-section">
         <h3>How would you rate our service?</h3>
         <div class="star-rating">
@@ -712,6 +746,27 @@
           </button>
         </div>
         <p class="rating-text">{{ getRatingText() }}</p>
+        <ul class="rating-guidelines">
+          <li>
+            <strong>5 stars</strong> – Exceptional experience, highly satisfied.
+          </li>
+          <li>
+            <strong>4 stars</strong> – Great service with minor areas for
+            improvement.
+          </li>
+          <li>
+            <strong>3 stars</strong> – Average experience, met basic
+            expectations.
+          </li>
+          <li>
+            <strong>2 stars</strong> – Below expectations, several issues
+            encountered.
+          </li>
+          <li>
+            <strong>1 star</strong> – Very unsatisfied, major problems with the
+            service.
+          </li>
+        </ul>
       </div>
 
       <div class="feedback-section">
