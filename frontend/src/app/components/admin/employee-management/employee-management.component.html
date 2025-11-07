@@ -336,7 +336,17 @@
       <div class="modal-body" *ngIf="selectedEmployee">
         <div class="employee-details-view">
           <div class="employee-avatar-large">
-            {{ getUserInitials(selectedEmployee.name) }}
+            <ng-container *ngIf="selectedEmployee.avatarUrl; else initials">
+              <img
+                [src]="selectedEmployee.avatarUrl"
+                [alt]="selectedEmployee.name + ' profile photo'"
+                class="employee-avatar-image"
+                (error)="handleAvatarError(selectedEmployee)"
+              />
+            </ng-container>
+            <ng-template #initials>
+              {{ getUserInitials(selectedEmployee.name) }}
+            </ng-template>
           </div>
           <p><strong>Full Name:</strong> {{ selectedEmployee.name }}</p>
           <p><strong>Role:</strong> {{ selectedEmployee.role }}</p>

@@ -19,6 +19,7 @@ interface Employee {
   status: 'Active' | 'Inactive';
   employeeId?: string;
   registrationDate?: string;
+  avatarUrl?: string | null;
 }
 
 interface NewEmployee {
@@ -106,6 +107,18 @@ export class EmployeeManagementComponent implements OnInit {
           this.employees = response.payload.employees.map((employee: any) => {
             const derivedStatus =
               localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
+            const avatarUrl =
+              employee.avatar_url ||
+              employee.avatarUrl ||
+              employee.avatar ||
+              employee.profile_image ||
+              employee.profileImage ||
+              employee.profile_picture ||
+              employee.photo_url ||
+              employee.photo ||
+              employee.image_url ||
+              employee.imageUrl ||
+              null;
             return {
               id: employee.id,
               employeeId: employee.employee_id,
@@ -115,6 +128,7 @@ export class EmployeeManagementComponent implements OnInit {
               role: employee.position || 'Employee',
               status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
               registrationDate: this.formatDate(employee.created_at),
+              avatarUrl,
             };
           });
 
@@ -189,6 +203,18 @@ export class EmployeeManagementComponent implements OnInit {
             role: e.position || 'Employee',
             status: 'Inactive' as 'Active' | 'Inactive',
             registrationDate: this.formatDate(e.created_at),
+            avatarUrl:
+              e.avatar_url ||
+              e.avatarUrl ||
+              e.avatar ||
+              e.profile_image ||
+              e.profileImage ||
+              e.profile_picture ||
+              e.photo_url ||
+              e.photo ||
+              e.image_url ||
+              e.imageUrl ||
+              null,
           }));
 
           // Filter for pending employees (is_approved = 0, null, or undefined)
@@ -577,9 +603,15 @@ export class EmployeeManagementComponent implements OnInit {
       if (original) {
         original.status = this.editEmployeeData.status;
       }
-
-      this.showNotification('Saved status');
-      this.closeEditEmployeeModal();
+      Swal.fire({
+        title: 'Success!',
+        text: 'Employee status updated successfully',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#4CAF50',
+      }).then(() => {
+        this.closeEditEmployeeModal();
+      });
       return;
     }
 
@@ -792,6 +824,12 @@ export class EmployeeManagementComponent implements OnInit {
       .slice(0, 2);
   }
 
+  handleAvatarError(employee: Employee | null): void {
+    if (employee) {
+      employee.avatarUrl = null;
+    }
+  }
+
   private validateEmployeeForm(): boolean {
     // Check required fields
     if (
@@ -850,6 +888,7 @@ export class EmployeeManagementComponent implements OnInit {
       phone: '',
       email: '',
       status: 'Active',
+      avatarUrl: null,
     };
   }
 

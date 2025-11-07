@@ -673,6 +673,14 @@
   font-weight: 600;
   font-size: 24px;
   margin: 0 auto 20px;
+  overflow: hidden;
+}
+
+.employee-avatar-large .employee-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .employee-details-view p {

@@ -127,7 +127,9 @@ export class DashboardComponent implements OnInit {
           // Fallback to individual API calls
           this.loadIndividualStats();
         },
-        complete: () => resolve(),
+        complete: () => {
+          this.updateEmployeeCountIncludingPending().finally(() => resolve());
+        },
       });
     });
   }
@@ -162,21 +164,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadEmployeeCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_employee_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.totalEmployees =
-              response.payload.total_employees;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching employee count:', error);
-          this.showError('Failed to load employee count');
-        },
-        complete: () => resolve(),
-      });
-    });
+    return this.updateEmployeeCountIncludingPending();
   }
 
   private loadBookingCount(): Promise<void> {
@@ -224,6 +212,26 @@ export class DashboardComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error fetching pending booking count:', error);
+        },
+        complete: () => resolve(),
+      });
+    });
+  }
+
+  private updateEmployeeCountIncludingPending(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
+        next: (response: any) => {
+          if (response?.status?.remarks === 'success') {
+            const employees = response.payload?.employees;
+            if (Array.isArray(employees)) {
+              this.businessStats.totalEmployees = employees.length;
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching employees for count:', error);
+          this.showError('Failed to load employee count');
         },
         complete: () => resolve(),
       });
