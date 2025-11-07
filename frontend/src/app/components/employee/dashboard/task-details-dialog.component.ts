@@ -13,8 +13,8 @@ interface TaskDetails {
   id: number;
   customerName: string;
   service: string;
-  status: string;
   time: string;
+  date: string;
 }
 
 @Component({
@@ -35,9 +35,6 @@ interface TaskDetails {
           <div class="title-section">
             <mat-icon class="header-icon">assignment</mat-icon>
             <h2 mat-dialog-title>Task Details</h2>
-          </div>
-          <div class="task-id-badge">
-            <span class="id-text">#{{ data.id }}</span>
           </div>
         </div>
       </div>
@@ -68,33 +65,15 @@ interface TaskDetails {
             </div>
           </div>
 
-          <!-- Status Section -->
-          <div class="detail-section">
-            <div class="section-header">
-              <mat-icon class="section-icon">info</mat-icon>
-              <h3 class="section-title">Task Status</h3>
-            </div>
-            <div class="detail-row">
-              <span class="label">Status:</span>
-              <span class="value">
-                <span
-                  class="status-badge"
-                  [class]="data.status.toLowerCase().replace(' ', '-')"
-                >
-                  <mat-icon class="status-icon">{{
-                    getStatusIcon(data.status)
-                  }}</mat-icon>
-                  {{ data.status }}
-                </span>
-              </span>
-            </div>
-          </div>
-
-          <!-- Time Section -->
+          <!-- Schedule Section -->
           <div class="detail-section">
             <div class="section-header">
               <mat-icon class="section-icon">schedule</mat-icon>
               <h3 class="section-title">Schedule Information</h3>
+            </div>
+            <div class="detail-row">
+              <span class="label">Scheduled Date:</span>
+              <span class="value">{{ data.date }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Scheduled Time:</span>
@@ -135,7 +114,7 @@ interface TaskDetails {
 
       .header-content {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
       }
 
@@ -157,21 +136,6 @@ interface TaskDetails {
         color: white;
         font-size: 24px;
         font-weight: 600;
-      }
-
-      .task-id-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 8px 16px;
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .id-text {
-        font-weight: 700;
-        font-size: 16px;
-        color: white;
       }
 
       /* Content Styles */
@@ -260,49 +224,6 @@ interface TaskDetails {
       }
 
       /* Status Badge Styles */
-      .status-badge {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .status-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
-      }
-
-      .status-badge.pending {
-        background: linear-gradient(135deg, #ff9800, #ff5722);
-        color: white;
-        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-      }
-
-      .status-badge.completed {
-        background: linear-gradient(135deg, #4caf50, #45a049);
-        color: white;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-      }
-
-      .status-badge.in-progress {
-        background: linear-gradient(135deg, #2196f3, #1976d2);
-        color: white;
-        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-      }
-
-      .status-badge.cancelled {
-        background: linear-gradient(135deg, #f44336, #d32f2f);
-        color: white;
-        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
-      }
-
       /* Actions Styles */
       mat-dialog-actions {
         padding: 24px 32px;
@@ -365,19 +286,4 @@ export class TaskDetailsDialog {
     public dialogRef: MatDialogRef<TaskDetailsDialog>,
     @Inject(MAT_DIALOG_DATA) public data: TaskDetails
   ) {}
-
-  getStatusIcon(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return 'check_circle';
-      case 'pending':
-        return 'schedule';
-      case 'in progress':
-        return 'play_arrow';
-      case 'cancelled':
-        return 'cancel';
-      default:
-        return 'info';
-    }
-  }
 }

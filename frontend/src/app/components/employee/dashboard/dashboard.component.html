@@ -46,7 +46,13 @@
         </div>
         <div class="stats-info">
           <h3>Rating</h3>
-          <p class="stats-number">{{ dailyStats.customerRating }}</p>
+          <p class="stats-number">
+            {{
+              dailyStats.customerRating > 0
+                ? (dailyStats.customerRating | number : "1.1-1")
+                : "N/A"
+            }}
+          </p>
         </div>
       </mat-card-content>
     </mat-card>
@@ -111,19 +117,14 @@
             <td mat-cell *matCellDef="let task">{{ task.service }}</td>
           </ng-container>
 
-          <!-- Time Column -->
-          <ng-container matColumnDef="time">
-            <th mat-header-cell *matHeaderCellDef>Time</th>
-            <td mat-cell *matCellDef="let task">{{ task.time }}</td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+          <!-- Schedule Column -->
+          <ng-container matColumnDef="schedule">
+            <th mat-header-cell *matHeaderCellDef>Schedule</th>
             <td mat-cell *matCellDef="let task">
-              <span class="status-badge" [class]="task.status.toLowerCase()">
-                {{ task.status }}
-              </span>
+              <div class="schedule-cell">
+                <span class="schedule-date">{{ task.date }}</span>
+                <span class="schedule-time">{{ task.time }}</span>
+              </div>
             </td>
           </ng-container>
 
@@ -157,11 +158,9 @@
           <div class="task-card-header">
             <div class="customer-info">
               <h4>{{ task.customerName }}</h4>
+              <span class="task-date">{{ task.date }}</span>
               <span class="task-time">{{ task.time }}</span>
             </div>
-            <span class="status-badge" [class]="task.status.toLowerCase()">
-              {{ task.status }}
-            </span>
           </div>
           <div class="task-card-content">
             <div class="service-info">

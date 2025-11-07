@@ -11,6 +11,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { TaskDetailsDialog } from './task-details-dialog.component';
 import { BookingService } from '../../../services/booking.service';
+import { FeedbackService } from '../../../services/feedback.service';
 
 interface Task {
   id: number;
@@ -22,6 +23,9 @@ interface Task {
   vehicleType?: string;
   price?: number;
   notes?: string;
+  rawDate?: string;
+  rawTime?: string;
+  sortValue?: number;
 }
 
 interface DailyStats {
@@ -51,7 +55,7 @@ export class DashboardComponent implements OnInit {
     totalBookings: 0,
     completedTasks: 0,
     pendingTasks: 0,
-    customerRating: 4.5,
+    customerRating: 0,
   };
 
   upcomingTasks: Task[] = [];
@@ -61,8 +65,7 @@ export class DashboardComponent implements OnInit {
   displayedColumns: string[] = [
     'customerName',
     'service',
-    'time',
-    'status',
+    'schedule',
     'actions',
   ];
 
@@ -72,12 +75,14 @@ export class DashboardComponent implements OnInit {
     private http: HttpClient,
     private dialog: MatDialog,
     private bookingService: BookingService,
+    private feedbackService: FeedbackService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
     this.loadBookingStats();
     this.loadUpcomingTasks();
+    this.loadCustomerRating();
   }
 
   private loadBookingStats(): void {
@@ -134,6 +139,34 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private loadCustomerRating(limit: number = 200): void {
+    this.feedbackService.getAllFeedback(limit).subscribe({
+      next: (feedbackList) => {
+        if (!Array.isArray(feedbackList) || feedbackList.length === 0) {
+          this.dailyStats.customerRating = 0;
+          return;
+        }
+
+        const ratings = feedbackList
+          .map((feedback: any) => Number(feedback?.rating))
+          .filter((rating) => !isNaN(rating) && rating > 0);
+
+        if (ratings.length === 0) {
+          this.dailyStats.customerRating = 0;
+          return;
+        }
+
+        const average =
+          ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+        this.dailyStats.customerRating = Number(average.toFixed(1));
+      },
+      error: (error) => {
+        console.error('Error loading customer rating:', error);
+        this.dailyStats.customerRating = 0;
+      },
+    });
+  }
+
   loadUpcomingTasks(): void {
     this.loading = true;
     this.error = null;
@@ -160,7 +193,14 @@ export class DashboardComponent implements OnInit {
             );
 
             // Format time for display
-            const time = b.washTime ? this.formatTime(b.washTime) : 'TBD';
+            const rawTime: string = b.washTime ?? '';
+            const time = rawTime ? this.formatTime(rawTime) : 'Time TBD';
+
+            // Format date for display
+            const rawDate: string = b.washDate ?? '';
+            const date = rawDate ? this.formatDate(rawDate) : 'Date TBD';
+
+            const sortValue = this.computeScheduleSortValue(rawDate, rawTime);
 
             // Resolve customer name
             const customerName = this.resolveCustomerName(
@@ -174,10 +214,13 @@ export class DashboardComponent implements OnInit {
               service: b.serviceName ?? 'Standard Wash',
               status: normalizedStatus,
               time: time,
-              date: b.washDate ?? '',
+              date: date,
               vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
               price: b.price ? Number(b.price) : undefined,
               notes: b.notes ?? '',
+              rawDate: rawDate,
+              rawTime: rawTime,
+              sortValue: sortValue,
             };
           });
 
@@ -190,9 +233,11 @@ export class DashboardComponent implements OnInit {
 
           // Sort by time (earliest first)
           this.upcomingTasks.sort((a, b) => {
-            if (a.time === 'TBD') return 1;
-            if (b.time === 'TBD') return -1;
-            return a.time.localeCompare(b.time);
+            const aValue =
+              a.sortValue !== undefined ? a.sortValue : Number.MAX_SAFE_INTEGER;
+            const bValue =
+              b.sortValue !== undefined ? b.sortValue : Number.MAX_SAFE_INTEGER;
+            return aValue - bValue;
           });
 
           this.loading = false;
@@ -222,34 +267,125 @@ export class DashboardComponent implements OnInit {
   }
 
   private formatTime(timeString: string): string {
-    // Handle different time formats from database
-    if (!timeString) return 'TBD';
-
-    // If it's already in HH:MM format, return as is
-    if (timeString.match(/^\d{1,2}:\d{2}$/)) {
-      return timeString;
+    if (!timeString) {
+      return 'Time TBD';
     }
 
-    // If it's in HH:MM:SS format, remove seconds
-    if (timeString.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
-      return timeString.substring(0, 5);
+    const trimmed = timeString.trim();
+    if (!trimmed) {
+      return 'Time TBD';
     }
 
-    // Try to parse as Date and format
-    try {
-      const date = new Date(`2000-01-01T${timeString}`);
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        });
+    if (/^tbd$/i.test(trimmed)) {
+      return 'Time TBD';
+    }
+
+    const amPmMatch = trimmed.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+    );
+    if (amPmMatch) {
+      const hours = parseInt(amPmMatch[1], 10) % 12 || 12;
+      const minutes = amPmMatch[2];
+      const period = amPmMatch[3].toUpperCase();
+      return `${hours}:${minutes} ${period}`;
+    }
+
+    const hhmmMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (hhmmMatch) {
+      const hours24 = parseInt(hhmmMatch[1], 10);
+      const minutes = hhmmMatch[2];
+      const period = hours24 >= 12 ? 'PM' : 'AM';
+      const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+      return `${hours12}:${minutes} ${period}`;
+    }
+
+    const parsedDate = new Date(`1970-01-01T${trimmed}`);
+    if (!isNaN(parsedDate.getTime())) {
+      return parsedDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    }
+
+    return trimmed;
+  }
+
+  private formatDate(dateString: string): string {
+    if (!dateString) {
+      return 'Date TBD';
+    }
+
+    const parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
+      return dateString;
+    }
+
+    return parsedDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  private computeScheduleSortValue(
+    dateString?: string,
+    timeString?: string
+  ): number {
+    const [hours, minutes] = this.extractTimeParts(timeString);
+
+    if (dateString) {
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime()) && hours !== null && minutes !== null) {
+        date.setHours(hours, minutes, 0, 0);
+        return date.getTime();
       }
-    } catch (e) {
-      console.warn('Could not parse time:', timeString);
     }
 
-    return timeString;
+    if (hours !== null && minutes !== null) {
+      return hours * 60 + minutes;
+    }
+
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  private extractTimeParts(
+    timeString?: string
+  ): [number | null, number | null] {
+    if (!timeString) {
+      return [null, null];
+    }
+
+    const trimmed = timeString.trim();
+    if (!trimmed) {
+      return [null, null];
+    }
+
+    const amPmMatch = trimmed.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+    );
+    if (amPmMatch) {
+      let hours = parseInt(amPmMatch[1], 10) % 12;
+      if (amPmMatch[3].toUpperCase() === 'PM') {
+        hours += 12;
+      }
+      const minutes = parseInt(amPmMatch[2], 10);
+      return [hours, minutes];
+    }
+
+    const hhmmMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if (hhmmMatch) {
+      const hours = parseInt(hhmmMatch[1], 10);
+      const minutes = parseInt(hhmmMatch[2], 10);
+      return [hours, minutes];
+    }
+
+    const parsedDate = new Date(`1970-01-01T${trimmed}`);
+    if (!isNaN(parsedDate.getTime())) {
+      return [parsedDate.getHours(), parsedDate.getMinutes()];
+    }
+
+    return [null, null];
   }
 
   private resolveCustomerName(dbFullName?: string, nickname?: string): string {

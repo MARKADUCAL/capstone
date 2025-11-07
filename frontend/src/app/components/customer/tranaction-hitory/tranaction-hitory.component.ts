@@ -185,12 +185,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
     const packageMap: Record<string, string> = {
       '1': 'Body Wash',
-      '1.5': 'Body Wash + Tire Black',
       '2': 'Body Wash + Tire Black + Vacuum',
       '3': 'Body Wash + Body Wax + Tire Black',
       '4': 'Body Wash + Body Wax + Tire Black + Vacuum',
       p1: 'Wash Only',
-      p1_5: 'Wash + Tire Black',
       p2: 'Wash + Vacuum',
       p3: 'Wash + Vacuum + Hand Wax',
       p4: 'Wash + Vacuum + Buffing Wax',
