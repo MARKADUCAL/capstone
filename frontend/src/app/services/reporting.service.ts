@@ -32,6 +32,10 @@ export interface DashboardSummary {
   completed_bookings: number;
   pending_bookings: number;
   monthly_revenue: number;
+  weekly_revenue?: number;
+  cancelled_bookings?: number;
+  canceled_bookings?: number;
+  declined_bookings?: number;
 }
 
 export interface DashboardSummaryResponse {

@@ -477,11 +477,6 @@
   color: #64748b;
 }
 
-.feedback-id {
-  font-size: 12px;
-  color: #667eea;
-  font-weight: 600;
-}
 
 .card-body {
   padding: 20px;
@@ -743,15 +738,6 @@
   font-weight: 700;
 }
 
-.feedback-id {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-}
 
 .close-btn {
   background: none;

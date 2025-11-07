@@ -110,6 +110,10 @@
   background-color: #f44336;
 }
 
+.info .stat-icon {
+  background-color: #9c27b0;
+}
+
 /* Charts Container */
 .charts-container {
   background: white;
@@ -212,6 +216,12 @@ canvas {
 }
 .stats-card:nth-child(4) {
   animation-delay: 0.4s;
+}
+.stats-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.stats-card:nth-child(6) {
+  animation-delay: 0.6s;
 }
 
 /* Chart Tooltip Customization */

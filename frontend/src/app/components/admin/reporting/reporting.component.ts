@@ -27,10 +27,8 @@ import {
 Chart.register(...registerables);
 
 interface RevenueData {
-  daily: number;
   weekly: number;
   monthly: number;
-  yearly: number;
 }
 
 interface ServiceStats {
@@ -38,6 +36,7 @@ interface ServiceStats {
   completedBookings: number;
   cancelledBookings: number;
   pendingBookings: number;
+  declinedBookings: number;
 }
 
 @Component({
@@ -55,10 +54,8 @@ interface ServiceStats {
 })
 export class ReportingComponent implements OnInit, AfterViewInit {
   revenueData: RevenueData = {
-    daily: 0,
     weekly: 0,
     monthly: 0,
-    yearly: 0,
   };
 
   serviceStats: ServiceStats = {
@@ -66,6 +63,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     completedBookings: 0,
     cancelledBookings: 0,
     pendingBookings: 0,
+    declinedBookings: 0,
   };
 
   private revenueChart: Chart | undefined;
@@ -132,7 +130,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.serviceStats.completedBookings =
         Number(summary.completed_bookings) || 0;
       this.serviceStats.pendingBookings = Number(summary.pending_bookings) || 0;
-      // Cancellation not provided directly; keep as 0 for now
+      this.serviceStats.cancelledBookings =
+        Number(summary.cancelled_bookings ?? summary.canceled_bookings) || 0;
+      this.serviceStats.declinedBookings =
+        Number(summary.declined_bookings) || 0;
+      this.revenueData.weekly = Number(summary.weekly_revenue) || 0;
       this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
     });
   }
@@ -439,15 +441,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   getCompletionRate(): number {
+    if (!this.serviceStats.totalBookings) {
+      return 0;
+    }
     return (
       (this.serviceStats.completedBookings / this.serviceStats.totalBookings) *
-      100
-    );
-  }
-
-  getCancellationRate(): number {
-    return (
-      (this.serviceStats.cancelledBookings / this.serviceStats.totalBookings) *
       100
     );
   }

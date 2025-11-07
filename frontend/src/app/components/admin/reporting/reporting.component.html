@@ -9,20 +9,6 @@
       <mat-card-content>
         <div class="stat-content">
           <div class="stat-icon">
-            <mat-icon>attach_money</mat-icon>
-          </div>
-          <div class="stat-details">
-            <h3>Daily Revenue</h3>
-            <p class="stat-value">${{ revenueData.daily }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stats-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon">
             <mat-icon>calendar_today</mat-icon>
           </div>
           <div class="stat-details">
@@ -47,19 +33,6 @@
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="stats-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon">
-            <mat-icon>trending_up</mat-icon>
-          </div>
-          <div class="stat-details">
-            <h3>Yearly Revenue</h3>
-            <p class="stat-value">${{ revenueData.yearly }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
   </div>
 
   <!-- Service Statistics -->
@@ -115,10 +88,22 @@
             <mat-icon>cancel</mat-icon>
           </div>
           <div class="stat-details">
-            <h3>Cancellation Rate</h3>
-            <p class="stat-value">
-              {{ getCancellationRate() | number : "1.0-1" }}%
-            </p>
+            <h3>Cancelled Bookings</h3>
+            <p class="stat-value">{{ serviceStats.cancelledBookings }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card info">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>thumb_down</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>Declined Bookings</h3>
+            <p class="stat-value">{{ serviceStats.declinedBookings }}</p>
           </div>
         </div>
       </mat-card-content>

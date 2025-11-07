@@ -157,8 +157,7 @@
           <div class="stars">
             <span
               *ngFor="let star of [1, 2, 3, 4, 5]"
-              class="star"
-              [class.filled]="star <= feedback.rating"
+              class="star filled"
             >
               ⭐
             </span>
@@ -169,7 +168,6 @@
           <span class="feedback-date">{{
             formatDate(feedback.created_at || "")
           }}</span>
-          <span class="feedback-id">#{{ feedback.id }}</span>
         </div>
       </div>
 
@@ -276,7 +274,6 @@
     <div class="modal-header">
       <div class="modal-title">
         <h2>Feedback Details</h2>
-        <span class="feedback-id">#{{ selectedFeedback.id }}</span>
       </div>
       <button class="close-btn" (click)="closeViewModal()">
         <span class="close-icon">✕</span>
@@ -289,8 +286,7 @@
           <div class="stars-large">
             <span
               *ngFor="let star of [1, 2, 3, 4, 5]"
-              class="star-large"
-              [class.filled]="star <= selectedFeedback.rating"
+              class="star-large filled"
             >
               ⭐
             </span>
