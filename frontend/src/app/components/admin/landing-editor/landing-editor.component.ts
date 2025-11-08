@@ -71,6 +71,7 @@ type FrontendLandingPageContent = {
   styleUrl: './landing-editor.component.css',
 })
 export class LandingEditorComponent implements OnInit {
+  readonly MAX_GALLERY_IMAGES = 6;
   isSaving = false;
   validationResult: { isValid: boolean; errors: string[] } = {
     isValid: true,
@@ -149,12 +150,19 @@ export class LandingEditorComponent implements OnInit {
           this.content.heroBackgroundUrl = normalize(
             this.content.heroBackgroundUrl
           );
-          this.content.galleryImages = (this.content.galleryImages || []).map(
-            (g) => ({
+          this.content.galleryImages = (this.content.galleryImages || [])
+            .slice(0, this.MAX_GALLERY_IMAGES)
+            .map((g) => ({
               ...g,
               url: normalize(g.url),
-            })
-          );
+            }));
+          // Ensure isUploadingGallery array matches galleryImages length
+          while (this.isUploadingGallery.length < this.content.galleryImages.length) {
+            this.isUploadingGallery.push(false);
+          }
+          while (this.isUploadingGallery.length > this.content.galleryImages.length) {
+            this.isUploadingGallery.pop();
+          }
           this.updateValidation();
         } else {
           this.snackBar.open(
@@ -187,6 +195,14 @@ export class LandingEditorComponent implements OnInit {
   }
 
   addGalleryImage(): void {
+    if (this.content.galleryImages.length >= this.MAX_GALLERY_IMAGES) {
+      this.snackBar.open(
+        `Gallery is limited to ${this.MAX_GALLERY_IMAGES} images. Please remove an image before adding a new one.`,
+        'Close',
+        { duration: 4000 }
+      );
+      return;
+    }
     this.content.galleryImages.push({ url: '', alt: '' });
     this.isUploadingGallery.push(false);
     this.updateValidation();
@@ -416,10 +432,12 @@ export class LandingEditorComponent implements OnInit {
           name: s.name,
           image_url: stripDataUrl((s as any).image_url || s.imageUrl || ''),
         }));
-        const galleryPayload = (this.content.galleryImages || []).map((g) => ({
-          url: stripDataUrl(g.url),
-          alt: g.alt,
-        }));
+        const galleryPayload = (this.content.galleryImages || [])
+          .slice(0, this.MAX_GALLERY_IMAGES)
+          .map((g) => ({
+            url: stripDataUrl(g.url),
+            alt: g.alt,
+          }));
         const contactPayload = {
           address: this.content.contactInfo?.address || '',
           opening_hours: this.content.contactInfo?.openingHours || '',

@@ -102,28 +102,49 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   onTabChange(event: MatTabChangeEvent): void {
     if (isPlatformBrowser(this.platformId)) {
+      // Wait for Material tab content to be rendered
       setTimeout(() => {
         // Reinitialize the chart in the selected tab
         switch (event.index) {
           case 0:
+            console.log('Switching to Revenue Trend tab');
             this.initializeRevenueChart();
             break;
           case 1:
-            this.initializeServiceChart();
+            console.log('Switching to Service Distribution tab');
+            // Double check canvas exists before initializing
+            const serviceCanvas = document.getElementById('serviceChart');
+            if (serviceCanvas) {
+              this.initializeServiceChart();
+            } else {
+              setTimeout(() => this.initializeServiceChart(), 100);
+            }
             break;
           case 2:
-            this.initializeBookingsChart();
+            console.log('Switching to Weekly Bookings tab');
+            // Double check canvas exists before initializing
+            const bookingsCanvas = document.getElementById('bookingsChart');
+            if (bookingsCanvas) {
+              this.initializeBookingsChart();
+            } else {
+              setTimeout(() => this.initializeBookingsChart(), 100);
+            }
             break;
         }
-      }, 100);
+      }, 300); // Longer delay to ensure tab content is fully rendered
     }
   }
 
   private initializeCharts(): void {
     if (isPlatformBrowser(this.platformId)) {
+      // Initialize only the first visible chart (Revenue Trend)
+      // Other charts will be initialized when their tabs are selected
       this.initializeRevenueChart();
-      this.initializeServiceChart();
-      this.initializeBookingsChart();
+      // Initialize others with a delay to ensure DOM is ready
+      setTimeout(() => {
+        this.initializeServiceChart();
+        this.initializeBookingsChart();
+      }, 300);
     }
   }
 
@@ -165,8 +186,13 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private loadServiceDistribution(): void {
     this.reportingService.getServiceDistribution().subscribe({
       next: (items) => {
+        console.log('Service distribution data received:', items);
         this.serviceLabels = items.map((i) => i.service_name);
         this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
+        console.log('Processed service distribution:', {
+          labels: this.serviceLabels,
+          counts: this.serviceCounts,
+        });
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeServiceChart(), 100);
         }
@@ -174,6 +200,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error loading service distribution:', err);
         // Use fallback data if API fails
+        this.serviceLabels = [];
+        this.serviceCounts = [];
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeServiceChart(), 100);
         }
@@ -184,6 +212,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private loadWeeklyBookings(): void {
     this.reportingService.getWeeklyBookings().subscribe({
       next: (points) => {
+        console.log('Weekly bookings data received:', points);
+
         // Map day names to short format (Mon, Tue, etc.)
         const dayMap: { [key: string]: string } = {
           Monday: 'Mon',
@@ -193,18 +223,75 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           Friday: 'Fri',
           Saturday: 'Sat',
           Sunday: 'Sun',
+          Mon: 'Mon',
+          Tue: 'Tue',
+          Wed: 'Wed',
+          Thu: 'Thu',
+          Fri: 'Fri',
+          Sat: 'Sat',
+          Sun: 'Sun',
+        };
+
+        // Normalize day names (handle both full and short names)
+        const normalizeDay = (day: string): string => {
+          const normalized = day.trim();
+          if (dayMap[normalized]) {
+            return dayMap[normalized];
+          }
+          // Try to match partial names
+          const lower = normalized.toLowerCase();
+          for (const [full, short] of Object.entries(dayMap)) {
+            if (
+              full.toLowerCase().startsWith(lower) ||
+              lower.startsWith(full.toLowerCase().substring(0, 3))
+            ) {
+              return short;
+            }
+          }
+          return normalized.substring(0, 3);
         };
 
         // Ensure we have data for all 7 days in order
-        const orderedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const orderedDays = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ];
         const bookingMap = new Map<string, number>();
-        
+
         points.forEach((p) => {
-          bookingMap.set(p.day, Number(p.bookings_count) || 0);
+          const normalizedDay = normalizeDay(p.day);
+          const count = Number(p.bookings_count) || 0;
+          // Map to full day name for lookup
+          const fullDay = orderedDays.find(
+            (d) =>
+              dayMap[d] === normalizedDay ||
+              d.toLowerCase().startsWith(normalizedDay.toLowerCase())
+          );
+          if (fullDay) {
+            bookingMap.set(fullDay, count);
+          } else {
+            // Fallback: try direct match
+            bookingMap.set(p.day, count);
+          }
         });
 
-        this.weeklyBookingLabels = orderedDays.map((day) => dayMap[day] || day.substring(0, 3));
-        this.weeklyBookingValues = orderedDays.map((day) => bookingMap.get(day) || 0);
+        this.weeklyBookingLabels = orderedDays.map(
+          (day) => dayMap[day] || day.substring(0, 3)
+        );
+        this.weeklyBookingValues = orderedDays.map((day) => {
+          const value = bookingMap.get(day);
+          return value !== undefined ? value : 0;
+        });
+
+        console.log('Processed weekly bookings:', {
+          labels: this.weeklyBookingLabels,
+          values: this.weeklyBookingValues,
+        });
 
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeBookingsChart(), 100);
@@ -213,6 +300,16 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error loading weekly bookings:', err);
         // Use fallback data if API fails
+        this.weeklyBookingLabels = [
+          'Mon',
+          'Tue',
+          'Wed',
+          'Thu',
+          'Fri',
+          'Sat',
+          'Sun',
+        ];
+        this.weeklyBookingValues = [25, 30, 28, 32, 35, 40, 38];
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeBookingsChart(), 100);
         }
@@ -301,6 +398,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   private initializeServiceChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     // Service Distribution Chart
     const serviceCtx = document.getElementById(
       'serviceChart'
@@ -309,23 +408,37 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       if (this.serviceChart) {
         this.serviceChart.destroy();
       }
+
+      // Ensure we have matching labels and data
+      const labels = this.serviceLabels.length
+        ? this.serviceLabels
+        : ['Basic Wash', 'Premium Wash', 'Full Service', 'Interior Clean'];
+      const data = this.serviceCounts.length
+        ? this.serviceCounts
+        : [30, 25, 25, 20];
+
+      // Ensure we have enough colors for all labels
+      const colors = [
+        'rgba(25, 118, 210, 0.8)',
+        'rgba(76, 175, 80, 0.8)',
+        'rgba(255, 160, 0, 0.8)',
+        'rgba(244, 67, 54, 0.8)',
+        'rgba(156, 39, 176, 0.8)',
+        'rgba(0, 188, 212, 0.8)',
+        'rgba(255, 87, 34, 0.8)',
+        'rgba(121, 85, 72, 0.8)',
+      ];
+
+      console.log('Initializing service chart with:', { labels, data });
+
       this.serviceChart = new Chart(serviceCtx, {
         type: 'pie',
         data: {
-          labels: this.serviceLabels.length
-            ? this.serviceLabels
-            : ['Basic Wash', 'Premium Wash', 'Full Service', 'Interior Clean'],
+          labels: labels,
           datasets: [
             {
-              data: this.serviceCounts.length
-                ? this.serviceCounts
-                : [30, 25, 25, 20],
-              backgroundColor: [
-                'rgba(25, 118, 210, 0.8)',
-                'rgba(76, 175, 80, 0.8)',
-                'rgba(255, 160, 0, 0.8)',
-                'rgba(244, 67, 54, 0.8)',
-              ],
+              data: data,
+              backgroundColor: colors.slice(0, labels.length),
               borderWidth: 2,
               borderColor: '#ffffff',
             },
@@ -342,6 +455,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
                 font: {
                   size: 12,
                 },
+                usePointStyle: true,
               },
             },
             title: {
@@ -356,9 +470,26 @@ export class ReportingComponent implements OnInit, AfterViewInit {
                 bottom: 20,
               },
             },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const label = context.label || '';
+                  const value = context.parsed || 0;
+                  const total = context.dataset.data.reduce(
+                    (a: number, b: number) => a + b,
+                    0
+                  );
+                  const percentage =
+                    total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                  return `${label}: ${value} (${percentage}%)`;
+                },
+              },
+            },
           },
         },
       });
+    } else {
+      console.warn('Service chart canvas element not found');
     }
   }
 
@@ -373,18 +504,25 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       if (this.bookingsChart) {
         this.bookingsChart.destroy();
       }
+
+      // Ensure we have valid data
+      const labels = this.weeklyBookingLabels.length
+        ? this.weeklyBookingLabels
+        : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const data = this.weeklyBookingValues.length
+        ? this.weeklyBookingValues
+        : [25, 30, 28, 32, 35, 40, 38];
+
+      console.log('Initializing bookings chart with:', { labels, data });
+
       this.bookingsChart = new Chart(bookingsCtx, {
         type: 'bar',
         data: {
-          labels: this.weeklyBookingLabels.length
-            ? this.weeklyBookingLabels
-            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: labels,
           datasets: [
             {
               label: 'Daily Bookings',
-              data: this.weeklyBookingValues.length
-                ? this.weeklyBookingValues
-                : [25, 30, 28, 32, 35, 40, 38],
+              data: data,
               backgroundColor: 'rgba(25, 118, 210, 0.8)',
               borderRadius: 6,
               borderColor: '#1976d2',
@@ -404,6 +542,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
                 font: {
                   size: 12,
                 },
+                usePointStyle: true,
               },
             },
             title: {
@@ -418,10 +557,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
                 bottom: 20,
               },
             },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const value = context.parsed.y || 0;
+                  return `Bookings: ${value}`;
+                },
+              },
+            },
           },
           scales: {
             y: {
               beginAtZero: true,
+              ticks: {
+                stepSize: 5,
+                precision: 0,
+              },
               grid: {
                 color: 'rgba(0, 0, 0, 0.05)',
               },
@@ -434,6 +585,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           },
         },
       });
+    } else {
+      console.warn('Bookings chart canvas element not found');
     }
   }
 

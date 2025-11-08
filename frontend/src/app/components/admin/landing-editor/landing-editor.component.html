@@ -256,9 +256,31 @@
               </button>
             </div>
           </div>
-          <button mat-raised-button color="primary" (click)="addGalleryImage()">
-            <mat-icon>add</mat-icon> Add Image
-          </button>
+          <div class="gallery-add-section">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addGalleryImage()"
+              [disabled]="content.galleryImages.length >= MAX_GALLERY_IMAGES"
+            >
+              <mat-icon>add</mat-icon> Add Image
+            </button>
+            <p
+              class="gallery-limit-info"
+              [ngClass]="{
+                'max-reached':
+                  content.galleryImages.length >= MAX_GALLERY_IMAGES
+              }"
+            >
+              {{ content.galleryImages.length }} /
+              {{ MAX_GALLERY_IMAGES }} images
+              {{
+                content.galleryImages.length >= MAX_GALLERY_IMAGES
+                  ? "(Maximum reached)"
+                  : ""
+              }}
+            </p>
+          </div>
         </mat-card-content>
       </mat-card>
     </mat-tab>
