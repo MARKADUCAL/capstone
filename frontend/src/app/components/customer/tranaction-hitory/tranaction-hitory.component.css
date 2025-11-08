@@ -1583,6 +1583,20 @@
   line-height: 1.4;
 }
 
+.admin-reply-text {
+  color: #0c4a6e;
+  background: #f0f9ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #0ea5e9;
+  display: block;
+  margin-top: 4px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-weight: 500;
+}
+
 /* Payment Status Styles */
 .payment-completed {
   color: #10b981;

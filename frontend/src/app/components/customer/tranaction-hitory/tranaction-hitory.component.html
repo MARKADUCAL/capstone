@@ -531,6 +531,38 @@
           </div>
         </div>
 
+        <!-- Admin Reply Section (if admin replied to feedback) -->
+        <div
+          class="detail-card"
+          *ngIf="
+            $any(selectedBooking).adminComment &&
+            $any(selectedBooking).adminComment.trim().length > 0
+          "
+        >
+          <div class="detail-header">
+            <span class="detail-icon">🛠️</span>
+            <h4>Admin Reply</h4>
+          </div>
+          <div class="detail-content">
+            <div class="detail-row">
+              <span class="label">Reply:</span>
+              <span class="value admin-reply-text">{{
+                $any(selectedBooking).adminComment
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="$any(selectedBooking).adminCommentedAt"
+            >
+              <span class="label">Replied On:</span>
+              <span class="value">{{
+                $any(selectedBooking).adminCommentedAt
+                  | date : "MMM dd, yyyy 'at' h:mm a"
+              }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="detail-card">
           <div class="detail-header">
             <span class="detail-icon">💳</span>
