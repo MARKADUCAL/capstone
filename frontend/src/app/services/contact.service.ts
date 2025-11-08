@@ -187,5 +187,88 @@ export class ContactService {
       );
   }
 
-  // Removed Gmail-only verification helpers; not required for sending messages
+  // Send verification code for contact form
+  sendContactVerificationCode(email: string): Observable<ContactResponse> {
+    console.log('📤 Sending contact verification code to:', email);
+
+    return this.http
+      .post<any>(`${this.apiUrl}/send_contact_verification_code`, { email })
+      .pipe(
+        map((response) => {
+          console.log('📥 Raw backend response:', response);
+
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            console.log('✅ Verification code sent successfully');
+            return {
+              success: true,
+              message: response.status.message,
+              data: response.payload,
+            };
+          } else {
+            console.log('❌ Failed to send verification code:', response);
+            throw new Error(
+              response?.status?.message || 'Failed to send verification code'
+            );
+          }
+        }),
+        catchError((error) => {
+          console.error('💥 Service error:', error);
+          return throwError(
+            () =>
+              new Error(
+                error.message ||
+                  'Failed to send verification code. Please try again.'
+              )
+          );
+        })
+      );
+  }
+
+  // Verify contact form verification code
+  verifyContactCode(
+    email: string,
+    code: string
+  ): Observable<ContactResponse> {
+    console.log('📤 Verifying contact code for:', email);
+
+    return this.http
+      .post<any>(`${this.apiUrl}/verify_contact_code`, { email, code })
+      .pipe(
+        map((response) => {
+          console.log('📥 Raw backend response:', response);
+
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            console.log('✅ Verification code verified successfully');
+            return {
+              success: true,
+              message: response.status.message,
+              data: response.payload,
+            };
+          } else {
+            console.log('❌ Failed to verify code:', response);
+            throw new Error(
+              response?.status?.message || 'Invalid verification code'
+            );
+          }
+        }),
+        catchError((error) => {
+          console.error('💥 Service error:', error);
+          return throwError(
+            () =>
+              new Error(
+                error.message ||
+                  'Failed to verify code. Please try again.'
+              )
+          );
+        })
+      );
+  }
 }

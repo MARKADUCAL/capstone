@@ -349,4 +349,51 @@
   </div>
 </div>
 
-<!-- Removed Gmail Verification Modal -->
+<!-- Email Verification Modal -->
+<div class="modal-overlay" *ngIf="showVerificationModal">
+  <div class="custom-modal verification-modal">
+    <div class="modal-header">
+      <h3>Verify Your Email</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        We've sent a 6-digit verification code to
+        <strong>{{ verificationEmail }}</strong>
+      </p>
+      <p>Please enter the code below to verify your email address.</p>
+      
+      <!-- Error Message -->
+      <div *ngIf="contactErrorMessage" class="error-message">
+        {{ contactErrorMessage }}
+      </div>
+
+      <div class="verification-input">
+        <input
+          type="text"
+          class="verification-code-input"
+          [(ngModel)]="verificationCode"
+          placeholder="Enter 6-digit code"
+          maxlength="6"
+          (keyup.enter)="verifyCode()"
+          autofocus
+        />
+      </div>
+
+      <div class="verification-actions">
+        <button class="modal-btn modal-btn-ok" (click)="verifyCode()">
+          Verify
+        </button>
+        <button class="modal-btn modal-btn-cancel" (click)="closeVerificationModal()">
+          Cancel
+        </button>
+      </div>
+
+      <div class="resend-code">
+        <p>Didn't receive the code?</p>
+        <button class="resend-btn" (click)="resendVerificationCode()">
+          Resend Code
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

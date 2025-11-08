@@ -903,6 +903,33 @@
   background-color: #5a6268;
 }
 
+.resend-code {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.resend-code p {
+  margin-bottom: 10px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.resend-btn {
+  background-color: transparent;
+  color: #4caf91;
+  border: 1px solid #4caf91;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.resend-btn:hover {
+  background-color: #4caf91;
+  color: white;
+}
+
 /* Contact Form Input Sizes */
 .input-large {
   padding: 15px; /* Increase padding for a spacious feel */

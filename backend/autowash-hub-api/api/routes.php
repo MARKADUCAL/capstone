@@ -733,6 +733,20 @@ if ($method === 'POST') {
         exit();
     }
 
+    // Send contact verification code
+    if (strpos($request, 'send_contact_verification_code') !== false) {
+        $result = $post->send_contact_verification_code($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Verify contact verification code
+    if (strpos($request, 'verify_contact_code') !== false) {
+        $result = $post->verify_contact_code($data);
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'submit_contact') !== false) {
         $result = $post->submit_contact($data);
         echo json_encode($result);

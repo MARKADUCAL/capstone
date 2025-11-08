@@ -2896,15 +2896,9 @@ class Post extends GlobalMethods
                 );
             }
 
-            // Validate Gmail domain
-            if (!preg_match('/@gmail\.com$/i', $data->email)) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Only Gmail addresses are allowed",
-                    400
-                );
-            }
+            // Check if email is verified (optional - can be removed if not needed)
+            // For now, we'll allow submission without verification check on backend
+            // The frontend will handle the verification requirement
 
             // Sanitize inputs
             $name = htmlspecialchars(trim($data->name));
@@ -3678,6 +3672,178 @@ class Post extends GlobalMethods
             }
             error_log('Resend API error for ' . $email . ' (HTTP ' . $httpCode . '): ' . $errorMsg);
             error_log('Resend API response: ' . $response);
+            throw new \Exception($errorMsg);
+        }
+    }
+
+    /**
+     * Send verification code for contact form
+     * This is similar to send_registration_code but doesn't check if email is already registered
+     */
+    public function send_contact_verification_code($data) {
+        // Validate email format - accepts ANY valid email address
+        if (!isset($data->email) || !filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+            return $this->sendPayload(null, 'failed', 'Valid email is required', 400);
+        }
+        
+        $email = trim($data->email);
+
+        try {
+            // Ensure table exists (same table as registration codes)
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                code VARCHAR(6) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_email (email),
+                KEY idx_code (code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Generate code and upsert
+            $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+            $up = $this->pdo->prepare("INSERT INTO email_verification_codes (email, code, expires_at) VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE code = VALUES(code), expires_at = VALUES(expires_at), created_at = CURRENT_TIMESTAMP");
+            $up->execute([$email, $code, $expiresAt]);
+
+            // Send email via Resend API
+            $sent = false;
+            $emailError = null;
+            try {
+                $this->sendContactVerificationEmail($email, $code);
+                $sent = true;
+                error_log("Contact verification code email sent successfully to: {$email}");
+            } catch (\Throwable $e) {
+                $emailError = $e->getMessage();
+                error_log('Contact OTP email send failed for ' . $email . ': ' . $emailError);
+            }
+
+            // If email failed to send, return error instead of success
+            if (!$sent) {
+                return $this->sendPayload([
+                    'email' => $email,
+                    'sent' => false,
+                    'error' => $emailError ?: 'Failed to send email'
+                ], 'failed', 'Verification code generated but email failed to send: ' . ($emailError ?: 'Unknown error'), 500);
+            }
+
+            $appEnv = getenv('APP_ENV') ?: 'development';
+            
+            return $this->sendPayload([
+                'email' => $email,
+                'sent' => $sent,
+                // Include for testing only; remove in production
+                'code' => $appEnv === 'development' ? $code : null,
+                'expires_at' => $expiresAt
+            ], 'success', 'Verification code sent', 200);
+
+        } catch (\PDOException $e) {
+            error_log('send_contact_verification_code error: ' . $e->getMessage());
+            return $this->sendPayload(null, 'failed', 'Unable to send verification code', 500);
+        }
+    }
+
+    /**
+     * Verify contact form verification code
+     */
+    public function verify_contact_code($data) {
+        if (!isset($data->email) || !isset($data->code)) {
+            return $this->sendPayload(null, 'failed', 'Email and verification code are required', 400);
+        }
+
+        $email = trim($data->email);
+        $code = trim($data->code);
+
+        try {
+            $verifyStmt = $this->pdo->prepare("SELECT code, expires_at FROM email_verification_codes WHERE email = ?");
+            $verifyStmt->execute([$email]);
+            $verifyResult = $verifyStmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$verifyResult) {
+                return $this->sendPayload(null, 'failed', 'No verification code found for this email', 400);
+            }
+
+            if ($verifyResult['code'] !== $code) {
+                return $this->sendPayload(null, 'failed', 'Invalid verification code', 400);
+            }
+
+            // Check if code has expired
+            $expiresAt = new \DateTime($verifyResult['expires_at']);
+            $now = new \DateTime();
+            if ($now > $expiresAt) {
+                return $this->sendPayload(null, 'failed', 'Verification code has expired', 400);
+            }
+
+            // Code is valid - mark as verified (we can store this in a separate table or use a flag)
+            // For now, we'll just return success. The frontend will track verification state.
+            return $this->sendPayload([
+                'email' => $email,
+                'verified' => true
+            ], 'success', 'Email verified successfully', 200);
+
+        } catch (\PDOException $e) {
+            error_log('verify_contact_code error: ' . $e->getMessage());
+            return $this->sendPayload(null, 'failed', 'An error occurred while verifying the code', 500);
+        }
+    }
+
+    /**
+     * Send contact verification email
+     */
+    private function sendContactVerificationEmail(string $email, string $code): void {
+        $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
+        $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev';
+        
+        error_log("Attempting to send contact verification code to: $email");
+        
+        $payload = [
+            'from' => $resendFromEmail,
+            'to' => $email,
+            'subject' => 'Your contact form verification code',
+            'html' => '<p>Your verification code for the contact form is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">' . htmlspecialchars($code) . '</p><p>This code expires in 10 minutes.</p>',
+            'text' => "Your verification code for the contact form is: {$code}\n\nThis code expires in 10 minutes."
+        ];
+        
+        if (!function_exists('curl_init')) {
+            error_log('cURL is not available');
+            throw new \Exception('cURL extension is not available');
+        }
+        
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $resendApiKey,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        if ($curlError) {
+            error_log('Resend API cURL error for ' . $email . ': ' . $curlError);
+            throw new \Exception('Connection error: ' . $curlError);
+        }
+        
+        $responseData = json_decode($response, true);
+        
+        if ($httpCode >= 200 && $httpCode < 300) {
+            error_log("Resend email sent successfully to $email. ID: " . ($responseData['id'] ?? 'unknown'));
+        } else {
+            $errorMsg = $responseData['message'] ?? 'Unknown error';
+            if (isset($responseData['errors'])) {
+                $errorMsg .= ' - ' . json_encode($responseData['errors']);
+            }
+            error_log('Resend API error for ' . $email . ' (HTTP ' . $httpCode . '): ' . $errorMsg);
             throw new \Exception($errorMsg);
         }
     }

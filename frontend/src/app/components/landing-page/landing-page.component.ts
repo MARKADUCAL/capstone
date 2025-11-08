@@ -240,7 +240,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (!this.validateContactForm()) {
       return;
     }
-    // Directly submit without Gmail-only check or verification
+
+    // Check if email is verified
+    if (!this.isEmailVerified || this.verificationEmail !== this.contactForm.email) {
+      // Email not verified or email changed - send verification code
+      this.sendVerificationCode();
+      return;
+    }
+
+    // Email is verified, proceed with submission
     this.submitContactForm();
   }
 
@@ -265,8 +273,40 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   sendVerificationCode() {
-    // Verification no longer required; keep method as no-op to avoid breaking references
     this.contactErrorMessage = '';
+    
+    // Validate email
+    if (!this.contactForm.email.trim()) {
+      this.contactErrorMessage = 'Please enter your email address';
+      return;
+    }
+
+    if (!this.validateEmailFormat(this.contactForm.email)) {
+      this.contactErrorMessage = 'Please enter a valid email address';
+      return;
+    }
+
+    // Send verification code
+    this.contactService.sendContactVerificationCode(this.contactForm.email).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.verificationEmail = this.contactForm.email;
+          this.showVerificationModal = true;
+          this.contactSuccessMessage = 'Verification code sent to your email. Please check your inbox.';
+          this.contactErrorMessage = '';
+        } else {
+          this.contactErrorMessage = response.message || 'Failed to send verification code';
+        }
+      },
+      error: (error) => {
+        this.contactErrorMessage = error.message || 'Failed to send verification code. Please try again.';
+      }
+    });
+  }
+
+  validateEmailFormat(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   verifyCode() {
@@ -275,14 +315,34 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // For demo purposes, accept any 6-digit code
-    if (this.verificationCode.length === 6) {
-      this.isEmailVerified = true;
-      this.showVerificationModal = false;
-      this.submitContactForm();
-    } else {
-      this.contactErrorMessage = 'Invalid verification code. Please try again.';
+    if (this.verificationCode.length !== 6) {
+      this.contactErrorMessage = 'Verification code must be 6 digits';
+      return;
     }
+
+    if (!this.verificationEmail) {
+      this.contactErrorMessage = 'Email not found. Please try sending the code again.';
+      return;
+    }
+
+    // Verify code with backend
+    this.contactService.verifyContactCode(this.verificationEmail, this.verificationCode).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.isEmailVerified = true;
+          this.showVerificationModal = false;
+          this.contactSuccessMessage = 'Email verified successfully!';
+          this.contactErrorMessage = '';
+          // Automatically submit the form after verification
+          this.submitContactForm();
+        } else {
+          this.contactErrorMessage = response.message || 'Invalid verification code. Please try again.';
+        }
+      },
+      error: (error) => {
+        this.contactErrorMessage = error.message || 'Invalid verification code. Please try again.';
+      }
+    });
   }
 
   submitContactForm() {
@@ -318,12 +378,23 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     };
     this.isEmailVerified = false;
     this.verificationCode = '';
+    this.verificationEmail = '';
+    this.showVerificationModal = false;
   }
 
   closeVerificationModal() {
     this.showVerificationModal = false;
     this.verificationCode = '';
-    this.isEmailVerified = false;
+    // Only reset verification if user closes modal before verifying
+    // If already verified, keep the verification state
+    if (!this.isEmailVerified) {
+      this.verificationEmail = '';
+    }
+  }
+
+  resendVerificationCode() {
+    this.verificationCode = '';
+    this.sendVerificationCode();
   }
 
   private loadFromLocalStorage(): FrontendLandingPageContent | null {
