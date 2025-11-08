@@ -88,6 +88,8 @@ interface CarWashBooking {
   washTime?: string;
   serviceName?: string;
   rejectionReason?: string;
+  adminComment?: string;
+  adminCommentedAt?: string;
 }
 
 // Simple confirmation dialog for destructive actions
@@ -496,6 +498,8 @@ export class CarWashBookingComponent implements OnInit {
             washTime: b.washTime ?? b.wash_time,
             serviceName: b.serviceName ?? b.service_name,
             rejectionReason: b.rejectionReason ?? b.rejection_reason,
+            adminComment: b.adminComment ?? b.admin_comment,
+            adminCommentedAt: b.adminCommentedAt ?? b.admin_commented_at,
           };
 
           return booking;
@@ -1517,6 +1521,39 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
+        <!-- Admin Reply Section (if admin replied to feedback) -->
+        <div
+          class="info-section"
+          *ngIf="
+            data.booking.adminComment &&
+            data.booking.adminComment.trim().length > 0
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">reply</mat-icon>
+            <h3>Admin Reply</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item notes-item">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px;"
+              >
+                <span class="label">Reply</span>
+                <span
+                  class="value"
+                  style="font-size: 12px; color: #64748b; font-weight: normal;"
+                  *ngIf="data.booking.adminCommentedAt"
+                >
+                  {{ formatAdminReplyDate(data.booking.adminCommentedAt) }}
+                </span>
+              </div>
+              <span class="value notes-text admin-reply-text">{{
+                data.booking.adminComment
+              }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Edit Section (only for edit mode) -->
         <div class="info-section" *ngIf="data.mode === 'edit'">
           <div class="section-header">
@@ -1767,6 +1804,15 @@ export class CreateWalkInBookingDialogComponent {
         font-weight: 500;
       }
 
+      .admin-reply-text {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 12px;
+        color: #0c4a6e;
+        font-weight: 500;
+      }
+
       .no-assignment {
         color: #6b7280;
         font-style: italic;
@@ -1931,6 +1977,43 @@ export class BookingDetailsDialogComponent {
     }
 
     return timeString; // Return original if formatting fails
+  }
+
+  formatTime(dateTimeString: string): string {
+    if (!dateTimeString) return '';
+    try {
+      const date = new Date(dateTimeString);
+      if (isNaN(date.getTime())) return '';
+
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const period = hours >= 12 ? 'pm' : 'am';
+      const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+      const displayMinutes = minutes.toString().padStart(2, '0');
+
+      return `${displayHours}:${displayMinutes}${period}`;
+    } catch (error) {
+      return '';
+    }
+  }
+
+  formatAdminReplyDate(dateTimeString: string): string {
+    if (!dateTimeString) return '';
+    try {
+      const date = new Date(dateTimeString);
+      if (isNaN(date.getTime())) return '';
+
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      const timeStr = this.formatTime(dateTimeString);
+
+      return timeStr ? `${dateStr}, ${timeStr}` : dateStr;
+    } catch (error) {
+      return '';
+    }
   }
 
   // Display-friendly status mapping for this dialog
