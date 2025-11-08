@@ -80,11 +80,19 @@ export class ManageEnquiriesComponent implements OnInit {
   }
 
   replyEnquiry(enquiry: Enquiry): void {
-    // Update status to replied
-    this.updateEnquiryStatus(enquiry, 'replied');
+    // Create Gmail compose URL with pre-filled email
+    const subject = encodeURIComponent(`Re: ${enquiry.subject}`);
+    const body = encodeURIComponent(
+      `\n\n---\nOriginal Message:\nFrom: ${enquiry.name} <${enquiry.email}>\nSubject: ${enquiry.subject}\n\n${enquiry.message}`
+    );
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(enquiry.email)}&su=${subject}&body=${body}`;
 
-    // In the future, this will open a reply form or email client
-    this.showNotification(`Reply sent to ${enquiry.email}`);
+    // Open Gmail in a new tab
+    window.open(gmailUrl, '_blank');
+
+    // Update status to replied after opening Gmail
+    this.updateEnquiryStatus(enquiry, 'replied');
+    this.showNotification(`Opening Gmail to reply to ${enquiry.name}`);
   }
 
   getFilteredEnquiries(): Enquiry[] {
@@ -115,24 +123,6 @@ export class ManageEnquiriesComponent implements OnInit {
     );
   }
 
-  deleteEnquiry(enquiry: Enquiry): void {
-    this.contactService.deleteEnquiry(enquiry.id).subscribe(
-      (response) => {
-        if (response.success) {
-          const index = this.enquiries.findIndex((e) => e.id === enquiry.id);
-          if (index > -1) {
-            this.enquiries.splice(index, 1);
-          }
-          this.showNotification('Enquiry deleted successfully');
-        } else {
-          this.showNotification('Failed to delete enquiry');
-        }
-      },
-      (error) => {
-        this.showNotification('Failed to delete enquiry: ' + error.message);
-      }
-    );
-  }
 
   getUserInitials(name: string): string {
     return name

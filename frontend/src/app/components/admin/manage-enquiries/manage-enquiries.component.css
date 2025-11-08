@@ -211,53 +211,35 @@
 /* Card Actions */
 .enquiry-card mat-card-actions {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  justify-content: center;
+  margin-bottom: 0;
+  padding: 16px;
 }
 
 .enquiry-card mat-card-actions button {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
 }
 
-.enquiry-card mat-card-actions button mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* Status Management */
-.status-actions {
-  border-top: 1px solid #e0e0e0;
-  padding-top: 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.status-label {
-  font-weight: 500;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.status-actions button {
-  font-size: 0.8rem;
-  padding: 4px 8px;
-  min-width: auto;
-  border-radius: 12px;
+.gmail-reply-btn {
+  background: linear-gradient(135deg, #ea4335 0%, #c5221f 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(234, 67, 53, 0.3);
   transition: all 0.3s ease;
 }
 
-.status-actions button.active {
-  background-color: #4caf91;
-  color: white;
+.gmail-reply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(234, 67, 53, 0.4);
 }
 
-.status-actions button:not(.active):hover {
-  background-color: #f5f5f5;
+.gmail-reply-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Responsive Design */
