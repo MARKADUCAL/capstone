@@ -323,6 +323,13 @@
   align-items: stretch;
   min-height: 48px;
   margin-top: auto;
+  flex-wrap: wrap;
+}
+
+/* Ensure buttons and badges can grow to fit content */
+.action-buttons > * {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .action-btn {
@@ -340,9 +347,23 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 40px;
+  min-height: 40px;
+  height: auto;
   font-size: 13px;
-  white-space: nowrap;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+  position: relative;
+}
+
+/* Ensure icons match the text color and remain visible */
+.action-btn mat-icon {
+  color: currentColor;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
 .action-btn:hover {
@@ -365,7 +386,8 @@
   font-size: 13px;
   padding: 12px 14px;
   box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
-  height: 40px;
+  min-height: 40px;
+  height: auto;
 }
 
 .done-btn:hover {
@@ -386,8 +408,15 @@
   font-size: 13px;
   font-weight: 600;
   border: 1px solid;
-  height: 40px;
+  min-height: 40px;
+  height: auto;
   flex: 1;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 100%;
 }
 
 .completed-badge {
@@ -401,6 +430,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
 }
 
 .pending-badge {
@@ -414,6 +444,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
 }
 
 .done-badge {
@@ -427,6 +458,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
 }
 
 /* Status-based styling */
@@ -489,6 +521,37 @@
   }
 }
 
+/* Responsive font sizing for buttons and badges */
+@media (max-width: 1200px) {
+  .action-btn,
+  .completed-badge,
+  .pending-badge,
+  .done-badge {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 992px) {
+  .action-btn,
+  .completed-badge,
+  .pending-badge,
+  .done-badge {
+    font-size: 11px;
+    padding: 10px 10px;
+    gap: 4px;
+  }
+
+  .action-btn mat-icon,
+  .completed-badge mat-icon,
+  .pending-badge mat-icon,
+  .done-badge mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .header {
@@ -521,7 +584,10 @@
     padding: 12px 14px;
     font-size: 13px;
     width: 100%;
-    height: 44px;
+    min-height: 44px;
+    height: auto;
+    min-width: auto;
+    flex: none;
   }
 
   .completed-badge,
@@ -529,6 +595,27 @@
   .done-badge {
     width: 100%;
     justify-content: center;
-    height: 44px;
+    min-height: 44px;
+    height: auto;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .action-btn,
+  .completed-badge,
+  .pending-badge,
+  .done-badge {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .action-btn mat-icon,
+  .completed-badge mat-icon,
+  .pending-badge mat-icon,
+  .done-badge mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
   }
 }
