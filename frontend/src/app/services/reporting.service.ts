@@ -42,6 +42,15 @@ export interface DashboardSummaryResponse {
   dashboard_summary: DashboardSummary;
 }
 
+export interface WeeklyBookingPoint {
+  day: string;
+  bookings_count: number;
+}
+
+export interface WeeklyBookingsResponse {
+  weekly_bookings: WeeklyBookingPoint[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReportingService {
   private baseUrl = environment.apiUrl;
@@ -64,5 +73,11 @@ export class ReportingService {
     return this.http
       .get<any>(`${this.baseUrl}/get_dashboard_summary`)
       .pipe(map((res) => res?.payload?.dashboard_summary ?? null));
+  }
+
+  getWeeklyBookings(): Observable<WeeklyBookingPoint[]> {
+    return this.http
+      .get<any>(`${this.baseUrl}/get_weekly_bookings`)
+      .pipe(map((res) => res?.payload?.weekly_bookings ?? []));
   }
 }

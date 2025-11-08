@@ -21,6 +21,7 @@ import {
   ReportingService,
   RevenuePoint,
   ServiceDistributionItem,
+  WeeklyBookingPoint,
 } from '../../../services/reporting.service';
 
 // Register Chart.js components
@@ -75,6 +76,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private revenueValues: number[] = [];
   private serviceLabels: string[] = [];
   private serviceCounts: number[] = [];
+  private weeklyBookingLabels: string[] = [];
+  private weeklyBookingValues: number[] = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -86,6 +89,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.loadDashboardSummary();
     this.loadRevenueAnalytics();
     this.loadServiceDistribution();
+    this.loadWeeklyBookings();
   }
 
   ngAfterViewInit(): void {
@@ -140,22 +144,79 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   private loadRevenueAnalytics(): void {
-    this.reportingService.getRevenueAnalytics().subscribe((points) => {
-      this.revenueLabels = points.map((p) => p.month);
-      this.revenueValues = points.map((p) => Number(p.revenue) || 0);
-      if (isPlatformBrowser(this.platformId)) {
-        setTimeout(() => this.initializeRevenueChart(), 0);
-      }
+    this.reportingService.getRevenueAnalytics().subscribe({
+      next: (points) => {
+        this.revenueLabels = points.map((p) => p.month);
+        this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeRevenueChart(), 100);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading revenue analytics:', err);
+        // Use fallback data if API fails
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeRevenueChart(), 100);
+        }
+      },
     });
   }
 
   private loadServiceDistribution(): void {
-    this.reportingService.getServiceDistribution().subscribe((items) => {
-      this.serviceLabels = items.map((i) => i.service_name);
-      this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
-      if (isPlatformBrowser(this.platformId)) {
-        setTimeout(() => this.initializeServiceChart(), 0);
-      }
+    this.reportingService.getServiceDistribution().subscribe({
+      next: (items) => {
+        this.serviceLabels = items.map((i) => i.service_name);
+        this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeServiceChart(), 100);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading service distribution:', err);
+        // Use fallback data if API fails
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeServiceChart(), 100);
+        }
+      },
+    });
+  }
+
+  private loadWeeklyBookings(): void {
+    this.reportingService.getWeeklyBookings().subscribe({
+      next: (points) => {
+        // Map day names to short format (Mon, Tue, etc.)
+        const dayMap: { [key: string]: string } = {
+          Monday: 'Mon',
+          Tuesday: 'Tue',
+          Wednesday: 'Wed',
+          Thursday: 'Thu',
+          Friday: 'Fri',
+          Saturday: 'Sat',
+          Sunday: 'Sun',
+        };
+
+        // Ensure we have data for all 7 days in order
+        const orderedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const bookingMap = new Map<string, number>();
+        
+        points.forEach((p) => {
+          bookingMap.set(p.day, Number(p.bookings_count) || 0);
+        });
+
+        this.weeklyBookingLabels = orderedDays.map((day) => dayMap[day] || day.substring(0, 3));
+        this.weeklyBookingValues = orderedDays.map((day) => bookingMap.get(day) || 0);
+
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeBookingsChart(), 100);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading weekly bookings:', err);
+        // Use fallback data if API fails
+        if (isPlatformBrowser(this.platformId)) {
+          setTimeout(() => this.initializeBookingsChart(), 100);
+        }
+      },
     });
   }
 
@@ -302,6 +363,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   private initializeBookingsChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     // Bookings Chart
     const bookingsCtx = document.getElementById(
       'bookingsChart'
@@ -313,11 +376,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.bookingsChart = new Chart(bookingsCtx, {
         type: 'bar',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: this.weeklyBookingLabels.length
+            ? this.weeklyBookingLabels
+            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
           datasets: [
             {
               label: 'Daily Bookings',
-              data: [25, 30, 28, 32, 35, 40, 38],
+              data: this.weeklyBookingValues.length
+                ? this.weeklyBookingValues
+                : [25, 30, 28, 32, 35, 40, 38],
               backgroundColor: 'rgba(25, 118, 210, 0.8)',
               borderRadius: 6,
               borderColor: '#1976d2',
