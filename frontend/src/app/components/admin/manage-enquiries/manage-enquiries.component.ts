@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 import {
   ContactService,
@@ -28,12 +25,9 @@ interface Enquiry {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
   ],
   templateUrl: './manage-enquiries.component.html',
   styleUrl: './manage-enquiries.component.css',
@@ -42,7 +36,6 @@ export class ManageEnquiriesComponent implements OnInit {
   enquiries: Enquiry[] = [];
   isLoading = false;
   errorMessage = '';
-  selectedStatus = 'all';
 
   constructor(
     private snackBar: MatSnackBar,
@@ -95,15 +88,6 @@ export class ManageEnquiriesComponent implements OnInit {
     this.showNotification(`Opening Gmail to reply to ${enquiry.name}`);
   }
 
-  getFilteredEnquiries(): Enquiry[] {
-    if (this.selectedStatus === 'all') {
-      return this.enquiries;
-    }
-    return this.enquiries.filter(
-      (enquiry) => enquiry.status === this.selectedStatus
-    );
-  }
-
   updateEnquiryStatus(
     enquiry: Enquiry,
     newStatus: 'new' | 'read' | 'replied' | 'archived'
@@ -131,36 +115,6 @@ export class ManageEnquiriesComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'new':
-        return '#ff9800'; // Orange
-      case 'read':
-        return '#2196f3'; // Blue
-      case 'replied':
-        return '#4caf50'; // Green
-      case 'archived':
-        return '#9e9e9e'; // Grey
-      default:
-        return '#9e9e9e';
-    }
-  }
-
-  getStatusIcon(status: string): string {
-    switch (status) {
-      case 'new':
-        return 'fiber_new';
-      case 'read':
-        return 'visibility';
-      case 'replied':
-        return 'reply';
-      case 'archived':
-        return 'archive';
-      default:
-        return 'help';
-    }
   }
 
   formatDate(dateString: string): string {

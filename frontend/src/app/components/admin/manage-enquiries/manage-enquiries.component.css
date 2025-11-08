@@ -20,17 +20,6 @@
   font-size: 1.1rem;
 }
 
-/* Filter Section */
-.filter-section {
-  margin-bottom: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.filter-section mat-form-field {
-  min-width: 200px;
-}
-
 /* Loading and Error States */
 .loading-state,
 .error-state,
@@ -89,27 +78,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.enquiry-card.status-new {
-  border-left-color: #ff9800;
-  background-color: #fff8e1;
-}
-
-.enquiry-card.status-new .status-badge {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 /* Card Header */
 .enquiry-card mat-card-header {
   margin-bottom: 15px;
@@ -147,24 +115,6 @@
   font-weight: 500;
   color: #555;
   flex: 1;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.status-badge mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
 }
 
 /* Card Content */

@@ -4,20 +4,6 @@
     <p>View and manage messages from the contact form</p>
   </div>
 
-  <!-- Status Filter -->
-  <div class="filter-section">
-    <mat-form-field appearance="outline">
-      <mat-label>Filter by Status</mat-label>
-      <mat-select [(ngModel)]="selectedStatus">
-        <mat-option value="all">All Inquiries</mat-option>
-        <mat-option value="new">New (Unread)</mat-option>
-        <mat-option value="read">Read</mat-option>
-        <mat-option value="replied">Replied</mat-option>
-        <mat-option value="archived">Archived</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-state">
     <mat-icon class="loading-icon">hourglass_empty</mat-icon>
@@ -31,15 +17,9 @@
   </div>
 
   <!-- Enquiries Grid -->
-  <div
-    class="enquiries-grid"
-    *ngIf="!isLoading && getFilteredEnquiries().length > 0"
-  >
-    @for (enquiry of getFilteredEnquiries(); track enquiry.id) {
-    <mat-card
-      class="enquiry-card"
-      [class.status-new]="enquiry.status === 'new'"
-    >
+  <div class="enquiries-grid" *ngIf="!isLoading && enquiries.length > 0">
+    @for (enquiry of enquiries; track enquiry.id) {
+    <mat-card class="enquiry-card">
       <mat-card-header>
         <div mat-card-avatar>
           <div class="user-avatar-placeholder">
@@ -49,13 +29,6 @@
         <mat-card-title>{{ enquiry.name }}</mat-card-title>
         <mat-card-subtitle>
           <span class="subject">{{ enquiry.subject }}</span>
-          <span
-            class="status-badge"
-            [style.background-color]="getStatusColor(enquiry.status)"
-          >
-            <mat-icon>{{ getStatusIcon(enquiry.status) }}</mat-icon>
-            {{ enquiry.status | titlecase }}
-          </span>
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -91,11 +64,8 @@
   </div>
 
   <!-- Empty State -->
-  <div
-    *ngIf="!isLoading && getFilteredEnquiries().length === 0"
-    class="empty-state"
-  >
+  <div *ngIf="!isLoading && enquiries.length === 0" class="empty-state">
     <mat-icon class="empty-icon">inbox</mat-icon>
-    <p>No enquiries found for the selected status.</p>
+    <p>No enquiries found.</p>
   </div>
 </div>
