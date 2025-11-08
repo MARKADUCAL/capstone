@@ -461,7 +461,12 @@ export class CarWashBookingComponent implements OnInit {
 
           const booking = {
             id: Number(b.id ?? idx + 1),
-            customerName: this.resolveCustomerName(b.customerName, b.nickname),
+            customerName: this.resolveCustomerName(
+              b.customerName,
+              b.nickname,
+              b.firstName ?? b.first_name,
+              b.lastName ?? b.last_name
+            ),
             vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
             date: b.washDate ?? b.wash_date ?? '',
             time: b.washTime ?? b.wash_time ?? '',
@@ -583,11 +588,24 @@ export class CarWashBookingComponent implements OnInit {
     return null;
   }
 
-  private resolveCustomerName(dbFullName?: string, nickname?: string): string {
+  private resolveCustomerName(
+    dbFullName?: string,
+    nickname?: string,
+    firstName?: string,
+    lastName?: string
+  ): string {
+    // Prioritize firstName + lastName combination
+    const first = (firstName || '').trim();
+    const last = (lastName || '').trim();
+    if (first.length > 0 || last.length > 0) {
+      return `${first} ${last}`.trim();
+    }
+    // Fallback to dbFullName
     const full = (dbFullName || '').trim();
     if (full.length > 0) return full;
+    // Fallback to nickname or default
     const nick = (nickname || '').trim();
-    return nick.length > 0 ? nick : 'Customer';
+    return nick.length > 0 ? nick : 'Walk-in Customer';
   }
 
   formatDate(dateString: string): string {
