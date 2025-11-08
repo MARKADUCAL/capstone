@@ -416,7 +416,15 @@ export class CarWashBookingComponent implements OnInit {
     const prev = booking.status;
     booking.status = 'Completed';
     this.bookingService.updateBookingStatus(booking.id, 'Completed').subscribe({
-      next: () => this.showNotification('Booking marked as completed'),
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Booking Completed!',
+          text: `Booking #${booking.id} for ${booking.customerName} has been marked as completed successfully.`,
+          confirmButtonColor: '#2563eb',
+        });
+        this.showNotification('Booking marked as completed');
+      },
       error: (err) => {
         booking.status = prev;
         this.showNotification(err.message || 'Failed to complete booking');
