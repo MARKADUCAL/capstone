@@ -188,7 +188,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     
     const serviceNameLower = serviceName.toLowerCase().trim();
     
-    // Map package codes and service names to package labels
+    // Backend now returns mapped names, but handle edge cases and legacy data
+    // Check if already in correct format
+    if (serviceNameLower === 'wash only' || serviceNameLower === 'wash / vacuum' || 
+        serviceNameLower === 'wash / vacuum / hand wax' || 
+        serviceNameLower === 'wash / vacuum / buffing wax') {
+      return serviceName; // Already correctly formatted
+    }
+    
+    // Map package codes and service names to package labels (for legacy data)
     if (serviceNameLower.includes('p1') || serviceNameLower.includes('wash only')) {
       return 'Wash only';
     }

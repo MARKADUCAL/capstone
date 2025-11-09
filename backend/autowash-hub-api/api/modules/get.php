@@ -508,19 +508,36 @@ class Get extends GlobalMethods {
 
     public function get_service_distribution() {
         try {
+            // Query bookings directly and group by service_package
+            // Extract package code (handle formats like "p1", "p1 - Wash only", "p1- Wash", etc.)
             $sql = "SELECT 
-                        s.name as service_name,
+                        TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) as package_code,
                         COUNT(b.id) as booking_count,
                         AVG(b.price) as average_price,
-                        SUM(b.price) as total_revenue
+                        SUM(b.price) as total_revenue,
+                        CASE 
+                            WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p1', '1') 
+                                 OR LOWER(b.service_package) LIKE 'p1%' 
+                                 OR LOWER(b.service_package) LIKE '1%' THEN 'Wash only'
+                            WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p2', '2') 
+                                 OR LOWER(b.service_package) LIKE 'p2%' 
+                                 OR LOWER(b.service_package) LIKE '2%' THEN 'Wash / Vacuum'
+                            WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p3', '3') 
+                                 OR LOWER(b.service_package) LIKE 'p3%' 
+                                 OR LOWER(b.service_package) LIKE '3%' THEN 'Wash / Vacuum / Hand Wax'
+                            WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p4', '4') 
+                                 OR LOWER(b.service_package) LIKE 'p4%' 
+                                 OR LOWER(b.service_package) LIKE '4%' THEN 'Wash / Vacuum / Buffing Wax'
+                            ELSE CONCAT('Package ', TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1)))
+                        END as service_name
                     FROM 
-                        services s
-                    LEFT JOIN 
-                        bookings b ON s.id = b.service_id
+                        bookings b
                     WHERE 
-                        s.is_active = 1
+                        b.service_package IS NOT NULL 
+                        AND b.service_package != ''
+                        AND b.status != 'Cancelled'
                     GROUP BY 
-                        s.id, s.name
+                        package_code, service_name
                     ORDER BY 
                         booking_count DESC";
             
