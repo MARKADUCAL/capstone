@@ -355,6 +355,13 @@ export class CarWashBookingComponent implements OnInit {
     this.openBookingDialog(booking, 'edit');
   }
 
+  canEditBooking(booking: CarWashBooking): boolean {
+    const status = booking.status as string;
+    return status !== 'Rejected' && status !== 'Cancelled' && 
+           status !== 'Pending' && status !== 'Approved' && 
+           status !== 'Done' && status !== 'Completed';
+  }
+
   deleteBooking(booking: CarWashBooking): void {
     const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
       width: '420px',
