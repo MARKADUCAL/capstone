@@ -173,8 +173,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   }
 
   getServiceName(booking: any): string {
+    // Check if serviceName exists and is not just a package code
     if (booking.serviceName) {
-      return booking.serviceName;
+      const serviceNameStr = booking.serviceName.toString().trim();
+      // If serviceName is just a package code (like "Package p2"), ignore it and use mapping
+      if (!serviceNameStr.match(/^Package\s+[pP]?\d+$/i)) {
+        return serviceNameStr;
+      }
     }
 
     const packageCode = this.resolveServicePackageCode(booking);
