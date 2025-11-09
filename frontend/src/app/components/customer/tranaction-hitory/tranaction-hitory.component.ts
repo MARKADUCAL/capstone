@@ -224,6 +224,21 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return descriptionMap[packageCode] || 'Car wash service';
   }
 
+  getPackageLabel(booking: any): string {
+    const packageCode = this.resolveServicePackageCode(booking);
+
+    if (!packageCode) {
+      const rawValue =
+        booking?.servicePackage ??
+        booking?.service_package ??
+        booking?.serviceCode ??
+        booking?.service_code;
+      return rawValue ? rawValue.toString().trim() : 'N/A';
+    }
+
+    return packageCode.toUpperCase();
+  }
+
   loadBookings(): void {
     if (this.isBrowser) {
       console.log('Loading bookings...');
