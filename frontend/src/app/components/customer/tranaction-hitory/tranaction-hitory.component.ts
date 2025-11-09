@@ -233,10 +233,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         booking?.service_package ??
         booking?.serviceCode ??
         booking?.service_code;
-      return rawValue ? rawValue.toString().trim() : 'N/A';
+      return rawValue ? `Package ${rawValue.toString().trim()}` : 'Package N/A';
     }
 
-    return packageCode.toUpperCase();
+    return `Package ${packageCode.toLowerCase()}`;
   }
 
   loadBookings(): void {
