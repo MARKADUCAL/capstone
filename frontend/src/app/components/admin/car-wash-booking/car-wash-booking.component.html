@@ -160,7 +160,8 @@
           <mat-icon>check_circle</mat-icon>
           Completed
         </div>
-        } @else {
+        } @else if (booking.status !== 'Cancelled' && booking.status !==
+        'Rejected') {
         <button class="action-btn edit-btn" (click)="editBooking(booking)">
           <mat-icon>edit</mat-icon>
           Edit
