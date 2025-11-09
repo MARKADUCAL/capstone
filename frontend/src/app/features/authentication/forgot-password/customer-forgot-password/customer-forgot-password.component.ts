@@ -16,8 +16,10 @@ export class CustomerForgotPasswordComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  showVerificationForm = false;
   showResetForm = false;
   resetToken = '';
+  verificationCode = '';
   newPassword = '';
   confirmPassword = '';
 
@@ -60,11 +62,11 @@ export class CustomerForgotPasswordComponent implements OnInit {
         next: (response) => {
           this.isLoading = false;
           if (response.status.remarks === 'success') {
-            this.successMessage = response.status.message;
-            // For testing purposes, show the reset token
+            this.successMessage = 'Verification code has been sent to your email. Please check your inbox.';
+            // Store the reset token for verification
             if (response.payload?.reset_token) {
               this.resetToken = response.payload.reset_token;
-              this.showResetForm = true;
+              this.showVerificationForm = true;
             }
           } else {
             this.errorMessage = response.status.message;
@@ -80,6 +82,25 @@ export class CustomerForgotPasswordComponent implements OnInit {
           }
         },
       });
+  }
+
+  onVerifyCode() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    
+    if (!this.verificationCode) {
+      this.errorMessage = 'Please enter the verification code';
+      return;
+    }
+
+    // Verify the code matches the reset token
+    if (this.verificationCode === this.resetToken) {
+      this.showVerificationForm = false;
+      this.showResetForm = true;
+      this.successMessage = 'Verification successful! Please enter your new password.';
+    } else {
+      this.errorMessage = 'Invalid verification code. Please try again.';
+    }
   }
 
   onSubmitReset() {
