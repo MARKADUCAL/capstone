@@ -183,11 +183,36 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private mapServiceNameToPackageLabel(serviceName: string): string {
+    if (!serviceName) return serviceName;
+    
+    const serviceNameLower = serviceName.toLowerCase().trim();
+    
+    // Map package codes and service names to package labels
+    if (serviceNameLower.includes('p1') || serviceNameLower.includes('wash only')) {
+      return 'Wash only';
+    }
+    if (serviceNameLower.includes('p2') || serviceNameLower.includes('wash + vacuum') || 
+        serviceNameLower.includes('wash/vacuum') || serviceNameLower.includes('wash / vacuum')) {
+      return 'Wash / Vacuum';
+    }
+    if (serviceNameLower.includes('p3') || serviceNameLower.includes('hand wax')) {
+      return 'Wash / Vacuum / Hand Wax';
+    }
+    if (serviceNameLower.includes('p4') || serviceNameLower.includes('buffing wax')) {
+      return 'Wash / Vacuum / Buffing Wax';
+    }
+    
+    // Fallback: return original name if no match
+    return serviceName;
+  }
+
   private loadServiceDistribution(): void {
     this.reportingService.getServiceDistribution().subscribe({
       next: (items) => {
         console.log('Service distribution data received:', items);
-        this.serviceLabels = items.map((i) => i.service_name);
+        // Map service names to package labels
+        this.serviceLabels = items.map((i) => this.mapServiceNameToPackageLabel(i.service_name));
         this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
         console.log('Processed service distribution:', {
           labels: this.serviceLabels,
@@ -412,7 +437,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       // Ensure we have matching labels and data
       const labels = this.serviceLabels.length
         ? this.serviceLabels
-        : ['Basic Wash', 'Premium Wash', 'Full Service', 'Interior Clean'];
+        : ['Wash only', 'Wash / Vacuum', 'Wash / Vacuum / Hand Wax', 'Wash / Vacuum / Buffing Wax'];
       const data = this.serviceCounts.length
         ? this.serviceCounts
         : [30, 25, 25, 20];
