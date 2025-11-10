@@ -204,6 +204,8 @@
         [src]="g.url"
         [alt]="g.alt || 'Gallery image'"
         [title]="g.alt || 'Gallery image'"
+        title="Gallery image"
+        loading="lazy"
       />
     </div>
   </div>
@@ -297,7 +299,7 @@
       <h3>Quick Links</h3>
       <ul>
         <li><a href="#hero">Home</a></li>
-        <li><a href="#services">Services</a></li>
+        <li><a href="#pricing">Services</a></li>
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -307,21 +309,34 @@
     </div>
     <div class="contact-us" *ngIf="content">
       <h3>Contact Us</h3>
-      <p>📍 Address: {{ content.footer.address }}</p>
-      <p>📞 Phone: {{ content.footer.phone }}</p>
-      <p>✉️ Email: {{ content.footer.email }}</p>
+      <div class="contact-footer-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <p><strong>Address:</strong> {{ content.footer.address }}</p>
+      </div>
+      <div class="contact-footer-item">
+        <i class="fas fa-phone"></i>
+        <p><strong>Phone:</strong> {{ content.footer.phone }}</p>
+      </div>
+      <div class="contact-footer-item">
+        <i class="fas fa-envelope"></i>
+        <p><strong>Email:</strong> {{ content.footer.email }}</p>
+      </div>
     </div>
     <div class="follow-us" *ngIf="content">
       <h3>Follow Us</h3>
-      <p>
-        <a [href]="content.footer.facebook" target="_blank">Facebook</a> |
-        <a [href]="content.footer.instagram" target="_blank">Instagram</a> |
-        <a [href]="content.footer.twitter" target="_blank">Twitter</a> |
+      <div class="social-links">
+        <a [href]="content.footer.facebook" target="_blank">Facebook</a>
+        <span class="separator">|</span>
+        <a [href]="content.footer.instagram" target="_blank">Instagram</a>
+        <span class="separator">|</span>
+        <a [href]="content.footer.twitter" target="_blank">Twitter</a>
+        <span class="separator">|</span>
         <a [href]="content.footer.tiktok" target="_blank">TikTok</a>
-      </p>
+      </div>
       <a routerLink="/customer" class="booknow-button">Book Now</a>
     </div>
   </div>
+  <div class="footer-divider"></div>
   <div class="footer-bottom">
     <p *ngIf="content">
       {{ content.footer.copyright }}
@@ -361,7 +376,7 @@
         <strong>{{ verificationEmail }}</strong>
       </p>
       <p>Please enter the code below to verify your email address.</p>
-      
+
       <!-- Error Message -->
       <div *ngIf="contactErrorMessage" class="error-message">
         {{ contactErrorMessage }}
@@ -383,7 +398,10 @@
         <button class="modal-btn modal-btn-ok" (click)="verifyCode()">
           Verify
         </button>
-        <button class="modal-btn modal-btn-cancel" (click)="closeVerificationModal()">
+        <button
+          class="modal-btn modal-btn-cancel"
+          (click)="closeVerificationModal()"
+        >
           Cancel
         </button>
       </div>
