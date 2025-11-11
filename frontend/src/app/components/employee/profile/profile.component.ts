@@ -90,6 +90,26 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  private persistEmployeeData(employee: Partial<EmployeeProfile>): void {
+    this.profile = { ...this.profile, ...employee };
+
+    if (!this.isBrowser) {
+      return;
+    }
+
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem('employee_data') || '{}'
+      ) as Partial<EmployeeProfile>;
+      localStorage.setItem(
+        'employee_data',
+        JSON.stringify({ ...stored, ...this.profile })
+      );
+    } catch (error) {
+      console.warn('Failed to persist employee data locally:', error);
+    }
+  }
+
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
     this.successMessage = '';
@@ -129,9 +149,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const token =
-      localStorage.getItem('employee_token') ||
-      localStorage.getItem('auth_token');
+    const token = localStorage.getItem('employee_token');
     if (!token) {
       this.errorMessage = 'Not authorized';
       this.isSaving = false;
@@ -148,13 +166,14 @@ export class ProfileComponent implements OnInit {
       last_name: this.profile.last_name,
       email: this.profile.email,
       phone: this.profile.phone,
+      position: this.profile.position,
       avatar_url: this.profile.avatar_url || null,
-      current_password: this.currentPassword,
+      current_password: this.currentPassword || null,
       new_password: this.newPassword || null,
     };
 
     this.http
-      .put(`${this.apiUrl}/update_employee_profile`, updateData, { headers })
+      .put(`${this.apiUrl}/update_employee`, updateData, { headers })
       .subscribe({
         next: (response: any) => {
           this.isSaving = false;
@@ -163,16 +182,9 @@ export class ProfileComponent implements OnInit {
 
             // Update localStorage
             if (response.payload && response.payload.employee) {
-              localStorage.setItem(
-                'employee_data',
-                JSON.stringify(response.payload.employee)
-              );
+              this.persistEmployeeData(response.payload.employee);
             } else {
-              // If backend doesn't return updated data, update with current form data
-              localStorage.setItem(
-                'employee_data',
-                JSON.stringify(this.profile)
-              );
+              this.persistEmployeeData(this.profile);
             }
 
             // Reset password fields
@@ -220,9 +232,58 @@ export class ProfileComponent implements OnInit {
     }
     this.selectedFile = file;
     this.uploadError = '';
+    this.uploadSuccess = '';
     const reader = new FileReader();
     reader.onload = (e: any) => (this.imagePreview = e.target.result);
     reader.readAsDataURL(file);
+  }
+
+  private persistAvatarUrl(url: string): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    const token = localStorage.getItem('employee_token');
+    if (!token) {
+      this.uploadError = 'Not authorized. Please log in again.';
+      return;
+    }
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+    const payload = {
+      id: this.profile.id,
+      avatar_url: url,
+    };
+
+    this.http
+      .put(`${this.apiUrl}/update_employee`, payload, { headers })
+      .subscribe({
+        next: (response: any) => {
+          if (response.status?.remarks === 'success') {
+            if (response.payload?.employee) {
+              this.persistEmployeeData(response.payload.employee);
+            } else {
+              this.persistEmployeeData({ avatar_url: url });
+            }
+            this.uploadSuccess = 'Profile picture saved!';
+            this.uploadError = '';
+            this.imagePreview = null;
+            this.selectedFile = null;
+          } else {
+            this.uploadError =
+              response.status?.message ||
+              'Could not save profile picture. Please try again.';
+          }
+        },
+        error: (error) => {
+          console.error('Avatar persistence error:', error);
+          this.uploadError =
+            error.error?.status?.message ||
+            'Could not save profile picture. Please try again.';
+        },
+      });
   }
 
   uploadAvatar(): void {
@@ -240,25 +301,16 @@ export class ProfileComponent implements OnInit {
         this.isUploading = false;
         if (res?.status === 'success' && res?.data?.url) {
           this.profile.avatar_url = res.data.url;
-          this.uploadSuccess = 'Profile picture uploaded!';
-          this.uploadError = '';
-          // persist locally immediately
-          try {
-            const stored = JSON.parse(
-              localStorage.getItem('employee_data') || '{}'
-            );
-            localStorage.setItem(
-              'employee_data',
-              JSON.stringify({ ...stored, avatar_url: this.profile.avatar_url })
-            );
-          } catch {}
+          this.persistAvatarUrl(res.data.url);
         } else {
           this.uploadError = res?.message || 'Upload failed.';
+          this.uploadSuccess = '';
         }
       },
       error: () => {
         this.isUploading = false;
         this.uploadError = 'Upload failed. Please try again.';
+        this.uploadSuccess = '';
       },
     });
   }

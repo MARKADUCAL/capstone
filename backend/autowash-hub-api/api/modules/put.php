@@ -103,7 +103,8 @@ class Put {
                 'last_name' => 'last_name',
                 'email' => 'email',
                 'phone' => 'phone',
-                'position' => 'position'
+                'position' => 'position',
+                'avatar_url' => 'avatar_url'
             ];
 
             $updates = [];
@@ -116,9 +117,30 @@ class Put {
                 }
             }
 
-            if (isset($data->password) && !empty($data->password)) {
+            $hasNewPassword = isset($data->new_password) && !empty($data->new_password);
+            $hasCurrentPassword = isset($data->current_password) && !empty($data->current_password);
+
+            if ($hasNewPassword) {
+                if (!$hasCurrentPassword) {
+                    return $this->sendPayload(null, "failed", "Current password is required to change password", 400);
+                }
+
+                $sqlFetch = "SELECT password FROM employees WHERE id = ?";
+                $stmtFetch = $this->pdo->prepare($sqlFetch);
+                $stmtFetch->execute([$data->id]);
+                $existing = $stmtFetch->fetch(PDO::FETCH_ASSOC);
+
+                if (!$existing) {
+                    return $this->sendPayload(null, "failed", "Employee not found", 404);
+                }
+
+                $currentHash = $existing['password'] ?? '';
+                if (!password_verify($data->current_password, $currentHash)) {
+                    return $this->sendPayload(null, "failed", "Current password is incorrect", 401);
+                }
+
                 $updates[] = "password = ?";
-                $values[] = password_hash($data->password, PASSWORD_DEFAULT);
+                $values[] = password_hash($data->new_password, PASSWORD_DEFAULT);
             }
 
             if (empty($updates)) {
@@ -131,11 +153,20 @@ class Put {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($values);
 
-            if ($stmt->rowCount() > 0) {
-                return $this->sendPayload(null, "success", "Employee updated successfully", 200);
+            if ($stmt->rowCount() === 0) {
+                // Even if no rows were affected, the employee might still exist with the same values.
+                $stmtCheck = $this->pdo->prepare("SELECT id FROM employees WHERE id = ?");
+                $stmtCheck->execute([$data->id]);
+                if (!$stmtCheck->fetch()) {
+                    return $this->sendPayload(null, "failed", "Employee not found", 404);
+                }
             }
 
-            return $this->sendPayload(null, "failed", "Employee not found or no changes made", 404);
+            $stmtGet = $this->pdo->prepare("SELECT id, employee_id, first_name, last_name, email, phone, position, avatar_url FROM employees WHERE id = ?");
+            $stmtGet->execute([$data->id]);
+            $employee = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
+            return $this->sendPayload(['employee' => $employee], "success", "Employee updated successfully", 200);
         } catch (Exception $e) {
             return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }
