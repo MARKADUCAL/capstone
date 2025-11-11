@@ -48,13 +48,6 @@ export class ProfileComponent implements OnInit {
 
   private apiUrl = environment.apiUrl;
 
-  // Image upload state
-  selectedFile: File | null = null;
-  imagePreview: string | null = null;
-  isUploading: boolean = false;
-  uploadError: string = '';
-  uploadSuccess: string = '';
-
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
@@ -167,7 +160,6 @@ export class ProfileComponent implements OnInit {
       email: this.profile.email,
       phone: this.profile.phone,
       position: this.profile.position,
-      avatar_url: this.profile.avatar_url || null,
       current_password: this.currentPassword || null,
       new_password: this.newPassword || null,
     };
@@ -216,103 +208,6 @@ export class ProfileComponent implements OnInit {
     this.confirmPassword = '';
     this.successMessage = '';
     this.errorMessage = '';
-  }
-
-  // Image upload methods
-  onFileSelected(event: any): void {
-    const file = event?.target?.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.uploadError = 'Please select a valid image file.';
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      this.uploadError = 'File size must be less than 5MB.';
-      return;
-    }
-    this.selectedFile = file;
-    this.uploadError = '';
-    this.uploadSuccess = '';
-    const reader = new FileReader();
-    reader.onload = (e: any) => (this.imagePreview = e.target.result);
-    reader.readAsDataURL(file);
-  }
-
-  private persistAvatarUrl(url: string): void {
-    if (!this.isBrowser) {
-      return;
-    }
-
-    const token = localStorage.getItem('employee_token');
-    if (!token) {
-      this.uploadError = 'Not authorized. Please log in again.';
-      return;
-    }
-
-    const headers = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set('Authorization', `Bearer ${token}`);
-    const payload = {
-      id: this.profile.id,
-      avatar_url: url,
-    };
-
-    this.http
-      .put(`${this.apiUrl}/update_employee`, payload, { headers })
-      .subscribe({
-        next: (response: any) => {
-          if (response.status?.remarks === 'success') {
-            if (response.payload?.employee) {
-              this.persistEmployeeData(response.payload.employee);
-            } else {
-              this.persistEmployeeData({ avatar_url: url });
-            }
-            this.uploadSuccess = 'Profile picture saved!';
-            this.uploadError = '';
-            this.imagePreview = null;
-            this.selectedFile = null;
-          } else {
-            this.uploadError =
-              response.status?.message ||
-              'Could not save profile picture. Please try again.';
-          }
-        },
-        error: (error) => {
-          console.error('Avatar persistence error:', error);
-          this.uploadError =
-            error.error?.status?.message ||
-            'Could not save profile picture. Please try again.';
-        },
-      });
-  }
-
-  uploadAvatar(): void {
-    if (!this.selectedFile) {
-      this.uploadError = 'Please select an image first.';
-      return;
-    }
-    this.isUploading = true;
-    const form = new FormData();
-    form.append('file', this.selectedFile);
-    form.append('category', 'avatar');
-
-    this.http.post<any>(`${this.apiUrl}/upload_file`, form).subscribe({
-      next: (res) => {
-        this.isUploading = false;
-        if (res?.status === 'success' && res?.data?.url) {
-          this.profile.avatar_url = res.data.url;
-          this.persistAvatarUrl(res.data.url);
-        } else {
-          this.uploadError = res?.message || 'Upload failed.';
-          this.uploadSuccess = '';
-        }
-      },
-      error: () => {
-        this.isUploading = false;
-        this.uploadError = 'Upload failed. Please try again.';
-        this.uploadSuccess = '';
-      },
-    });
   }
 
   handleAvatarError(event: Event): void {

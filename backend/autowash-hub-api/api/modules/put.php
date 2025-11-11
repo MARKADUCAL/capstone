@@ -103,8 +103,7 @@ class Put {
                 'last_name' => 'last_name',
                 'email' => 'email',
                 'phone' => 'phone',
-                'position' => 'position',
-                'avatar_url' => 'avatar_url'
+                'position' => 'position'
             ];
 
             $updates = [];
@@ -162,7 +161,7 @@ class Put {
                 }
             }
 
-            $stmtGet = $this->pdo->prepare("SELECT id, employee_id, first_name, last_name, email, phone, position, avatar_url FROM employees WHERE id = ?");
+            $stmtGet = $this->pdo->prepare("SELECT id, employee_id, first_name, last_name, email, phone, position FROM employees WHERE id = ?");
             $stmtGet->execute([$data->id]);
             $employee = $stmtGet->fetch(PDO::FETCH_ASSOC);
 

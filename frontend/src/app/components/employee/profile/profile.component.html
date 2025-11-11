@@ -78,53 +78,6 @@
     <!-- Edit Mode -->
     <form *ngIf="isEditing" (ngSubmit)="saveProfile()">
       <div class="form-section">
-        <h3>Profile Picture</h3>
-        <div class="avatar-edit-row">
-          <div class="avatar-container">
-            <img
-              *ngIf="imagePreview || profile.avatar_url"
-              [src]="imagePreview || profile.avatar_url"
-              alt="Preview"
-              class="avatar-image"
-            />
-            <div
-              *ngIf="!imagePreview && !profile.avatar_url"
-              class="avatar-placeholder"
-            >
-              {{ profile.first_name.charAt(0)
-              }}{{ profile.last_name.charAt(0) }}
-            </div>
-          </div>
-          <div class="upload-controls">
-            <label for="avatarFile" class="sr-only"
-              >Upload profile picture</label
-            >
-            <input
-              id="avatarFile"
-              type="file"
-              accept="image/*"
-              (change)="onFileSelected($event)"
-              aria-label="Upload profile picture"
-            />
-            <button
-              type="button"
-              class="save-button"
-              (click)="uploadAvatar()"
-              [disabled]="isUploading"
-            >
-              {{ isUploading ? "Uploading..." : "Upload Photo" }}
-            </button>
-            <div class="upload-msg error" *ngIf="uploadError">
-              {{ uploadError }}
-            </div>
-            <div class="upload-msg success" *ngIf="uploadSuccess">
-              {{ uploadSuccess }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
         <h3>Personal Information</h3>
 
         <div class="form-group">
