@@ -23,6 +23,18 @@
 
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
           <div class="form-group">
+            <label for="admin_id">Admin ID</label>
+            <input
+              type="text"
+              id="admin_id"
+              [(ngModel)]="admin.admin_id"
+              name="admin_id"
+              readonly
+              aria-readonly="true"
+            />
+          </div>
+
+          <div class="form-group">
             <label for="first_name">First Name</label>
             <input
               type="text"
