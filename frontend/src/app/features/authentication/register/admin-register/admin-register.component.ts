@@ -42,7 +42,9 @@ export class AdminRegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.prefillNextAdminId();
+    if (this.isBrowser) {
+      this.prefillNextAdminId();
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -57,26 +59,26 @@ export class AdminRegisterComponent implements OnInit {
     excludeId?: string,
     onAssigned?: (newId: string) => void
   ): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.http.get<any>(`${environment.apiUrl}/get_all_admins`).subscribe({
       next: (response) => {
-        const admins = response?.payload?.admins || [];
+        const admins =
+          response?.status?.remarks === 'success'
+            ? response?.payload?.admins || []
+            : [];
         const usedNumbers = new Set<number>();
 
-        for (const admin of admins) {
-          const numeric =
-            typeof admin.id === 'number' && admin.id > 0
-              ? admin.id
-              : this.parseAdminIdNumber(admin.admin_id);
-          if (numeric > 0) {
-            usedNumbers.add(numeric);
-          }
-        }
+        admins.forEach((admin: any) => {
+          const numeric = this.extractAdminNumericId(admin);
+          if (numeric > 0) usedNumbers.add(numeric);
+        });
 
         if (excludeId) {
           const excludeNumeric = this.parseAdminIdNumber(excludeId);
-          if (excludeNumeric > 0) {
-            usedNumbers.add(excludeNumeric);
-          }
+          if (excludeNumeric > 0) usedNumbers.add(excludeNumeric);
         }
 
         let candidate = 1;
@@ -84,22 +86,10 @@ export class AdminRegisterComponent implements OnInit {
           candidate += 1;
         }
 
-        const newId = this.formatAdminId(candidate);
-        this.admin.admin_id = newId;
-        if (onAssigned) {
-          onAssigned(newId);
-        }
+        this.assignAdminId(candidate, onAssigned);
       },
       error: () => {
-        if (!this.admin.admin_id) {
-          const fallbackId = this.formatAdminId(1);
-          this.admin.admin_id = fallbackId;
-          if (onAssigned) {
-            onAssigned(fallbackId);
-          }
-        } else if (onAssigned) {
-          onAssigned(this.admin.admin_id);
-        }
+        this.assignFallbackAdminId(excludeId, onAssigned);
       },
     });
   }
@@ -115,6 +105,41 @@ export class AdminRegisterComponent implements OnInit {
 
   private formatAdminId(n: number): string {
     return `ADM-${n.toString().padStart(3, '0')}`;
+  }
+
+  private extractAdminNumericId(admin: any): number {
+    if (admin) {
+      const parsed = this.parseAdminIdNumber(admin.admin_id);
+      if (parsed > 0) {
+        return parsed;
+      }
+      if (typeof admin.id === 'number' && admin.id > 0) {
+        return admin.id;
+      }
+    }
+    return 0;
+  }
+
+  private assignAdminId(
+    candidate: number,
+    onAssigned?: (newId: string) => void
+  ): void {
+    const newId = this.formatAdminId(candidate);
+    this.admin.admin_id = newId;
+    if (onAssigned) {
+      onAssigned(newId);
+    }
+  }
+
+  private assignFallbackAdminId(
+    excludeId?: string,
+    onAssigned?: (newId: string) => void
+  ): void {
+    const excludeNumeric = excludeId ? this.parseAdminIdNumber(excludeId) : 0;
+    const currentNumeric = this.parseAdminIdNumber(this.admin.admin_id);
+    const base = Math.max(excludeNumeric, currentNumeric);
+    const candidate = base > 0 ? base + 1 : 1;
+    this.assignAdminId(candidate, onAssigned);
   }
 
   onSubmit(): void {
