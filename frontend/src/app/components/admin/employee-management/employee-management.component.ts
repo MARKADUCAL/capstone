@@ -815,18 +815,37 @@ export class EmployeeManagementComponent implements OnInit {
             const s = (b.status || '').toString().toLowerCase();
             return s === 'completed' || s === 'done';
           })
-          .map((b: any) => ({
-            id: b.id,
-            service: b.services || b.serviceName || b.service || 'N/A',
-            customerName:
-              b.firstName && b.lastName
-                ? `${b.firstName} ${b.lastName}`
-                : b.nickname || b.customer_name || 'N/A',
-            date: b.washDate || b.date || b.booking_date || b.created_at,
-            time: b.washTime || b.time || b.booking_time,
-            totalAmount: b.price || b.total_amount || b.amount || 0,
-            raw: b,
-          }));
+          .map((b: any) => {
+            // Extract customer name - check multiple field variations
+            let customerName = 'Unknown Customer';
+            const firstName = b.firstName || b.first_name || b.firstname || '';
+            const lastName = b.lastName || b.last_name || b.lastname || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+
+            if (fullName) {
+              customerName = fullName;
+            } else if (b.nickname) {
+              customerName = b.nickname;
+            } else if (b.customer_name || b.customerName || b.name) {
+              customerName = b.customer_name || b.customerName || b.name;
+            } else if (b.customer?.name || b.user?.name) {
+              customerName = b.customer?.name || b.user?.name;
+            }
+
+            // Format time to 12-hour format with AM/PM
+            const timeString = b.washTime || b.time || b.booking_time || '';
+            const formattedTime = this.formatTimeTo12Hour(timeString);
+
+            return {
+              id: b.id,
+              service: b.services || b.serviceName || b.service || 'N/A',
+              customerName: customerName,
+              date: b.washDate || b.date || b.booking_date || b.created_at,
+              time: formattedTime,
+              totalAmount: b.price || b.total_amount || b.amount || 0,
+              raw: b,
+            };
+          });
         this.completedBookingsLoading = false;
       },
       error: (err) => {
@@ -855,6 +874,32 @@ export class EmployeeManagementComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  formatTimeTo12Hour(timeString: string): string {
+    if (!timeString || timeString.trim() === '') {
+      return 'N/A';
+    }
+
+    // Handle time strings in various formats
+    // Examples: "12:12:00", "20:00:00", "08:00:00"
+    const timeMatch = timeString.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!timeMatch) {
+      return timeString; // Return as-is if format is unrecognized
+    }
+
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    // Convert to 12-hour format
+    if (hours === 0) {
+      hours = 12; // Midnight
+    } else if (hours > 12) {
+      hours = hours - 12;
+    }
+
+    return `${hours}:${minutes} ${ampm}`;
   }
 
   handleAvatarError(employee: Employee | null): void {
