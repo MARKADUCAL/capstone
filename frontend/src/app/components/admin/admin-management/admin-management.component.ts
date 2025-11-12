@@ -73,8 +73,20 @@ export class AdminManagementComponent implements OnInit {
           response.payload &&
           response.payload.admins
         ) {
+          // Check if approval feature is enabled
+          const hasApprovalFlag = response.payload.admins.some(
+            (a: any) => 'is_approved' in a && a.is_approved !== undefined
+          );
+
+          // Filter to show only approved admins (is_approved === 1)
+          const approvedAdmins = hasApprovalFlag
+            ? response.payload.admins.filter(
+                (admin: any) => admin.is_approved === 1
+              )
+            : response.payload.admins; // If no approval flag, show all (backward compatibility)
+
           // Transform the data from the API to match the Admin interface
-          this.admins = response.payload.admins.map((admin: any) => {
+          this.admins = approvedAdmins.map((admin: any) => {
             const derivedStatus =
               localStorage.getItem(`adminStatus:${admin.id}`) || 'Active';
             return {

@@ -103,8 +103,20 @@ export class EmployeeManagementComponent implements OnInit {
           response.payload &&
           response.payload.employees
         ) {
+          // Check if approval feature is enabled
+          const hasApprovalFlag = response.payload.employees.some(
+            (e: any) => 'is_approved' in e && e.is_approved !== undefined
+          );
+
+          // Filter to show only approved employees (is_approved === 1)
+          const approvedEmployees = hasApprovalFlag
+            ? response.payload.employees.filter(
+                (employee: any) => employee.is_approved === 1
+              )
+            : response.payload.employees; // If no approval flag, show all (backward compatibility)
+
           // Transform the data from the API to match the Employee interface
-          this.employees = response.payload.employees.map((employee: any) => {
+          this.employees = approvedEmployees.map((employee: any) => {
             const derivedStatus =
               localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
             const avatarUrl =
@@ -133,22 +145,43 @@ export class EmployeeManagementComponent implements OnInit {
           });
 
           // Build pending list if backend exposes is_approved
-          const hasApprovalFlag = response.payload.employees.some(
-            (e: any) => 'is_approved' in e && e.is_approved !== undefined
-          );
-
           if (hasApprovalFlag) {
-            // Filter employees where is_approved is 0 or null (pending)
-            this.pendingEmployees = this.employees.filter((employee, idx) => {
-              const emp = response.payload.employees[idx];
-              const isApproved = emp.is_approved;
-              // Pending if is_approved is 0, null, or undefined
-              return (
-                isApproved === 0 ||
-                isApproved === null ||
-                isApproved === undefined
-              );
-            });
+            // Filter employees where is_approved is 0 or null (pending) from original list
+            this.pendingEmployees = response.payload.employees
+              .filter((emp: any) => {
+                const isApproved = emp.is_approved;
+                // Pending if is_approved is 0, null, or undefined
+                return (
+                  isApproved === 0 ||
+                  isApproved === null ||
+                  isApproved === undefined
+                );
+              })
+              .map((employee: any) => {
+                const avatarUrl =
+                  employee.avatar_url ||
+                  employee.avatarUrl ||
+                  employee.avatar ||
+                  employee.profile_image ||
+                  employee.profileImage ||
+                  employee.profile_picture ||
+                  employee.photo_url ||
+                  employee.photo ||
+                  employee.image_url ||
+                  employee.imageUrl ||
+                  null;
+                return {
+                  id: employee.id,
+                  employeeId: employee.employee_id,
+                  name: `${employee.first_name} ${employee.last_name}`,
+                  email: employee.email,
+                  phone: employee.phone || 'N/A',
+                  role: employee.position || 'Employee',
+                  status: 'Inactive' as 'Active' | 'Inactive',
+                  registrationDate: this.formatDate(employee.created_at),
+                  avatarUrl,
+                };
+              });
             console.log(
               'Pending employees found:',
               this.pendingEmployees.length
