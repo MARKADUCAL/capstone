@@ -225,7 +225,21 @@ export class DashboardComponent implements OnInit {
           if (response?.status?.remarks === 'success') {
             const employees = response.payload?.employees;
             if (Array.isArray(employees)) {
-              this.businessStats.totalEmployees = employees.length;
+              // Check if approval feature is enabled
+              const hasApprovalFlag = employees.some(
+                (e: any) => 'is_approved' in e && e.is_approved !== undefined
+              );
+
+              // Count only approved employees (is_approved === 1)
+              if (hasApprovalFlag) {
+                const approvedEmployees = employees.filter(
+                  (employee: any) => employee.is_approved === 1
+                );
+                this.businessStats.totalEmployees = approvedEmployees.length;
+              } else {
+                // If no approval flag, count all (backward compatibility)
+                this.businessStats.totalEmployees = employees.length;
+              }
             }
           }
         },
