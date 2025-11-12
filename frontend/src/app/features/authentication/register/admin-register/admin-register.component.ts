@@ -53,7 +53,10 @@ export class AdminRegisterComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  private prefillNextAdminId(): void {
+  private prefillNextAdminId(
+    excludeId?: string,
+    onAssigned?: (newId: string) => void
+  ): void {
     this.http.get<any>(`${environment.apiUrl}/get_all_admins`).subscribe({
       next: (response) => {
         const admins = response?.payload?.admins || [];
@@ -69,16 +72,33 @@ export class AdminRegisterComponent implements OnInit {
           }
         }
 
+        if (excludeId) {
+          const excludeNumeric = this.parseAdminIdNumber(excludeId);
+          if (excludeNumeric > 0) {
+            usedNumbers.add(excludeNumeric);
+          }
+        }
+
         let candidate = 1;
         while (usedNumbers.has(candidate)) {
           candidate += 1;
         }
 
-        this.admin.admin_id = this.formatAdminId(candidate);
+        const newId = this.formatAdminId(candidate);
+        this.admin.admin_id = newId;
+        if (onAssigned) {
+          onAssigned(newId);
+        }
       },
       error: () => {
         if (!this.admin.admin_id) {
-          this.admin.admin_id = this.formatAdminId(1);
+          const fallbackId = this.formatAdminId(1);
+          this.admin.admin_id = fallbackId;
+          if (onAssigned) {
+            onAssigned(fallbackId);
+          }
+        } else if (onAssigned) {
+          onAssigned(this.admin.admin_id);
         }
       },
     });
@@ -238,12 +258,29 @@ export class AdminRegisterComponent implements OnInit {
                 } else {
                   const errorMessage =
                     response.status.message || 'Registration failed';
-                  this.errorMessage = errorMessage;
+                  if (
+                    errorMessage
+                      .toLowerCase()
+                      .includes('admin id already exists')
+                  ) {
+                    const previousId = this.admin.admin_id;
+                    this.prefillNextAdminId(previousId, (newId) => {
+                      const msg = `${errorMessage}. A new Admin ID (${newId}) has been assigned. Please review and submit again.`;
+                      this.errorMessage = msg;
+                      Swal.fire({
+                        title: 'Registration Failed!',
+                        text: msg,
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                      });
+                    });
+                    return;
+                  }
 
-                  // Show error message
+                  this.errorMessage = errorMessage;
                   Swal.fire({
                     title: 'Registration Failed!',
-                    text: errorMessage,
+                    text: this.errorMessage,
                     icon: 'error',
                     confirmButtonText: 'OK',
                   });
@@ -252,10 +289,33 @@ export class AdminRegisterComponent implements OnInit {
               error: (err) => {
                 this.isLoading = false;
                 console.error('Registration error:', err);
+                const backendMessage =
+                  err?.error?.status?.message || err?.message || '';
+                if (
+                  typeof backendMessage === 'string' &&
+                  backendMessage
+                    .toLowerCase()
+                    .includes('admin id already exists')
+                ) {
+                  const previousId = this.admin.admin_id;
+                  this.prefillNextAdminId(previousId, (newId) => {
+                    const msg = `${backendMessage}. A new Admin ID (${newId}) has been assigned. Please review and submit again.`;
+                    this.errorMessage = msg;
+                    Swal.fire({
+                      title: 'Registration Failed!',
+                      text: msg,
+                      icon: 'error',
+                      confirmButtonText: 'OK',
+                    });
+                  });
+                  return;
+                }
                 this.errorMessage = 'Registration failed. Please try again.';
                 Swal.fire({
                   title: 'Registration Failed!',
-                  text: 'Registration failed. Please try again.',
+                  text:
+                    this.errorMessage ||
+                    'Registration failed. Please try again.',
                   icon: 'error',
                   confirmButtonText: 'OK',
                 });
