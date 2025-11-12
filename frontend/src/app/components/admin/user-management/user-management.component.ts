@@ -417,6 +417,32 @@ export class UserManagementComponent implements OnInit {
       .slice(0, 2);
   }
 
+  formatTimeTo12Hour(timeString: string): string {
+    if (!timeString || timeString.trim() === '') {
+      return 'N/A';
+    }
+
+    // Handle time strings in various formats
+    // Examples: "12:12:00", "20:00:00", "08:00:00"
+    const timeMatch = timeString.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!timeMatch) {
+      return timeString; // Return as-is if format is unrecognized
+    }
+
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    // Convert to 12-hour format
+    if (hours === 0) {
+      hours = 12; // Midnight
+    } else if (hours > 12) {
+      hours = hours - 12;
+    }
+
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
   private showNotification(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
@@ -436,20 +462,26 @@ export class UserManagementComponent implements OnInit {
     const customerId = String(user.id);
     this.bookingService.getBookingsByCustomerId(customerId).subscribe({
       next: (bookings: any[]) => {
-        this.customerBookings = (bookings || []).map((b: any) => ({
-          id: b.id,
-          service: b.services || b.serviceName || b.service || 'N/A',
-          date: b.washDate || b.date || b.booking_date || b.created_at,
-          time: b.washTime || b.time || b.booking_time || '',
-          status:
-            (b.status || b.booking_status || '')
-              .toString()
-              .charAt(0)
-              .toUpperCase() +
-            (b.status || b.booking_status || '').toString().slice(1),
-          totalAmount: b.price || b.total_amount || b.amount || 0,
-          raw: b,
-        }));
+        this.customerBookings = (bookings || []).map((b: any) => {
+          // Format time to 12-hour format with AM/PM
+          const timeString = b.washTime || b.time || b.booking_time || '';
+          const formattedTime = this.formatTimeTo12Hour(timeString);
+
+          return {
+            id: b.id,
+            service: b.services || b.serviceName || b.service || 'N/A',
+            date: b.washDate || b.date || b.booking_date || b.created_at,
+            time: formattedTime,
+            status:
+              (b.status || b.booking_status || '')
+                .toString()
+                .charAt(0)
+                .toUpperCase() +
+              (b.status || b.booking_status || '').toString().slice(1),
+            totalAmount: b.price || b.total_amount || b.amount || 0,
+            raw: b,
+          };
+        });
         this.customerBookingsLoading = false;
       },
       error: (err) => {
