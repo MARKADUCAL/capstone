@@ -591,6 +591,69 @@ class Get extends GlobalMethods {
         }
     }
 
+    public function get_weekly_bookings() {
+        try {
+            $sql = "SELECT 
+                        WEEKDAY(wash_date) as weekday_index,
+                        DATE_FORMAT(wash_date, '%W') as day_name,
+                        COUNT(*) as bookings_count
+                    FROM 
+                        bookings
+                    WHERE 
+                        wash_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                        AND status NOT IN ('Cancelled', 'Declined', 'Rejected')
+                    GROUP BY 
+                        weekday_index, day_name
+                    ORDER BY 
+                        weekday_index";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $orderedDays = [
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+                'Sunday'
+            ];
+
+            $counts = array_fill_keys($orderedDays, 0);
+
+            foreach ($rows as $row) {
+                $dayName = $row['day_name'] ?? null;
+                if ($dayName && isset($counts[$dayName])) {
+                    $counts[$dayName] = (int) $row['bookings_count'];
+                }
+            }
+
+            $weeklyBookings = [];
+            foreach ($orderedDays as $day) {
+                $weeklyBookings[] = [
+                    'day' => $day,
+                    'bookings_count' => $counts[$day] ?? 0
+                ];
+            }
+
+            return $this->sendPayload(
+                ['weekly_bookings' => $weeklyBookings],
+                "success",
+                "Weekly bookings retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve weekly bookings: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
     public function get_inventory() {
         try {
             // Ensure table exists to avoid 500s on fresh databases

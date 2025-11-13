@@ -342,7 +342,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           'Sat',
           'Sun',
         ];
-        this.weeklyBookingValues = [25, 30, 28, 32, 35, 40, 38];
+        this.weeklyBookingValues = [0, 0, 0, 0, 0, 0, 0];
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeBookingsChart(), 100);
         }
@@ -544,7 +544,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const data = this.weeklyBookingValues.length
         ? this.weeklyBookingValues
-        : [25, 30, 28, 32, 35, 40, 38];
+        : [0, 0, 0, 0, 0, 0, 0];
 
       console.log('Initializing bookings chart with:', { labels, data });
 

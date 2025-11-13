@@ -364,6 +364,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_weekly_bookings') !== false) {
+        $result = $get->get_weekly_bookings();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_dashboard_summary') !== false) {
         $result = $get->get_dashboard_summary();
         echo json_encode($result);
