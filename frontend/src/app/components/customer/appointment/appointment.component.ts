@@ -556,11 +556,6 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
-    if (!this.bookingForm.nickname) {
-      this.errorMessage = 'Please enter your nickname';
-      return false;
-    }
-
     if (!this.bookingForm.phone) {
       this.errorMessage = 'Phone number is required';
       return false;
