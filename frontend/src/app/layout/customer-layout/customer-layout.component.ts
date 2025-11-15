@@ -86,7 +86,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
       case 'tranaction-hitory':
         return 'Transaction History';
       default:
-        return 'Customer Dashboard';
+        return 'Customer Booking';
     }
   }
 
