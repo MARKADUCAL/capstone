@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
@@ -30,8 +30,15 @@ export class CustomerRegisterComponent {
   isLoading = false;
   showPassword = false;
   showConfirmPassword = false;
+  isBrowser: boolean;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -162,22 +169,19 @@ export class CustomerRegisterComponent {
             })
             .subscribe({
               next: (response: any) => {
-                this.isLoading = false;
                 console.log('Registration response:', response);
                 if (
                   response &&
                   response.status &&
                   response.status.remarks === 'success'
                 ) {
-                  Swal.fire({
-                    title: 'Registration Successful',
-                    text: 'Your account has been created. You can now sign in.',
-                    icon: 'success',
-                    confirmButtonText: 'Go to Login',
-                  }).then(() => {
-                    this.router.navigate(['/login']);
-                  });
+                  // Automatically log in the newly registered user
+                  this.autoLogin(
+                    this.customer.email,
+                    this.customer.password
+                  );
                 } else {
+                  this.isLoading = false;
                   const errorMessage =
                     (response && response.status && response.status.message) ||
                     'Registration failed with unknown error';
@@ -215,6 +219,81 @@ export class CustomerRegisterComponent {
             text: msg,
             icon: 'error',
             confirmButtonText: 'OK',
+          });
+        },
+      });
+  }
+
+  private autoLogin(email: string, password: string): void {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    });
+
+    const loginData = { email, password };
+
+    this.http
+      .post(`${environment.apiUrl}/login_customer`, loginData, { headers })
+      .subscribe({
+        next: (response: any) => {
+          this.isLoading = false;
+          console.log('Auto-login response:', response);
+
+          if (response.status && response.status.remarks === 'success') {
+            // Save token and customer data to localStorage
+            if (response.payload && response.payload.token) {
+              if (this.isBrowser) {
+                localStorage.setItem('auth_token', response.payload.token);
+                localStorage.setItem(
+                  'customer_data',
+                  JSON.stringify(response.payload.customer)
+                );
+              }
+
+              // Show success message
+              Swal.fire({
+                title: 'Registration Successful!',
+                text: 'Your account has been created and you have been logged in.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                // Navigate to customer dashboard
+                this.router.navigate(['/customer-view']);
+              });
+            } else {
+              this.errorMessage = 'Invalid response from server';
+              Swal.fire({
+                title: 'Registration Successful',
+                text: 'Your account has been created. Please log in manually.',
+                icon: 'success',
+                confirmButtonText: 'Go to Login',
+              }).then(() => {
+                this.router.navigate(['/login']);
+              });
+            }
+          } else {
+            // Registration succeeded but auto-login failed
+            Swal.fire({
+              title: 'Registration Successful',
+              text: 'Your account has been created. Please log in manually.',
+              icon: 'success',
+              confirmButtonText: 'Go to Login',
+            }).then(() => {
+              this.router.navigate(['/login']);
+            });
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Auto-login error:', error);
+          // Registration succeeded but auto-login failed
+          Swal.fire({
+            title: 'Registration Successful',
+            text: 'Your account has been created. Please log in manually.',
+            icon: 'success',
+            confirmButtonText: 'Go to Login',
+          }).then(() => {
+            this.router.navigate(['/login']);
           });
         },
       });

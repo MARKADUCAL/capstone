@@ -1,5 +1,5 @@
 import { Component, PLATFORM_ID, Inject, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -222,28 +222,13 @@ export class EmployeeRegisterComponent implements OnInit {
             })
             .subscribe({
               next: (response: any) => {
-                this.isLoading = false;
                 console.log('Response:', response);
                 if (response.status.remarks === 'success') {
-                  // Show success message before redirecting (only if in browser)
-                  if (this.isBrowser) {
-                    try {
-                      Swal.fire({
-                        title: 'Registration Complete!',
-                        text: 'Your account has been created successfully! Your registration is pending admin approval. You will be able to login once your account is approved.',
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                      }).then(() => {
-                        this.router.navigate(['/employee-login']);
-                      });
-                    } catch (err) {
-                      console.error('Error with browser API:', err);
-                      this.router.navigate(['/employee-login']);
-                    }
-                  } else {
-                    this.router.navigate(['/employee-login']);
-                  }
+                  // Try to auto-login after registration
+                  // Note: Employee accounts may need approval, so auto-login might fail
+                  this.autoLogin(this.employee.email, this.employee.password);
                 } else {
+                  this.isLoading = false;
                   const errorMessage =
                     response.status.message || 'Registration failed';
                   this.errorMessage = errorMessage;
@@ -283,6 +268,94 @@ export class EmployeeRegisterComponent implements OnInit {
             icon: 'error',
             confirmButtonText: 'OK',
           });
+        },
+      });
+  }
+
+  private autoLogin(email: string, password: string): void {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    });
+
+    const loginData = { email, password };
+
+    this.http
+      .post(`${environment.apiUrl}/login_employee`, loginData, { headers })
+      .subscribe({
+        next: (response: any) => {
+          this.isLoading = false;
+          console.log('Auto-login response:', response);
+
+          if (response.status && response.status.remarks === 'success') {
+            // Save token and employee data
+            if (response.payload && response.payload.token) {
+              if (this.isBrowser) {
+                try {
+                  localStorage.setItem('employee_token', response.payload.token);
+                  localStorage.setItem(
+                    'employee_data',
+                    JSON.stringify(response.payload.employee)
+                  );
+                } catch (err) {
+                  console.error('Error accessing localStorage:', err);
+                }
+              }
+
+              // Show success message
+              Swal.fire({
+                title: 'Registration Successful!',
+                text: 'Your account has been created and you have been logged in.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                // Navigate to employee dashboard
+                this.router.navigate(['/employee-view']);
+              });
+            } else {
+              this.errorMessage = 'Invalid response from server';
+              Swal.fire({
+                title: 'Registration Complete!',
+                text: 'Your account has been created. Please log in manually once approved.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                this.router.navigate(['/employee-login']);
+              });
+            }
+          } else {
+            // Auto-login failed, likely because account needs approval
+            this.isLoading = false;
+            if (this.isBrowser) {
+              Swal.fire({
+                title: 'Registration Complete!',
+                text: 'Your account has been created successfully! Your registration is pending admin approval. You will be able to login once your account is approved.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                this.router.navigate(['/employee-login']);
+              });
+            } else {
+              this.router.navigate(['/employee-login']);
+            }
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Auto-login error:', error);
+          // Registration succeeded but auto-login failed (likely needs approval)
+          if (this.isBrowser) {
+            Swal.fire({
+              title: 'Registration Complete!',
+              text: 'Your account has been created successfully! Your registration is pending admin approval. You will be able to login once your account is approved.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            }).then(() => {
+              this.router.navigate(['/employee-login']);
+            });
+          } else {
+            this.router.navigate(['/employee-login']);
+          }
         },
       });
   }
