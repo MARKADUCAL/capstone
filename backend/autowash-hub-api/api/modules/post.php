@@ -1112,6 +1112,10 @@ class Post extends GlobalMethods
 
             empty($data->service_package) || 
 
+            empty($data->plate_number) || 
+
+            empty($data->vehicle_model) || 
+
             empty($data->nickname) || 
 
             empty($data->phone) || 
@@ -1188,9 +1192,9 @@ class Post extends GlobalMethods
 
             
 
-            $sql = "INSERT INTO bookings (id, customer_id, vehicle_type, service_package, nickname, phone, wash_date, wash_time, payment_type, price, notes, status, created_at, updated_at) 
+            $sql = "INSERT INTO bookings (id, customer_id, vehicle_type, service_package, plate_number, vehicle_model, vehicle_color, nickname, phone, wash_date, wash_time, payment_type, price, notes, status, created_at, updated_at) 
 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
 
             
 
@@ -1207,6 +1211,12 @@ class Post extends GlobalMethods
                 $data->vehicle_type,
 
                 $data->service_package,
+
+                $data->plate_number,
+
+                $data->vehicle_model,
+
+                $data->vehicle_color ?? null,
 
                 $data->nickname,
 

@@ -95,6 +95,56 @@
           </div>
         </div>
 
+        <!-- Vehicle Information -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-car-side"></i>
+            <span>Vehicle Information</span>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Plate Number*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.plateNumber"
+                name="plateNumber"
+                required
+                placeholder="Enter plate number"
+                maxlength="20"
+              />
+              <mat-icon matSuffix>badge</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Vehicle Model*</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.vehicleModel"
+                name="vehicleModel"
+                required
+                placeholder="e.g., Toyota Vios, Honda Civic"
+                maxlength="50"
+              />
+              <mat-icon matSuffix>directions_car</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row single-field">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Vehicle Color</mat-label>
+              <input
+                matInput
+                [(ngModel)]="bookingForm.vehicleColor"
+                name="vehicleColor"
+                placeholder="e.g., Red, Blue, White (optional)"
+                maxlength="30"
+              />
+              <mat-icon matSuffix>palette</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
         <!-- Personal Information -->
         <div class="form-section">
           <div class="section-title">

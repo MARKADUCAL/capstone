@@ -2,6 +2,9 @@ export interface BookingForm {
   vehicleType: string;
   services: string;
   servicePackage?: string;
+  plateNumber: string;
+  vehicleModel: string;
+  vehicleColor: string;
   firstName: string;
   lastName: string;
   nickname: string;

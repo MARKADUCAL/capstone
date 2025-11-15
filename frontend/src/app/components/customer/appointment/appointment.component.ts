@@ -81,6 +81,9 @@ export class AppointmentComponent implements OnInit {
   bookingForm: BookingForm = {
     vehicleType: '',
     services: '',
+    plateNumber: '',
+    vehicleModel: '',
+    vehicleColor: '',
     firstName: '',
     lastName: '',
     nickname: '',
@@ -421,6 +424,9 @@ export class AppointmentComponent implements OnInit {
     this.bookingForm = {
       vehicleType: '',
       services: '',
+      plateNumber: '',
+      vehicleModel: '',
+      vehicleColor: '',
       firstName: this.userFirstName,
       lastName: this.userLastName,
       nickname: '',
@@ -497,6 +503,9 @@ export class AppointmentComponent implements OnInit {
       customer_id: this.userCustomerId, // Use actual customer ID from user data
       vehicle_type: vehicleTypeCode,
       service_package: servicePackageCode,
+      plate_number: this.bookingForm.plateNumber,
+      vehicle_model: this.bookingForm.vehicleModel,
+      vehicle_color: this.bookingForm.vehicleColor || '',
       first_name: this.bookingForm.firstName,
       last_name: this.bookingForm.lastName,
       nickname: this.bookingForm.nickname,
@@ -543,6 +552,16 @@ export class AppointmentComponent implements OnInit {
 
     if (!this.bookingForm.services) {
       this.errorMessage = 'Please select a service';
+      return false;
+    }
+
+    if (!this.bookingForm.plateNumber) {
+      this.errorMessage = 'Plate number is required';
+      return false;
+    }
+
+    if (!this.bookingForm.vehicleModel) {
+      this.errorMessage = 'Vehicle model is required';
       return false;
     }
 

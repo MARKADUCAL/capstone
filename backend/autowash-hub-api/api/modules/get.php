@@ -192,6 +192,9 @@ class Get extends GlobalMethods {
                         b.customer_id,
                         b.vehicle_type,
                         b.service_package,
+                        b.plate_number,
+                        b.vehicle_model,
+                        b.vehicle_color,
                         b.nickname,
                         b.phone,
                         b.wash_date,
@@ -274,6 +277,9 @@ class Get extends GlobalMethods {
                         b.price,
                         b.vehicle_type as vehicleType,
                         b.service_package as servicePackage,
+                        b.plate_number as plateNumber,
+                        b.vehicle_model as vehicleModel,
+                        b.vehicle_color as vehicleColor,
                         b.payment_type as paymentType,
                         b.notes,
                         b.assigned_employee_id,
@@ -343,10 +349,13 @@ class Get extends GlobalMethods {
                         b.status,
                         b.price,
                         b.vehicle_type as vehicleType,
+                        b.service_package as servicePackage,
+                        b.plate_number as plateNumber,
+                        b.vehicle_model as vehicleModel,
+                        b.vehicle_color as vehicleColor,
                         b.payment_type as paymentType,
                         b.notes,
                         b.assigned_employee_id,
-                        b.service_package as servicePackage,
                         TRIM(CONCAT(COALESCE(c.first_name,''), ' ', COALESCE(c.last_name,''))) as customerName,
                         CASE 
                             WHEN b.service_package = '1' THEN 'Body Wash'
@@ -1084,6 +1093,10 @@ class Get extends GlobalMethods {
                         b.status,
                         b.price,
                         b.vehicle_type,
+                        b.service_package,
+                        b.plate_number,
+                        b.vehicle_model,
+                        b.vehicle_color,
                         b.payment_type,
                         b.nickname,
                         b.phone,
@@ -1092,11 +1105,7 @@ class Get extends GlobalMethods {
                         b.updated_at,
                         c.first_name,
                         c.last_name,
-                        c.email,
-                        s.name as service_name,
-                        s.description as service_description,
-                        s.duration_minutes,
-                        s.category
+                        c.email
                     FROM 
                         bookings b
                     JOIN 
