@@ -680,7 +680,8 @@ export class AppointmentComponent implements OnInit {
 
   // View booking details (in a real app, this might navigate to a details page)
   viewBooking(booking: Booking): void {
-    alert(`Viewing booking details for ${booking.nickname}`);
+    const displayName = booking.nickname || booking.firstName || 'this booking';
+    alert(`Viewing booking details for ${displayName}`);
   }
 
   // Pay for a booking

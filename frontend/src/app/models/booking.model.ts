@@ -7,7 +7,7 @@ export interface BookingForm {
   vehicleColor: string;
   firstName: string;
   lastName: string;
-  nickname: string;
+  nickname?: string;
   phone: string;
   additionalPhone: string;
   washDate: string;
