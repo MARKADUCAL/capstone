@@ -199,6 +199,39 @@
                 }}
               </div>
             </div>
+            <div class="info-item">
+              <div class="info-label">Plate Number:</div>
+              <div class="info-value">
+                {{
+                  sb.plateNumber ||
+                    raw?.plateNumber ||
+                    raw?.plate_number ||
+                    "—"
+                }}
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Vehicle Model:</div>
+              <div class="info-value">
+                {{
+                  sb.vehicleModel ||
+                    raw?.vehicleModel ||
+                    raw?.vehicle_model ||
+                    "—"
+                }}
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Vehicle Color:</div>
+              <div class="info-value">
+                {{
+                  sb.vehicleColor ||
+                    raw?.vehicleColor ||
+                    raw?.vehicle_color ||
+                    "—"
+                }}
+              </div>
+            </div>
           </div>
         </section>
 

@@ -320,6 +320,24 @@
             <span class="label">Booking ID:</span>
             <span class="value">#{{ selectedFeedback.booking_id }}</span>
           </div>
+          <div class="detail-row" *ngIf="$any(selectedFeedback).plateNumber || $any(selectedFeedback).plate_number">
+            <span class="label">Plate Number:</span>
+            <span class="value">{{
+              $any(selectedFeedback).plateNumber || $any(selectedFeedback).plate_number || "N/A"
+            }}</span>
+          </div>
+          <div class="detail-row" *ngIf="$any(selectedFeedback).vehicleModel || $any(selectedFeedback).vehicle_model">
+            <span class="label">Vehicle Model:</span>
+            <span class="value">{{
+              $any(selectedFeedback).vehicleModel || $any(selectedFeedback).vehicle_model || "N/A"
+            }}</span>
+          </div>
+          <div class="detail-row" *ngIf="$any(selectedFeedback).vehicleColor || $any(selectedFeedback).vehicle_color">
+            <span class="label">Vehicle Color:</span>
+            <span class="value">{{
+              $any(selectedFeedback).vehicleColor || $any(selectedFeedback).vehicle_color || "N/A"
+            }}</span>
+          </div>
           <div class="detail-row">
             <span class="label">Submitted:</span>
             <span class="value">{{

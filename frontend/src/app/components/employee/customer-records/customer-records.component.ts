@@ -16,6 +16,9 @@ interface CustomerBooking {
   averageRating?: number;
   totalRatings?: number;
   vehicleType?: string;
+  plateNumber?: string;
+  vehicleModel?: string;
+  vehicleColor?: string;
   serviceDescription?: string;
   paymentType?: string;
   assignedEmployeeName?: string;
@@ -72,6 +75,10 @@ export class CustomerRecordsComponent implements OnInit {
             b.vehicle_category ||
             undefined;
 
+          const plateNumber = b.plateNumber ?? b.plate_number;
+          const vehicleModel = b.vehicleModel ?? b.vehicle_model;
+          const vehicleColor = b.vehicleColor ?? b.vehicle_color;
+
           const serviceDescription =
             b.serviceDescription ||
             b.service_description ||
@@ -103,6 +110,9 @@ export class CustomerRecordsComponent implements OnInit {
             status,
             customerId: b.customerId || b.customer_id,
             vehicleType,
+            plateNumber,
+            vehicleModel,
+            vehicleColor,
             serviceDescription,
             paymentType,
             assignedEmployeeName,

@@ -90,6 +90,9 @@ interface CarWashBooking {
   rejectionReason?: string;
   adminComment?: string;
   adminCommentedAt?: string;
+  plateNumber?: string;
+  vehicleModel?: string;
+  vehicleColor?: string;
 }
 
 // Simple confirmation dialog for destructive actions
@@ -475,6 +478,9 @@ export class CarWashBookingComponent implements OnInit {
               b.lastName ?? b.last_name
             ),
             vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
+            plateNumber: b.plateNumber ?? b.plate_number,
+            vehicleModel: b.vehicleModel ?? b.vehicle_model,
+            vehicleColor: b.vehicleColor ?? b.vehicle_color,
             date: b.washDate ?? b.wash_date ?? '',
             time: b.washTime ?? b.wash_time ?? '',
             status: (b.status ?? 'Pending') as
@@ -1341,6 +1347,18 @@ export class CreateWalkInBookingDialogComponent {
             <div class="info-item">
               <span class="label">Vehicle Type</span>
               <span class="value">{{ data.booking.vehicleType }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Plate Number</span>
+              <span class="value">{{ data.booking.plateNumber || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Vehicle Model</span>
+              <span class="value">{{ data.booking.vehicleModel || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Vehicle Color</span>
+              <span class="value">{{ data.booking.vehicleColor || 'N/A' }}</span>
             </div>
           </div>
         </div>

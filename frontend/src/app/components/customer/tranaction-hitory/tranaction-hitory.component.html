@@ -398,19 +398,25 @@
             <div class="detail-row">
               <span class="label">Plate Number:</span>
               <span class="value">{{
-                selectedBooking.plateNumber || $any(selectedBooking).plate_number || "N/A"
+                selectedBooking.plateNumber ||
+                  $any(selectedBooking).plate_number ||
+                  "N/A"
               }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Vehicle Model:</span>
               <span class="value">{{
-                selectedBooking.vehicleModel || $any(selectedBooking).vehicle_model || "N/A"
+                selectedBooking.vehicleModel ||
+                  $any(selectedBooking).vehicle_model ||
+                  "N/A"
               }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Vehicle Color:</span>
               <span class="value">{{
-                selectedBooking.vehicleColor || $any(selectedBooking).vehicle_color || "N/A"
+                selectedBooking.vehicleColor ||
+                  $any(selectedBooking).vehicle_color ||
+                  "N/A"
               }}</span>
             </div>
           </div>

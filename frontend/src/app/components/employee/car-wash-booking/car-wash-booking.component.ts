@@ -30,6 +30,9 @@ interface CarWashBooking {
   serviceType?: string;
   price?: number | null;
   imageUrl?: string;
+  plateNumber?: string;
+  vehicleModel?: string;
+  vehicleColor?: string;
 }
 
 @Component({
@@ -265,6 +268,9 @@ export class CarWashBookingComponent implements OnInit {
                 b.nickname
               ),
               vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
+              plateNumber: b.plateNumber ?? b.plate_number,
+              vehicleModel: b.vehicleModel ?? b.vehicle_model,
+              vehicleColor: b.vehicleColor ?? b.vehicle_color,
               date: b.washDate ? this.formatDate(b.washDate) : 'Date TBD',
               time: this.formatTime(b.washTime),
               status: normalizedStatus,
@@ -430,6 +436,18 @@ export class CarWashBookingComponent implements OnInit {
             <div class="info-item">
               <span class="label">Vehicle Type</span>
               <span class="value">{{ data.booking.vehicleType }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Plate Number</span>
+              <span class="value">{{ data.booking.plateNumber || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Vehicle Model</span>
+              <span class="value">{{ data.booking.vehicleModel || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Vehicle Color</span>
+              <span class="value">{{ data.booking.vehicleColor || 'N/A' }}</span>
             </div>
           </div>
         </div>
