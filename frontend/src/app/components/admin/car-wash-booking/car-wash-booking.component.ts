@@ -345,20 +345,54 @@ export class CarWashBookingComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((reason: string) => {
       if (reason) {
-        const prev = booking.status;
-        booking.status = 'Rejected';
-        booking.rejectionReason = reason;
+        // Show SweetAlert confirmation before declining
+        Swal.fire({
+          title: 'Decline Booking?',
+          html: `
+            <p>Are you sure you want to decline this booking?</p>
+            <p style="margin-top: 10px; font-weight: 600;">Reason:</p>
+            <p style="background: #fef2f2; padding: 10px; border-radius: 6px; color: #dc2626; margin-top: 5px;">
+              ${reason}
+            </p>
+          `,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Decline Booking',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#dc2626',
+          cancelButtonColor: '#6b7280',
+          focusCancel: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const prev = booking.status;
+            booking.status = 'Rejected';
+            booking.rejectionReason = reason;
 
-        this.bookingService
-          .updateBookingStatus(booking.id, 'Rejected', reason)
-          .subscribe({
-            next: () => this.showNotification('Booking declined successfully'),
-            error: (err) => {
-              booking.status = prev;
-              delete booking.rejectionReason;
-              this.showNotification(err.message || 'Failed to decline booking');
-            },
-          });
+            this.bookingService
+              .updateBookingStatus(booking.id, 'Rejected', reason)
+              .subscribe({
+                next: () => {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Booking Declined',
+                    text: 'The booking has been declined successfully.',
+                    confirmButtonColor: '#dc2626',
+                  });
+                  this.loadBookings(); // Refresh the bookings list
+                },
+                error: (err) => {
+                  booking.status = prev;
+                  delete booking.rejectionReason;
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Decline Failed',
+                    text: err.message || 'Failed to decline booking. Please try again.',
+                    confirmButtonColor: '#dc2626',
+                  });
+                },
+              });
+          }
+        });
       }
     });
   }

@@ -578,7 +578,10 @@ class Get extends GlobalMethods {
                         (SELECT COUNT(*) FROM bookings) as total_bookings,
                         (SELECT COUNT(*) FROM bookings WHERE status = 'Completed') as completed_bookings,
                         (SELECT COUNT(*) FROM bookings WHERE status = 'Pending') as pending_bookings,
-                        (SELECT SUM(price) FROM bookings WHERE status = 'Completed' AND MONTH(wash_date) = MONTH(CURRENT_DATE)) as monthly_revenue";
+                        (SELECT COUNT(*) FROM bookings WHERE status = 'Cancelled') as cancelled_bookings,
+                        (SELECT COUNT(*) FROM bookings WHERE status = 'Rejected') as declined_bookings,
+                        (SELECT SUM(price) FROM bookings WHERE status = 'Completed' AND MONTH(wash_date) = MONTH(CURRENT_DATE) AND YEAR(wash_date) = YEAR(CURRENT_DATE)) as monthly_revenue,
+                        (SELECT SUM(price) FROM bookings WHERE status = 'Completed' AND YEARWEEK(wash_date, 1) = YEARWEEK(CURRENT_DATE, 1)) as weekly_revenue";
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();

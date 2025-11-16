@@ -151,6 +151,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private loadDashboardSummary(): void {
     this.reportingService.getDashboardSummary().subscribe((summary) => {
       if (!summary) return;
+      console.log('Dashboard summary received:', summary);
       this.serviceStats.totalBookings = Number(summary.total_bookings) || 0;
       this.serviceStats.completedBookings =
         Number(summary.completed_bookings) || 0;
@@ -161,6 +162,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         Number(summary.declined_bookings) || 0;
       this.revenueData.weekly = Number(summary.weekly_revenue) || 0;
       this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
+      console.log('Service stats updated:', this.serviceStats);
     });
   }
 
