@@ -1116,8 +1116,6 @@ class Post extends GlobalMethods
 
             empty($data->vehicle_model) || 
 
-            empty($data->nickname) || 
-
             empty($data->phone) || 
 
             empty($data->wash_date) || 
@@ -1218,7 +1216,7 @@ class Post extends GlobalMethods
 
                 $data->vehicle_color ?? null,
 
-                $data->nickname,
+                $data->nickname ?? null,
 
                 $data->phone,
 
