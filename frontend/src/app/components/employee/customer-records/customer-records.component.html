@@ -260,6 +260,37 @@
           </div>
         </section>
 
+        <!-- Customer Feedback Section (individual feedback for this booking) -->
+        <section
+          class="info-card"
+          *ngIf="sb.status === 'Completed' && sb.customerRating"
+        >
+          <div class="card-title">
+            <span class="dot">💬</span> Customer Feedback
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Rating:</div>
+              <div class="info-value rating-display">
+                <span class="stars-display">{{ getStarDisplay(sb.customerRating) }}</span>
+                <span class="rating-value">{{ sb.customerRating }}/5</span>
+              </div>
+            </div>
+            <div class="info-item full" *ngIf="sb.customerRatingComment">
+              <div class="info-label">Comment:</div>
+              <div class="info-value feedback-comment">
+                {{ sb.customerRatingComment }}
+              </div>
+            </div>
+            <div class="info-item" *ngIf="sb.feedbackCreatedAt">
+              <div class="info-label">Submitted On:</div>
+              <div class="info-value">
+                {{ formatFeedbackDate(sb.feedbackCreatedAt) }}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="info-card">
           <div class="card-title">
             <span class="dot">🔧</span> Service Details

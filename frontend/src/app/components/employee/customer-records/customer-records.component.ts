@@ -23,6 +23,11 @@ interface CustomerBooking {
   paymentType?: string;
   assignedEmployeeName?: string;
   raw?: any;
+  // Customer feedback fields for individual booking
+  customerRating?: number;
+  customerRatingComment?: string;
+  feedbackCreatedAt?: string;
+  feedbackId?: number;
 }
 
 @Component({
@@ -180,7 +185,29 @@ export class CustomerRecordsComponent implements OnInit {
   }
 
   openDetails(booking: CustomerBooking) {
-    this.selectedBooking = booking;
+    // Load individual feedback for this booking if it's completed
+    const bookingWithFeedback = { ...booking };
+    
+    if (booking.status === 'Completed') {
+      this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+        next: (feedbackList) => {
+          if (feedbackList && feedbackList.length > 0) {
+            const feedback = feedbackList[0];
+            bookingWithFeedback.customerRating = feedback.rating;
+            bookingWithFeedback.customerRatingComment = feedback.comment;
+            bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+            bookingWithFeedback.feedbackId = feedback.id;
+          }
+          this.selectedBooking = bookingWithFeedback;
+        },
+        error: (err) => {
+          console.error('Error loading feedback:', err);
+          this.selectedBooking = bookingWithFeedback;
+        },
+      });
+    } else {
+      this.selectedBooking = bookingWithFeedback;
+    }
   }
 
   closeDetails() {
@@ -253,5 +280,31 @@ export class CustomerRecordsComponent implements OnInit {
     const last = (lastName || '').trim();
     const combined = [first, last].filter((part) => part.length > 0).join(' ');
     return combined.length > 0 ? combined : undefined;
+  }
+
+  getStarDisplay(rating: number | undefined): string {
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) {
+      stars += '☆';
+    }
+    return stars;
+  }
+
+  formatFeedbackDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch (error) {
+      return '';
+    }
   }
 }
