@@ -19,6 +19,7 @@ import {
 } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
+import { FeedbackService } from '../../../services/feedback.service';
 import { environment } from '../../../../environments/environment';
 import { Employee } from '../../../models/booking.model';
 import Swal from 'sweetalert2';
@@ -93,6 +94,11 @@ interface CarWashBooking {
   plateNumber?: string;
   vehicleModel?: string;
   vehicleColor?: string;
+  // Customer feedback fields
+  customerRating?: number;
+  customerRatingComment?: string;
+  feedbackCreatedAt?: string;
+  feedbackId?: number;
 }
 
 // Simple confirmation dialog for destructive actions
@@ -237,6 +243,7 @@ export class CarWashBookingComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
+    private feedbackService: FeedbackService,
     private dialog: MatDialog,
     private http: HttpClient,
     private snackBar: MatSnackBar
@@ -665,9 +672,35 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   private openBookingDialog(booking: CarWashBooking, mode: 'view' | 'edit') {
+    // Load feedback data for completed bookings
+    const bookingWithFeedback = { ...booking };
+    
+    if (booking.status === 'Completed') {
+      this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+        next: (feedbackList) => {
+          if (feedbackList && feedbackList.length > 0) {
+            const feedback = feedbackList[0];
+            bookingWithFeedback.customerRating = feedback.rating;
+            bookingWithFeedback.customerRatingComment = feedback.comment;
+            bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+            bookingWithFeedback.feedbackId = feedback.id;
+          }
+          this.openDialog(bookingWithFeedback, mode);
+        },
+        error: (err) => {
+          console.error('Error loading feedback:', err);
+          this.openDialog(bookingWithFeedback, mode);
+        },
+      });
+    } else {
+      this.openDialog(bookingWithFeedback, mode);
+    }
+  }
+
+  private openDialog(booking: CarWashBooking, mode: 'view' | 'edit') {
     const dialogRef = this.dialog.open(BookingDetailsDialogComponent, {
       width: '520px',
-      data: { booking: { ...booking }, mode },
+      data: { booking, mode },
     });
 
     dialogRef
@@ -796,6 +829,51 @@ export class CarWashBookingComponent implements OnInit {
                   v
                 }}</mat-option>
               </mat-select>
+            </mat-form-field>
+
+            <!-- Vehicle Information Section -->
+            <div class="section-divider full">
+              <div class="section-header">
+                <mat-icon class="section-icon">directions_car</mat-icon>
+                <h3 class="section-title">Vehicle Information</h3>
+              </div>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Plate Number *</mat-label>
+              <input
+                matInput
+                [(ngModel)]="form.plate_number"
+                name="plate_number"
+                required
+                maxlength="20"
+              />
+              <mat-icon matSuffix>badge</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Vehicle Model *</mat-label>
+              <input
+                matInput
+                [(ngModel)]="form.vehicle_model"
+                name="vehicle_model"
+                required
+                placeholder="e.g., Toyota Vios, Honda Civic"
+                maxlength="50"
+              />
+              <mat-icon matSuffix>directions_car</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Vehicle Color</mat-label>
+              <input
+                matInput
+                [(ngModel)]="form.vehicle_color"
+                name="vehicle_color"
+                placeholder="e.g., Red, Blue, White (optional)"
+                maxlength="30"
+              />
+              <mat-icon matSuffix>palette</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -969,6 +1047,28 @@ export class CarWashBookingComponent implements OnInit {
       .full {
         grid-column: 1 / -1;
       }
+      .section-divider {
+        margin: 16px 0 8px 0;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-icon {
+        color: #0ea5e9;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      .section-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+      }
       .modal-actions {
         padding: 16px 20px;
         background: #f8fafc;
@@ -1017,6 +1117,9 @@ export class CreateWalkInBookingDialogComponent {
   form: any = {
     customer_id: 999, // Use 999 for walk-in customers (backend expects non-zero value)
     vehicle_type: '',
+    plate_number: '',
+    vehicle_model: '',
+    vehicle_color: '',
     service_package: '',
     nickname: '',
     phone: '',
@@ -1042,6 +1145,8 @@ export class CreateWalkInBookingDialogComponent {
     if (!this.form.nickname?.trim()) return false;
     if (!this.form.phone?.trim()) return false;
     if (!this.form.vehicle_type) return false;
+    if (!this.form.plate_number?.trim()) return false;
+    if (!this.form.vehicle_model?.trim()) return false;
     if (!this.form.service_package) return false;
     if (!this.form.wash_date) return false;
     if (!this.form.wash_time) return false;
@@ -1143,6 +1248,9 @@ export class CreateWalkInBookingDialogComponent {
     const payload = {
       customer_id: this.form.customer_id,
       vehicle_type: this.form.vehicle_type,
+      plate_number: this.form.plate_number.trim(),
+      vehicle_model: this.form.vehicle_model.trim(),
+      vehicle_color: this.form.vehicle_color?.trim() || null,
       service_package: this.form.service_package,
       nickname: this.form.nickname.trim(),
       phone: this.form.phone.trim(),
@@ -1158,6 +1266,8 @@ export class CreateWalkInBookingDialogComponent {
       !payload.nickname ||
       !payload.phone ||
       !payload.vehicle_type ||
+      !payload.plate_number ||
+      !payload.vehicle_model ||
       !payload.service_package ||
       !payload.wash_date ||
       !payload.wash_time ||
@@ -1564,6 +1674,47 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
+        <!-- Customer Feedback Section (if feedback exists for completed bookings) -->
+        <div
+          class="info-section"
+          *ngIf="
+            data.booking.status === 'Completed' &&
+            data.booking.customerRating
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">star</mat-icon>
+            <h3>Customer Feedback</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Rating</span>
+              <span class="value rating-display">
+                <span class="stars">{{ getStarDisplay(data.booking.customerRating || 0) }}</span>
+                <span class="rating-value">{{ data.booking.customerRating }}/5</span>
+              </span>
+            </div>
+            <div
+              class="info-item notes-item"
+              *ngIf="data.booking.customerRatingComment"
+            >
+              <span class="label">Comment</span>
+              <span class="value notes-text customer-feedback-text">{{
+                data.booking.customerRatingComment
+              }}</span>
+            </div>
+            <div
+              class="info-item"
+              *ngIf="data.booking.feedbackCreatedAt"
+            >
+              <span class="label">Submitted On</span>
+              <span class="value">{{
+                formatDate(data.booking.feedbackCreatedAt)
+              }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Admin Reply Section (if admin replied to feedback) -->
         <div
           class="info-section"
@@ -1856,6 +2007,32 @@ export class CreateWalkInBookingDialogComponent {
         font-weight: 500;
       }
 
+      .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stars {
+        color: #fbbf24;
+        font-size: 18px;
+        letter-spacing: 2px;
+      }
+
+      .rating-value {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .customer-feedback-text {
+        background: #fefce8;
+        border: 1px solid #fde047;
+        border-radius: 8px;
+        padding: 12px;
+        color: #713f12;
+        font-weight: 500;
+      }
+
       .no-assignment {
         color: #6b7280;
         font-style: italic;
@@ -1954,6 +2131,7 @@ export class CreateWalkInBookingDialogComponent {
 })
 export class BookingDetailsDialogComponent {
   editableStatus: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
+  ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
 
   constructor(
     public dialogRef: MatDialogRef<BookingDetailsDialogComponent>,
@@ -2063,6 +2241,24 @@ export class BookingDetailsDialogComponent {
   displayStatus(status: string): string {
     const s = (status || '').toString();
     return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+  }
+
+  getStarDisplay(rating: number): string {
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) {
+      stars += '☆';
+    }
+    return stars;
+  }
+
+  getRatingText(rating: number): string {
+    if (!rating || rating < 0 || rating >= this.ratingTexts.length) {
+      return '';
+    }
+    return this.ratingTexts[Math.round(rating)] || '';
   }
 }
 
