@@ -130,7 +130,7 @@ export class AppointmentComponent implements OnInit {
       this.route.queryParams.subscribe((params) => {
         const vehicleTypeCode = params['vehicle_type'];
         const servicePackageCode = params['service_package'];
-        
+
         if (vehicleTypeCode && servicePackageCode) {
           // Convert codes to full descriptions and pre-select
           this.selectPricingFromCodes(vehicleTypeCode, servicePackageCode);
@@ -908,7 +908,10 @@ export class AppointmentComponent implements OnInit {
   }
 
   // Select pricing options from codes (used when navigating from pricing page)
-  private selectPricingFromCodes(vehicleTypeCode: string, servicePackageCode: string): void {
+  private selectPricingFromCodes(
+    vehicleTypeCode: string,
+    servicePackageCode: string
+  ): void {
     const vehicleType = this.getVehicleTypeFromCode(vehicleTypeCode);
     const servicePackage = this.getServicePackageFromCode(servicePackageCode);
 
@@ -916,9 +919,12 @@ export class AppointmentComponent implements OnInit {
       // Wait for pricing data to load before setting selections
       const attemptSelection = (attempts: number = 0) => {
         const maxAttempts = 10; // Try for up to 5 seconds (10 * 500ms)
-        
+
         // Check if pricing matrix is loaded (has at least one vehicle type)
-        if (Object.keys(this.pricingMatrix).length > 0 || attempts >= maxAttempts) {
+        if (
+          Object.keys(this.pricingMatrix).length > 0 ||
+          attempts >= maxAttempts
+        ) {
           this.bookingForm.vehicleType = vehicleType;
           this.bookingForm.services = servicePackage;
           this.calculatePrice();
@@ -927,13 +933,16 @@ export class AppointmentComponent implements OnInit {
           setTimeout(() => attemptSelection(attempts + 1), 500);
         }
       };
-      
+
       attemptSelection();
     }
   }
 
   // Save selected pricing to localStorage for persistence
-  private saveSelectedPricing(vehicleTypeCode: string, servicePackageCode: string): void {
+  private saveSelectedPricing(
+    vehicleTypeCode: string,
+    servicePackageCode: string
+  ): void {
     if (!this.isBrowser) return;
     try {
       const pricingSelection = {
@@ -941,7 +950,10 @@ export class AppointmentComponent implements OnInit {
         service_package: servicePackageCode,
         timestamp: Date.now(),
       };
-      localStorage.setItem('selected_pricing', JSON.stringify(pricingSelection));
+      localStorage.setItem(
+        'selected_pricing',
+        JSON.stringify(pricingSelection)
+      );
     } catch (error) {
       console.error('Error saving pricing selection to localStorage:', error);
     }
@@ -967,7 +979,10 @@ export class AppointmentComponent implements OnInit {
         }
       }
     } catch (error) {
-      console.error('Error loading pricing selection from localStorage:', error);
+      console.error(
+        'Error loading pricing selection from localStorage:',
+        error
+      );
     }
   }
 
@@ -977,7 +992,10 @@ export class AppointmentComponent implements OnInit {
     try {
       localStorage.removeItem('selected_pricing');
     } catch (error) {
-      console.error('Error clearing pricing selection from localStorage:', error);
+      console.error(
+        'Error clearing pricing selection from localStorage:',
+        error
+      );
     }
   }
 }

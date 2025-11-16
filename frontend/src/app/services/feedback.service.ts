@@ -171,4 +171,53 @@ export class FeedbackService {
       )
     );
   }
+
+  // Update customer feedback (rating and comment)
+  updateCustomerFeedback(feedback: CustomerFeedback): Observable<FeedbackResponse> {
+    console.log('🔧 Service: updateCustomerFeedback called');
+    console.log('📤 Feedback data:', feedback);
+
+    if (!feedback.id) {
+      return throwError(() => new Error('Feedback ID is required for update'));
+    }
+
+    const payload = {
+      id: feedback.id,
+      customer_id: feedback.customer_id,
+      rating: feedback.rating,
+      comment: feedback.comment || '',
+    };
+
+    return this.http
+      .put<any>(`${this.apiUrl}/update_customer_feedback`, payload)
+      .pipe(
+        map((response) => {
+          console.log('📥 Raw backend response:', response);
+
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success'
+          ) {
+            console.log('✅ Feedback updated successfully');
+            return {
+              success: true,
+              message: response.status.message,
+              data: response.payload?.customer_feedback,
+            };
+          } else {
+            console.log('❌ Feedback update failed:', response);
+            throw new Error(
+              response?.status?.message || 'Failed to update feedback'
+            );
+          }
+        }),
+        catchError((error) => {
+          console.error('💥 Service error:', error);
+          return throwError(
+            () => new Error('Failed to update feedback. Please try again.')
+          );
+        })
+      );
+  }
 }

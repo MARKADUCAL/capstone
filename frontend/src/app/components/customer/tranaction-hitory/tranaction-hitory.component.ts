@@ -47,6 +47,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   feedbackSuccessMessage: string | null = null;
   feedbackErrorMessage: string | null = null;
   feedbackExistsMap: Map<number, boolean> = new Map(); // Track which bookings have feedback
+  feedbackIdMap: Map<number, number> = new Map(); // Track feedback IDs for each booking
+  isEditingFeedback = false; // Track if we're editing existing feedback
 
   private isBrowser: boolean;
 
@@ -344,19 +346,57 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   openFeedbackModal(booking?: Booking): void {
     console.log('Opening feedback modal');
 
-    // Prevent opening if feedback already exists
-    if (booking && this.hasFeedback(booking)) {
-      console.log('Feedback already exists for this booking');
-      return;
-    }
-
     if (booking) {
       this.selectedBooking = booking;
+      const bookingId = parseInt(booking.id);
+      
+      // Check if feedback exists for this booking
+      if (this.hasFeedback(booking)) {
+        // Load existing feedback for editing
+        this.isEditingFeedback = true;
+        this.loadExistingFeedback(booking);
+      } else {
+        // New feedback
+        this.isEditingFeedback = false;
+        this.currentRating = 0;
+        this.feedbackComment = '';
+      }
+    } else {
+      this.isEditingFeedback = false;
+      this.currentRating = 0;
+      this.feedbackComment = '';
     }
+    
+    this.feedbackSuccessMessage = null;
+    this.feedbackErrorMessage = null;
     this.isFeedbackModalOpen = true;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden';
     }
+  }
+
+  // Load existing feedback data for editing
+  private loadExistingFeedback(booking: Booking): void {
+    const bookingId = parseInt(booking.id);
+    
+    this.feedbackService.getAllFeedback(200).subscribe({
+      next: (list) => {
+        const feedbackForBooking = list.find(
+          (f) => f.booking_id === bookingId
+        );
+        
+        if (feedbackForBooking) {
+          this.currentRating = feedbackForBooking.rating || 0;
+          this.feedbackComment = feedbackForBooking.comment || '';
+          this.feedbackIdMap.set(bookingId, feedbackForBooking.id!);
+          console.log('Loaded existing feedback for editing:', feedbackForBooking);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading existing feedback:', error);
+        this.feedbackErrorMessage = 'Failed to load existing feedback.';
+      },
+    });
   }
 
   closeFeedbackModal(): void {
@@ -367,6 +407,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     this.feedbackComment = '';
     this.feedbackSuccessMessage = null;
     this.feedbackErrorMessage = null;
+    this.isEditingFeedback = false;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
     }
@@ -473,7 +514,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return this.currentRating > 0 ? this.ratingTexts[this.currentRating] : '';
   }
 
-  // Submit feedback for a completed booking
+  // Submit feedback for a completed booking (create or update)
   async submitFeedback(): Promise<void> {
     if (!this.selectedBooking || this.currentRating === 0) {
       this.feedbackErrorMessage =
@@ -506,42 +547,81 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         throw new Error('Customer ID not found. Please log in again.');
       }
 
-      const feedbackData: CustomerFeedback = {
-        booking_id: parseInt(this.selectedBooking.id),
-        customer_id: customerId,
-        rating: this.currentRating,
-        comment: this.feedbackComment.trim() || '',
-        is_public: true,
-      };
+      const bookingId = parseInt(this.selectedBooking.id);
+      const feedbackId = this.feedbackIdMap.get(bookingId);
 
-      console.log('🚀 Submitting feedback:', feedbackData);
+      if (this.isEditingFeedback && feedbackId) {
+        // Update existing feedback
+        const feedbackData: CustomerFeedback = {
+          id: feedbackId,
+          booking_id: bookingId,
+          customer_id: customerId,
+          rating: this.currentRating,
+          comment: this.feedbackComment.trim() || '',
+          is_public: true,
+        };
 
-      const result = await this.feedbackService
-        .submitFeedback(feedbackData)
-        .toPromise();
+        console.log('🔄 Updating feedback:', feedbackData);
 
-      if (result && result.success) {
-        console.log('✅ Feedback submitted successfully');
-        this.feedbackSuccessMessage =
-          result.message || 'Feedback submitted successfully!';
+        const result = await this.feedbackService
+          .updateCustomerFeedback(feedbackData)
+          .toPromise();
 
-        // Mark this booking as having feedback
-        if (this.selectedBooking) {
-          const bookingId = parseInt(this.selectedBooking.id);
-          this.feedbackExistsMap.set(bookingId, true);
+        if (result && result.success) {
+          console.log('✅ Feedback updated successfully');
+          this.feedbackSuccessMessage =
+            result.message || 'Feedback updated successfully!';
+
+          // Close modal after a short delay
+          setTimeout(() => {
+            this.closeFeedbackModal();
+            // Reload bookings to refresh the data
+            this.loadBookings();
+          }, 2000);
+        } else {
+          throw new Error('Failed to update feedback');
         }
-
-        // Close modal after a short delay
-        setTimeout(() => {
-          this.closeFeedbackModal();
-          // Reload bookings to refresh the data
-          this.loadBookings();
-        }, 2000);
       } else {
-        throw new Error('Failed to submit feedback');
+        // Create new feedback
+        const feedbackData: CustomerFeedback = {
+          booking_id: bookingId,
+          customer_id: customerId,
+          rating: this.currentRating,
+          comment: this.feedbackComment.trim() || '',
+          is_public: true,
+        };
+
+        console.log('🚀 Submitting new feedback:', feedbackData);
+
+        const result = await this.feedbackService
+          .submitFeedback(feedbackData)
+          .toPromise();
+
+        if (result && result.success) {
+          console.log('✅ Feedback submitted successfully');
+          this.feedbackSuccessMessage =
+            result.message || 'Feedback submitted successfully!';
+
+          // Mark this booking as having feedback
+          this.feedbackExistsMap.set(bookingId, true);
+          
+          // Store feedback ID if available
+          if (result.data && result.data.id) {
+            this.feedbackIdMap.set(bookingId, result.data.id);
+          }
+
+          // Close modal after a short delay
+          setTimeout(() => {
+            this.closeFeedbackModal();
+            // Reload bookings to refresh the data
+            this.loadBookings();
+          }, 2000);
+        } else {
+          throw new Error('Failed to submit feedback');
+        }
       }
     } catch (error) {
-      console.error('💥 Error submitting feedback:', error);
+      console.error('💥 Error submitting/updating feedback:', error);
       this.feedbackErrorMessage =
         error instanceof Error
           ? error.message
@@ -592,6 +672,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
             (booking as any).feedbackVisibility = feedbackForBooking.is_public
               ? 'Public'
               : 'Private';
+            // Store feedback ID for editing
+            if (feedbackForBooking.id) {
+              this.feedbackIdMap.set(bookingId, feedbackForBooking.id);
+            }
           }
           // Attach admin comment to booking for display if present
           if (
@@ -636,6 +720,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           (booking as any).feedbackVisibility = feedbackForBooking.is_public
             ? 'Public'
             : 'Private';
+          // Store feedback ID for editing
+          if (feedbackForBooking.id) {
+            this.feedbackIdMap.set(bookingId, feedbackForBooking.id);
+          }
           if (
             (feedbackForBooking.admin_comment || '').toString().trim().length >
             0

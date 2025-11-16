@@ -308,15 +308,14 @@
           *ngIf="canSubmitFeedback(booking)"
           class="action-btn feedback-btn"
           (click)="openFeedbackModal(booking)"
-          [disabled]="hasFeedback(booking)"
           [title]="
             hasFeedback(booking)
-              ? 'You have already submitted feedback for this booking'
+              ? 'Click to edit your feedback'
               : 'Click to leave feedback for this completed service'
           "
         >
-          <span class="btn-icon">{{ hasFeedback(booking) ? "✅" : "💬" }}</span>
-          {{ hasFeedback(booking) ? "Feedback Submitted" : "Leave Feedback" }}
+          <span class="btn-icon">{{ hasFeedback(booking) ? "✏️" : "💬" }}</span>
+          {{ hasFeedback(booking) ? "Edit Feedback" : "Leave Feedback" }}
         </button>
         <div *ngIf="!canSubmitFeedback(booking)" class="feedback-disabled">
           <span class="feedback-icon">⏳</span>
@@ -744,8 +743,8 @@
   >
     <div class="modal-header">
       <div class="modal-title">
-        <h2>Share Your Experience</h2>
-        <p>We'd love to hear about your car wash service</p>
+        <h2>{{ isEditingFeedback ? "Edit Your Feedback" : "Share Your Experience" }}</h2>
+        <p>{{ isEditingFeedback ? "Update your feedback for this service" : "We'd love to hear about your car wash service" }}</p>
       </div>
       <button class="close-btn" (click)="closeFeedbackModal()">
         <span class="close-icon">✕</span>
@@ -854,9 +853,9 @@
         [disabled]="currentRating === 0 || isSubmittingFeedback"
         (click)="submitFeedback()"
       >
-        <span class="btn-icon" *ngIf="!isSubmittingFeedback">📤</span>
+        <span class="btn-icon" *ngIf="!isSubmittingFeedback">{{ isEditingFeedback ? "💾" : "📤" }}</span>
         <span class="btn-icon" *ngIf="isSubmittingFeedback">⏳</span>
-        {{ isSubmittingFeedback ? "Submitting..." : "Submit Feedback" }}
+        {{ isSubmittingFeedback ? (isEditingFeedback ? "Updating..." : "Submitting...") : (isEditingFeedback ? "Update Feedback" : "Submit Feedback") }}
       </button>
     </div>
   </div>

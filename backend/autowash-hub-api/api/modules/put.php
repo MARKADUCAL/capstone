@@ -574,6 +574,57 @@ class Put {
         }
     }
 
+    /**
+     * Update customer feedback (rating and comment)
+     */
+    public function update_customer_feedback($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Feedback ID is required", 400);
+            }
+
+            if (!isset($data->rating) || $data->rating < 1 || $data->rating > 5) {
+                return $this->sendPayload(null, "failed", "Rating must be between 1 and 5", 400);
+            }
+
+            // Verify the feedback exists and belongs to the customer
+            $checkStmt = $this->pdo->prepare("SELECT id, customer_id FROM customer_feedback WHERE id = ?");
+            $checkStmt->execute([$data->id]);
+            $existingFeedback = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$existingFeedback) {
+                return $this->sendPayload(null, "failed", "Feedback not found", 404);
+            }
+
+            // Verify customer ownership (optional security check)
+            if (isset($data->customer_id) && $existingFeedback['customer_id'] != $data->customer_id) {
+                return $this->sendPayload(null, "failed", "Unauthorized: Feedback does not belong to this customer", 403);
+            }
+
+            // Update rating and comment
+            $sql = "UPDATE customer_feedback SET rating = ?, comment = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $data->rating,
+                $data->comment ?? '',
+                $data->id
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                // Return updated record
+                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
+                $stmtGet->execute([$data->id]);
+                $feedback = $stmtGet->fetch(PDO::FETCH_ASSOC);
+                return $this->sendPayload(['customer_feedback' => $feedback], "success", "Feedback updated successfully", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "No changes made", 400);
+        } catch (Exception $e) {
+            error_log("Error updating customer feedback: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     // New update methods for the updated database schema
     public function update_vehicle_type($data) {
         try {

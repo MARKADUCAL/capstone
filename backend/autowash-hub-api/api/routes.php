@@ -927,6 +927,14 @@ if ($method === 'PUT') {
         exit();
     }
     
+    if (strpos($request, 'update_customer_feedback') !== false) {
+        error_log("Processing update_customer_feedback request");
+        $result = $put->update_customer_feedback($data);
+        error_log("update_customer_feedback result: " . json_encode($result));
+        echo json_encode($result);
+        exit();
+    }
+    
     // Test endpoint to verify routing
     if (strpos($request, 'test_put') !== false) {
         error_log("Test PUT endpoint reached");
