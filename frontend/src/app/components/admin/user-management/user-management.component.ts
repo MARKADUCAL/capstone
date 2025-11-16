@@ -467,17 +467,24 @@ export class UserManagementComponent implements OnInit {
           const timeString = b.washTime || b.time || b.booking_time || '';
           const formattedTime = this.formatTimeTo12Hour(timeString);
 
+          // Format status and replace "Rejected" with "Declined"
+          let status = (b.status || b.booking_status || '')
+            .toString()
+            .charAt(0)
+            .toUpperCase() +
+          (b.status || b.booking_status || '').toString().slice(1);
+          
+          // Replace "Rejected" with "Declined" (case-insensitive)
+          if (status.toLowerCase() === 'rejected') {
+            status = 'Declined';
+          }
+
           return {
             id: b.id,
             service: b.services || b.serviceName || b.service || 'N/A',
             date: b.washDate || b.date || b.booking_date || b.created_at,
             time: formattedTime,
-            status:
-              (b.status || b.booking_status || '')
-                .toString()
-                .charAt(0)
-                .toUpperCase() +
-              (b.status || b.booking_status || '').toString().slice(1),
+            status: status,
             totalAmount: b.price || b.total_amount || b.amount || 0,
             raw: b,
           };
