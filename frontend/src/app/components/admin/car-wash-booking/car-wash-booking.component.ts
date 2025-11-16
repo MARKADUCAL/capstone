@@ -63,7 +63,13 @@ interface CarWashBooking {
   vehicleType: string;
   date: string;
   time: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
+  status:
+    | 'Pending'
+    | 'Approved'
+    | 'Rejected'
+    | 'Done'
+    | 'Completed'
+    | 'Cancelled';
   serviceType?: string;
   price?: number;
   imageUrl?: string;
@@ -367,9 +373,14 @@ export class CarWashBookingComponent implements OnInit {
 
   canEditBooking(booking: CarWashBooking): boolean {
     const status = booking.status as string;
-    return status !== 'Rejected' && status !== 'Cancelled' && 
-           status !== 'Pending' && status !== 'Approved' && 
-           status !== 'Done' && status !== 'Completed';
+    return (
+      status !== 'Rejected' &&
+      status !== 'Cancelled' &&
+      status !== 'Pending' &&
+      status !== 'Approved' &&
+      status !== 'Done' &&
+      status !== 'Completed'
+    );
   }
 
   deleteBooking(booking: CarWashBooking): void {
@@ -674,7 +685,7 @@ export class CarWashBookingComponent implements OnInit {
   private openBookingDialog(booking: CarWashBooking, mode: 'view' | 'edit') {
     // Load feedback data for completed bookings
     const bookingWithFeedback = { ...booking };
-    
+
     if (booking.status === 'Completed') {
       this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
         next: (feedbackList) => {
@@ -1464,11 +1475,15 @@ export class CreateWalkInBookingDialogComponent {
             </div>
             <div class="info-item">
               <span class="label">Vehicle Model</span>
-              <span class="value">{{ data.booking.vehicleModel || 'N/A' }}</span>
+              <span class="value">{{
+                data.booking.vehicleModel || 'N/A'
+              }}</span>
             </div>
             <div class="info-item">
               <span class="label">Vehicle Color</span>
-              <span class="value">{{ data.booking.vehicleColor || 'N/A' }}</span>
+              <span class="value">{{
+                data.booking.vehicleColor || 'N/A'
+              }}</span>
             </div>
           </div>
         </div>
@@ -1660,8 +1675,33 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
+        <!-- Cancellation Reason Section (only for cancelled bookings) -->
+        <div
+          class="info-section"
+          *ngIf="
+            data.booking.status === 'Cancelled' &&
+            getCancellationReason(data.booking)
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">block</mat-icon>
+            <h3>Cancellation Reason</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item notes-item">
+              <span class="label">Reason for Cancellation</span>
+              <span class="value notes-text cancellation-reason">{{
+                getCancellationReason(data.booking)
+              }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Notes Section -->
-        <div class="info-section" *ngIf="data.booking.notes">
+        <div
+          class="info-section"
+          *ngIf="data.booking.notes && getBookingNotes(data.booking)"
+        >
           <div class="section-header">
             <mat-icon class="section-icon">notes</mat-icon>
             <h3>Additional Notes</h3>
@@ -1669,7 +1709,9 @@ export class CreateWalkInBookingDialogComponent {
           <div class="info-grid">
             <div class="info-item notes-item">
               <span class="label">Customer Notes</span>
-              <span class="value notes-text">{{ data.booking.notes }}</span>
+              <span class="value notes-text">{{
+                getBookingNotes(data.booking)
+              }}</span>
             </div>
           </div>
         </div>
@@ -1678,8 +1720,7 @@ export class CreateWalkInBookingDialogComponent {
         <div
           class="info-section"
           *ngIf="
-            data.booking.status === 'Completed' &&
-            data.booking.customerRating
+            data.booking.status === 'Completed' && data.booking.customerRating
           "
         >
           <div class="section-header">
@@ -1690,8 +1731,12 @@ export class CreateWalkInBookingDialogComponent {
             <div class="info-item">
               <span class="label">Rating</span>
               <span class="value rating-display">
-                <span class="stars">{{ getStarDisplay(data.booking.customerRating || 0) }}</span>
-                <span class="rating-value">{{ data.booking.customerRating }}/5</span>
+                <span class="stars">{{
+                  getStarDisplay(data.booking.customerRating || 0)
+                }}</span>
+                <span class="rating-value"
+                  >{{ data.booking.customerRating }}/5</span
+                >
               </span>
             </div>
             <div
@@ -1703,10 +1748,7 @@ export class CreateWalkInBookingDialogComponent {
                 data.booking.customerRatingComment
               }}</span>
             </div>
-            <div
-              class="info-item"
-              *ngIf="data.booking.feedbackCreatedAt"
-            >
+            <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
               <span class="label">Submitted On</span>
               <span class="value">{{
                 formatDate(data.booking.feedbackCreatedAt)
@@ -1972,6 +2014,12 @@ export class CreateWalkInBookingDialogComponent {
         border: 1px solid #ddd6fe;
       }
 
+      .status-cancelled {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+      }
+
       .status-select {
         min-width: 120px;
       }
@@ -1995,6 +2043,15 @@ export class CreateWalkInBookingDialogComponent {
         border-radius: 8px;
         padding: 12px;
         color: #dc2626;
+        font-weight: 500;
+      }
+
+      .cancellation-reason {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 8px;
+        padding: 12px;
+        color: #c2410c;
         font-weight: 500;
       }
 
@@ -2130,7 +2187,13 @@ export class CreateWalkInBookingDialogComponent {
   ],
 })
 export class BookingDetailsDialogComponent {
-  editableStatus: 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed';
+  editableStatus:
+    | 'Pending'
+    | 'Approved'
+    | 'Rejected'
+    | 'Done'
+    | 'Completed'
+    | 'Cancelled';
   ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
 
   constructor(
@@ -2259,6 +2322,60 @@ export class BookingDetailsDialogComponent {
       return '';
     }
     return this.ratingTexts[Math.round(rating)] || '';
+  }
+
+  getCancellationReason(booking: CarWashBooking): string | null {
+    const notes = (booking?.notes || '').toString();
+    if (!notes.trim()) {
+      return null;
+    }
+
+    // Check for "Customer reason:" prefix (used when customer cancels)
+    if (notes.includes('Customer reason:')) {
+      const reason = notes.split('Customer reason:')[1]?.trim();
+      if (reason) {
+        // Remove any additional notes that might be after the reason (separated by |)
+        const cleanReason = reason.split('|')[0]?.trim();
+        return cleanReason || reason;
+      }
+    }
+
+    // If status is cancelled but no specific reason format found, return the entire notes
+    // (in case it was cancelled without the standard format)
+    if (booking.status === 'Cancelled' && notes.trim()) {
+      return notes.trim();
+    }
+
+    return null;
+  }
+
+  getBookingNotes(booking: CarWashBooking): string | null {
+    const notes = (booking?.notes || '').toString();
+    if (!notes.trim()) {
+      return null;
+    }
+
+    // If booking is cancelled and has cancellation reason, exclude it from notes
+    if (booking.status === 'Cancelled' && notes.includes('Customer reason:')) {
+      const beforeReason = notes.split('Customer reason:')[0]?.trim();
+      if (beforeReason) {
+        // Remove trailing separator if present
+        return beforeReason.replace(/\s*\|\s*$/, '').trim();
+      }
+      return null; // If only cancellation reason exists, don't show notes section
+    }
+
+    // If booking is rejected and has rejection reason, exclude it from notes
+    if (booking.status === 'Rejected' && notes.includes('Rejection reason:')) {
+      const beforeReason = notes.split('Rejection reason:')[0]?.trim();
+      if (beforeReason) {
+        // Remove trailing separator if present
+        return beforeReason.replace(/\s*\|\s*$/, '').trim();
+      }
+      return null; // If only rejection reason exists, don't show notes section
+    }
+
+    return notes.trim();
   }
 }
 
