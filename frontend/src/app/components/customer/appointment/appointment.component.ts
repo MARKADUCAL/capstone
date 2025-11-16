@@ -126,14 +126,27 @@ export class AppointmentComponent implements OnInit {
       this.loadUserData();
       this.loadPricingData(); // Load pricing data from database
 
-      // Check for service query parameter
+      // Check for query parameters from pricing page
       this.route.queryParams.subscribe((params) => {
-        if (params['service']) {
-          // Pre-select the service when navigating from dashboard
+        const vehicleTypeCode = params['vehicle_type'];
+        const servicePackageCode = params['service_package'];
+        
+        if (vehicleTypeCode && servicePackageCode) {
+          // Convert codes to full descriptions and pre-select
+          this.selectPricingFromCodes(vehicleTypeCode, servicePackageCode);
+          // Store in localStorage for persistence
+          this.saveSelectedPricing(vehicleTypeCode, servicePackageCode);
+        } else {
+          // Try to load from localStorage if no query params
+          this.loadSelectedPricingFromStorage();
+        }
+
+        // Legacy support for 'service' query parameter
+        if (params['service'] && !servicePackageCode) {
           setTimeout(() => {
             this.bookingForm.services = params['service'];
             this.calculatePrice();
-          }, 500); // Small delay to ensure services are loaded
+          }, 500);
         }
       });
     }
@@ -531,6 +544,9 @@ export class AppointmentComponent implements OnInit {
           confirmButtonColor: '#3498db',
         });
 
+        // Clear selected pricing from localStorage after successful booking
+        this.clearSelectedPricing();
+
         // Close modal after 2 seconds on success
         setTimeout(() => {
           this.closeBookingModal();
@@ -871,5 +887,97 @@ export class AppointmentComponent implements OnInit {
     }
     // PM allows 12,1..8
     return false;
+  }
+
+  // Convert vehicle type code to full description
+  private getVehicleTypeFromCode(code: string): string {
+    const index = this.vehicleTypeCodes.indexOf(code);
+    if (index >= 0 && index < this.vehicleTypes.length) {
+      return this.vehicleTypes[index];
+    }
+    return '';
+  }
+
+  // Convert service package code to full description
+  private getServicePackageFromCode(code: string): string {
+    const index = this.serviceCodes.indexOf(code);
+    if (index >= 0 && index < this.servicePackages.length) {
+      return this.servicePackages[index];
+    }
+    return '';
+  }
+
+  // Select pricing options from codes (used when navigating from pricing page)
+  private selectPricingFromCodes(vehicleTypeCode: string, servicePackageCode: string): void {
+    const vehicleType = this.getVehicleTypeFromCode(vehicleTypeCode);
+    const servicePackage = this.getServicePackageFromCode(servicePackageCode);
+
+    if (vehicleType && servicePackage) {
+      // Wait for pricing data to load before setting selections
+      const attemptSelection = (attempts: number = 0) => {
+        const maxAttempts = 10; // Try for up to 5 seconds (10 * 500ms)
+        
+        // Check if pricing matrix is loaded (has at least one vehicle type)
+        if (Object.keys(this.pricingMatrix).length > 0 || attempts >= maxAttempts) {
+          this.bookingForm.vehicleType = vehicleType;
+          this.bookingForm.services = servicePackage;
+          this.calculatePrice();
+        } else {
+          // Retry after 500ms
+          setTimeout(() => attemptSelection(attempts + 1), 500);
+        }
+      };
+      
+      attemptSelection();
+    }
+  }
+
+  // Save selected pricing to localStorage for persistence
+  private saveSelectedPricing(vehicleTypeCode: string, servicePackageCode: string): void {
+    if (!this.isBrowser) return;
+    try {
+      const pricingSelection = {
+        vehicle_type: vehicleTypeCode,
+        service_package: servicePackageCode,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('selected_pricing', JSON.stringify(pricingSelection));
+    } catch (error) {
+      console.error('Error saving pricing selection to localStorage:', error);
+    }
+  }
+
+  // Load selected pricing from localStorage
+  private loadSelectedPricingFromStorage(): void {
+    if (!this.isBrowser) return;
+    try {
+      const stored = localStorage.getItem('selected_pricing');
+      if (stored) {
+        const pricingSelection = JSON.parse(stored);
+        // Only use stored selection if it's less than 1 hour old (to avoid stale data)
+        const oneHour = 60 * 60 * 1000;
+        if (Date.now() - pricingSelection.timestamp < oneHour) {
+          this.selectPricingFromCodes(
+            pricingSelection.vehicle_type,
+            pricingSelection.service_package
+          );
+        } else {
+          // Clear stale data
+          localStorage.removeItem('selected_pricing');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading pricing selection from localStorage:', error);
+    }
+  }
+
+  // Clear selected pricing from localStorage (call after successful booking)
+  private clearSelectedPricing(): void {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.removeItem('selected_pricing');
+    } catch (error) {
+      console.error('Error clearing pricing selection from localStorage:', error);
+    }
   }
 }
