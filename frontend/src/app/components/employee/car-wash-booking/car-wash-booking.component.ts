@@ -16,6 +16,7 @@ import {
 import { Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BookingService } from '../../../services/booking.service';
+import { FeedbackService } from '../../../services/feedback.service';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -33,6 +34,11 @@ interface CarWashBooking {
   plateNumber?: string;
   vehicleModel?: string;
   vehicleColor?: string;
+  // Customer feedback fields
+  customerRating?: number;
+  customerRatingComment?: string;
+  feedbackCreatedAt?: string;
+  feedbackId?: number;
 }
 
 @Component({
@@ -61,6 +67,7 @@ export class CarWashBookingComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private bookingService: BookingService,
+    private feedbackService: FeedbackService,
     private dialog: MatDialog,
     private http: HttpClient,
     private router: Router
@@ -373,11 +380,37 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   private openBookingDialog(booking: CarWashBooking, mode: 'view') {
+    // Load feedback data for completed bookings
+    const bookingWithFeedback = { ...booking };
+    
+    if (booking.status === 'Completed') {
+      this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+        next: (feedbackList) => {
+          if (feedbackList && feedbackList.length > 0) {
+            const feedback = feedbackList[0];
+            bookingWithFeedback.customerRating = feedback.rating;
+            bookingWithFeedback.customerRatingComment = feedback.comment;
+            bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+            bookingWithFeedback.feedbackId = feedback.id;
+          }
+          this.openDialog(bookingWithFeedback, mode);
+        },
+        error: (err) => {
+          console.error('Error loading feedback:', err);
+          this.openDialog(bookingWithFeedback, mode);
+        },
+      });
+    } else {
+      this.openDialog(bookingWithFeedback, mode);
+    }
+  }
+
+  private openDialog(booking: CarWashBooking, mode: 'view') {
     const dialogRef = this.dialog.open(BookingDetailsDialogComponent, {
       width: '600px',
       maxWidth: '95vw',
       maxHeight: '90vh',
-      data: { booking: { ...booking }, mode },
+      data: { booking, mode },
       panelClass: 'booking-details-dialog',
     });
 
@@ -514,6 +547,47 @@ export class CarWashBookingComponent implements OnInit {
                 <span class="status-dot"></span>
                 {{ data.booking.status }}
               </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Feedback Section (if feedback exists for completed bookings) -->
+        <div
+          class="info-section"
+          *ngIf="
+            data.booking.status === 'Completed' &&
+            data.booking.customerRating
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">star</mat-icon>
+            <h3>Customer Feedback</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Rating</span>
+              <span class="value rating-display">
+                <span class="stars">{{ getStarDisplay(data.booking.customerRating || 0) }}</span>
+                <span class="rating-value">{{ data.booking.customerRating }}/5</span>
+              </span>
+            </div>
+            <div
+              class="info-item notes-item"
+              *ngIf="data.booking.customerRatingComment"
+            >
+              <span class="label">Comment</span>
+              <span class="value notes-text customer-feedback-text">{{
+                data.booking.customerRatingComment
+              }}</span>
+            </div>
+            <div
+              class="info-item"
+              *ngIf="data.booking.feedbackCreatedAt"
+            >
+              <span class="label">Submitted On</span>
+              <span class="value">{{
+                formatDate(data.booking.feedbackCreatedAt)
+              }}</span>
             </div>
           </div>
         </div>
@@ -723,6 +797,45 @@ export class CarWashBookingComponent implements OnInit {
         border: 1px solid #ddd6fe;
       }
 
+      .notes-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .notes-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 100%;
+        line-height: 1.5;
+      }
+
+      .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stars {
+        color: #fbbf24;
+        font-size: 18px;
+        letter-spacing: 2px;
+      }
+
+      .rating-value {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .customer-feedback-text {
+        background: #fefce8;
+        border: 1px solid #fde047;
+        border-radius: 8px;
+        padding: 12px;
+        color: #713f12;
+        font-weight: 500;
+      }
+
       .modal-actions {
         padding: 20px 24px;
         background: #f8fafc;
@@ -804,6 +917,8 @@ export class CarWashBookingComponent implements OnInit {
   ],
 })
 export class BookingDetailsDialogComponent {
+  ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
   constructor(
     public dialogRef: MatDialogRef<BookingDetailsDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
@@ -859,5 +974,38 @@ export class BookingDetailsDialogComponent {
     }
 
     return timeString; // Return original if formatting fails
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch (error) {
+      return '';
+    }
+  }
+
+  getStarDisplay(rating: number): string {
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) {
+      stars += '☆';
+    }
+    return stars;
+  }
+
+  getRatingText(rating: number): string {
+    if (!rating || rating < 0 || rating >= this.ratingTexts.length) {
+      return '';
+    }
+    return this.ratingTexts[Math.round(rating)] || '';
   }
 }
