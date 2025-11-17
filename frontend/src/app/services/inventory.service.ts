@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -41,7 +41,7 @@ export class InventoryService {
           return (response.payload?.inventory || []).map((i: any) => ({
             id: i.id,
             name: i.name,
-            imageUrl: i.image_url || 'assets/logo.jpg',
+            imageUrl: i.image_url || 'assets/logo.png',
             stock: Number(i.stock) || 0,
             category: i.category || 'General',
           }));
@@ -135,3 +135,4 @@ export class InventoryService {
     }
   }
 }
+
