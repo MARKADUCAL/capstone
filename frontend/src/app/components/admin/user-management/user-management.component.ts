@@ -468,12 +468,13 @@ export class UserManagementComponent implements OnInit {
           const formattedTime = this.formatTimeTo12Hour(timeString);
 
           // Format status and replace "Rejected" with "Declined"
-          let status = (b.status || b.booking_status || '')
-            .toString()
-            .charAt(0)
-            .toUpperCase() +
-          (b.status || b.booking_status || '').toString().slice(1);
-          
+          let status =
+            (b.status || b.booking_status || '')
+              .toString()
+              .charAt(0)
+              .toUpperCase() +
+            (b.status || b.booking_status || '').toString().slice(1);
+
           // Replace "Rejected" with "Declined" (case-insensitive)
           if (status.toLowerCase() === 'rejected') {
             status = 'Declined';
