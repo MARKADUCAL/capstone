@@ -77,9 +77,22 @@ body {
   right: 10px;
   background: none;
   border: none;
-  font-size: 20px;
   cursor: pointer;
   color: #333;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.close-btn i {
+  font-size: 18px;
 }
 
 .nav-menu {
@@ -201,6 +214,19 @@ body {
   cursor: pointer;
   padding: 5px;
   font-size: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.dropdown-btn:hover {
+  color: #555;
+}
+
+.dropdown-btn i {
+  font-size: 14px;
 }
 
 .dropdown-menu {
@@ -278,7 +304,7 @@ body {
 
   /* Show close button in sidebar */
   .close-btn {
-    display: block;
+    display: flex;
   }
 
   /* Adjust content margin */
