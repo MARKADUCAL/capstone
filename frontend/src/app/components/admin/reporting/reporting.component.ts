@@ -139,40 +139,61 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     if (isPlatformBrowser(this.platformId)) {
       // Initialize only the first visible chart (Revenue Trend)
       // Other charts will be initialized when their tabs are selected
-      this.initializeRevenueChart();
+      setTimeout(() => {
+        this.initializeRevenueChart();
+      }, 200);
       // Initialize others with a delay to ensure DOM is ready
       setTimeout(() => {
         this.initializeServiceChart();
         this.initializeBookingsChart();
-      }, 300);
+      }, 500);
     }
   }
 
   private loadDashboardSummary(): void {
-    this.reportingService.getDashboardSummary().subscribe((summary) => {
-      if (!summary) return;
-      console.log('Dashboard summary received:', summary);
-      this.serviceStats.totalBookings = Number(summary.total_bookings) || 0;
-      this.serviceStats.completedBookings =
-        Number(summary.completed_bookings) || 0;
-      this.serviceStats.pendingBookings = Number(summary.pending_bookings) || 0;
-      this.serviceStats.cancelledBookings =
-        Number(summary.cancelled_bookings ?? summary.canceled_bookings) || 0;
-      this.serviceStats.declinedBookings =
-        Number(summary.declined_bookings) || 0;
-      this.revenueData.weekly = Number(summary.weekly_revenue) || 0;
-      this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
-      console.log('Service stats updated:', this.serviceStats);
+    this.reportingService.getDashboardSummary().subscribe({
+      next: (summary) => {
+        if (!summary) {
+          console.warn('Dashboard summary is null or undefined');
+          return;
+        }
+        console.log('Dashboard summary received:', summary);
+        this.serviceStats.totalBookings = Number(summary.total_bookings) || 0;
+        this.serviceStats.completedBookings =
+          Number(summary.completed_bookings) || 0;
+        this.serviceStats.pendingBookings =
+          Number(summary.pending_bookings) || 0;
+        this.serviceStats.cancelledBookings =
+          Number(summary.cancelled_bookings ?? summary.canceled_bookings) || 0;
+        this.serviceStats.declinedBookings =
+          Number(summary.declined_bookings) || 0;
+        this.revenueData.weekly = Number(summary.weekly_revenue) || 0;
+        this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
+        console.log('Service stats updated:', this.serviceStats);
+      },
+      error: (err) => {
+        console.error('Error loading dashboard summary:', err);
+      },
     });
   }
 
   private loadRevenueAnalytics(): void {
     this.reportingService.getRevenueAnalytics().subscribe({
       next: (points) => {
+        console.log('Revenue analytics points received:', points);
         this.revenueLabels = points.map((p) => p.month);
         this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+        console.log('Processed revenue data:', {
+          labels: this.revenueLabels,
+          values: this.revenueValues,
+        });
         if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => this.initializeRevenueChart(), 100);
+          // Update existing chart or initialize if not exists
+          if (this.revenueChart) {
+            this.updateRevenueChart();
+          } else {
+            setTimeout(() => this.initializeRevenueChart(), 100);
+          }
         }
       },
       error: (err) => {
@@ -187,32 +208,48 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   private mapServiceNameToPackageLabel(serviceName: string): string {
     if (!serviceName) return serviceName;
-    
+
     const serviceNameLower = serviceName.toLowerCase().trim();
-    
+
     // Backend now returns mapped names, but handle edge cases and legacy data
     // Check if already in correct format
-    if (serviceNameLower === 'wash only' || serviceNameLower === 'wash / vacuum' || 
-        serviceNameLower === 'wash / vacuum / hand wax' || 
-        serviceNameLower === 'wash / vacuum / buffing wax') {
+    if (
+      serviceNameLower === 'wash only' ||
+      serviceNameLower === 'wash / vacuum' ||
+      serviceNameLower === 'wash / vacuum / hand wax' ||
+      serviceNameLower === 'wash / vacuum / buffing wax'
+    ) {
       return serviceName; // Already correctly formatted
     }
-    
+
     // Map package codes and service names to package labels (for legacy data)
-    if (serviceNameLower.includes('p1') || serviceNameLower.includes('wash only')) {
+    if (
+      serviceNameLower.includes('p1') ||
+      serviceNameLower.includes('wash only')
+    ) {
       return 'Wash only';
     }
-    if (serviceNameLower.includes('p2') || serviceNameLower.includes('wash + vacuum') || 
-        serviceNameLower.includes('wash/vacuum') || serviceNameLower.includes('wash / vacuum')) {
+    if (
+      serviceNameLower.includes('p2') ||
+      serviceNameLower.includes('wash + vacuum') ||
+      serviceNameLower.includes('wash/vacuum') ||
+      serviceNameLower.includes('wash / vacuum')
+    ) {
       return 'Wash / Vacuum';
     }
-    if (serviceNameLower.includes('p3') || serviceNameLower.includes('hand wax')) {
+    if (
+      serviceNameLower.includes('p3') ||
+      serviceNameLower.includes('hand wax')
+    ) {
       return 'Wash / Vacuum / Hand Wax';
     }
-    if (serviceNameLower.includes('p4') || serviceNameLower.includes('buffing wax')) {
+    if (
+      serviceNameLower.includes('p4') ||
+      serviceNameLower.includes('buffing wax')
+    ) {
       return 'Wash / Vacuum / Buffing Wax';
     }
-    
+
     // Fallback: return original name if no match
     return serviceName;
   }
@@ -222,14 +259,21 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       next: (items) => {
         console.log('Service distribution data received:', items);
         // Map service names to package labels
-        this.serviceLabels = items.map((i) => this.mapServiceNameToPackageLabel(i.service_name));
+        this.serviceLabels = items.map((i) =>
+          this.mapServiceNameToPackageLabel(i.service_name)
+        );
         this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
         console.log('Processed service distribution:', {
           labels: this.serviceLabels,
           counts: this.serviceCounts,
         });
         if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => this.initializeServiceChart(), 100);
+          // Update existing chart or initialize if not exists
+          if (this.serviceChart) {
+            this.updateServiceChart();
+          } else {
+            setTimeout(() => this.initializeServiceChart(), 100);
+          }
         }
       },
       error: (err) => {
@@ -329,7 +373,12 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         });
 
         if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => this.initializeBookingsChart(), 100);
+          // Update existing chart or initialize if not exists
+          if (this.bookingsChart) {
+            this.updateBookingsChart();
+          } else {
+            setTimeout(() => this.initializeBookingsChart(), 100);
+          }
         }
       },
       error: (err) => {
@@ -359,77 +408,116 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const revenueCtx = document.getElementById(
       'revenueChart'
     ) as HTMLCanvasElement;
-    if (revenueCtx) {
-      if (this.revenueChart) {
-        this.revenueChart.destroy();
-      }
-      this.revenueChart = new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-          labels: this.revenueLabels.length
-            ? this.revenueLabels
-            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [
-            {
-              label: 'Monthly Revenue',
-              data: this.revenueValues.length
-                ? this.revenueValues
-                : [65000, 59000, 80000, 81000, 56000, 75000],
-              fill: true,
-              tension: 0.4,
-              borderColor: '#1976d2',
-              backgroundColor: 'rgba(25, 118, 210, 0.1)',
-              pointBackgroundColor: '#1976d2',
-              pointBorderColor: '#ffffff',
-              pointBorderWidth: 2,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 20,
-                font: {
-                  size: 12,
-                },
-              },
-            },
-            title: {
-              display: true,
-              text: 'Revenue Trend',
-              font: {
-                size: 16,
-                weight: 'bold',
-              },
-              padding: {
-                top: 20,
-                bottom: 20,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: (value) => '$' + value,
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.05)',
-              },
-            },
-            x: {
-              grid: {
-                display: false,
-              },
-            },
-          },
-        },
-      });
+    if (!revenueCtx) {
+      console.warn('Revenue chart canvas element not found');
+      return;
     }
+
+    if (this.revenueChart) {
+      this.revenueChart.destroy();
+    }
+
+    const labels = this.revenueLabels.length
+      ? this.revenueLabels
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const data = this.revenueValues.length
+      ? this.revenueValues
+      : [65000, 59000, 80000, 81000, 56000, 75000];
+
+    console.log('Initializing revenue chart with:', { labels, data });
+
+    this.revenueChart = new Chart(revenueCtx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Monthly Revenue',
+            data: data,
+            fill: true,
+            tension: 0.4,
+            borderColor: '#1976d2',
+            backgroundColor: 'rgba(25, 118, 210, 0.1)',
+            pointBackgroundColor: '#1976d2',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: {
+                size: 12,
+              },
+            },
+          },
+          title: {
+            display: true,
+            text: 'Revenue Trend',
+            font: {
+              size: 16,
+              weight: 'bold',
+            },
+            padding: {
+              top: 20,
+              bottom: 20,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y || 0;
+                return `Revenue: ₱${value.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => {
+                if (typeof value === 'number') {
+                  return '₱' + value.toLocaleString();
+                }
+                return '₱' + value;
+              },
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+            },
+          },
+          x: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private updateRevenueChart(): void {
+    if (!this.revenueChart || !isPlatformBrowser(this.platformId)) return;
+
+    const labels = this.revenueLabels.length
+      ? this.revenueLabels
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const data = this.revenueValues.length
+      ? this.revenueValues
+      : [65000, 59000, 80000, 81000, 56000, 75000];
+
+    this.revenueChart.data.labels = labels;
+    this.revenueChart.data.datasets[0].data = data;
+    this.revenueChart.update('active');
   }
 
   private initializeServiceChart(): void {
@@ -439,93 +527,135 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const serviceCtx = document.getElementById(
       'serviceChart'
     ) as HTMLCanvasElement;
-    if (serviceCtx) {
-      if (this.serviceChart) {
-        this.serviceChart.destroy();
-      }
+    if (!serviceCtx) {
+      console.warn('Service chart canvas element not found');
+      return;
+    }
 
-      // Ensure we have matching labels and data
-      const labels = this.serviceLabels.length
-        ? this.serviceLabels
-        : ['Wash only', 'Wash / Vacuum', 'Wash / Vacuum / Hand Wax', 'Wash / Vacuum / Buffing Wax'];
-      const data = this.serviceCounts.length
-        ? this.serviceCounts
-        : [30, 25, 25, 20];
+    if (this.serviceChart) {
+      this.serviceChart.destroy();
+    }
 
-      // Ensure we have enough colors for all labels
-      const colors = [
-        'rgba(25, 118, 210, 0.8)',
-        'rgba(76, 175, 80, 0.8)',
-        'rgba(255, 160, 0, 0.8)',
-        'rgba(244, 67, 54, 0.8)',
-        'rgba(156, 39, 176, 0.8)',
-        'rgba(0, 188, 212, 0.8)',
-        'rgba(255, 87, 34, 0.8)',
-        'rgba(121, 85, 72, 0.8)',
-      ];
+    // Ensure we have matching labels and data
+    const labels = this.serviceLabels.length
+      ? this.serviceLabels
+      : [
+          'Wash only',
+          'Wash / Vacuum',
+          'Wash / Vacuum / Hand Wax',
+          'Wash / Vacuum / Buffing Wax',
+        ];
+    const data = this.serviceCounts.length
+      ? this.serviceCounts
+      : [30, 25, 25, 20];
 
-      console.log('Initializing service chart with:', { labels, data });
+    // Ensure we have enough colors for all labels
+    const colors = [
+      'rgba(25, 118, 210, 0.8)',
+      'rgba(76, 175, 80, 0.8)',
+      'rgba(255, 160, 0, 0.8)',
+      'rgba(244, 67, 54, 0.8)',
+      'rgba(156, 39, 176, 0.8)',
+      'rgba(0, 188, 212, 0.8)',
+      'rgba(255, 87, 34, 0.8)',
+      'rgba(121, 85, 72, 0.8)',
+    ];
 
-      this.serviceChart = new Chart(serviceCtx, {
-        type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              data: data,
-              backgroundColor: colors.slice(0, labels.length),
-              borderWidth: 2,
-              borderColor: '#ffffff',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 20,
-                font: {
-                  size: 12,
-                },
-                usePointStyle: true,
-              },
-            },
-            title: {
-              display: true,
-              text: 'Service Distribution',
+    console.log('Initializing service chart with:', { labels, data });
+
+    this.serviceChart = new Chart(serviceCtx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: data,
+            backgroundColor: colors.slice(0, labels.length),
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
               font: {
-                size: 16,
-                weight: 'bold',
+                size: 12,
               },
-              padding: {
-                top: 20,
-                bottom: 20,
-              },
+              usePointStyle: true,
             },
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.label || '';
-                  const value = context.parsed || 0;
-                  const total = context.dataset.data.reduce(
-                    (a: number, b: number) => a + b,
-                    0
-                  );
-                  const percentage =
-                    total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-                  return `${label}: ${value} (${percentage}%)`;
-                },
+          },
+          title: {
+            display: true,
+            text: 'Service Distribution',
+            font: {
+              size: 16,
+              weight: 'bold',
+            },
+            padding: {
+              top: 20,
+              bottom: 20,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const total = context.dataset.data.reduce(
+                  (a: number, b: number) => a + b,
+                  0
+                );
+                const percentage =
+                  total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                return `${label}: ${value} (${percentage}%)`;
               },
             },
           },
         },
-      });
-    } else {
-      console.warn('Service chart canvas element not found');
-    }
+      },
+    });
+  }
+
+  private updateServiceChart(): void {
+    if (!this.serviceChart || !isPlatformBrowser(this.platformId)) return;
+
+    const labels = this.serviceLabels.length
+      ? this.serviceLabels
+      : [
+          'Wash only',
+          'Wash / Vacuum',
+          'Wash / Vacuum / Hand Wax',
+          'Wash / Vacuum / Buffing Wax',
+        ];
+    const data = this.serviceCounts.length
+      ? this.serviceCounts
+      : [30, 25, 25, 20];
+
+    // Ensure we have enough colors for all labels
+    const colors = [
+      'rgba(25, 118, 210, 0.8)',
+      'rgba(76, 175, 80, 0.8)',
+      'rgba(255, 160, 0, 0.8)',
+      'rgba(244, 67, 54, 0.8)',
+      'rgba(156, 39, 176, 0.8)',
+      'rgba(0, 188, 212, 0.8)',
+      'rgba(255, 87, 34, 0.8)',
+      'rgba(121, 85, 72, 0.8)',
+    ];
+
+    this.serviceChart.data.labels = labels;
+    this.serviceChart.data.datasets[0].data = data;
+    this.serviceChart.data.datasets[0].backgroundColor = colors.slice(
+      0,
+      labels.length
+    );
+    this.serviceChart.update('active');
   }
 
   private initializeBookingsChart(): void {
@@ -535,94 +665,110 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const bookingsCtx = document.getElementById(
       'bookingsChart'
     ) as HTMLCanvasElement;
-    if (bookingsCtx) {
-      if (this.bookingsChart) {
-        this.bookingsChart.destroy();
-      }
-
-      // Ensure we have valid data
-      const labels = this.weeklyBookingLabels.length
-        ? this.weeklyBookingLabels
-        : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const data = this.weeklyBookingValues.length
-        ? this.weeklyBookingValues
-        : [0, 0, 0, 0, 0, 0, 0];
-
-      console.log('Initializing bookings chart with:', { labels, data });
-
-      this.bookingsChart = new Chart(bookingsCtx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Daily Bookings',
-              data: data,
-              backgroundColor: 'rgba(25, 118, 210, 0.8)',
-              borderRadius: 6,
-              borderColor: '#1976d2',
-              borderWidth: 1,
-              hoverBackgroundColor: 'rgba(25, 118, 210, 1)',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 20,
-                font: {
-                  size: 12,
-                },
-                usePointStyle: true,
-              },
-            },
-            title: {
-              display: true,
-              text: 'Weekly Booking Distribution',
-              font: {
-                size: 16,
-                weight: 'bold',
-              },
-              padding: {
-                top: 20,
-                bottom: 20,
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const value = context.parsed.y || 0;
-                  return `Bookings: ${value}`;
-                },
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 5,
-                precision: 0,
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.05)',
-              },
-            },
-            x: {
-              grid: {
-                display: false,
-              },
-            },
-          },
-        },
-      });
-    } else {
+    if (!bookingsCtx) {
       console.warn('Bookings chart canvas element not found');
+      return;
     }
+
+    if (this.bookingsChart) {
+      this.bookingsChart.destroy();
+    }
+
+    // Ensure we have valid data
+    const labels = this.weeklyBookingLabels.length
+      ? this.weeklyBookingLabels
+      : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const data = this.weeklyBookingValues.length
+      ? this.weeklyBookingValues
+      : [0, 0, 0, 0, 0, 0, 0];
+
+    console.log('Initializing bookings chart with:', { labels, data });
+
+    this.bookingsChart = new Chart(bookingsCtx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Daily Bookings',
+            data: data,
+            backgroundColor: 'rgba(25, 118, 210, 0.8)',
+            borderRadius: 6,
+            borderColor: '#1976d2',
+            borderWidth: 1,
+            hoverBackgroundColor: 'rgba(25, 118, 210, 1)',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: {
+                size: 12,
+              },
+              usePointStyle: true,
+            },
+          },
+          title: {
+            display: true,
+            text: 'Weekly Booking Distribution',
+            font: {
+              size: 16,
+              weight: 'bold',
+            },
+            padding: {
+              top: 20,
+              bottom: 20,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y || 0;
+                return `Bookings: ${value}`;
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 5,
+              precision: 0,
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+            },
+          },
+          x: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private updateBookingsChart(): void {
+    if (!this.bookingsChart || !isPlatformBrowser(this.platformId)) return;
+
+    const labels = this.weeklyBookingLabels.length
+      ? this.weeklyBookingLabels
+      : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const data = this.weeklyBookingValues.length
+      ? this.weeklyBookingValues
+      : [0, 0, 0, 0, 0, 0, 0];
+
+    this.bookingsChart.data.labels = labels;
+    this.bookingsChart.data.datasets[0].data = data;
+    this.bookingsChart.update('active');
   }
 
   private getChartOptions(): ChartOptions {
