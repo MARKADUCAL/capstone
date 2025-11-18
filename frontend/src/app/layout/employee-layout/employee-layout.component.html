@@ -1,6 +1,8 @@
 ﻿<div class="container">
   <div class="sidebar" [class.sidebar-active]="sidebarActive">
-    <div class="sidebar-close" (click)="toggleSidebar()">âœ•</div>
+    <div class="sidebar-close" (click)="toggleSidebar()">
+      <i class="fas fa-times"></i>
+    </div>
     <div class="logo-container">
       <img src="assets/logo.png" alt="Logo" />
       <h2>AutoWash Hub</h2>
@@ -48,7 +50,9 @@
       <div class="user-info" (clickOutside)="hideDropdown()">
         <div class="user-avatar-placeholder">{{ userInitials }}</div>
         <span class="user-name">{{ fullName }}</span>
-        <button class="dropdown-btn" (click)="toggleDropdown()">â–¼</button>
+        <button class="dropdown-btn" (click)="toggleDropdown()">
+          <i class="fas fa-chevron-down"></i>
+        </button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
           <a class="dropdown-item" routerLink="/employee-view/profile">
             <i class="fas fa-user profile-icon"></i> Profile

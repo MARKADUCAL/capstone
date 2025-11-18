@@ -31,9 +31,22 @@ body {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 20px;
   cursor: pointer;
   color: #333;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-close i {
+  font-size: 18px;
 }
 
 .logo {
@@ -148,8 +161,21 @@ body {
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 16px;
   padding: 5px;
+  font-size: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.dropdown-btn:hover {
+  color: #555;
+}
+
+.dropdown-btn i {
+  font-size: 14px;
 }
 
 .dropdown-menu {
@@ -232,7 +258,7 @@ body {
   }
 
   .sidebar-close {
-    display: block;
+    display: flex;
   }
 
   .menu-icon {
