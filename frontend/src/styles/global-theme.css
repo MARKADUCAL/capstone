@@ -55,7 +55,11 @@ body {
 .app-sidebar,
 .sidebar {
   background-color: #060006;
-  background-image: linear-gradient(180deg, rgba(var(--secondary-rgb), 0.2), rgba(0, 0, 0, 0));
+  background-image: linear-gradient(
+    180deg,
+    rgba(var(--secondary-rgb), 0.2),
+    rgba(0, 0, 0, 0)
+  );
   color: var(--text-light);
   border-right: 1px solid rgba(var(--accent-rgb), 0.4);
   box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
@@ -81,7 +85,8 @@ button,
   border-radius: 999px;
   padding: 0.75rem 1.75rem;
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
   box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.35);
 }
 
@@ -134,7 +139,8 @@ a:hover {
   background-color: var(--background-light);
   border-radius: 20px;
   border: 1px solid rgba(var(--secondary-rgb), 0.15);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 0 15px rgba(var(--accent-rgb), 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08),
+    0 0 15px rgba(var(--accent-rgb), 0.15);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -142,7 +148,8 @@ a:hover {
 .app-card:hover,
 .mat-mdc-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12), 0 0 25px rgba(var(--accent-rgb), 0.35);
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12),
+    0 0 25px rgba(var(--accent-rgb), 0.35);
 }
 
 .hover-glow {
@@ -156,7 +163,8 @@ a:hover {
 
 .accent-border {
   border: 1px solid rgba(var(--accent-rgb), 0.5);
-  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.35), 0 10px 25px rgba(var(--accent-rgb), 0.25);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.35),
+    0 10px 25px rgba(var(--accent-rgb), 0.25);
 }
 
 .app-section-light {
@@ -167,7 +175,11 @@ a:hover {
 .app-section-dark {
   background-color: var(--background-dark);
   color: var(--text-light);
-  background-image: radial-gradient(circle at top, rgba(var(--accent-rgb), 0.25), transparent 60%);
+  background-image: radial-gradient(
+    circle at top,
+    rgba(var(--accent-rgb), 0.25),
+    transparent 60%
+  );
 }
 
 .badge,
@@ -194,7 +206,8 @@ a:hover {
 
 .glow-border {
   border: 1px solid rgba(var(--accent-rgb), 0.6);
-  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.6), 0 0 30px rgba(var(--primary-rgb), 0.35);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.6),
+    0 0 30px rgba(var(--primary-rgb), 0.35);
 }
 
 .text-primary {
@@ -233,4 +246,3 @@ a:hover {
 .surface-card:hover {
   box-shadow: 0 20px 40px rgba(var(--accent-rgb), 0.35);
 }
-

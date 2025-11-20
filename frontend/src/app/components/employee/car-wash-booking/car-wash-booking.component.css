@@ -41,7 +41,7 @@
 
 .loading-spinner p {
   margin-top: 16px;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .error-card p {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   margin-bottom: 16px;
 }
 
@@ -91,17 +91,17 @@
 
 .no-bookings-icon {
   font-size: 48px;
-  color: rgba(0,0,0,0.45);
+  color: rgba(0, 0, 0, 0.45);
   margin-bottom: 16px;
 }
 
 .no-bookings-card h3 {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   margin-bottom: 8px;
 }
 
 .no-bookings-card p {
-  color: rgba(0,0,0,0.45);
+  color: rgba(0, 0, 0, 0.45);
   margin-bottom: 16px;
 }
 
@@ -123,7 +123,7 @@
 
 .header-subtitle {
   margin: 0;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
   font-weight: 400;
 }
@@ -159,7 +159,7 @@
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
   margin-bottom: 10px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -196,7 +196,7 @@
 
 .booking-details p {
   margin: 8px 0;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -206,7 +206,7 @@
   font-size: 16px;
   height: 16px;
   width: 16px;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 /* New header layout for card */
@@ -215,8 +215,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.05));
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.05));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .card-top .left {
@@ -238,7 +238,7 @@
 
 .title-block .sub {
   font-size: 12px;
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .status-chip {
@@ -249,7 +249,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .status-chip .dot {
@@ -298,7 +298,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(0,0,0,0.75);
+  color: rgba(0, 0, 0, 0.75);
   font-size: 14px;
 }
 
@@ -393,7 +393,11 @@
 }
 
 .done-btn:hover {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    var(--secondary) 100%
+  );
   box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.45);
 }
 
