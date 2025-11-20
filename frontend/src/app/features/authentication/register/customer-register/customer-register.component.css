@@ -8,7 +8,7 @@
 body,
 html {
   height: 100%;
-  background-color: #f5ebd6; /* Light beige background */
+  background-color: var(--background-light);
 }
 
 /* Back to Home Button */
@@ -20,7 +20,7 @@ html {
 }
 
 .home-btn {
-  background-color: #6cb4a7;
+  background-color: var(--primary);
   color: white;
   border: none;
   border-radius: 5px;
@@ -35,7 +35,7 @@ html {
 }
 
 .home-btn:hover {
-  background-color: #5a9d91;
+  background-color: var(--secondary);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -50,14 +50,14 @@ html {
   align-items: flex-start;
   min-height: 100vh;
   padding: 20px;
-  background-color: #f5ebd6;
+  background-color: var(--background-light);
   padding-top: 40px;
 }
 
 .register-card {
   display: flex;
   width: 900px;
-  background: #fff;
+  background: var(--background-light);
   border-radius: 25px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -71,7 +71,7 @@ html {
   justify-content: center;
   align-items: center;
   padding: 30px;
-  background-color: #78bedb; /* Light blue background */
+  background-color: var(--accent);
   position: relative;
   overflow: hidden;
   border-top-left-radius: 25px;
@@ -102,7 +102,7 @@ html {
 
 .logo-title {
   font-size: 28px;
-  color: #333;
+  color: var(--text-dark);
   font-weight: 600;
   text-align: center;
   position: relative;
@@ -129,7 +129,7 @@ html {
 .register-form h2 {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -142,21 +142,21 @@ html {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
-  color: #666;
+  color: rgba(0, 0, 0, 0.65);
 }
 
 .form-group input {
   width: 100%;
   padding: 10px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   font-size: 14px;
-  color: #333;
+  color: var(--text-dark);
   transition: border-color 0.3s;
 }
 
 .form-group input:focus {
-  border-color: #78bedb;
+  border-color: var(--accent);
   outline: none;
 }
 
@@ -175,7 +175,7 @@ html {
 }
 
 .terms-checkbox a {
-  color: #3498db;
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -186,7 +186,7 @@ html {
 .sign-up-btn {
   width: 100%;
   padding: 12px 0;
-  background-color: #6cb4a7; /* Green button */
+  background-color: var(--primary);
   color: white;
   border: none;
   border-radius: 5px;
@@ -198,22 +198,22 @@ html {
 }
 
 .sign-up-btn:hover {
-  background-color: #5a9d91;
+  background-color: var(--secondary);
 }
 
 .sign-up-btn:disabled {
-  background-color: #cccccc;
+  background-color: rgba(0, 0, 0, 0.2);
   cursor: not-allowed;
 }
 
 .sign-in-link {
   text-align: center;
   font-size: 14px;
-  color: #666;
+  color: rgba(0, 0, 0, 0.65);
 }
 
 .sign-in-link a {
-  color: #78bedb;
+  color: var(--accent);
   text-decoration: none;
   margin-left: 5px;
 }
@@ -223,9 +223,9 @@ html {
 }
 
 .error-message {
-  background-color: #ffebee;
-  border: 1px solid #ffcdd2;
-  color: #d32f2f;
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.25);
+  color: var(--secondary);
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 15px;
@@ -442,7 +442,7 @@ input.ng-valid {
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: rgba(0, 0, 0, 0.65);
   font-size: 16px;
   padding: 4px;
   display: flex;
@@ -458,7 +458,7 @@ input.ng-valid {
 }
 
 .password-toggle:hover {
-  color: #78bedb;
+  color: var(--accent);
 }
 
 .password-toggle:disabled {
