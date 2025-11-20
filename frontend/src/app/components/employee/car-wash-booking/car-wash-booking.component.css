@@ -1,5 +1,3 @@
-@import "../../../../styles/global-theme.css";
-
 .booking-details-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   max-width: 95vw;
   max-height: 90vh;
