@@ -861,11 +861,7 @@ html {
   text-align: center;
   margin: 40px 0;
   padding: 60px 20px; /* Add padding */
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.015) 0%,
-    var(--background-light) 100%
-  );
+  background-color: var(--text-dark); /* Dark gray background matching design */
   position: relative;
 }
 
@@ -904,11 +900,7 @@ html {
   max-width: 426px; /* Maximum width */
   height: auto; /* Auto height */
   min-height: 555px; /* Minimum height */
-  background: linear-gradient(
-    135deg,
-    var(--text-dark) 0%,
-    var(--background-dark) 100%
-  ); /* Dark gradient background */
+  background-color: var(--text-dark); /* Dark gray background matching design */
   color: white; /* White text */
   padding: 30px; /* Padding around the section */
   border-radius: 12px; /* Rounded corners */
@@ -986,11 +978,7 @@ html {
   width: 100%; /* Responsive width */
   max-width: 317px; /* Maximum width */
   padding: 10px;
-  background: linear-gradient(
-    135deg,
-    var(--text-dark) 0%,
-    var(--background-dark) 100%
-  ); /* Button background gradient */
+  background-color: var(--text-dark); /* Dark gray background matching design */
   color: white; /* Button text color */
   border: none; /* No border */
   border-radius: 30px; /* Rounded corners */
