@@ -3,22 +3,34 @@
   --black: #000000;
   --white: #ffffff;
 
-  /* You may adjust these if you want a brighter or softer tone */
+  /* Primary Colors */
   --neon-pink: #ff2ebb; /* Hot / Neon Pink */
   --light-blue: #4fc3f7; /* Sky Light Blue */
 
-  /* Assigning system roles */
-  --primary: var(--neon-pink);
-  --secondary: var(--light-blue);
-  --accent: var(--light-blue);
+  /* Theme Roles */
+  --primary: var(--neon-pink); /* Main buttons, highlights */
+  --primary-hover: #ff44d4; /* Slightly brighter for hover effects */
+  --secondary: var(--light-blue); /* Secondary buttons, accents */
+  --secondary-hover: #6fd9fb; /* Hover variant of light blue */
+  --accent: var(--light-blue); /* For small accent elements */
+
+  /* Backgrounds */
   --background-dark: var(--black);
   --background-light: var(--white);
   --background: var(--black);
   --surface: var(--white);
+
+  /* Text */
   --text-dark: var(--black);
   --text-light: var(--white);
+  --text-primary: var(--neon-pink);
+  --text-secondary: var(--light-blue);
 
-  /* RGB versions (optional) */
+  /* Borders / Shadows */
+  --border-light: rgba(255, 46, 187, 0.2);
+  --shadow-light: 0 4px 15px rgba(79, 195, 247, 0.3);
+
+  /* RGB Versions (optional, for JS or CSS filters) */
   --neon-pink-rgb: 255, 46, 187;
   --light-blue-rgb: 79, 195, 247;
   --primary-rgb: 255, 46, 187;
