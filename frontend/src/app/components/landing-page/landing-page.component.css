@@ -7,7 +7,7 @@ html {
 
 /* Navbar Styles */
 .navbar {
-  background-color: var(--background-light); /* Light beige color */
+  background-color: rgba(var(--primary-rgb), 0.25);
   width: 100%;
   position: fixed;
   top: 0;
@@ -336,7 +336,7 @@ html {
 .easy-steps {
   text-align: center;
   padding: 4rem 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%);
+  background-color: rgba(var(--primary-rgb), 0.25);
   color: var(--background-light);
   height: auto;
   min-height: 400px;
