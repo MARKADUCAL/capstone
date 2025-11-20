@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { VEHICLE_TYPES } from '../../../models/booking.model';
 
 interface CustomerProfile {
   id: number;
@@ -12,6 +13,18 @@ interface CustomerProfile {
   email: string;
   phone: string;
 }
+
+interface CustomerVehicle {
+  id: string;
+  nickname: string;
+  vehicleType: string;
+  vehicleModel: string;
+  plateNumber: string;
+  vehicleColor?: string;
+  createdAt: string;
+}
+
+type VehicleForm = Omit<CustomerVehicle, 'id' | 'createdAt'>;
 
 @Component({
   selector: 'app-profile',
@@ -40,6 +53,20 @@ export class ProfileComponent implements OnInit {
   isSaving: boolean = false;
   successMessage: string = '';
   errorMessage: string = '';
+
+  vehicleSuccessMessage: string = '';
+  vehicleErrorMessage: string = '';
+
+  vehicleTypes = VEHICLE_TYPES;
+  customerVehicles: CustomerVehicle[] = [];
+  isAddingVehicle: boolean = false;
+  newVehicle: VehicleForm = {
+    nickname: '',
+    vehicleType: '',
+    vehicleModel: '',
+    plateNumber: '',
+    vehicleColor: '',
+  };
 
   private apiUrl = environment.apiUrl;
 
@@ -75,6 +102,7 @@ export class ProfileComponent implements OnInit {
     const customerData = localStorage.getItem('customer_data');
     if (customerData) {
       this.profile = { ...this.profile, ...JSON.parse(customerData) };
+      this.loadVehiclesForCurrentProfile();
     }
   }
 
@@ -189,5 +217,162 @@ export class ProfileComponent implements OnInit {
     this.confirmPassword = '';
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+  startAddVehicle(): void {
+    this.isAddingVehicle = true;
+    this.vehicleErrorMessage = '';
+    this.vehicleSuccessMessage = '';
+  }
+
+  cancelAddVehicle(): void {
+    this.isAddingVehicle = false;
+    this.vehicleErrorMessage = '';
+    this.resetVehicleForm();
+  }
+
+  addVehicle(): void {
+    this.vehicleSuccessMessage = '';
+    this.vehicleErrorMessage = '';
+
+    if (!this.isBrowser) {
+      this.vehicleErrorMessage =
+        'Vehicle management is only available in the browser.';
+      return;
+    }
+
+    if (!this.profile.id) {
+      this.vehicleErrorMessage = 'Please reload your profile before adding a vehicle.';
+      return;
+    }
+
+    const requiredFields: Array<keyof VehicleForm> = [
+      'vehicleType',
+      'vehicleModel',
+      'plateNumber',
+    ];
+
+    const missingField = requiredFields.find((field) => {
+      const value = this.newVehicle[field];
+      return !value || value.toString().trim().length === 0;
+    });
+
+    if (missingField) {
+      this.vehicleErrorMessage = 'Vehicle type, model, and plate number are required.';
+      return;
+    }
+
+    const vehicle: CustomerVehicle = {
+      id: this.generateVehicleId(),
+      nickname: this.newVehicle.nickname?.trim() || '',
+      vehicleType: this.newVehicle.vehicleType,
+      vehicleModel: this.newVehicle.vehicleModel.trim(),
+      plateNumber: this.newVehicle.plateNumber.trim().toUpperCase(),
+      vehicleColor: this.newVehicle.vehicleColor?.trim() || '',
+      createdAt: new Date().toISOString(),
+    };
+
+    const previousVehicles = [...this.customerVehicles];
+    this.customerVehicles = [...this.customerVehicles, vehicle];
+
+    if (this.persistVehicles()) {
+      this.vehicleSuccessMessage = 'Vehicle added successfully.';
+      this.isAddingVehicle = false;
+      this.resetVehicleForm();
+    } else {
+      this.customerVehicles = previousVehicles;
+    }
+  }
+
+  removeVehicle(vehicleId: string): void {
+    this.vehicleSuccessMessage = '';
+    this.vehicleErrorMessage = '';
+
+    const previousVehicles = [...this.customerVehicles];
+    this.customerVehicles = this.customerVehicles.filter(
+      (vehicle) => vehicle.id !== vehicleId
+    );
+
+    if (this.persistVehicles()) {
+      this.vehicleSuccessMessage = 'Vehicle removed.';
+    } else {
+      this.customerVehicles = previousVehicles;
+    }
+  }
+
+  private loadVehiclesForCurrentProfile(): void {
+    if (!this.isBrowser) return;
+
+    const key = this.getVehicleStorageKey();
+    let storedVehicles = this.readVehiclesFromStorage(key);
+
+    if ((!storedVehicles || storedVehicles.length === 0) && this.profile.id) {
+      const guestVehicles = this.readVehiclesFromStorage('customer_vehicles_guest');
+      if (guestVehicles.length > 0) {
+        storedVehicles = guestVehicles;
+        try {
+          localStorage.setItem(key, JSON.stringify(guestVehicles));
+          localStorage.removeItem('customer_vehicles_guest');
+        } catch (error) {
+          console.error('Failed to migrate vehicle storage:', error);
+        }
+      }
+    }
+
+    this.customerVehicles = storedVehicles;
+  }
+
+  private readVehiclesFromStorage(key: string): CustomerVehicle[] {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as CustomerVehicle[]) : [];
+    } catch (error) {
+      console.error('Failed to parse stored vehicles:', error);
+      return [];
+    }
+  }
+
+  private persistVehicles(): boolean {
+    if (!this.isBrowser) {
+      this.vehicleErrorMessage =
+        'Vehicle management is only available in the browser.';
+      return false;
+    }
+
+    try {
+      localStorage.setItem(
+        this.getVehicleStorageKey(),
+        JSON.stringify(this.customerVehicles)
+      );
+      return true;
+    } catch (error) {
+      console.error('Failed to persist vehicles:', error);
+      this.vehicleErrorMessage =
+        'We could not save your vehicles locally. Please check your browser storage settings.';
+      return false;
+    }
+  }
+
+  private resetVehicleForm(): void {
+    this.newVehicle = {
+      nickname: '',
+      vehicleType: '',
+      vehicleModel: '',
+      plateNumber: '',
+      vehicleColor: '',
+    };
+  }
+
+  private getVehicleStorageKey(): string {
+    const id = this.profile?.id;
+    return `customer_vehicles_${id && id > 0 ? id : 'guest'}`;
+  }
+
+  private generateVehicleId(): string {
+    const cryptoRef = typeof globalThis !== 'undefined' ? (globalThis as any).crypto : undefined;
+    if (cryptoRef?.randomUUID) {
+      return cryptoRef.randomUUID();
+    }
+    return `vehicle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }
 }
