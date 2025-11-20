@@ -1,3 +1,5 @@
+@import "../../../../styles/global-theme.css";
+
 .booking-details-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   max-width: 95vw;
   max-height: 90vh;
@@ -39,7 +41,7 @@
 
 .loading-spinner p {
   margin-top: 16px;
-  color: #666;
+  color: rgba(0,0,0,0.65);
   font-size: 14px;
 }
 
@@ -59,17 +61,17 @@
 
 .error-icon {
   font-size: 48px;
-  color: #f44336;
+  color: var(--secondary);
   margin-bottom: 16px;
 }
 
 .error-card h3 {
-  color: #f44336;
+  color: var(--secondary);
   margin-bottom: 8px;
 }
 
 .error-card p {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   margin-bottom: 16px;
 }
 
@@ -89,17 +91,17 @@
 
 .no-bookings-icon {
   font-size: 48px;
-  color: #9e9e9e;
+  color: rgba(0,0,0,0.45);
   margin-bottom: 16px;
 }
 
 .no-bookings-card h3 {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   margin-bottom: 8px;
 }
 
 .no-bookings-card p {
-  color: #999;
+  color: rgba(0,0,0,0.45);
   margin-bottom: 16px;
 }
 
@@ -121,7 +123,7 @@
 
 .header-subtitle {
   margin: 0;
-  color: #666;
+  color: rgba(0,0,0,0.65);
   font-size: 14px;
   font-weight: 400;
 }
@@ -133,7 +135,7 @@
 
 .header-left h2 {
   margin: 0;
-  color: #333;
+  color: var(--text-dark);
   font-size: 24px;
   font-weight: 600;
 }
@@ -157,7 +159,7 @@
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
   margin-bottom: 10px;
-  border: 1px solid #eef2f7;
+  border: 1px solid rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -179,7 +181,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #1976d2;
+  background-color: var(--primary);
   color: white;
   display: flex;
   align-items: center;
@@ -194,7 +196,7 @@
 
 .booking-details p {
   margin: 8px 0;
-  color: #666;
+  color: rgba(0,0,0,0.65);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -204,7 +206,7 @@
   font-size: 16px;
   height: 16px;
   width: 16px;
-  color: #666;
+  color: rgba(0,0,0,0.65);
 }
 
 /* New header layout for card */
@@ -213,8 +215,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: linear-gradient(180deg, #f9fafb, #f3f4f6);
-  border-bottom: 1px solid #eef2f7;
+  background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.05));
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
 .card-top .left {
@@ -231,12 +233,12 @@
 
 .title-block .customer {
   font-weight: 700;
-  color: #111827;
+  color: var(--text-dark);
 }
 
 .title-block .sub {
   font-size: 12px;
-  color: #6b7280;
+  color: rgba(0,0,0,0.6);
 }
 
 .status-chip {
@@ -247,7 +249,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
 .status-chip .dot {
@@ -258,27 +260,27 @@
 }
 
 .status-chip.status-pending {
-  background: #fff7ed;
-  color: #d97706;
-  border-color: #fde68a;
+  background: rgba(var(--accent-rgb), 0.2);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 .status-chip.status-approved {
-  background: #ecfdf5;
-  color: #059669;
-  border-color: #a7f3d0;
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  border-color: rgba(var(--primary-rgb), 0.25);
 }
 
 .status-chip.status-rejected {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
+  background: rgba(var(--secondary-rgb), 0.15);
+  color: var(--secondary);
+  border-color: rgba(var(--secondary-rgb), 0.25);
 }
 
 .status-chip.status-completed {
-  background: #f5f3ff;
-  color: #7c3aed;
-  border-color: #ddd6fe;
+  background: rgba(var(--secondary-rgb), 0.15);
+  color: var(--secondary);
+  border-color: rgba(var(--secondary-rgb), 0.2);
 }
 
 .card-body {
@@ -296,7 +298,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #374151;
+  color: rgba(0,0,0,0.75);
   font-size: 14px;
 }
 
@@ -305,12 +307,12 @@
 }
 
 .peso-symbol {
-  color: #059669;
+  color: var(--primary);
   font-weight: 700;
 }
 
 .price-value {
-  color: #059669;
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -377,22 +379,22 @@
 }
 
 .view-btn {
-  background-color: #3b82f6; /* Blue */
+  background-color: var(--accent); /* Blue */
 }
 
 .done-btn {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   font-weight: 700;
   font-size: 13px;
   padding: 12px 14px;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 2px 4px rgba(var(--primary-rgb), 0.35);
   min-height: 40px;
   height: auto;
 }
 
 .done-btn:hover {
-  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary) 100%);
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.45);
 }
 
 /* Status badges for non-actionable states */
@@ -420,13 +422,13 @@
 }
 
 .completed-badge {
-  background: #f5f3ff;
-  color: #7c3aed;
-  border-color: #ddd6fe;
+  background: rgba(var(--secondary-rgb), 0.15);
+  color: var(--secondary);
+  border-color: rgba(var(--secondary-rgb), 0.2);
 }
 
 .completed-badge mat-icon {
-  color: #7c3aed;
+  color: var(--secondary);
   font-size: 16px;
   width: 16px;
   height: 16px;
@@ -434,13 +436,13 @@
 }
 
 .pending-badge {
-  background: #fff7ed;
-  color: #d97706;
-  border-color: #fde68a;
+  background: rgba(var(--accent-rgb), 0.2);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 .pending-badge mat-icon {
-  color: #d97706;
+  color: var(--accent);
   font-size: 16px;
   width: 16px;
   height: 16px;
@@ -448,13 +450,13 @@
 }
 
 .done-badge {
-  background: #f0f9ff;
-  color: #0369a1;
-  border-color: #bae6fd;
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--secondary);
+  border-color: rgba(var(--accent-rgb), 0.25);
 }
 
 .done-badge mat-icon {
-  color: #0369a1;
+  color: var(--secondary);
   font-size: 16px;
   width: 16px;
   height: 16px;
@@ -463,19 +465,19 @@
 
 /* Status-based styling */
 .pending {
-  border-left: 4px solid #ffa000; /* Amber */
+  border-left: 4px solid var(--accent); /* Amber */
 }
 
 .approved {
-  border-left: 4px solid #4caf50; /* Green */
+  border-left: 4px solid var(--primary); /* Green */
 }
 
 .rejected {
-  border-left: 4px solid #f44336; /* Red */
+  border-left: 4px solid var(--secondary); /* Red */
 }
 
 .completed {
-  border-left: 4px solid #9c27b0; /* Purple */
+  border-left: 4px solid var(--secondary); /* Purple */
 }
 
 .booking-details-dialog .mat-mdc-dialog-container .mdc-dialog__surface {

@@ -1,3 +1,5 @@
+@import "../../../../styles/global-theme.css";
+
 /* Dashboard Container */
 .dashboard-container {
   max-width: 1200px;
@@ -8,7 +10,7 @@
 
 /* Welcome Section */
 .welcome-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   color: white;
   padding: 40px;
   border-radius: 15px;
@@ -60,7 +62,7 @@
 }
 
 .btn-primary {
-  background: #4caf50;
+  background: var(--primary);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -74,15 +76,15 @@
 }
 
 .btn-primary:hover {
-  background: #45a049;
+  background: var(--secondary);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Authentication Error Section */
 .auth-error-section {
-  background: #ffebee;
-  border: 1px solid #f44336;
+  background: rgba(var(--accent-rgb), 0.15);
+  border: 1px solid var(--secondary);
   border-radius: 10px;
   padding: 30px;
   margin-bottom: 30px;
@@ -90,12 +92,12 @@
 }
 
 .auth-error-content h2 {
-  color: #d32f2f;
+  color: var(--secondary);
   margin-bottom: 15px;
 }
 
 .auth-error-content p {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   margin-bottom: 20px;
 }
 
@@ -114,25 +116,25 @@
 
 .section-header h2 {
   font-size: 2.2rem;
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 10px;
 }
 
 .section-header p {
   font-size: 1.1rem;
-  color: #666;
+  color: rgba(0,0,0,0.65);
 }
 
 /* Packages Explanation */
 .packages-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: #f8f9fa;
+  background: rgba(0,0,0,0.02);
   border-radius: 12px;
 }
 
 .packages-explanation h3 {
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 20px;
   text-align: center;
   font-size: 1.5rem;
@@ -153,13 +155,13 @@
 }
 
 .package-info h4 {
-  color: #2196f3;
+  color: var(--accent);
   margin-bottom: 10px;
   font-size: 1.2rem;
 }
 
 .package-info p {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -168,12 +170,12 @@
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: #e3f2fd;
+  background: rgba(var(--accent-rgb), 0.12);
   border-radius: 12px;
 }
 
 .vehicle-types-explanation h3 {
-  color: #1976d2;
+  color: var(--primary);
   margin-bottom: 20px;
   text-align: center;
   font-size: 1.5rem;
@@ -194,13 +196,13 @@
 }
 
 .vehicle-info h4 {
-  color: #1976d2;
+  color: var(--primary);
   margin-bottom: 8px;
   font-size: 1.1rem;
 }
 
 .vehicle-info p {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.4;
@@ -213,7 +215,7 @@
 
 .pricing-section h3 {
   text-align: center;
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 30px;
   font-size: 1.8rem;
 }
@@ -226,8 +228,8 @@
 }
 
 .loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid rgba(0,0,0,0.04);
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -245,7 +247,7 @@
 }
 
 .error-message {
-  color: #f44336;
+  color: var(--secondary);
   margin-bottom: 20px;
 }
 
@@ -270,7 +272,7 @@
 }
 
 .pricing-table th {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   color: white;
   padding: 20px 15px;
   text-align: center;
@@ -299,25 +301,25 @@
 
 .pricing-table td {
   padding: 20px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
   text-align: center;
   vertical-align: middle;
 }
 
 .vehicle-cell {
   text-align: left;
-  background: #f8f9fa;
+  background: rgba(0,0,0,0.02);
 }
 
 .vehicle-code {
   font-weight: 600;
-  color: #333;
+  color: var(--text-dark);
   font-size: 1.1rem;
   margin-bottom: 5px;
 }
 
 .vehicle-desc {
-  color: #666;
+  color: rgba(0,0,0,0.65);
   font-size: 0.8rem;
   line-height: 1.3;
 }
@@ -329,12 +331,12 @@
 .price-amount {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #2196f3;
+  color: var(--accent);
   margin-bottom: 15px;
 }
 
 .btn-book-service {
-  background: #4caf50;
+  background: var(--primary);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -348,13 +350,13 @@
 }
 
 .btn-book-service:hover:not(.disabled) {
-  background: #45a049;
+  background: var(--secondary);
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn-book-service.disabled {
-  background: #ccc;
+  background: rgba(0,0,0,0.2);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -362,20 +364,20 @@
 
 /* Booking Guide */
 .booking-guide {
-  background: #e8f5e8;
+  background: rgba(var(--primary-rgb), 0.12);
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
 }
 
 .booking-guide h4 {
-  color: #2e7d32;
+  color: var(--secondary);
   margin-bottom: 15px;
   font-size: 1.3rem;
 }
 
 .booking-guide ol {
-  color: #555;
+  color: rgba(0,0,0,0.7);
   line-height: 1.8;
   margin: 0;
   padding-left: 20px;

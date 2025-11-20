@@ -1,7 +1,9 @@
+@import "../../../../styles/global-theme.css";
+
 /* Main Container */
 .appointment-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   padding: 30px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -33,7 +35,7 @@
 .page-title {
   font-size: 3rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--text-dark);
   margin: 0 0 15px 0;
   display: flex;
   align-items: center;
@@ -41,13 +43,13 @@
 }
 
 .page-title i {
-  color: #3498db;
+  color: var(--accent);
   font-size: 2.8rem;
 }
 
 .page-subtitle {
   font-size: 1.3rem;
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   margin: 0;
   font-weight: 400;
 }
@@ -58,14 +60,14 @@
 }
 
 .available-slots-card {
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
   color: white;
   padding: 25px;
   border-radius: 15px;
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.35);
   min-width: 250px;
 }
 
@@ -124,13 +126,13 @@
 
 .form-header h2 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-dark);
   margin: 0 0 15px 0;
   font-weight: 600;
 }
 
 .form-header p {
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   font-size: 1.2rem;
   margin: 0;
 }
@@ -147,13 +149,13 @@
   margin-bottom: 25px;
   font-size: 1.4rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-dark);
   padding-bottom: 15px;
-  border-bottom: 2px solid #ecf0f1;
+  border-bottom: 2px solid rgba(0,0,0,0.06);
 }
 
 .section-title i {
-  color: #3498db;
+  color: var(--accent);
   font-size: 1.3rem;
 }
 
@@ -197,18 +199,18 @@
 
 .form-field input[readonly],
 .form-field input[readonly]:focus {
-  background-color: #f8f9fa;
-  color: #6c757d;
+  background-color: rgba(0,0,0,0.02);
+  color: rgba(0,0,0,0.6);
   cursor: not-allowed;
-  border-color: #dee2e6;
+  border-color: rgba(0,0,0,0.15);
 }
 
 .form-field input[readonly]::placeholder {
-  color: #adb5bd;
+  color: rgba(0,0,0,0.35);
 }
 
 .form-field input[readonly]:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(0,0,0,0.02);
 }
 
 .full-width {
@@ -217,14 +219,14 @@
 
 /* Material Design Overrides */
 ::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
-  color: #bdc3c7;
+  color: rgba(0,0,0,0.3);
   border-radius: 12px;
 }
 
 ::ng-deep
   .mat-form-field-appearance-outline.mat-focused
   .mat-form-field-outline-thick {
-  color: #3498db;
+  color: var(--accent);
 }
 
 ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
@@ -233,17 +235,17 @@
 }
 
 ::ng-deep .mat-form-field-label {
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   font-weight: 500;
   font-size: 1.1rem;
 }
 
 ::ng-deep .mat-form-field.mat-focused .mat-form-field-label {
-  color: #3498db;
+  color: var(--accent);
 }
 
 ::ng-deep .mat-select-value {
-  color: #2c3e50;
+  color: var(--text-dark);
   font-weight: 500;
   font-size: 1.1rem;
 }
@@ -263,13 +265,13 @@
 
 .service-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-dark);
   font-size: 1.1rem;
 }
 
 .service-details {
   font-size: 1rem;
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
 }
 
 /* Messages */
@@ -289,15 +291,15 @@
 }
 
 .error-message {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.45);
 }
 
 .success-message {
-  background: linear-gradient(135deg, #51cf66, #40c057);
+  background: linear-gradient(135deg, var(--primary), var(--primary));
   color: white;
-  box-shadow: 0 4px 15px rgba(81, 207, 102, 0.3);
+  box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.35);
 }
 
 .message i {
@@ -311,14 +313,14 @@
 }
 
 .submit-button {
-  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  background: linear-gradient(135deg, var(--accent), var(--secondary)) !important;
   color: white !important;
   padding: 18px 50px !important;
   font-size: 1.3rem !important;
   font-weight: 600 !important;
   border-radius: 50px !important;
   border: none !important;
-  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.35) !important;
   transition: all 0.3s ease !important;
   min-width: 250px !important;
   display: inline-flex !important;
@@ -329,7 +331,7 @@
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px) !important;
-  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 12px 35px rgba(var(--accent-rgb), 0.45) !important;
 }
 
 .submit-button:disabled {
@@ -355,22 +357,22 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background: linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.08));
   padding: 25px;
   display: flex;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
 }
 
 .card-header i {
-  color: #3498db;
+  color: var(--accent);
   font-size: 1.4rem;
 }
 
 .card-header h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-dark);
   font-size: 1.3rem;
   font-weight: 600;
 }
@@ -391,7 +393,7 @@
   align-items: flex-start;
   gap: 15px;
   padding: 15px 0;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
   font-size: 1.1rem;
 }
 
@@ -400,14 +402,14 @@
 }
 
 .tips-list i {
-  color: #3498db;
+  color: var(--accent);
   margin-top: 2px;
   font-size: 1rem;
   min-width: 18px;
 }
 
 .tips-list span {
-  color: #5a6c7d;
+  color: rgba(0,0,0,0.55);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -424,7 +426,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
 .hours-row:last-child {
@@ -433,12 +435,12 @@
 
 .day {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-dark);
   font-size: 1.1rem;
 }
 
 .time {
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -961,7 +963,7 @@
 
 /* Hover effects for interactive elements */
 .form-field:hover ::ng-deep .mat-form-field-outline {
-  color: #3498db;
+  color: var(--accent);
 }
 
 .sidebar-card:hover {
@@ -972,7 +974,7 @@
 
 /* Focus states for accessibility */
 .submit-button:focus {
-  outline: 2px solid #3498db;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -1123,13 +1125,13 @@
 }
 
 .time-picker-icon {
-  color: #3498db;
+  color: var(--accent);
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .time-picker-icon:hover {
-  color: #2980b9;
+  color: var(--secondary);
 }
 
 /* Time Picker Overlay Styles */
@@ -1175,12 +1177,12 @@
   align-items: center;
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #ecf0f1;
+  border-bottom: 2px solid rgba(0,0,0,0.06);
 }
 
 .time-picker-header h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-dark);
   font-size: 1.5rem;
   font-weight: 600;
 }
@@ -1189,7 +1191,7 @@
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -1197,8 +1199,8 @@
 }
 
 .close-btn:hover {
-  background: #f8f9fa;
-  color: #e74c3c;
+  background: rgba(0,0,0,0.02);
+  color: var(--secondary);
 }
 
 /* Three Column Time Picker */
@@ -1218,7 +1220,7 @@
 
 .column-header {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: rgba(0,0,0,0.55);
   font-weight: 500;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -1228,11 +1230,11 @@
 .column-content {
   height: 200px;
   overflow-y: auto;
-  border: 1px solid #ecf0f1;
+  border: 1px solid rgba(0,0,0,0.06);
   border-radius: 10px;
-  background: #f8f9fa;
+  background: rgba(0,0,0,0.02);
   scrollbar-width: thin;
-  scrollbar-color: #bdc3c7 #f8f9fa;
+  scrollbar-color: rgba(0,0,0,0.3) rgba(0,0,0,0.02);
 }
 
 .column-content::-webkit-scrollbar {
@@ -1240,17 +1242,17 @@
 }
 
 .column-content::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: rgba(0,0,0,0.02);
   border-radius: 10px;
 }
 
 .column-content::-webkit-scrollbar-thumb {
-  background: #bdc3c7;
+  background: rgba(0,0,0,0.3);
   border-radius: 3px;
 }
 
 .column-content::-webkit-scrollbar-thumb:hover {
-  background: #95a5a6;
+  background: rgba(0,0,0,0.4);
 }
 
 .time-option {
@@ -1258,10 +1260,10 @@
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-bottom: 1px solid #ecf0f1;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   font-size: 1.1rem;
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-dark);
   min-height: 44px;
   display: flex;
   align-items: center;
@@ -1273,11 +1275,11 @@
 }
 
 .time-option:hover {
-  background: #e9ecef;
+  background: rgba(0,0,0,0.08);
 }
 
 .time-option.selected {
-  background: #3498db;
+  background: var(--accent);
   color: white;
   font-weight: 600;
 }
@@ -1294,7 +1296,7 @@
   gap: 15px;
   justify-content: flex-end;
   padding-top: 20px;
-  border-top: 2px solid #ecf0f1;
+  border-top: 2px solid rgba(0,0,0,0.06);
 }
 
 .btn-cancel,
@@ -1310,21 +1312,21 @@
 }
 
 .btn-cancel {
-  background: #ecf0f1;
-  color: #7f8c8d;
+  background: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.55);
 }
 
 .btn-cancel:hover {
-  background: #d5dbdb;
+  background: rgba(0,0,0,0.12);
 }
 
 .btn-confirm {
-  background: #3498db;
+  background: var(--accent);
   color: white;
 }
 
 .btn-confirm:hover {
-  background: #2980b9;
+  background: var(--secondary);
 }
 
 /* Responsive Time Picker */
@@ -1391,9 +1393,9 @@
 
 /* Availability note above picker */
 .time-availability-note {
-  color: #2c3e50;
-  background: #ecf5ff;
-  border: 1px solid #cfe8ff;
+  color: var(--text-dark);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 12px;
@@ -1408,7 +1410,7 @@
 .form-section .form-row:has(mat-form-field:only-child) + .form-row {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(0,0,0,0.12);
 }
 
 .form-section
@@ -1431,11 +1433,11 @@
 
 /* Online Payment Options Styling */
 .online-payment-options {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 100%);
   border-radius: 12px;
   padding: 20px;
   margin-top: 15px;
-  border: 1px solid #dee2e6;
+  border: 1px solid rgba(0,0,0,0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
@@ -1448,7 +1450,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
 }
 
 .online-payment-header {
@@ -1456,13 +1458,13 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 15px;
-  color: #495057;
+  color: rgba(0,0,0,0.65);
   font-weight: 600;
   font-size: 14px;
 }
 
 .online-payment-header i {
-  color: #667eea;
+  color: var(--secondary);
   font-size: 16px;
 }
 
@@ -1488,7 +1490,7 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   border-radius: 2px;
 }
 
@@ -1511,16 +1513,16 @@
 }
 
 .price-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   border-radius: 12px;
   padding: 1.5rem;
   color: white;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(var(--secondary-rgb), 0.35);
 }
 
 .price-card.unavailable {
-  background: linear-gradient(135deg, #e74c3c 0%, #8e44ad 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary) 100%);
 }
 
 .price-header {
@@ -1544,19 +1546,19 @@
 
 /* Pricing Guide Styles */
 .pricing-guide {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px solid #667eea;
+  background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 100%);
+  border: 2px solid var(--secondary);
 }
 
 .pricing-guide .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   color: white;
 }
 
 .pricing-step {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
 }
 
 .pricing-step:last-child {
@@ -1565,7 +1567,7 @@
 }
 
 .pricing-step h4 {
-  color: #495057;
+  color: rgba(0,0,0,0.65);
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -1576,7 +1578,7 @@
 .pricing-step h4::before {
   content: "→";
   margin-right: 0.5rem;
-  color: #667eea;
+  color: var(--secondary);
   font-weight: bold;
 }
 
@@ -1595,13 +1597,13 @@
   padding: 0.5rem;
   background: white;
   border-radius: 6px;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid var(--secondary);
 }
 
 .vehicle-code,
 .service-code {
   font-weight: 700;
-  color: #667eea;
+  color: var(--secondary);
   min-width: 30px;
   font-size: 0.9rem;
 }
@@ -1609,7 +1611,7 @@
 .vehicle-desc,
 .service-desc {
   font-size: 0.85rem;
-  color: #495057;
+  color: rgba(0,0,0,0.65);
   line-height: 1.4;
 }
 
@@ -1625,7 +1627,7 @@
 .pricing-header {
   display: grid;
   grid-template-columns: 1fr repeat(5, 1fr);
-  background: #667eea;
+  background: var(--secondary);
   color: white;
   font-weight: 600;
 }
@@ -1643,7 +1645,7 @@
 .pricing-row {
   display: grid;
   grid-template-columns: 1fr repeat(5, 1fr);
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
 }
 
 .pricing-row:last-child {
@@ -1654,16 +1656,16 @@
   padding: 0.5rem;
   text-align: center;
   font-weight: 600;
-  background: #f8f9fa;
-  color: #495057;
-  border-right: 1px solid #dee2e6;
+  background: rgba(0,0,0,0.02);
+  color: rgba(0,0,0,0.65);
+  border-right: 1px solid rgba(0,0,0,0.15);
 }
 
 .price-cell {
   padding: 0.5rem;
   text-align: center;
-  color: #495057;
-  border-right: 1px solid #dee2e6;
+  color: rgba(0,0,0,0.65);
+  border-right: 1px solid rgba(0,0,0,0.15);
   font-weight: 500;
 }
 

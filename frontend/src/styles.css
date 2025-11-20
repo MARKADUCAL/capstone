@@ -1,3 +1,5 @@
+@import url("./styles/global-theme.css");
+
 * {
   margin: 0;
   padding: 0;
@@ -5,5 +7,29 @@
 }
 
 body {
-  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+}
+
+.app-background-dark {
+  background-color: var(--background-dark);
+  color: var(--text-light);
+}
+
+.app-background-light {
+  background-color: var(--background-light);
+  color: var(--text-dark);
+}
+
+.link-accent {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.link-accent:hover {
+  color: var(--accent);
+  text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.6);
 }
