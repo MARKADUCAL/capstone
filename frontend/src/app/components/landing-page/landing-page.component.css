@@ -7,7 +7,7 @@ html {
 
 /* Navbar Styles */
 .navbar {
-  background-color: rgba(var(--primary-rgb), 0.25);
+  background-color: #f2e7d5;
   width: 100%;
   position: fixed;
   top: 0;
