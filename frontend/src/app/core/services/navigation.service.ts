@@ -59,26 +59,18 @@ export class NavigationService {
   /**
    * Get the register page type from the previous URL or query params
    */
-  getRegisterPageType(): 'customer' | 'admin' | 'employee' | null {
+  getRegisterPageType(): 'customer' | null {
     // First check query params (more reliable)
     if (this.queryParams['from']) {
       const fromParam = this.queryParams['from'];
       if (fromParam.includes('customer-register')) {
         return 'customer';
-      } else if (fromParam.includes('admin-register')) {
-        return 'admin';
-      } else if (fromParam.includes('employee-register')) {
-        return 'employee';
       }
     }
 
     // Fallback to checking previous URL
     if (this.previousUrl.includes('customer-register')) {
       return 'customer';
-    } else if (this.previousUrl.includes('admin-register')) {
-      return 'admin';
-    } else if (this.previousUrl.includes('employee-register')) {
-      return 'employee';
     }
 
     return null;
@@ -93,10 +85,6 @@ export class NavigationService {
     switch (pageType) {
       case 'customer':
         return '/customer-register';
-      case 'admin':
-        return '/admin-register';
-      case 'employee':
-        return '/employee-register';
       default:
         return '/';
     }

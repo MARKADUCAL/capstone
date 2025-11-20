@@ -28,9 +28,7 @@ The following components have been updated to use environment variables instead 
 
 #### Authentication Components
 
-- `src/app/features/authentication/register/employee-register/employee-register.component.ts`
 - `src/app/features/authentication/register/customer-register/customer-register.component.ts`
-- `src/app/features/authentication/register/admin-register/admin-register.component.ts`
 - `src/app/features/authentication/login/employee-login/employee-login.component.ts`
 - `src/app/features/authentication/login/customer-login/customer-login.component.ts`
 - `src/app/features/authentication/login/admin-login/admin-login.component.ts`
@@ -72,8 +70,6 @@ The following endpoints are now accessible at `http://localhost/autowash-hub-api
 - `POST /login_employee` - Employee login
 - `POST /login_admin` - Admin login
 - `POST /register_customer` - Customer registration
-- `POST /register_employee` - Employee registration
-- `POST /register_admin` - Admin registration
 
 ### Services
 

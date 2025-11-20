@@ -3,9 +3,7 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
 import { CustomerLoginComponent } from './features/authentication/login/customer-login/customer-login.component';
 import { CustomerRegisterComponent } from './features/authentication/register/customer-register/customer-register.component';
 import { AdminLoginComponent } from './features/authentication/login/admin-login/admin-login.component';
-import { AdminRegisterComponent } from './features/authentication/register/admin-register/admin-register.component';
 import { EmployeeLoginComponent } from './features/authentication/login/employee-login/employee-login.component';
-import { EmployeeRegisterComponent } from './features/authentication/register/employee-register/employee-register.component';
 import { CustomerForgotPasswordComponent } from './features/authentication/forgot-password/customer-forgot-password/customer-forgot-password.component';
 import { AdminForgotPasswordComponent } from './features/authentication/forgot-password/admin-forgot-password/admin-forgot-password.component';
 import { EmployeeForgotPasswordComponent } from './features/authentication/forgot-password/employee-forgot-password/employee-forgot-password.component';
@@ -51,10 +49,8 @@ export const routes: Routes = [
   { path: 'customer-register', component: CustomerRegisterComponent },
   { path: 'admin', component: AdminLoginComponent },
   { path: 'admin-login', component: AdminLoginComponent },
-  { path: 'admin-register', component: AdminRegisterComponent },
   { path: 'employee', component: EmployeeLoginComponent },
   { path: 'employee-login', component: EmployeeLoginComponent },
-  { path: 'employee-register', component: EmployeeRegisterComponent },
 
   // Forgot password routes
   {
