@@ -168,7 +168,7 @@ html {
 }
 
 .hero::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -217,7 +217,7 @@ html {
 
 .hero-content p {
   font-size: 18px; /* Increase font size */
-  color: rgba(0,0,0,0.7);
+  color: rgba(0, 0, 0, 0.7);
   margin-top: 15px;
   margin-bottom: 25px;
   line-height: 1.6;
@@ -254,7 +254,7 @@ html {
   font-size: 36px;
   text-align: center;
   padding: 2rem 0;
-  background-color: rgba(0,0,0,0.015);
+  background-color: rgba(0, 0, 0, 0.015);
   height: auto;
   min-height: 393px;
 }
@@ -301,7 +301,7 @@ html {
 }
 
 .services-loading .loading-spinner {
-  border: 4px solid rgba(0,0,0,0.04);
+  border: 4px solid rgba(0, 0, 0, 0.04);
   border-top: 4px solid var(--accent);
   border-radius: 50%;
   width: 40px;
@@ -347,21 +347,29 @@ html {
 }
 
 .easy-steps::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
   background-size: 50px 50px;
   animation: moveBackground 20s linear infinite;
   opacity: 0.3;
 }
 
 @keyframes moveBackground {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(50px, 50px); }
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
 }
 
 .easy-steps h2 {
@@ -418,7 +426,11 @@ html {
 .pricing {
   margin: 40px 0;
   padding: 40px 20px;
-  background: linear-gradient(to bottom, var(--background-light) 0%, rgba(0,0,0,0.015) 100%);
+  background: linear-gradient(
+    to bottom,
+    var(--background-light) 0%,
+    rgba(0, 0, 0, 0.015) 100%
+  );
   border-radius: 0;
   box-shadow: none;
   height: auto; /* Adjust height to fit content */
@@ -446,7 +458,7 @@ html {
 }
 
 .section-header h2::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -10px;
   left: 50%;
@@ -459,7 +471,7 @@ html {
 
 .section-header p {
   font-size: 1.2rem;
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   margin-top: 25px;
 }
 
@@ -467,7 +479,7 @@ html {
 .packages-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 12px;
 }
 
@@ -499,7 +511,7 @@ html {
 }
 
 .package-info p {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -508,7 +520,7 @@ html {
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: rgba(var(--accent-rgb),0.1);
+  background: rgba(var(--accent-rgb), 0.1);
   border-radius: 12px;
 }
 
@@ -540,7 +552,7 @@ html {
 }
 
 .vehicle-info p {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.4;
@@ -566,7 +578,7 @@ html {
 }
 
 .loading-spinner {
-  border: 4px solid rgba(0,0,0,0.04);
+  border: 4px solid rgba(0, 0, 0, 0.04);
   border-top: 4px solid var(--accent);
   border-radius: 50%;
   width: 40px;
@@ -639,14 +651,14 @@ html {
 
 .pricing-table td {
   padding: 20px 15px;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   text-align: center;
   vertical-align: middle;
 }
 
 .vehicle-cell {
   text-align: left;
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .vehicle-code {
@@ -657,7 +669,7 @@ html {
 }
 
 .vehicle-desc {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   font-size: 0.8rem;
   line-height: 1.3;
 }
@@ -694,7 +706,7 @@ html {
 }
 
 .btn-book-service.disabled {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -702,7 +714,7 @@ html {
 
 /* Booking Guide */
 .booking-guide {
-  background: rgba(var(--accent-rgb),0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
@@ -715,7 +727,7 @@ html {
 }
 
 .booking-guide ol {
-  color: rgba(0,0,0,0.7);
+  color: rgba(0, 0, 0, 0.7);
   line-height: 1.8;
   margin: 0;
   padding-left: 20px;
@@ -767,8 +779,8 @@ html {
 }
 
 .location-card {
-  background-color: rgba(0,0,0,0.015); /* Light background color */
-  border: 1px solid rgba(0,0,0,0.15); /* Light border */
+  background-color: rgba(0, 0, 0, 0.015); /* Light background color */
+  border: 1px solid rgba(0, 0, 0, 0.15); /* Light border */
   border-radius: 8px; /* Rounded corners */
   padding: 20px; /* Padding inside the card */
   width: 250px; /* Fixed width for cards */
@@ -795,7 +807,7 @@ html {
 
 .gallery h2 {
   padding: 20px;
-  color: rgba(0,0,0,0.015);
+  color: rgba(0, 0, 0, 0.015);
   font-size: 61px;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
@@ -851,7 +863,11 @@ html {
   text-align: center;
   margin: 40px 0;
   padding: 60px 20px; /* Add padding */
-  background: linear-gradient(to bottom, rgba(0,0,0,0.015) 0%, var(--background-light) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.015) 0%,
+    var(--background-light) 100%
+  );
   position: relative;
 }
 
@@ -865,7 +881,7 @@ html {
 }
 
 .contact h2::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -15px;
   left: 50%;
@@ -890,7 +906,11 @@ html {
   max-width: 426px; /* Maximum width */
   height: auto; /* Auto height */
   min-height: 555px; /* Minimum height */
-  background: linear-gradient(135deg, var(--text-dark) 0%, var(--background-dark) 100%); /* Dark gradient background */
+  background: linear-gradient(
+    135deg,
+    var(--text-dark) 0%,
+    var(--background-dark) 100%
+  ); /* Dark gradient background */
   color: white; /* White text */
   padding: 30px; /* Padding around the section */
   border-radius: 12px; /* Rounded corners */
@@ -945,7 +965,7 @@ html {
 .contact-form input,
 .contact-form textarea {
   padding: 15px; /* Increase padding for a more spacious feel */
-  border: 2px solid rgba(0,0,0,0.08); /* Light gray border */
+  border: 2px solid rgba(0, 0, 0, 0.08); /* Light gray border */
   border-radius: 8px; /* Slightly rounded corners */
   width: 100%;
   color: var(--text-dark); /* Darker text color */
@@ -968,7 +988,11 @@ html {
   width: 100%; /* Responsive width */
   max-width: 317px; /* Maximum width */
   padding: 10px;
-  background: linear-gradient(135deg, var(--text-dark) 0%, var(--background-dark) 100%); /* Button background gradient */
+  background: linear-gradient(
+    135deg,
+    var(--text-dark) 0%,
+    var(--background-dark) 100%
+  ); /* Button background gradient */
   color: white; /* Button text color */
   border: none; /* No border */
   border-radius: 30px; /* Rounded corners */
@@ -980,36 +1004,40 @@ html {
 }
 
 .contact-form button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%); /* Green gradient on hover */
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary) 100%
+  ); /* Green gradient on hover */
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.35);
 }
 
 .contact-form button:disabled {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 /* Success and Error Messages */
 .success-message {
-  background-color: rgba(var(--accent-rgb),0.18);
+  background-color: rgba(var(--accent-rgb), 0.18);
   color: var(--secondary);
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid rgba(var(--accent-rgb),0.25);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
   text-align: center;
   font-weight: 500;
 }
 
 .error-message {
-  background-color: rgba(var(--accent-rgb),0.2);
+  background-color: rgba(var(--accent-rgb), 0.2);
   color: var(--secondary);
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid rgba(var(--accent-rgb),0.4);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
   text-align: center;
   font-weight: 500;
 }
@@ -1053,7 +1081,7 @@ html {
 }
 
 .verification-actions .modal-btn {
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   margin: 0 10px;
 }
 
@@ -1068,7 +1096,7 @@ html {
 
 .resend-code p {
   margin-bottom: 10px;
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   font-size: 0.9rem;
 }
 
@@ -1091,7 +1119,7 @@ html {
 /* Contact Form Input Sizes */
 .input-large {
   padding: 15px; /* Increase padding for a spacious feel */
-  border: 2px solid rgba(0,0,0,0.08); /* Light gray border */
+  border: 2px solid rgba(0, 0, 0, 0.08); /* Light gray border */
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Font size */
@@ -1105,7 +1133,7 @@ html {
 
 .input-medium {
   padding: 15px; /* Padding */
-  border: 2px solid rgba(0,0,0,0.08); /* Light gray border */
+  border: 2px solid rgba(0, 0, 0, 0.08); /* Light gray border */
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Reasonable font size */
@@ -1118,7 +1146,7 @@ html {
 
 .input-small {
   padding: 15px; /* Padding */
-  border: 2px solid rgba(0,0,0,0.08); /* Light gray border */
+  border: 2px solid rgba(0, 0, 0, 0.08); /* Light gray border */
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Reasonable font size */
@@ -1180,7 +1208,7 @@ html {
 }
 
 .quick-links a {
-  color: rgba(0,0,0,0.35); /* Lighter gray for links */
+  color: rgba(0, 0, 0, 0.35); /* Lighter gray for links */
   text-decoration: none;
   font-size: 0.95rem;
   transition: color 0.3s ease;
@@ -1194,7 +1222,7 @@ html {
 
 /* Contact Us */
 .contact-us {
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .contact-footer-item {
@@ -1215,7 +1243,7 @@ html {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .contact-footer-item strong {
@@ -1225,7 +1253,7 @@ html {
 
 /* Follow Us */
 .follow-us {
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .social-links {
@@ -1234,7 +1262,7 @@ html {
 }
 
 .social-links a {
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -1244,7 +1272,7 @@ html {
 }
 
 .social-links .separator {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   margin: 0 8px;
 }
 
@@ -1274,7 +1302,7 @@ html {
   max-width: 1200px;
   margin: 30px auto 20px;
   height: 1px;
-  background-color: rgba(0,0,0,0.6); /* Light gray divider */
+  background-color: rgba(0, 0, 0, 0.6); /* Light gray divider */
   opacity: 0.5;
 }
 
@@ -1287,7 +1315,7 @@ html {
 
 .footer-bottom p {
   font-size: 0.9rem;
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
   margin: 0;
 }
 
@@ -1553,7 +1581,7 @@ html {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  border-top: 1px solid rgba(0,0,0,0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .modal-btn {
@@ -1575,10 +1603,10 @@ html {
 }
 
 .modal-btn-cancel {
-  background-color: rgba(0,0,0,0.02);
+  background-color: rgba(0, 0, 0, 0.02);
   color: var(--text-dark);
 }
 
 .modal-btn-cancel:hover {
-  background-color: rgba(0,0,0,0.08);
+  background-color: rgba(0, 0, 0, 0.08);
 }
