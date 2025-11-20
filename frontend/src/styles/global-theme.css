@@ -1,21 +1,21 @@
 :root {
-  /* Brand Colors */
-  --primary: #19183b; /* Deep navy */
-  --secondary: #708993; /* Blue-gray */
-  --accent: #a1c2bd; /* Soft aqua highlight */
-  --surface: #e7f2ef; /* Light background */
+  /* Core Colors */
+  --black: #000000;
+  --white: #ffffff;
 
-  /* Backgrounds */
-  --background-dark: #19183b;
-  --background-light: #e7f2ef;
+  /* You may adjust these if you want a brighter or softer tone */
+  --neon-pink: #ff2ebb; /* Hot / Neon Pink */
+  --light-blue: #4fc3f7; /* Sky Light Blue */
 
-  /* Text Colors */
-  --text-light: #ffffff;
-  --text-dark: #19183b;
+  /* Assigning system roles */
+  --primary: var(--neon-pink);
+  --secondary: var(--light-blue);
+  --background: var(--black);
+  --surface: var(--white);
+  --text-dark: var(--black);
+  --text-light: var(--white);
 
-  /* RGB Versions */
-  --primary-rgb: 25, 24, 59;
-  --secondary-rgb: 112, 137, 147;
-  --accent-rgb: 161, 194, 189;
-  --surface-rgb: 231, 242, 239;
+  /* RGB versions (optional) */
+  --neon-pink-rgb: 255, 46, 187;
+  --light-blue-rgb: 79, 195, 247;
 }
