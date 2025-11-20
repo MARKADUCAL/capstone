@@ -861,7 +861,11 @@ html {
   text-align: center;
   margin: 40px 0;
   padding: 60px 20px; /* Add padding */
-  background-color: var(--text-dark); /* Dark gray background matching design */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.015) 0%,
+    var(--background-light) 100%
+  );
   position: relative;
 }
 
@@ -990,7 +994,11 @@ html {
 }
 
 .contact-form button:hover:not(:disabled) {
-  background-color: var(--text-dark); /* Dark gray background matching design */
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary) 100%
+  ); /* Green gradient on hover */
   transform: translateY(-2px);
   box-shadow: var(--mat-sys-level3);
 }
