@@ -1,27 +1,20 @@
 :root {
-  /* Core Colors */
-  --black: #000000;
-  --white: #ffffff;
+  --black: #393e46; /* Updated dark base */
+  --white: #f7f7f7; /* Updated light base */
+  --primary: #6d9886; /* Main accent / primary buttons */
+  --secondary: #393e46; /* Dark secondary (navbar, sidebar) */
+  --accent: #f2e7d5; /* Highlight / hover / glow */
 
-  /* You may adjust these if you want a brighter or softer tone */
-  --neon-pink: #ff2ebb; /* Hot / Neon Pink */
-  --light-blue: #4fc3f7; /* Sky Light Blue */
+  /* RGB versions for shadows and glows */
+  --primary-rgb: 109, 152, 134;
+  --secondary-rgb: 57, 62, 70;
+  --accent-rgb: 242, 231, 213;
 
-  /* Assigning system roles */
-  --primary: var(--neon-pink);
-  --secondary: var(--light-blue);
-  --accent: var(--light-blue);
-  --background-dark: var(--black);
-  --background-light: var(--white);
-  --background: var(--black);
-  --surface: var(--white);
-  --text-dark: var(--black);
-  --text-light: var(--white);
+  /* Text colors */
+  --text-light: #f7f7f7;
+  --text-dark: #393e46;
 
-  /* RGB versions (optional) */
-  --neon-pink-rgb: 255, 46, 187;
-  --light-blue-rgb: 79, 195, 247;
-  --primary-rgb: 255, 46, 187;
-  --secondary-rgb: 79, 195, 247;
-  --accent-rgb: 79, 195, 247;
+  /* Backgrounds */
+  --background-light: #f7f7f7;
+  --background-dark: #393e46;
 }
