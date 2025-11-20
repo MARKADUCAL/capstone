@@ -17,9 +17,9 @@ body {
 .sidebar {
   width: 250px;
   height: 100vh;
-  background-color: rgba(var(--primary-rgb), 0.1);
+  background-color: var(--mat-sys-surface-container);
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--mat-sys-level1);
   position: relative;
   transition: all 0.3s ease;
   z-index: 100;
@@ -101,7 +101,7 @@ body {
 
 .nav-links a:hover,
 .nav-links a.active {
-  background-color: rgba(var(--primary-rgb), 0.08);
+  background-color: var(--mat-sys-primary-container);
 }
 
 .content {
@@ -116,7 +116,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 15px 20px;
-  background-color: rgba(var(--primary-rgb), 0.15);
+  background-color: var(--mat-sys-surface-container-high);
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -182,7 +182,7 @@ body {
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: rgba(var(--primary-rgb), 0.08);
+  background-color: var(--mat-sys-surface);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 200px;
@@ -202,7 +202,7 @@ body {
   text-decoration: none;
   color: var(--text-dark);
   transition: background-color 0.2s;
-  border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
 .dropdown-item:last-child {
@@ -210,7 +210,7 @@ body {
 }
 
 .dropdown-item:hover {
-  background-color: rgba(var(--primary-rgb), 0.12);
+  background-color: var(--mat-sys-primary-container);
   cursor: pointer;
 }
 

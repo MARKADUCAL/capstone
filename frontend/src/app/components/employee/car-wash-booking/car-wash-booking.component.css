@@ -258,27 +258,27 @@
 }
 
 .status-chip.status-pending {
-  background: rgba(var(--accent-rgb), 0.2);
-  color: var(--accent);
-  border-color: rgba(var(--accent-rgb), 0.3);
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .status-chip.status-approved {
-  background: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
-  border-color: rgba(var(--primary-rgb), 0.25);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .status-chip.status-rejected {
-  background: rgba(var(--secondary-rgb), 0.15);
-  color: var(--secondary);
-  border-color: rgba(var(--secondary-rgb), 0.25);
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .status-chip.status-completed {
-  background: rgba(var(--secondary-rgb), 0.15);
-  color: var(--secondary);
-  border-color: rgba(var(--secondary-rgb), 0.2);
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .card-body {
@@ -385,7 +385,7 @@
   font-weight: 700;
   font-size: 13px;
   padding: 12px 14px;
-  box-shadow: 0 2px 4px rgba(var(--primary-rgb), 0.35);
+  box-shadow: var(--mat-sys-level1);
   min-height: 40px;
   height: auto;
 }
@@ -396,7 +396,7 @@
     var(--secondary) 0%,
     var(--secondary) 100%
   );
-  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.45);
+  box-shadow: var(--mat-sys-level2);
 }
 
 /* Status badges for non-actionable states */
@@ -424,9 +424,9 @@
 }
 
 .completed-badge {
-  background: rgba(var(--secondary-rgb), 0.15);
-  color: var(--secondary);
-  border-color: rgba(var(--secondary-rgb), 0.2);
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .completed-badge mat-icon {
@@ -438,9 +438,9 @@
 }
 
 .pending-badge {
-  background: rgba(var(--accent-rgb), 0.2);
-  color: var(--accent);
-  border-color: rgba(var(--accent-rgb), 0.3);
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .pending-badge mat-icon {
@@ -452,9 +452,9 @@
 }
 
 .done-badge {
-  background: rgba(var(--accent-rgb), 0.15);
-  color: var(--secondary);
-  border-color: rgba(var(--accent-rgb), 0.25);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-color: var(--mat-sys-outline-variant);
 }
 
 .done-badge mat-icon {

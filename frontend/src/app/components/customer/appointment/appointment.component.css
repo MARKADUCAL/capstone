@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.35);
+  box-shadow: var(--mat-sys-level2);
   min-width: 250px;
 }
 
@@ -291,13 +291,13 @@
 .error-message {
   background: linear-gradient(135deg, var(--accent), var(--secondary));
   color: white;
-  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.45);
+  box-shadow: var(--mat-sys-level2);
 }
 
 .success-message {
   background: linear-gradient(135deg, var(--primary), var(--primary));
   color: white;
-  box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.35);
+  box-shadow: var(--mat-sys-level2);
 }
 
 .message i {
@@ -318,7 +318,7 @@
   font-weight: 600 !important;
   border-radius: 50px !important;
   border: none !important;
-  box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.35) !important;
+  box-shadow: var(--mat-sys-level3) !important;
   transition: all 0.3s ease !important;
   min-width: 250px !important;
   display: inline-flex !important;
@@ -329,7 +329,7 @@
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px) !important;
-  box-shadow: 0 12px 35px rgba(var(--accent-rgb), 0.45) !important;
+  box-shadow: var(--mat-sys-level4) !important;
 }
 
 .submit-button:disabled {
@@ -1392,8 +1392,8 @@
 /* Availability note above picker */
 .time-availability-note {
   color: var(--text-dark);
-  background: rgba(var(--accent-rgb), 0.1);
-  border: 1px solid rgba(var(--accent-rgb), 0.15);
+  background-color: var(--mat-sys-tertiary-container);
+  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 12px;
@@ -1516,7 +1516,7 @@
   padding: 1.5rem;
   color: white;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(var(--secondary-rgb), 0.35);
+  box-shadow: var(--mat-sys-level2);
 }
 
 .price-card.unavailable {

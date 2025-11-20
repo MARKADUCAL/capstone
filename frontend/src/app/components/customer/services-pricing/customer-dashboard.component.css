@@ -81,8 +81,8 @@
 
 /* Authentication Error Section */
 .auth-error-section {
-  background: rgba(var(--accent-rgb), 0.15);
-  border: 1px solid var(--secondary);
+  background-color: var(--mat-sys-error-container);
+  border: 1px solid var(--mat-sys-error);
   border-radius: 10px;
   padding: 30px;
   margin-bottom: 30px;
@@ -168,7 +168,7 @@
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: rgba(var(--accent-rgb), 0.12);
+  background-color: var(--mat-sys-tertiary-container);
   border-radius: 12px;
 }
 
@@ -362,7 +362,7 @@
 
 /* Booking Guide */
 .booking-guide {
-  background: rgba(var(--primary-rgb), 0.12);
+  background-color: var(--mat-sys-primary-container);
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;

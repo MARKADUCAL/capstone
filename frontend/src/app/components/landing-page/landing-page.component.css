@@ -113,7 +113,7 @@ html {
 
 .nav-links a:hover {
   color: var(--secondary); /* Blue hover effect */
-  background-color: rgba(var(--secondary-rgb), 0.12);
+  background-color: var(--mat-sys-secondary-container);
 }
 
 .nav-links a::after {
@@ -143,13 +143,13 @@ html {
   font-weight: bold;
   transition: all 0.3s ease;
   display: inline-block;
-  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+  box-shadow: var(--mat-sys-level1);
 }
 
 .get-started a:hover {
   background-color: var(--secondary); /* Darker green */
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.45);
+  box-shadow: var(--mat-sys-level2);
 }
 
 /* Hero Section */
@@ -237,14 +237,14 @@ html {
   line-height: 60px; /* Vertically center text */
   margin-top: 30px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.35);
+  box-shadow: var(--mat-sys-level2);
   cursor: pointer;
 }
 
 .book-now-btn:hover {
   background-color: var(--secondary); /* Darker green on hover */
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.45);
+  box-shadow: var(--mat-sys-level3);
 }
 
 /* Services Section */
@@ -336,7 +336,7 @@ html {
 .easy-steps {
   text-align: center;
   padding: 4rem 0;
-  background-color: rgba(var(--primary-rgb), 0.25);
+  background-color: var(--mat-sys-primary);
   color: var(--background-light);
   height: auto;
   min-height: 400px;
@@ -518,7 +518,7 @@ html {
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: rgba(var(--accent-rgb), 0.1);
+  background-color: var(--mat-sys-tertiary-container);
   border-radius: 12px;
 }
 
@@ -712,7 +712,7 @@ html {
 
 /* Booking Guide */
 .booking-guide {
-  background: rgba(var(--accent-rgb), 0.12);
+  background-color: var(--mat-sys-tertiary-container);
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
@@ -976,7 +976,7 @@ html {
 .contact-form textarea:focus {
   border-color: var(--primary); /* Change border color on focus */
   outline: none; /* Remove default outline */
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15); /* Subtle glow effect */
+  box-shadow: 0 0 0 3px var(--mat-sys-primary-container); /* Subtle glow effect */
   background-color: var(--background-light);
 }
 
@@ -1008,7 +1008,7 @@ html {
     var(--primary) 100%
   ); /* Green gradient on hover */
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.35);
+  box-shadow: var(--mat-sys-level3);
 }
 
 .contact-form button:disabled {
@@ -1019,23 +1019,23 @@ html {
 
 /* Success and Error Messages */
 .success-message {
-  background-color: rgba(var(--accent-rgb), 0.18);
-  color: var(--secondary);
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  border: 1px solid var(--mat-sys-outline-variant);
   text-align: center;
   font-weight: 500;
 }
 
 .error-message {
-  background-color: rgba(var(--accent-rgb), 0.2);
-  color: var(--secondary);
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border: 1px solid var(--mat-sys-error);
   text-align: center;
   font-weight: 500;
 }
@@ -1071,7 +1071,7 @@ html {
 .verification-code-input:focus {
   outline: none;
   border-color: var(--secondary);
-  box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.25);
+  box-shadow: 0 0 5px var(--mat-sys-primary-container);
 }
 
 .verification-actions {
@@ -1160,7 +1160,7 @@ html {
 .input-small:focus {
   border-color: var(--primary); /* Change border color on focus */
   outline: none; /* Remove default outline */
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15); /* Subtle glow effect */
+  box-shadow: 0 0 0 3px var(--mat-sys-primary-container); /* Subtle glow effect */
   background-color: var(--background-light);
 }
 
@@ -1286,13 +1286,13 @@ html {
   margin-top: 10px;
   transition: all 0.3s ease;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(var(--secondary-rgb), 0.3);
+  box-shadow: var(--mat-sys-level1);
 }
 
 .booknow-button:hover {
   background-color: var(--secondary); /* Slightly darker green on hover */
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(var(--secondary-rgb), 0.45);
+  box-shadow: var(--mat-sys-level2);
 }
 
 .footer-divider {
