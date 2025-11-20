@@ -1,12 +1,19 @@
 :root {
-  --primary: #ff2ebd;
-  --secondary: #b1006f;
-  --accent: #ff58d3;
-  --background-dark: #000000;
-  --background-light: #ffffff;
+  /* Main Theme */
+  --primary: #0d47a1; /* Deep Blue (professional + carwash vibe) */
+  --secondary: #1a237e; /* Dark Blue (clean, premium) */
+  --accent: #00e5ff; /* Neon Aqua (modern glow accent) */
+
+  /* Background */
+  --background-dark: #000000; /* Pure black */
+  --background-light: #121212; /* Softer dark background */
+
+  /* Text */
   --text-light: #ffffff;
-  --text-dark: #000000;
-  --primary-rgb: 255, 46, 189;
-  --secondary-rgb: 177, 0, 111;
-  --accent-rgb: 255, 88, 211;
+  --text-dark: #e0e0e0;
+
+  /* Optional RGB Values */
+  --primary-rgb: 13, 71, 161;
+  --secondary-rgb: 26, 35, 126;
+  --accent-rgb: 0, 229, 255;
 }
