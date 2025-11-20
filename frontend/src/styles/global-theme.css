@@ -1,9 +1,12 @@
 :root {
-  --black: #393e46; /* Updated dark base */
-  --white: #f7f7f7; /* Updated light base */
-  --primary: #6d9886; /* Main accent / primary buttons */
-  --secondary: #393e46; /* Dark secondary (navbar, sidebar) */
-  --accent: #f2e7d5; /* Highlight / hover / glow */
+  /* Base Colors */
+  --black: #393e46; /* Dark base */
+  --white: #f7f7f7; /* Light base */
+
+  /* Core UI Colors */
+  --primary: #6d9886; /* Main accent / buttons */
+  --secondary: #393e46; /* Navbar, sidebar, secondary elements */
+  --accent: #f2e7d5; /* Highlights, hover states */
 
   /* RGB versions for shadows and glows */
   --primary-rgb: 109, 152, 134;

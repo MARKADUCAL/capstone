@@ -44,9 +44,10 @@ body {
   color: var(--text-dark);
 }
 
+/* Navbar solid color */
 .app-navbar,
 .navbar {
-  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  background-color: var(--secondary);
   color: var(--text-light);
   box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.25);
   border-bottom: 1px solid rgba(var(--accent-rgb), 0.4);
@@ -67,14 +68,10 @@ body {
   text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.7);
 }
 
+/* Sidebar solid color */
 .app-sidebar,
 .sidebar {
   background-color: var(--background-dark);
-  background-image: linear-gradient(
-    180deg,
-    rgba(var(--secondary-rgb), 0.2),
-    rgba(0, 0, 0, 0)
-  );
   color: var(--text-light);
   border-right: 1px solid rgba(var(--accent-rgb), 0.4);
   box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
@@ -190,11 +187,6 @@ a:hover {
 .app-section-dark {
   background-color: var(--background-dark);
   color: var(--text-light);
-  background-image: radial-gradient(
-    circle at top,
-    rgba(var(--accent-rgb), 0.25),
-    transparent 60%
-  );
 }
 
 .badge,
