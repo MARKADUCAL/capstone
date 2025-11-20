@@ -1206,7 +1206,7 @@ html {
 }
 
 .quick-links a {
-  color: rgba(0, 0, 0, 0.35); /* Lighter gray for links */
+  color: rgba(255, 255, 255, 0.75); /* Lighter tone for dark footer */
   text-decoration: none;
   font-size: 0.95rem;
   transition: color 0.3s ease;
@@ -1220,7 +1220,7 @@ html {
 
 /* Contact Us */
 .contact-us {
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .contact-footer-item {
@@ -1241,7 +1241,7 @@ html {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .contact-footer-item strong {
@@ -1251,7 +1251,7 @@ html {
 
 /* Follow Us */
 .follow-us {
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .social-links {
@@ -1260,7 +1260,7 @@ html {
 }
 
 .social-links a {
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -1270,7 +1270,7 @@ html {
 }
 
 .social-links .separator {
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0 8px;
 }
 
@@ -1300,7 +1300,7 @@ html {
   max-width: 1200px;
   margin: 30px auto 20px;
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.6); /* Light gray divider */
+  background-color: rgba(255, 255, 255, 0.3); /* Light gray divider */
   opacity: 0.5;
 }
 
@@ -1313,7 +1313,7 @@ html {
 
 .footer-bottom p {
   font-size: 0.9rem;
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
 

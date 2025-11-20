@@ -10,6 +10,9 @@
   /* Assigning system roles */
   --primary: var(--neon-pink);
   --secondary: var(--light-blue);
+  --accent: var(--light-blue);
+  --background-dark: var(--black);
+  --background-light: var(--white);
   --background: var(--black);
   --surface: var(--white);
   --text-dark: var(--black);
@@ -18,4 +21,7 @@
   /* RGB versions (optional) */
   --neon-pink-rgb: 255, 46, 187;
   --light-blue-rgb: 79, 195, 247;
+  --primary-rgb: 255, 46, 187;
+  --secondary-rgb: 79, 195, 247;
+  --accent-rgb: 79, 195, 247;
 }
