@@ -127,36 +127,6 @@
   color: #666;
 }
 
-.role-badge {
-  background: #e3f2fd;
-  color: #1976d2;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.active {
-  background: #e8f5e8;
-  color: #2e7d32;
-}
-
-.status-badge.inactive {
-  background: #ffebee;
-  color: #c62828;
-}
-
 .employee-date {
   color: #666;
   font-size: 13px;
@@ -356,12 +326,6 @@
 
   .employee-table td[data-label] {
     padding-top: 28px;
-  }
-
-  .role-badge,
-  .status-badge {
-    padding: 4px 8px;
-    font-size: 11px;
   }
 
   .user-avatar-small {

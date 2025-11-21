@@ -10,6 +10,15 @@ class Get extends GlobalMethods {
         $this->pdo = $pdo;
     }
 
+  private function hasColumn(string $table, string $column): bool {
+      try {
+          $stmt = $this->pdo->query("SHOW COLUMNS FROM {$table} LIKE '{$column}'");
+          return $stmt->rowCount() > 0;
+      } catch (\PDOException $e) {
+          return false;
+      }
+  }
+
   private function ensureFeedbackEnhancements() {
       try {
           $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
@@ -137,23 +146,28 @@ class Get extends GlobalMethods {
 
     public function get_all_employees() {
         try {
-            // Check if is_approved column exists
-            $hasIsApprovedColumn = false;
-            try {
-                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
-                $checkStmt = $this->pdo->query($checkSql);
-                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
-            } catch (\PDOException $e) {
-                $hasIsApprovedColumn = false;
+            $hasIsApprovedColumn = $this->hasColumn('employees', 'is_approved');
+            $hasPositionColumn = $this->hasColumn('employees', 'position');
+
+            $columns = [
+                'id',
+                'employee_id',
+                'first_name',
+                'last_name',
+                'email',
+                'phone',
+                'created_at'
+            ];
+
+            if ($hasPositionColumn) {
+                $columns[] = 'position';
             }
 
-            // Include is_approved in SELECT if column exists
             if ($hasIsApprovedColumn) {
-                $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at, is_approved FROM employees ORDER BY id DESC";
-            } else {
-                $sql = "SELECT id, employee_id, first_name, last_name, email, phone, position, created_at FROM employees ORDER BY id DESC";
+                $columns[] = 'is_approved';
             }
-            
+
+            $sql = "SELECT " . implode(', ', $columns) . " FROM employees ORDER BY id DESC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
             $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -217,6 +231,10 @@ class Get extends GlobalMethods {
 
     public function get_all_bookings() {
         try {
+            $employeePositionSelect = $this->hasColumn('employees', 'position')
+                ? "e.position as employee_position"
+                : "NULL as employee_position";
+
             $sql = "SELECT 
                         b.id,
                         b.customer_id,
@@ -242,7 +260,7 @@ class Get extends GlobalMethods {
                         c.phone as customer_phone,
                         e.first_name as employee_first_name,
                         e.last_name as employee_last_name,
-                        e.position as employee_position,
+                        {$employeePositionSelect},
                         CASE 
                             WHEN b.service_package = '1' THEN 'Body Wash'
                             WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
@@ -299,6 +317,10 @@ class Get extends GlobalMethods {
 
     public function get_bookings_by_customer($customerId) {
         try {
+            $employeePositionSelect = $this->hasColumn('employees', 'position')
+                ? "e.position as employee_position"
+                : "NULL as employee_position";
+
             $sql = "SELECT 
                         b.id,
                         b.wash_date as washDate,
@@ -315,7 +337,7 @@ class Get extends GlobalMethods {
                         b.assigned_employee_id,
                         e.first_name as employee_first_name,
                         e.last_name as employee_last_name,
-                        e.position as employee_position,
+                        {$employeePositionSelect},
                         CASE 
                             WHEN b.service_package = '1' THEN 'Body Wash'
                             WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
@@ -971,6 +993,10 @@ class Get extends GlobalMethods {
         try {
             $this->ensureFeedbackEnhancements();
 
+            $employeePositionSelect = $this->hasColumn('employees', 'position')
+                ? "e.position as employee_position"
+                : "NULL as employee_position";
+
             $sql = "SELECT 
                         cf.id,
                         cf.booking_id,
@@ -986,6 +1012,7 @@ class Get extends GlobalMethods {
                         cf.is_public,
                         cf.created_at,
                         CONCAT(c.first_name, ' ', c.last_name) as customer_name,
+                        {$employeePositionSelect},
                         CASE 
                             WHEN b.service_package = '1' THEN 'Body Wash'
                             WHEN b.service_package = '1.5' THEN 'Body Wash + Tire Black'
@@ -995,8 +1022,7 @@ class Get extends GlobalMethods {
                             ELSE CONCAT('Package ', b.service_package)
                         END as service_name,
                         b.assigned_employee_id as employee_id,
-                        CONCAT(e.first_name, ' ', e.last_name) as employee_name,
-                        e.position as employee_position
+                        CONCAT(e.first_name, ' ', e.last_name) as employee_name
                     FROM 
                         customer_feedback cf
                     JOIN 
@@ -1031,6 +1057,10 @@ class Get extends GlobalMethods {
 
     public function get_employee_schedules($employeeId = null, $date = null) {
         try {
+            $positionSelect = $this->hasColumn('employees', 'position')
+                ? 'e.position as position'
+                : 'NULL as position';
+
             $sql = "SELECT 
                         es.id,
                         es.work_date,
@@ -1039,7 +1069,7 @@ class Get extends GlobalMethods {
                         es.is_available,
                         e.first_name,
                         e.last_name,
-                        e.position
+                        {$positionSelect}
                     FROM 
                         employee_schedules es
                     JOIN 

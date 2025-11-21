@@ -320,8 +320,8 @@ export class CarWashBookingComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.employeeId) {
         const selected = this.employees.find((e) => e.id === result.employeeId);
-        if (!selected || selected.status === 'Inactive') {
-          this.showNotification('Cannot assign an inactive employee.');
+        if (!selected) {
+          this.showNotification('Unable to find the selected employee.');
           return;
         }
         // Assign employee and approve booking
@@ -808,16 +808,12 @@ export class CarWashBookingComponent implements OnInit {
           response.payload.employees
         ) {
           this.employees = response.payload.employees.map((employee: any) => {
-            const derivedStatus =
-              localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
             return {
               id: employee.id,
               employeeId: employee.employee_id,
               name: `${employee.first_name} ${employee.last_name}`,
               email: employee.email,
               phone: employee.phone || 'N/A',
-              role: employee.position || 'Employee',
-              status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
               registrationDate: this.formatDate(employee.created_at),
             };
           });
@@ -1032,10 +1028,8 @@ export class CarWashBookingComponent implements OnInit {
                 <mat-option
                   *ngFor="let employee of employees"
                   [value]="employee.id"
-                  [disabled]="employee.status === 'Inactive'"
                 >
-                  {{ employee.name }} - {{ employee.role }}
-                  <span *ngIf="employee.status === 'Inactive'">(Inactive)</span>
+                  {{ employee.name }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -1255,16 +1249,12 @@ export class CreateWalkInBookingDialogComponent {
           response.payload.employees
         ) {
           this.employees = response.payload.employees.map((employee: any) => {
-            const derivedStatus =
-              localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
             return {
               id: employee.id,
               employeeId: employee.employee_id,
               name: `${employee.first_name} ${employee.last_name}`,
               email: employee.email,
               phone: employee.phone || 'N/A',
-              role: employee.position || 'Employee',
-              status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
               registrationDate: this.formatDate(employee.created_at),
             };
           });
@@ -2530,10 +2520,8 @@ export class BookingDetailsDialogComponent {
               <mat-option
                 *ngFor="let employee of data.employees"
                 [value]="employee.id"
-                [disabled]="employee.status === 'Inactive'"
               >
-                {{ employee.name }} - {{ employee.role }}
-                <span *ngIf="employee.status === 'Inactive'">(Inactive)</span>
+                {{ employee.name }}
               </mat-option>
             </mat-select>
             <mat-error *ngIf="!selectedEmployeeId"

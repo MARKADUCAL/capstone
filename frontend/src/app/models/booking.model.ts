@@ -149,10 +149,8 @@ export interface EmployeeAssignment {
 export interface Employee {
   id: number;
   name: string;
-  role: string;
   phone: string;
   email: string;
-  status: 'Active' | 'Inactive';
   employeeId?: string;
   registrationDate?: string;
 }

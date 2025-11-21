@@ -7,6 +7,15 @@ class Put {
         $this->pdo = $pdo;
     }
 
+    private function hasColumn(string $table, string $column): bool {
+        try {
+            $stmt = $this->pdo->query("SHOW COLUMNS FROM {$table} LIKE '{$column}'");
+            return $stmt->rowCount() > 0;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
     private function ensureFeedbackEnhancements() {
         try {
             $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
@@ -127,13 +136,18 @@ class Put {
                 return $this->sendPayload(null, "failed", "Employee ID is required", 400);
             }
 
+            $hasPositionColumn = $this->hasColumn('employees', 'position');
+
             $fieldsMap = [
                 'first_name' => 'first_name',
                 'last_name' => 'last_name',
                 'email' => 'email',
                 'phone' => 'phone',
-                'position' => 'position'
             ];
+
+            if ($hasPositionColumn) {
+                $fieldsMap['position'] = 'position';
+            }
 
             $updates = [];
             $values = [];
@@ -190,7 +204,20 @@ class Put {
                 }
             }
 
-            $stmtGet = $this->pdo->prepare("SELECT id, employee_id, first_name, last_name, email, phone, position FROM employees WHERE id = ?");
+            $selectColumns = [
+                'id',
+                'employee_id',
+                'first_name',
+                'last_name',
+                'email',
+                'phone'
+            ];
+
+            if ($hasPositionColumn) {
+                $selectColumns[] = 'position';
+            }
+
+            $stmtGet = $this->pdo->prepare("SELECT " . implode(', ', $selectColumns) . " FROM employees WHERE id = ?");
             $stmtGet->execute([$data->id]);
             $employee = $stmtGet->fetch(PDO::FETCH_ASSOC);
 

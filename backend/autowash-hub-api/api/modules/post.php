@@ -43,6 +43,24 @@ class Post extends GlobalMethods
 
     }
 
+    private function hasColumn(string $table, string $column): bool
+
+    {
+
+        try {
+
+            $stmt = $this->pdo->query("SHOW COLUMNS FROM {$table} LIKE '{$column}'");
+
+            return $stmt->rowCount() > 0;
+
+        } catch (\PDOException $e) {
+
+            return false;
+
+        }
+
+    }
+
 
 
     private function ensureFeedbackEnhancements()
@@ -731,7 +749,7 @@ class Post extends GlobalMethods
 
         // Validate required fields
 
-        if (empty($data->first_name) || empty($data->email) || empty($data->password) || empty($data->employee_id) || empty($data->position)) {
+        if (empty($data->first_name) || empty($data->email) || empty($data->password) || empty($data->employee_id)) {
 
             return $this->sendPayload(null, "failed", "Missing required fields", 400);
 
@@ -813,51 +831,47 @@ class Post extends GlobalMethods
             // New registrations are marked as approved (1) by default unless explicitly overridden
             $isApproved = isset($data->is_approved) ? (int)$data->is_approved : 1;
 
-            // Check if is_approved column exists in the employees table
-            $hasIsApprovedColumn = false;
-            try {
-                $checkSql = "SHOW COLUMNS FROM employees LIKE 'is_approved'";
-                $checkStmt = $this->pdo->query($checkSql);
-                $hasIsApprovedColumn = $checkStmt->rowCount() > 0;
-            } catch (\PDOException $e) {
-                // If check fails, assume column doesn't exist
-                $hasIsApprovedColumn = false;
-            }
+            $hasIsApprovedColumn = $this->hasColumn('employees', 'is_approved');
+            $hasPositionColumn = $this->hasColumn('employees', 'position');
 
             $hashedPassword = password_hash($data->password, PASSWORD_BCRYPT);
 
-            if ($hasIsApprovedColumn) {
-                // Use query with is_approved column
-                $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position, is_approved) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $statement = $this->pdo->prepare($sql);
-                $statement->execute([
-                    $nextId,
-                    $employeeIdToUse,
-                    $data->first_name,
-                    $data->last_name ?? '',
-                    $data->email,
-                    $data->phone ?? '',
-                    $hashedPassword,
-                    $data->position,
-                    $isApproved
-                ]);
-            } else {
-                // Use query without is_approved column (for backward compatibility)
-                $sql = "INSERT INTO employees (id, employee_id, first_name, last_name, email, phone, password, position) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                $statement = $this->pdo->prepare($sql);
-                $statement->execute([
-                    $nextId,
-                    $employeeIdToUse,
-                    $data->first_name,
-                    $data->last_name ?? '',
-                    $data->email,
-                    $data->phone ?? '',
-                    $hashedPassword,
-                    $data->position
-                ]);
+            $columns = [
+                'id',
+                'employee_id',
+                'first_name',
+                'last_name',
+                'email',
+                'phone',
+                'password'
+            ];
+
+            $placeholders = array_fill(0, count($columns), '?');
+            $values = [
+                $nextId,
+                $employeeIdToUse,
+                $data->first_name,
+                $data->last_name ?? '',
+                $data->email,
+                $data->phone ?? '',
+                $hashedPassword
+            ];
+
+            if ($hasPositionColumn) {
+                $columns[] = 'position';
+                $placeholders[] = '?';
+                $values[] = $data->position ?? '';
             }
+
+            if ($hasIsApprovedColumn) {
+                $columns[] = 'is_approved';
+                $placeholders[] = '?';
+                $values[] = $isApproved;
+            }
+
+            $sql = "INSERT INTO employees (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute($values);
 
 
 

@@ -41,8 +41,6 @@
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
-          <th>Role</th>
-          <th>Status</th>
           <th>Registration Date</th>
           <th>Actions</th>
         </tr>
@@ -66,17 +64,6 @@
           </td>
           <td class="employee-phone" data-label="Phone">
             {{ employee.phone }}
-          </td>
-          <td class="employee-role" data-label="Role">
-            <span class="role-badge">{{ employee.role }}</span>
-          </td>
-          <td class="employee-status" data-label="Status">
-            <span
-              class="status-badge"
-              [ngClass]="employee.status.toLowerCase()"
-            >
-              {{ employee.status }}
-            </span>
           </td>
           <td class="employee-date" data-label="Registered">
             {{ employee.registrationDate }}
@@ -180,21 +167,6 @@
           </div>
 
           <div class="form-group">
-            <label for="position">Position *</label>
-            <select
-              id="position"
-              name="position"
-              [(ngModel)]="newEmployee.position"
-              required
-            >
-              <option value="" disabled selected>Select position</option>
-              <option value="Trainee">Trainee</option>
-              <option value="Junior">Junior</option>
-              <option value="Senior">Senior</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="password">Password *</label>
             <input
               type="password"
@@ -264,7 +236,6 @@
             </ng-template>
           </div>
           <p><strong>Full Name:</strong> {{ selectedEmployee.name }}</p>
-          <p><strong>Role:</strong> {{ selectedEmployee.role }}</p>
           <p><strong>Email:</strong> {{ selectedEmployee.email }}</p>
           <p><strong>Phone:</strong> {{ selectedEmployee.phone }}</p>
           <p><strong>ID:</strong> {{ selectedEmployee.employeeId }}</p>
@@ -272,7 +243,6 @@
             <strong>Registration Date:</strong>
             {{ selectedEmployee.registrationDate }}
           </p>
-          <p><strong>Status:</strong> {{ selectedEmployee.status }}</p>
         </div>
         <div class="form-actions">
           <button
@@ -415,21 +385,6 @@
           </div>
 
           <div class="form-group">
-            <label for="edit-role">Role</label>
-            <select
-              id="edit-role"
-              name="edit-role"
-              [(ngModel)]="editEmployeeData.role"
-              required
-            >
-              <option value="" disabled>Select role</option>
-              <option value="Trainee">Trainee</option>
-              <option value="Junior">Junior</option>
-              <option value="Senior">Senior</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="edit-phone">Phone Number</label>
             <input
               type="tel"
@@ -439,19 +394,6 @@
               required
               placeholder="Enter phone number"
             />
-          </div>
-
-          <div class="form-group">
-            <label for="edit-status">Status</label>
-            <select
-              id="edit-status"
-              name="edit-status"
-              [(ngModel)]="editEmployeeData.status"
-              required
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
           </div>
 
           <div class="form-actions">

@@ -13,10 +13,8 @@ import { BookingService } from '../../../services/booking.service';
 interface Employee {
   id: number;
   name: string;
-  role: string;
   phone: string;
   email: string;
-  status: 'Active' | 'Inactive';
   employeeId?: string;
   registrationDate?: string;
   avatarUrl?: string | null;
@@ -30,7 +28,6 @@ interface NewEmployee {
   phone: string;
   password: string;
   confirm_password: string;
-  position: string;
 }
 
 interface CompletedBookingSummary {
@@ -125,8 +122,6 @@ export class EmployeeManagementComponent implements OnInit {
 
           // Transform the data from the API to match the Employee interface
           this.employees = approvedEmployees.map((employee: any) => {
-            const derivedStatus =
-              localStorage.getItem(`employeeStatus:${employee.id}`) || 'Active';
             const avatarUrl =
               employee.avatar_url ||
               employee.avatarUrl ||
@@ -145,8 +140,6 @@ export class EmployeeManagementComponent implements OnInit {
               name: `${employee.first_name} ${employee.last_name}`,
               email: employee.email,
               phone: employee.phone || 'N/A',
-              role: employee.position || 'Employee',
-              status: (derivedStatus as 'Active' | 'Inactive') || 'Active',
               registrationDate: this.formatDate(employee.created_at),
               avatarUrl,
             };
@@ -226,7 +219,6 @@ export class EmployeeManagementComponent implements OnInit {
         email: this.newEmployee.email,
         phone: this.newEmployee.phone,
         password: this.newEmployee.password,
-        position: this.newEmployee.position,
         is_approved: 1, // Admin-created employees are auto-approved
       };
 
@@ -323,7 +315,6 @@ export class EmployeeManagementComponent implements OnInit {
   }
 
   submitEditEmployeeForm(): void {
-    // Compare with original to avoid backend 404 when only status changed
     const original = this.employees.find(
       (e) => e.id === this.editEmployeeData.id
     );
@@ -335,37 +326,21 @@ export class EmployeeManagementComponent implements OnInit {
       first_name: first_name || this.editEmployeeData.name,
       last_name: last_name || '',
       phone: this.editEmployeeData.phone,
-      position: this.editEmployeeData.role,
     };
 
     const profileChanged =
       !!original &&
       (original.name !== this.editEmployeeData.name ||
-        original.role !== this.editEmployeeData.role ||
         original.phone !== this.editEmployeeData.phone);
 
     if (!profileChanged) {
-      // Persist status locally and exit early
-      try {
-        localStorage.setItem(
-          `employeeStatus:${this.editEmployeeData.id}`,
-          this.editEmployeeData.status
-        );
-      } catch {}
-
-      // Reflect status change in local list
-      if (original) {
-        original.status = this.editEmployeeData.status;
-      }
       Swal.fire({
-        title: 'Success!',
-        text: 'Employee status updated successfully',
-        icon: 'success',
+        title: 'No changes detected',
+        text: 'Update the name or phone number before saving.',
+        icon: 'info',
         confirmButtonText: 'OK',
-        confirmButtonColor: '#4CAF50',
-      }).then(() => {
-        this.closeEditEmployeeModal();
-      });
+        confirmButtonColor: '#3498db',
+      }).then(() => this.closeEditEmployeeModal());
       return;
     }
 
@@ -376,27 +351,19 @@ export class EmployeeManagementComponent implements OnInit {
           response.status &&
           response.status.remarks === 'success'
         ) {
-          // Update local list
           const index = this.employees.findIndex(
             (e) => e.id === this.editEmployeeData.id
           );
           if (index > -1) {
             this.employees[index] = { ...this.editEmployeeData };
           }
-          // Persist status locally so other screens can respect it
-          try {
-            localStorage.setItem(
-              `employeeStatus:${this.editEmployeeData.id}`,
-              this.editEmployeeData.status
-            );
-          } catch {}
           Swal.fire({
             title: 'Success!',
             text: 'Employee updated successfully',
             icon: 'success',
             confirmButtonText: 'OK',
             confirmButtonColor: '#4CAF50',
-          });
+          }).then(() => this.closeEditEmployeeModal());
         } else {
           Swal.fire({
             title: 'Error!',
@@ -406,42 +373,16 @@ export class EmployeeManagementComponent implements OnInit {
             confirmButtonColor: '#f44336',
           });
         }
-        this.closeEditEmployeeModal();
       },
       error: (error) => {
         console.error('Error updating employee:', error);
-        if (error?.status === 404) {
-          // Backend returns 404 when rowCount is 0 (no DB changes)
-          // We already know profile changed, but if DB didn't update, still persist status and reflect UI
-          try {
-            localStorage.setItem(
-              `employeeStatus:${this.editEmployeeData.id}`,
-              this.editEmployeeData.status
-            );
-          } catch {}
-          const idx = this.employees.findIndex(
-            (e) => e.id === this.editEmployeeData.id
-          );
-          if (idx > -1) {
-            this.employees[idx].status = this.editEmployeeData.status;
-          }
-          Swal.fire({
-            title: 'Info!',
-            text: 'No profile changes saved. Status updated locally.',
-            icon: 'info',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#2196F3',
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Error updating employee. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#f44336',
-          });
-        }
-        this.closeEditEmployeeModal();
+        Swal.fire({
+          title: 'Error!',
+          text: error?.error?.status?.message || 'Failed to update employee',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#f44336',
+        });
       },
     });
   }
@@ -652,8 +593,7 @@ export class EmployeeManagementComponent implements OnInit {
       !this.newEmployee.email ||
       !this.newEmployee.phone ||
       !this.newEmployee.password ||
-      !this.newEmployee.confirm_password ||
-      !this.newEmployee.position
+      !this.newEmployee.confirm_password
     ) {
       this.showNotification('Please fill in all required fields');
       return false;
@@ -690,7 +630,6 @@ export class EmployeeManagementComponent implements OnInit {
       phone: '',
       password: '',
       confirm_password: '',
-      position: '',
     };
   }
 
@@ -698,10 +637,8 @@ export class EmployeeManagementComponent implements OnInit {
     return {
       id: 0,
       name: '',
-      role: '',
       phone: '',
       email: '',
-      status: 'Active',
       avatarUrl: null,
     };
   }
