@@ -158,6 +158,19 @@
           <p>No bookings found for this customer.</p>
         </div>
         <div
+          class="booking-summary"
+          *ngIf="
+            !customerBookingsLoading &&
+            !customerBookingsError &&
+            customerBookings.length > 0
+          "
+        >
+          <div class="summary-card">
+            <span class="summary-label">Total Bookings</span>
+            <span class="summary-value">{{ customerBookings.length }}</span>
+          </div>
+        </div>
+        <div
           class="table-container"
           *ngIf="
             !customerBookingsLoading &&
@@ -168,11 +181,12 @@
           <table class="customer-table">
             <thead>
               <tr>
-                <th>Service</th>
+                <th>Package</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Status</th>
                 <th>Total Amount</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -185,6 +199,15 @@
                   {{
                     b.totalAmount | currency : "PHP" : "symbol-narrow" : "1.2-2"
                   }}
+                </td>
+                <td class="booking-actions">
+                  <button
+                    type="button"
+                    class="view-booking-btn"
+                    (click)="viewBookingDetails(b)"
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             </tbody>

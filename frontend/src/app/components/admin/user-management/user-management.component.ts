@@ -29,6 +29,17 @@ interface NewUser {
   confirm_password: string;
 }
 
+interface CustomerBookingSummary {
+  id: number;
+  service: string;
+  serviceRaw: string;
+  date: string;
+  time: string;
+  status: string;
+  totalAmount: number;
+  raw: any;
+}
+
 @Component({
   selector: 'app-user-management',
   standalone: true,
@@ -70,7 +81,7 @@ export class UserManagementComponent implements OnInit {
   isCustomerBookingsModalOpen: boolean = false;
   customerBookingsLoading: boolean = false;
   customerBookingsError: string | null = null;
-  customerBookings: any[] = [];
+  customerBookings: CustomerBookingSummary[] = [];
 
   constructor(
     private dialog: MatDialog,
@@ -480,9 +491,12 @@ export class UserManagementComponent implements OnInit {
             status = 'Declined';
           }
 
+          const rawService = b.services || b.serviceName || b.service || 'N/A';
+
           return {
             id: b.id,
-            service: b.services || b.serviceName || b.service || 'N/A',
+            service: this.formatPackageLabel(rawService),
+            serviceRaw: rawService,
             date: b.washDate || b.date || b.booking_date || b.created_at,
             time: formattedTime,
             status: status,
@@ -498,6 +512,50 @@ export class UserManagementComponent implements OnInit {
         this.customerBookingsLoading = false;
       },
     });
+  }
+
+  viewBookingDetails(booking: CustomerBookingSummary): void {
+    const amountFormatted = (booking.totalAmount || 0).toLocaleString('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+    });
+
+    Swal.fire({
+      title: `Booking #${booking.id}`,
+      html: `
+        <div style="text-align:left;line-height:1.6">
+          <p><strong>Package:</strong> ${booking.service} (${
+        booking.serviceRaw
+      })</p>
+          <p><strong>Date:</strong> ${new Date(
+            booking.date
+          ).toLocaleDateString()}</p>
+          <p><strong>Time:</strong> ${booking.time || 'N/A'}</p>
+          <p><strong>Status:</strong> ${booking.status}</p>
+          <p><strong>Total Amount:</strong> ${amountFormatted}</p>
+        </div>
+      `,
+      confirmButtonText: 'Close',
+      confirmButtonColor: '#2563eb',
+    });
+  }
+
+  private formatPackageLabel(service: string): string {
+    if (!service) return 'N/A';
+    const text = service.toString().trim();
+    if (!text) return 'N/A';
+
+    const packageMatch = text.match(/p(\d+)/i);
+    if (packageMatch) {
+      return `No. ${packageMatch[1]}`;
+    }
+
+    const numberMatch = text.match(/(\d+)/);
+    if (numberMatch) {
+      return `No. ${numberMatch[1]}`;
+    }
+
+    return text;
   }
 
   closeCustomerBookingsModal(): void {

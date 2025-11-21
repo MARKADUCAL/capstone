@@ -392,6 +392,56 @@
   padding: 24px;
 }
 
+.booking-summary {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.3);
+}
+
+.summary-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.booking-actions {
+  text-align: right;
+}
+
+.view-booking-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.view-booking-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
 /* Form Styles */
 .user-form .form-group {
   margin-bottom: 20px;
