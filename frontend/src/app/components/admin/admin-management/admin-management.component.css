@@ -21,6 +21,12 @@
   font-weight: 600;
 }
 
+.add-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Table Styles */
 .table-container {
   background: white;
@@ -415,6 +421,110 @@
 
 .modal.show-modal .modal-content {
   transform: scale(1);
+}
+
+.modal-info {
+  padding: 16px 24px;
+  background: #eef2ff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-info p {
+  margin: 0;
+  color: #3730a3;
+  font-size: 14px;
+}
+
+.generated-id {
+  margin-top: 8px;
+  background: #e8f5e8;
+  color: #1b5e20;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 4px solid #22c55e;
+}
+
+.admin-form .form-group {
+  margin-bottom: 18px;
+}
+
+.admin-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.admin-form input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.admin-form input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .modal-header {

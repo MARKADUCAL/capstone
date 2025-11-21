@@ -1,6 +1,15 @@
 <div class="admin-container">
   <div class="header">
     <h2>Admin Management</h2>
+    <button
+      mat-raised-button
+      color="primary"
+      class="add-admin-btn"
+      (click)="openAddAdminModal()"
+    >
+      <mat-icon>person_add</mat-icon>
+      Add New Admin
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -121,3 +130,115 @@
     </div>
   </div>
 </div>
+
+<!-- Add Admin Modal -->
+<div class="modal" [class.show-modal]="isAddModalOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Admin</h2>
+      <span class="close-btn" (click)="closeAddAdminModal()">&times;</span>
+    </div>
+    <div class="modal-info">
+      <p>
+        <strong>Note:</strong> Provide the admin details below to create an
+        account instantly.
+      </p>
+      <p *ngIf="newAdmin.admin_id" class="generated-id">
+        <strong>Generated Admin ID:</strong> {{ newAdmin.admin_id }}
+      </p>
+    </div>
+    <div class="modal-body">
+      <form class="admin-form" (ngSubmit)="submitAddAdminForm()">
+        <div class="form-group">
+          <label for="first-name">First Name *</label>
+          <input
+            type="text"
+            id="first-name"
+            name="first-name"
+            [(ngModel)]="newAdmin.first_name"
+            required
+            placeholder="Enter first name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="last-name">Last Name *</label>
+          <input
+            type="text"
+            id="last-name"
+            name="last-name"
+            [(ngModel)]="newAdmin.last_name"
+            required
+            placeholder="Enter last name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="newAdmin.email"
+            required
+            placeholder="Enter email address"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            [(ngModel)]="newAdmin.phone"
+            placeholder="Enter phone number"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="newAdmin.password"
+            required
+            minlength="6"
+            placeholder="Enter password (min 6 characters)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password *</label>
+          <input
+            type="password"
+            id="confirm-password"
+            name="confirm-password"
+            [(ngModel)]="newAdmin.confirm_password"
+            required
+            minlength="6"
+            placeholder="Confirm password"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeAddAdminModal()"
+            [disabled]="isSubmitting"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="save-btn" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="loading-spinner"></span>
+            {{ isSubmitting ? "Creating..." : "Create Admin" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+...
