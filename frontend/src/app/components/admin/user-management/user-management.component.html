@@ -171,53 +171,198 @@
           </div>
         </div>
         <div
-          class="table-container"
+          class="table-container bookings-table-container"
           *ngIf="
             !customerBookingsLoading &&
             !customerBookingsError &&
             customerBookings.length > 0
           "
         >
-          <table class="customer-table">
-            <thead>
-              <tr>
-                <th>Package</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Total Amount</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let b of customerBookings">
-                <td>{{ b.service }}</td>
-                <td>{{ b.date | date : "mediumDate" }}</td>
-                <td>{{ b.time }}</td>
-                <td>{{ b.status }}</td>
-                <td>
-                  {{
-                    b.totalAmount | currency : "PHP" : "symbol-narrow" : "1.2-2"
-                  }}
-                </td>
-                <td class="booking-actions">
-                  <button
-                    type="button"
-                    class="view-booking-btn"
-                    (click)="viewBookingDetails(b)"
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="customer-table bookings-table">
+              <thead>
+                <tr>
+                  <th>Package</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Total Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of customerBookings">
+                  <td>{{ b.service }}</td>
+                  <td>{{ b.date | date : "mediumDate" }}</td>
+                  <td>{{ b.time }}</td>
+                  <td>{{ b.status }}</td>
+                  <td>
+                    {{
+                      b.totalAmount
+                        | currency : "PHP" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td class="booking-actions">
+                    <button
+                      type="button"
+                      class="view-booking-btn"
+                      (click)="openBookingDetailsModal(b)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="form-actions">
           <button
             type="button"
             class="cancel-btn"
             (click)="closeCustomerBookingsModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Details Modal -->
+  <div class="modal" [class.show-modal]="isBookingDetailsModalOpen">
+    <div class="modal-content booking-details-modal">
+      <div class="modal-header booking-details-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <mat-icon>fact_check</mat-icon>
+          </div>
+          <div class="header-text">
+            <h2 class="modal-title">Booking Details</h2>
+            <p class="modal-subtitle">
+              Detailed information for this customer's booking
+            </p>
+          </div>
+        </div>
+        <button class="close-button" (click)="closeBookingDetailsModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div
+        class="modal-body booking-details-body"
+        *ngIf="selectedBookingDetails as booking"
+      >
+        <div class="info-section">
+          <div class="section-header">
+            <mat-icon class="section-icon">assignment</mat-icon>
+            <h3>Booking Summary</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Package</span>
+              <span class="value">
+                {{ booking.service }}
+                <small
+                  *ngIf="
+                    booking.serviceRaw &&
+                    booking.serviceRaw.trim() !== booking.service.trim()
+                  "
+                >
+                  ({{ booking.serviceRaw }})
+                </small>
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="label">Status</span>
+              <span class="value status-value">{{ booking.status }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Total Amount</span>
+              <span class="value price"
+                >₱{{ booking.totalAmount | number : "1.2-2" }}</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="label">Booking ID</span>
+              <span class="value">#{{ booking.id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="section-header">
+            <mat-icon class="section-icon">schedule</mat-icon>
+            <h3>Schedule</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Date</span>
+              <span class="value">{{
+                booking.date | date : "mediumDate"
+              }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Time</span>
+              <span class="value">{{ booking.time || "N/A" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-section"
+          *ngIf="
+            booking.raw?.vehicleType ||
+            booking.raw?.vehicleModel ||
+            booking.raw?.vehicleColor
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">directions_car</mat-icon>
+            <h3>Vehicle</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="booking.raw?.vehicleType">
+              <span class="label">Type</span>
+              <span class="value">{{ booking.raw?.vehicleType }}</span>
+            </div>
+            <div class="info-item" *ngIf="booking.raw?.vehicleModel">
+              <span class="label">Model</span>
+              <span class="value">{{ booking.raw?.vehicleModel }}</span>
+            </div>
+            <div class="info-item" *ngIf="booking.raw?.vehicleColor">
+              <span class="label">Color</span>
+              <span class="value">{{ booking.raw?.vehicleColor }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-section"
+          *ngIf="booking.raw?.notes || booking.raw?.rejectionReason"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">notes</mat-icon>
+            <h3>Notes</h3>
+          </div>
+          <div class="info-grid single">
+            <div class="info-item">
+              <span class="label">Details</span>
+              <span class="value">
+                {{
+                  booking.raw?.notes ||
+                    booking.raw?.rejectionReason ||
+                    "No additional notes"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions single-action">
+          <button
+            type="button"
+            class="save-btn"
+            (click)="closeBookingDetailsModal()"
           >
             Close
           </button>

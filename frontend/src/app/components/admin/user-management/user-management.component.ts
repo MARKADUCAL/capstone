@@ -82,6 +82,8 @@ export class UserManagementComponent implements OnInit {
   customerBookingsLoading: boolean = false;
   customerBookingsError: string | null = null;
   customerBookings: CustomerBookingSummary[] = [];
+  isBookingDetailsModalOpen: boolean = false;
+  selectedBookingDetails: CustomerBookingSummary | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -514,30 +516,14 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  viewBookingDetails(booking: CustomerBookingSummary): void {
-    const amountFormatted = (booking.totalAmount || 0).toLocaleString('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-    });
+  openBookingDetailsModal(booking: CustomerBookingSummary): void {
+    this.selectedBookingDetails = booking;
+    this.isBookingDetailsModalOpen = true;
+  }
 
-    Swal.fire({
-      title: `Booking #${booking.id}`,
-      html: `
-        <div style="text-align:left;line-height:1.6">
-          <p><strong>Package:</strong> ${booking.service} (${
-        booking.serviceRaw
-      })</p>
-          <p><strong>Date:</strong> ${new Date(
-            booking.date
-          ).toLocaleDateString()}</p>
-          <p><strong>Time:</strong> ${booking.time || 'N/A'}</p>
-          <p><strong>Status:</strong> ${booking.status}</p>
-          <p><strong>Total Amount:</strong> ${amountFormatted}</p>
-        </div>
-      `,
-      confirmButtonText: 'Close',
-      confirmButtonColor: '#2563eb',
-    });
+  closeBookingDetailsModal(): void {
+    this.isBookingDetailsModalOpen = false;
+    this.selectedBookingDetails = null;
   }
 
   private formatPackageLabel(service: string): string {
