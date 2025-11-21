@@ -14,6 +14,9 @@ export interface CustomerFeedback {
   service_comment?: string | null;
   employee_rating?: number | null;
   employee_comment?: string | null;
+  employee_id?: number | null;
+  employee_name?: string | null;
+  employee_position?: string | null;
   admin_comment?: string | null;
   admin_commented_at?: string | null;
   is_public: boolean;

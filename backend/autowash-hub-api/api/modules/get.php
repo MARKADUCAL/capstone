@@ -993,13 +993,18 @@ class Get extends GlobalMethods {
                             WHEN b.service_package = '3' THEN 'Body Wash + Body Wax + Tire Black'
                             WHEN b.service_package = '4' THEN 'Body Wash + Body Wax + Tire Black + Vacuum'
                             ELSE CONCAT('Package ', b.service_package)
-                        END as service_name
+                        END as service_name,
+                        b.assigned_employee_id as employee_id,
+                        CONCAT(e.first_name, ' ', e.last_name) as employee_name,
+                        e.position as employee_position
                     FROM 
                         customer_feedback cf
                     JOIN 
                         customers c ON cf.customer_id = c.id
                     JOIN 
                         bookings b ON cf.booking_id = b.id
+                    LEFT JOIN
+                        employees e ON b.assigned_employee_id = e.id
                     ORDER BY 
                         cf.created_at DESC
                     LIMIT ?";

@@ -444,6 +444,19 @@
   gap: 12px;
 }
 
+.rating-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rating-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
 .stars {
   display: flex;
   gap: 2px;
@@ -476,7 +489,6 @@
   font-size: 12px;
   color: #64748b;
 }
-
 
 .card-body {
   padding: 20px;
@@ -519,6 +531,54 @@
   margin-bottom: 20px;
 }
 
+.employee-feedback {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 16px;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.employee-feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.employee-label {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.employee-name {
+  margin: 4px 0;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.employee-role {
+  font-size: 12px;
+  color: #475569;
+}
+
+.employee-rating-chip {
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.employee-stars .star {
+  font-size: 14px;
+}
+
 .feedback-comment {
   margin: 0;
   color: #374151;
@@ -531,6 +591,18 @@
   margin: 0;
   color: #94a3b8;
   font-size: 14px;
+  font-style: italic;
+}
+
+.employee-comment {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.employee-comment.muted {
+  color: #94a3b8;
   font-style: italic;
 }
 
@@ -738,7 +810,6 @@
   font-weight: 700;
 }
 
-
 .close-btn {
   background: none;
   border: none;
@@ -768,6 +839,7 @@
   padding: 24px;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   border-radius: 16px;
+  position: relative;
 }
 
 .stars-large {
@@ -794,10 +866,58 @@
   font-weight: 700;
 }
 
+.rating-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating-chip {
+  margin: 0;
+  font-size: 13px;
+  color: #4338ca;
+  background: #e0e7ff;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
 .rating-description {
   margin: 0;
   color: #64748b;
   font-size: 16px;
+}
+
+.employee-summary {
+  background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%);
+}
+
+.employee-summary .rating-chip {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.employee-summary .rating-description {
+  color: #78350f;
+}
+
+.employee-detail {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 12px;
+  margin-left: 8px;
 }
 
 .feedback-details {
@@ -831,6 +951,10 @@
   padding: 24px;
   background: #f8fafc;
   border-radius: 16px;
+}
+
+.employee-comment-card {
+  background: #fff7ed;
 }
 
 .feedback-comment-section h4 {

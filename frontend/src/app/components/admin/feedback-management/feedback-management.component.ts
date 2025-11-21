@@ -84,7 +84,7 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
     // Apply rating filter
     if (this.ratingFilter > 0) {
       filtered = filtered.filter(
-        (feedback) => feedback.rating === this.ratingFilter
+        (feedback) => this.getServiceRatingValue(feedback) === this.ratingFilter
       );
     }
 
@@ -94,8 +94,11 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(
         (feedback) =>
           feedback.comment?.toLowerCase().includes(searchLower) ||
+          feedback.service_comment?.toLowerCase().includes(searchLower) ||
+          feedback.employee_comment?.toLowerCase().includes(searchLower) ||
           feedback.customer_name?.toLowerCase().includes(searchLower) ||
-          feedback.service_name?.toLowerCase().includes(searchLower)
+          feedback.service_name?.toLowerCase().includes(searchLower) ||
+          feedback.employee_name?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -103,13 +106,19 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
     if (this.currentFilter !== 'all') {
       switch (this.currentFilter) {
         case 'positive':
-          filtered = filtered.filter((feedback) => feedback.rating >= 4);
+          filtered = filtered.filter(
+            (feedback) => this.getServiceRatingValue(feedback) >= 4
+          );
           break;
         case 'neutral':
-          filtered = filtered.filter((feedback) => feedback.rating === 3);
+          filtered = filtered.filter(
+            (feedback) => this.getServiceRatingValue(feedback) === 3
+          );
           break;
         case 'negative':
-          filtered = filtered.filter((feedback) => feedback.rating <= 2);
+          filtered = filtered.filter(
+            (feedback) => this.getServiceRatingValue(feedback) <= 2
+          );
           break;
         case 'public':
           filtered = filtered.filter((feedback) => feedback.is_public);
@@ -168,11 +177,17 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
 
     switch (filter) {
       case 'positive':
-        return this.feedbackList.filter((f) => f.rating >= 4).length;
+        return this.feedbackList.filter(
+          (f) => this.getServiceRatingValue(f) >= 4
+        ).length;
       case 'neutral':
-        return this.feedbackList.filter((f) => f.rating === 3).length;
+        return this.feedbackList.filter(
+          (f) => this.getServiceRatingValue(f) === 3
+        ).length;
       case 'negative':
-        return this.feedbackList.filter((f) => f.rating <= 2).length;
+        return this.feedbackList.filter(
+          (f) => this.getServiceRatingValue(f) <= 2
+        ).length;
       case 'public':
         return this.feedbackList.filter((f) => f.is_public).length;
       default:
@@ -195,6 +210,77 @@ export class FeedbackManagementComponent implements OnInit, OnDestroy {
     if (rating >= 4) return '⭐';
     if (rating === 3) return '⭐';
     return '⭐';
+  }
+
+  getServiceRatingValue(feedback: CustomerFeedback): number {
+    return feedback.service_rating ?? feedback.rating ?? 0;
+  }
+
+  getEmployeeRatingValue(feedback: CustomerFeedback): number {
+    return feedback.employee_rating ?? 0;
+  }
+
+  hasEmployeeFeedback(feedback: CustomerFeedback): boolean {
+    return (
+      typeof feedback.employee_rating === 'number' &&
+      feedback.employee_rating > 0
+    );
+  }
+
+  getServiceComment(feedback: CustomerFeedback): string | null {
+    return feedback.service_comment || feedback.comment || null;
+  }
+
+  getEmployeeComment(feedback: CustomerFeedback): string | null {
+    return feedback.employee_comment || null;
+  }
+
+  getEmployeeDisplayName(feedback: CustomerFeedback): string {
+    if (feedback.employee_name && feedback.employee_name.trim().length > 0) {
+      return feedback.employee_name;
+    }
+    if (feedback.employee_id) {
+      return `Employee #${feedback.employee_id}`;
+    }
+    return 'Assigned Staff';
+  }
+
+  getEmployeeRole(feedback: CustomerFeedback): string | null {
+    return feedback.employee_position || null;
+  }
+
+  getServiceRatingDescription(feedback: CustomerFeedback): string {
+    const rating = this.getServiceRatingValue(feedback);
+    if (rating >= 4) {
+      return 'Customers loved this service experience';
+    }
+    if (rating === 3) {
+      return 'Good service with room for improvement';
+    }
+    if (rating === 2) {
+      return 'Service needs attention to improve satisfaction';
+    }
+    if (rating === 1) {
+      return 'Customers reported significant issues';
+    }
+    return 'No service rating provided';
+  }
+
+  getEmployeeRatingDescription(feedback: CustomerFeedback): string {
+    const rating = this.getEmployeeRatingValue(feedback);
+    if (rating >= 4) {
+      return 'Customer highlighted excellent staff performance';
+    }
+    if (rating === 3) {
+      return 'Customer felt the staff experience was acceptable';
+    }
+    if (rating === 2) {
+      return 'Customer saw opportunities for staff improvement';
+    }
+    if (rating === 1) {
+      return 'Customer reported issues with staff experience';
+    }
+    return 'No employee feedback recorded';
   }
 
   openViewModal(feedback: CustomerFeedback): void {

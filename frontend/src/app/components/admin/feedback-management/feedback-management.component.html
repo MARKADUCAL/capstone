@@ -157,12 +157,20 @@
           <div class="stars">
             <span
               *ngFor="let star of [1, 2, 3, 4, 5]"
-              class="star filled"
+              class="star"
+              [class.filled]="star <= getServiceRatingValue(feedback)"
             >
               ⭐
             </span>
           </div>
-          <span class="rating-text">{{ getRatingText(feedback.rating) }}</span>
+          <div class="rating-info">
+            <span class="rating-value"
+              >{{ getServiceRatingValue(feedback) }}/5</span
+            >
+            <span class="rating-text">{{
+              getRatingText(getServiceRatingValue(feedback))
+            }}</span>
+          </div>
         </div>
         <div class="feedback-meta">
           <span class="feedback-date">{{
@@ -187,11 +195,46 @@
         </div>
 
         <div class="feedback-content">
-          <p class="feedback-comment" *ngIf="feedback.comment">
-            "{{ feedback.comment }}"
+          <p class="feedback-comment" *ngIf="getServiceComment(feedback)">
+            "{{ getServiceComment(feedback) }}"
           </p>
-          <p class="no-comment" *ngIf="!feedback.comment">
+          <p class="no-comment" *ngIf="!getServiceComment(feedback)">
             <em>No comment provided</em>
+          </p>
+        </div>
+
+        <div class="employee-feedback" *ngIf="hasEmployeeFeedback(feedback)">
+          <div class="employee-feedback-header">
+            <div>
+              <p class="employee-label">Staff Experience</p>
+              <h5 class="employee-name">
+                {{ getEmployeeDisplayName(feedback) }}
+              </h5>
+              <span class="employee-role" *ngIf="getEmployeeRole(feedback)">{{
+                getEmployeeRole(feedback)
+              }}</span>
+            </div>
+            <div class="employee-rating-chip">
+              {{ getEmployeeRatingValue(feedback) }}/5
+            </div>
+          </div>
+          <div class="stars employee-stars">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              class="star"
+              [class.filled]="star <= getEmployeeRatingValue(feedback)"
+            >
+              ⭐
+            </span>
+          </div>
+          <p class="employee-comment" *ngIf="getEmployeeComment(feedback)">
+            "{{ getEmployeeComment(feedback) }}"
+          </p>
+          <p
+            class="employee-comment muted"
+            *ngIf="!getEmployeeComment(feedback)"
+          >
+            <em>No employee-specific feedback provided</em>
           </p>
         </div>
 
@@ -207,6 +250,12 @@
               [ngClass]="feedback.is_public ? 'public' : 'private'"
             >
               {{ feedback.is_public ? "Public" : "Private" }}
+            </span>
+          </div>
+          <div class="stat-item" *ngIf="feedback.employee_id">
+            <span class="stat-label">Employee:</span>
+            <span class="stat-value">
+              {{ getEmployeeDisplayName(feedback) }}
             </span>
           </div>
         </div>
@@ -286,21 +335,54 @@
           <div class="stars-large">
             <span
               *ngFor="let star of [1, 2, 3, 4, 5]"
-              class="star-large filled"
+              class="star-large"
+              [class.filled]="star <= getServiceRatingValue(selectedFeedback)"
             >
               ⭐
             </span>
           </div>
-          <h3>{{ getRatingText(selectedFeedback.rating) }}</h3>
+          <div class="rating-score">
+            <h3>{{ getServiceRatingValue(selectedFeedback) }}/5</h3>
+            <p class="rating-chip">
+              {{ getRatingText(getServiceRatingValue(selectedFeedback)) }}
+            </p>
+          </div>
           <p class="rating-description">
-            {{
-              selectedFeedback.rating >= 4
-                ? "Excellent service experience"
-                : selectedFeedback.rating === 3
-                ? "Good service with room for improvement"
-                : "Service needs improvement"
-            }}
+            {{ getServiceRatingDescription(selectedFeedback) }}
           </p>
+        </div>
+
+        <div
+          class="rating-summary employee-summary"
+          *ngIf="hasEmployeeFeedback(selectedFeedback)"
+        >
+          <div class="stars-large">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              class="star-large"
+              [class.filled]="star <= getEmployeeRatingValue(selectedFeedback)"
+            >
+              ⭐
+            </span>
+          </div>
+          <div class="rating-score">
+            <h3>{{ getEmployeeRatingValue(selectedFeedback) }}/5</h3>
+            <p class="rating-chip">Staff Feedback</p>
+          </div>
+          <p class="rating-description">
+            {{ getEmployeeRatingDescription(selectedFeedback) }}
+          </p>
+          <div class="employee-detail">
+            <span class="employee-name">
+              {{ getEmployeeDisplayName(selectedFeedback) }}
+            </span>
+            <span
+              class="employee-role"
+              *ngIf="getEmployeeRole(selectedFeedback)"
+            >
+              {{ getEmployeeRole(selectedFeedback) }}
+            </span>
+          </div>
         </div>
 
         <div class="feedback-details">
@@ -320,22 +402,62 @@
             <span class="label">Booking ID:</span>
             <span class="value">#{{ selectedFeedback.booking_id }}</span>
           </div>
-          <div class="detail-row" *ngIf="$any(selectedFeedback).plateNumber || $any(selectedFeedback).plate_number">
+          <div class="detail-row" *ngIf="selectedFeedback.employee_id">
+            <span class="label">Employee ID:</span>
+            <span class="value">#{{ selectedFeedback.employee_id }}</span>
+          </div>
+          <div class="detail-row" *ngIf="selectedFeedback.employee_name">
+            <span class="label">Staff Member:</span>
+            <span class="value">
+              {{ selectedFeedback.employee_name }}
+              <span
+                class="role-pill"
+                *ngIf="selectedFeedback.employee_position"
+              >
+                {{ selectedFeedback.employee_position }}
+              </span>
+            </span>
+          </div>
+          <div
+            class="detail-row"
+            *ngIf="
+              $any(selectedFeedback).plateNumber ||
+              $any(selectedFeedback).plate_number
+            "
+          >
             <span class="label">Plate Number:</span>
             <span class="value">{{
-              $any(selectedFeedback).plateNumber || $any(selectedFeedback).plate_number || "N/A"
+              $any(selectedFeedback).plateNumber ||
+                $any(selectedFeedback).plate_number ||
+                "N/A"
             }}</span>
           </div>
-          <div class="detail-row" *ngIf="$any(selectedFeedback).vehicleModel || $any(selectedFeedback).vehicle_model">
+          <div
+            class="detail-row"
+            *ngIf="
+              $any(selectedFeedback).vehicleModel ||
+              $any(selectedFeedback).vehicle_model
+            "
+          >
             <span class="label">Vehicle Model:</span>
             <span class="value">{{
-              $any(selectedFeedback).vehicleModel || $any(selectedFeedback).vehicle_model || "N/A"
+              $any(selectedFeedback).vehicleModel ||
+                $any(selectedFeedback).vehicle_model ||
+                "N/A"
             }}</span>
           </div>
-          <div class="detail-row" *ngIf="$any(selectedFeedback).vehicleColor || $any(selectedFeedback).vehicle_color">
+          <div
+            class="detail-row"
+            *ngIf="
+              $any(selectedFeedback).vehicleColor ||
+              $any(selectedFeedback).vehicle_color
+            "
+          >
             <span class="label">Vehicle Color:</span>
             <span class="value">{{
-              $any(selectedFeedback).vehicleColor || $any(selectedFeedback).vehicle_color || "N/A"
+              $any(selectedFeedback).vehicleColor ||
+                $any(selectedFeedback).vehicle_color ||
+                "N/A"
             }}</span>
           </div>
           <div class="detail-row">
@@ -357,11 +479,30 @@
 
         <div class="feedback-comment-section">
           <h4>Customer Comment</h4>
-          <div class="comment-content" *ngIf="selectedFeedback.comment">
-            <p>"{{ selectedFeedback.comment }}"</p>
+          <div
+            class="comment-content"
+            *ngIf="getServiceComment(selectedFeedback)"
+          >
+            <p>"{{ getServiceComment(selectedFeedback) }}"</p>
           </div>
-          <div class="no-comment" *ngIf="!selectedFeedback.comment">
+          <div class="no-comment" *ngIf="!getServiceComment(selectedFeedback)">
             <p><em>No comment provided by the customer</em></p>
+          </div>
+        </div>
+
+        <div
+          class="feedback-comment-section employee-comment-card"
+          *ngIf="hasEmployeeFeedback(selectedFeedback)"
+        >
+          <h4>Employee Feedback</h4>
+          <div
+            class="comment-content"
+            *ngIf="getEmployeeComment(selectedFeedback)"
+          >
+            <p>"{{ getEmployeeComment(selectedFeedback) }}"</p>
+          </div>
+          <div class="no-comment" *ngIf="!getEmployeeComment(selectedFeedback)">
+            <p><em>No employee-specific comment provided</em></p>
           </div>
         </div>
 
