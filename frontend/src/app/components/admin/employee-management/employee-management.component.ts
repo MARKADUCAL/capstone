@@ -33,6 +33,17 @@ interface NewEmployee {
   position: string;
 }
 
+interface CompletedBookingSummary {
+  id: number;
+  service: string;
+  serviceRaw: string;
+  customerName: string;
+  date: string;
+  time: string;
+  totalAmount: number;
+  raw: any;
+}
+
 @Component({
   selector: 'app-employee-management',
   standalone: true,
@@ -74,7 +85,9 @@ export class EmployeeManagementComponent implements OnInit {
   isCompletedBookingsModalOpen = false;
   completedBookingsLoading = false;
   completedBookingsError: string | null = null;
-  completedBookings: any[] = [];
+  completedBookings: CompletedBookingSummary[] = [];
+  isBookingDetailsModalOpen = false;
+  selectedBookingDetails: CompletedBookingSummary | null = null;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -836,9 +849,12 @@ export class EmployeeManagementComponent implements OnInit {
             const timeString = b.washTime || b.time || b.booking_time || '';
             const formattedTime = this.formatTimeTo12Hour(timeString);
 
+            const serviceRaw = b.services || b.serviceName || b.service || 'N/A';
+
             return {
               id: b.id,
-              service: b.services || b.serviceName || b.service || 'N/A',
+              service: this.formatPackageLabel(serviceRaw),
+              serviceRaw,
               customerName: customerName,
               date: b.washDate || b.date || b.booking_date || b.created_at,
               time: formattedTime,
@@ -865,6 +881,7 @@ export class EmployeeManagementComponent implements OnInit {
         document.body.style.overflow = '';
       }
     }
+    this.closeBookingDetailsModal();
   }
 
   getUserInitials(name: string): string {
@@ -906,6 +923,16 @@ export class EmployeeManagementComponent implements OnInit {
     if (employee) {
       employee.avatarUrl = null;
     }
+  }
+
+  openBookingDetailsModal(booking: CompletedBookingSummary): void {
+    this.selectedBookingDetails = booking;
+    this.isBookingDetailsModalOpen = true;
+  }
+
+  closeBookingDetailsModal(): void {
+    this.isBookingDetailsModalOpen = false;
+    this.selectedBookingDetails = null;
   }
 
   private validateEmployeeForm(): boolean {
@@ -976,5 +1003,23 @@ export class EmployeeManagementComponent implements OnInit {
       horizontalPosition: 'right',
       verticalPosition: 'top',
     });
+  }
+
+  private formatPackageLabel(service: string): string {
+    if (!service) return 'N/A';
+    const text = service.toString().trim();
+    if (!text) return 'N/A';
+
+    const packageMatch = text.match(/p(\d+)/i);
+    if (packageMatch) {
+      return `No. ${packageMatch[1]}`;
+    }
+
+    const numberMatch = text.match(/(\d+)/);
+    if (numberMatch) {
+      return `No. ${numberMatch[1]}`;
+    }
+
+    return text;
   }
 }
