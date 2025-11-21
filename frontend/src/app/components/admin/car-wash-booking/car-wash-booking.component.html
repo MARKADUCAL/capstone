@@ -48,122 +48,146 @@
     </mat-card>
   </div>
 
-  <!-- Bookings Table -->
-  <div
-    *ngIf="!loading && !error && bookings.length > 0"
-    class="bookings-table-wrapper"
-  >
-    <div class="table-scroll">
-      <table class="bookings-table">
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Service</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th class="actions-column">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (booking of bookings; track booking.id) {
-          <tr>
-            <td>
-              <div class="customer-cell">
-                <div class="avatar" title="Customer">
-                  <div class="user-avatar-placeholder">
-                    {{ getUserInitials(booking.customerName) }}
+  <!-- Bookings Table by Status -->
+  <div *ngIf="!loading && !error && bookings.length > 0" class="status-sections">
+    @for (section of statusSections; track section.value) {
+    @let sectionBookings = getBookingsByStatus(section.value);
+    <section class="status-section">
+      <div class="status-header">
+        <div>
+          <h3>{{ section.label }} Bookings</h3>
+          <p>{{ section.description }}</p>
+        </div>
+        <span class="status-count">{{ sectionBookings.length }} total</span>
+      </div>
+
+      @if (sectionBookings.length > 0) {
+      <div class="bookings-table-wrapper">
+        <div class="table-scroll">
+          <table class="bookings-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Service</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (booking of sectionBookings; track booking.id) {
+              <tr>
+                <td>
+                  <div class="customer-cell">
+                    <div class="avatar" title="Customer">
+                      <div class="user-avatar-placeholder">
+                        {{ getUserInitials(booking.customerName) }}
+                      </div>
+                    </div>
+                    <div class="customer-details">
+                      <span class="customer-name">{{ booking.customerName }}</span>
+                      <span class="customer-vehicle"
+                        >Vehicle • {{ booking.vehicleType }}</span
+                      >
+                    </div>
                   </div>
-                </div>
-                <div class="customer-details">
-                  <span class="customer-name">{{ booking.customerName }}</span>
-                  <span class="customer-vehicle"
-                    >Vehicle • {{ booking.vehicleType }}</span
+                </td>
+                <td>{{ formatDate(booking.date) || "No date set" }}</td>
+                <td>{{ formatTime(booking.time) || "No time set" }}</td>
+                <td>{{ booking.serviceType || "Standard Wash" }}</td>
+                <td class="price-cell">
+                  <span class="peso-symbol">₱</span>
+                  {{ booking.price | number : "1.2-2" }}
+                </td>
+                <td>
+                  <span
+                    class="status-chip"
+                    [ngClass]="'status-' + booking.status.toLowerCase()"
                   >
-                </div>
-              </div>
-            </td>
-            <td>{{ formatDate(booking.date) || "No date set" }}</td>
-            <td>{{ formatTime(booking.time) || "No time set" }}</td>
-            <td>{{ booking.serviceType || "Standard Wash" }}</td>
-            <td class="price-cell">
-              <span class="peso-symbol">₱</span>
-              {{ booking.price | number : "1.2-2" }}
-            </td>
-            <td>
-              <span
-                class="status-chip"
-                [ngClass]="'status-' + booking.status.toLowerCase()"
-              >
-                <span class="dot"></span>
-                {{ displayStatus(booking.status) }}
-              </span>
-              <div
-                class="rejection-indicator"
-                *ngIf="booking.status === 'Rejected' && booking.rejectionReason"
-              >
-                <mat-icon class="rejection-icon">info</mat-icon>
-                <span class="rejection-text">Decline reason provided</span>
-              </div>
-            </td>
-            <td class="table-actions">
-              <button
-                class="action-btn view-btn"
-                (click)="viewBooking(booking)"
-              >
-                <mat-icon>visibility</mat-icon>
-                View
-              </button>
-              @if (booking.status === 'Pending') {
-              <button
-                class="action-btn approve-btn"
-                (click)="approveBooking(booking)"
-              >
-                <mat-icon>check_circle</mat-icon>
-                Approve
-              </button>
-              <button
-                class="action-btn reject-btn"
-                (click)="rejectBooking(booking)"
-              >
-                <mat-icon>cancel</mat-icon>
-                Decline
-              </button>
-              } @else if (booking.status === 'Approved') {
-              <div class="table-badge approved-badge">
-                <mat-icon>check_circle</mat-icon>
-                Approved - Awaiting Employee
-              </div>
-              } @else if (booking.status === 'Done') {
-              <button
-                class="action-btn complete-btn"
-                (click)="completeBooking(booking)"
-              >
-                <mat-icon>done_all</mat-icon>
-                Complete
-              </button>
-              } @else if (booking.status === 'Completed') {
-              <div class="table-badge completed-badge">
-                <mat-icon>check_circle</mat-icon>
-                Completed
-              </div>
-              } @else if (booking.status === 'Rejected') {
-              <!-- No additional actions -->
-              } @else if (canEditBooking(booking)) {
-              <button
-                class="action-btn edit-btn"
-                (click)="editBooking(booking)"
-              >
-                <mat-icon>edit</mat-icon>
-                Edit
-              </button>
+                    <span class="dot"></span>
+                    {{ displayStatus(booking.status) }}
+                  </span>
+                  <div
+                    class="rejection-indicator"
+                    *ngIf="
+                      booking.status === 'Rejected' && booking.rejectionReason
+                    "
+                  >
+                    <mat-icon class="rejection-icon">info</mat-icon>
+                    <span class="rejection-text">Decline reason provided</span>
+                  </div>
+                </td>
+                <td class="table-actions">
+                  <button
+                    class="action-btn view-btn"
+                    (click)="viewBooking(booking)"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                    View
+                  </button>
+                  @if (booking.status === 'Pending') {
+                  <button
+                    class="action-btn approve-btn"
+                    (click)="approveBooking(booking)"
+                  >
+                    <mat-icon>check_circle</mat-icon>
+                    Approve
+                  </button>
+                  <button
+                    class="action-btn reject-btn"
+                    (click)="rejectBooking(booking)"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                    Decline
+                  </button>
+                  } @else if (booking.status === 'Approved') {
+                  <div class="table-badge approved-badge">
+                    <mat-icon>check_circle</mat-icon>
+                    Approved - Awaiting Employee
+                  </div>
+                  } @else if (booking.status === 'Done') {
+                  <button
+                    class="action-btn complete-btn"
+                    (click)="completeBooking(booking)"
+                  >
+                    <mat-icon>done_all</mat-icon>
+                    Complete
+                  </button>
+                  } @else if (booking.status === 'Completed') {
+                  <div class="table-badge completed-badge">
+                    <mat-icon>check_circle</mat-icon>
+                    Completed
+                  </div>
+                  } @else if (booking.status === 'Rejected') {
+                  <!-- No additional actions -->
+                  } @else if (canEditBooking(booking)) {
+                  <button
+                    class="action-btn edit-btn"
+                    (click)="editBooking(booking)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                  }
+                </td>
+              </tr>
               }
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      } @else {
+      <div class="status-empty">
+        <mat-icon>inventory_2</mat-icon>
+        <div>
+          <h4>No {{ section.label.toLowerCase() }} bookings</h4>
+          <p>{{ section.description }}</p>
+        </div>
+      </div>
+      }
+    </section>
+    }
   </div>
 </div>

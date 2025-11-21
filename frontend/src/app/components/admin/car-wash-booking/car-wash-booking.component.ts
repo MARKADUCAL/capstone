@@ -239,6 +239,42 @@ export class RejectionDialogComponent {
 })
 export class CarWashBookingComponent implements OnInit {
   bookings: CarWashBooking[] = [];
+  statusSections: {
+    label: string;
+    value: CarWashBooking['status'];
+    description: string;
+  }[] = [
+    {
+      label: 'Pending',
+      value: 'Pending',
+      description: 'Awaiting admin approval',
+    },
+    {
+      label: 'Approved',
+      value: 'Approved',
+      description: 'Approved and awaiting employee assignment/completion',
+    },
+    {
+      label: 'Done',
+      value: 'Done',
+      description: 'Service completed by staff, awaiting confirmation',
+    },
+    {
+      label: 'Completed',
+      value: 'Completed',
+      description: 'Officially completed bookings',
+    },
+    {
+      label: 'Declined',
+      value: 'Rejected',
+      description: 'Declined or rejected booking requests',
+    },
+    {
+      label: 'Cancelled',
+      value: 'Cancelled',
+      description: 'Bookings cancelled by admin or customer',
+    },
+  ];
   employees: Employee[] = [];
   loading: boolean = false;
   error: string | null = null;
@@ -383,7 +419,9 @@ export class CarWashBookingComponent implements OnInit {
                   Swal.fire({
                     icon: 'error',
                     title: 'Decline Failed',
-                    text: err.message || 'Failed to decline booking. Please try again.',
+                    text:
+                      err.message ||
+                      'Failed to decline booking. Please try again.',
                     confirmButtonColor: '#dc2626',
                   });
                 },
@@ -802,6 +840,13 @@ export class CarWashBookingComponent implements OnInit {
       // You could also make an API call to get the latest booking data
       // this.bookingService.getBookingById(bookingId).subscribe(...)
     }
+  }
+
+  getBookingsByStatus(status: CarWashBooking['status']): CarWashBooking[] {
+    const normalized = (status || '').toLowerCase();
+    return this.bookings.filter(
+      (booking) => (booking.status || '').toLowerCase() === normalized
+    );
   }
 }
 
