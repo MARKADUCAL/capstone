@@ -5,15 +5,6 @@
       <mat-icon>add</mat-icon>
       Add New Employee
     </button>
-    <button
-      mat-raised-button
-      color="accent"
-      (click)="openPendingModal()"
-      class="pending-btn"
-    >
-      <mat-icon>hourglass_empty</mat-icon>
-      View Pending Registrations
-    </button>
   </div>
 
   <!-- Loading State -->
@@ -121,82 +112,6 @@
     </table>
   </div>
   }
-
-  <!-- Pending Registrations Modal -->
-  <div class="modal" [class.show-modal]="isPendingModalOpen">
-    <div class="modal-content modal-wide">
-      <div class="modal-header">
-        <h2>Pending Employee Registrations</h2>
-        <span class="close-btn" (click)="closePendingModal()">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div *ngIf="pendingError" class="error-container">
-          <p>{{ pendingError }}</p>
-        </div>
-        <div
-          *ngIf="!pendingError && pendingEmployees.length === 0"
-          class="empty-container"
-        >
-          <p>No pending registrations found.</p>
-        </div>
-        <div
-          class="table-container"
-          *ngIf="!pendingError && pendingEmployees.length > 0"
-        >
-          <table class="employee-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Registered</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let emp of pendingEmployees">
-                <td>{{ emp.employeeId || "N/A" }}</td>
-                <td>{{ emp.name }}</td>
-                <td>{{ emp.email }}</td>
-                <td>{{ emp.phone }}</td>
-                <td>{{ emp.role }}</td>
-                <td>{{ emp.registrationDate }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <button
-                      class="action-btn approve-btn text-action-btn"
-                      (click)="approveEmployee(emp)"
-                      title="Approve"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      class="action-btn reject-btn text-action-btn"
-                      (click)="rejectEmployee(emp)"
-                      title="Decline"
-                    >
-                      Decline
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="form-actions">
-          <button
-            type="button"
-            class="cancel-btn"
-            (click)="closePendingModal()"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Add Employee Modal -->
   <div class="modal" [class.show-modal]="isAddModalOpen">
