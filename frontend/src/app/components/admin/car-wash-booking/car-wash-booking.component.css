@@ -16,7 +16,7 @@
 
 .loading-spinner p {
   margin-top: 16px;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .error-card p {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   margin-bottom: 16px;
 }
 
@@ -66,17 +66,17 @@
 
 .no-bookings-icon {
   font-size: 48px;
-  color: rgba(0,0,0,0.45);
+  color: rgba(0, 0, 0, 0.45);
   margin-bottom: 16px;
 }
 
 .no-bookings-card h3 {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   margin-bottom: 8px;
 }
 
 .no-bookings-card p {
-  color: rgba(0,0,0,0.45);
+  color: rgba(0, 0, 0, 0.45);
   margin-bottom: 16px;
 }
 
@@ -98,7 +98,7 @@
 
 .header-subtitle {
   margin: 0;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
   font-weight: 400;
 }
@@ -117,30 +117,113 @@
   font-weight: 600;
 }
 
-.status-filter {
-  min-width: 150px;
-}
-
-.bookings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.booking-card {
+.bookings-table-wrapper {
+  background: #fff;
   border-radius: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  overflow: hidden;
-  margin-bottom: 10px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--mat-sys-level1);
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1024px;
+}
+
+.bookings-table thead {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.bookings-table th,
+.bookings-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  vertical-align: middle;
+}
+
+.bookings-table th {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.bookings-table tbody tr:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+.customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 240px;
+}
+
+.customer-details {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 4px;
 }
 
-.booking-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.customer-name {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.customer-vehicle {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.price-cell {
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actions-column {
+  width: 320px;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-actions .action-btn {
+  flex: 0 0 auto;
+  min-width: 110px;
+}
+
+.table-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.table-badge mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .customer-avatar {
@@ -169,7 +252,7 @@
 
 .booking-details p {
   margin: 8px 0;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -179,7 +262,7 @@
   font-size: 16px;
   height: 16px;
   width: 16px;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 /* New header layout for card */
@@ -188,8 +271,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.05));
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.05));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .card-top .left {
@@ -211,7 +294,7 @@
 
 .title-block .sub {
   font-size: 12px;
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .status-chip {
@@ -222,7 +305,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .status-chip .dot {
@@ -271,7 +354,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(0,0,0,0.75);
+  color: rgba(0, 0, 0, 0.75);
   font-size: 14px;
 }
 
@@ -352,9 +435,9 @@
 }
 
 .edit-btn {
-  background-color: rgba(0,0,0,0.08); /* Light gray */
+  background-color: rgba(0, 0, 0, 0.08); /* Light gray */
   color: var(--text-dark); /* Dark text for contrast */
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 /* Reinforce readable text color on colored buttons */
@@ -384,7 +467,11 @@
 }
 
 .complete-btn:hover {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    var(--secondary) 100%
+  );
   box-shadow: var(--mat-sys-level2);
 }
 

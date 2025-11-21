@@ -9,17 +9,6 @@
         <mat-icon>add</mat-icon>
         Create Booking
       </button>
-      <mat-form-field appearance="outline" class="status-filter">
-        <mat-label>Filter by Status</mat-label>
-        <mat-select [(ngModel)]="selectedStatus">
-          <mat-option value="All">All Bookings</mat-option>
-          <mat-option value="Pending">Pending</mat-option>
-          <mat-option value="Approved">Approved</mat-option>
-          <mat-option value="Rejected">Declined</mat-option>
-          <mat-option value="Cancelled">Cancelled</mat-option>
-          <mat-option value="Completed">Completed</mat-option>
-        </mat-select>
-      </mat-form-field>
     </div>
   </div>
 
@@ -47,129 +36,134 @@
 
   <!-- No Bookings State -->
   <div
-    *ngIf="!loading && !error && filterBookings(selectedStatus).length === 0"
+    *ngIf="!loading && !error && bookings.length === 0"
     class="no-bookings-container"
   >
     <mat-card class="no-bookings-card">
       <mat-card-content>
         <mat-icon class="no-bookings-icon">assignment</mat-icon>
         <h3>No Bookings Found</h3>
-        <p>
-          {{
-            selectedStatus === "All"
-              ? "No car wash bookings available yet."
-              : "No " + selectedStatus.toLowerCase() + " bookings found."
-          }}
-        </p>
+        <p>No car wash bookings available yet.</p>
       </mat-card-content>
     </mat-card>
   </div>
 
-  <!-- Bookings Grid -->
+  <!-- Bookings Table -->
   <div
-    *ngIf="!loading && !error && filterBookings(selectedStatus).length > 0"
-    class="bookings-grid"
+    *ngIf="!loading && !error && bookings.length > 0"
+    class="bookings-table-wrapper"
   >
-    @for (booking of filterBookings(selectedStatus); track booking.id) {
-    <mat-card class="booking-card" [ngClass]="booking.status.toLowerCase()">
-      <div class="card-top">
-        <div class="left">
-          <div class="avatar" title="Customer">
-            <div class="user-avatar-placeholder">
-              {{ getUserInitials(booking.customerName) }}
-            </div>
-          </div>
-          <div class="title-block">
-            <div class="customer">{{ booking.customerName }}</div>
-            <div class="sub">Vehicle • {{ booking.vehicleType }}</div>
-          </div>
-        </div>
-        <div class="right">
-          <span
-            class="status-chip"
-            [ngClass]="'status-' + booking.status.toLowerCase()"
-          >
-            <span class="dot"></span>
-            {{ displayStatus(booking.status) }}
-          </span>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <div class="info-grid">
-          <div class="info">
-            <mat-icon>calendar_today</mat-icon>
-            {{ formatDate(booking.date) || "No date set" }}
-          </div>
-          <div class="info">
-            <mat-icon>access_time</mat-icon>
-            {{ formatTime(booking.time) || "No time set" }}
-          </div>
-          <div class="info">
-            <mat-icon>local_car_wash</mat-icon>
-            {{ booking.serviceType || "Standard Wash" }}
-          </div>
-          <div class="info price">
-            <span class="peso-symbol">₱</span>
-            {{ booking.price | number : "1.2-2" }}
-          </div>
-        </div>
-
-        <!-- Decline Reason Indicator -->
-        <div
-          class="rejection-indicator"
-          *ngIf="booking.status === 'Rejected' && booking.rejectionReason"
-        >
-          <mat-icon class="rejection-icon">info</mat-icon>
-          <span class="rejection-text">Decline reason provided</span>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="action-btn view-btn" (click)="viewBooking(booking)">
-          <mat-icon>visibility</mat-icon>
-          View Details
-        </button>
-        @if (booking.status === 'Pending') {
-        <button
-          class="action-btn approve-btn"
-          (click)="approveBooking(booking)"
-        >
-          <mat-icon>check_circle</mat-icon>
-          Approve
-        </button>
-        <button class="action-btn reject-btn" (click)="rejectBooking(booking)">
-          <mat-icon>cancel</mat-icon>
-          Decline
-        </button>
-        } @else if (booking.status === 'Approved') {
-        <div class="approved-badge">
-          <mat-icon>check_circle</mat-icon>
-          Approved - Awaiting Employee
-        </div>
-        } @else if (booking.status === 'Done') {
-        <button
-          class="action-btn complete-btn"
-          (click)="completeBooking(booking)"
-        >
-          <mat-icon>done_all</mat-icon>
-          Complete
-        </button>
-        } @else if (booking.status === 'Completed') {
-        <div class="completed-badge">
-          <mat-icon>check_circle</mat-icon>
-          Completed
-        </div>
-        } @else if (booking.status === 'Rejected') {
-        <!-- No action buttons for rejected bookings -->
-        } @else if (canEditBooking(booking)) {
-        <button class="action-btn edit-btn" (click)="editBooking(booking)">
-          <mat-icon>edit</mat-icon>
-          Edit
-        </button>
-        }
-      </div>
-    </mat-card>
-    }
+    <div class="table-scroll">
+      <table class="bookings-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Service</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (booking of bookings; track booking.id) {
+          <tr>
+            <td>
+              <div class="customer-cell">
+                <div class="avatar" title="Customer">
+                  <div class="user-avatar-placeholder">
+                    {{ getUserInitials(booking.customerName) }}
+                  </div>
+                </div>
+                <div class="customer-details">
+                  <span class="customer-name">{{ booking.customerName }}</span>
+                  <span class="customer-vehicle"
+                    >Vehicle • {{ booking.vehicleType }}</span
+                  >
+                </div>
+              </div>
+            </td>
+            <td>{{ formatDate(booking.date) || "No date set" }}</td>
+            <td>{{ formatTime(booking.time) || "No time set" }}</td>
+            <td>{{ booking.serviceType || "Standard Wash" }}</td>
+            <td class="price-cell">
+              <span class="peso-symbol">₱</span>
+              {{ booking.price | number : "1.2-2" }}
+            </td>
+            <td>
+              <span
+                class="status-chip"
+                [ngClass]="'status-' + booking.status.toLowerCase()"
+              >
+                <span class="dot"></span>
+                {{ displayStatus(booking.status) }}
+              </span>
+              <div
+                class="rejection-indicator"
+                *ngIf="booking.status === 'Rejected' && booking.rejectionReason"
+              >
+                <mat-icon class="rejection-icon">info</mat-icon>
+                <span class="rejection-text">Decline reason provided</span>
+              </div>
+            </td>
+            <td class="table-actions">
+              <button
+                class="action-btn view-btn"
+                (click)="viewBooking(booking)"
+              >
+                <mat-icon>visibility</mat-icon>
+                View
+              </button>
+              @if (booking.status === 'Pending') {
+              <button
+                class="action-btn approve-btn"
+                (click)="approveBooking(booking)"
+              >
+                <mat-icon>check_circle</mat-icon>
+                Approve
+              </button>
+              <button
+                class="action-btn reject-btn"
+                (click)="rejectBooking(booking)"
+              >
+                <mat-icon>cancel</mat-icon>
+                Decline
+              </button>
+              } @else if (booking.status === 'Approved') {
+              <div class="table-badge approved-badge">
+                <mat-icon>check_circle</mat-icon>
+                Approved - Awaiting Employee
+              </div>
+              } @else if (booking.status === 'Done') {
+              <button
+                class="action-btn complete-btn"
+                (click)="completeBooking(booking)"
+              >
+                <mat-icon>done_all</mat-icon>
+                Complete
+              </button>
+              } @else if (booking.status === 'Completed') {
+              <div class="table-badge completed-badge">
+                <mat-icon>check_circle</mat-icon>
+                Completed
+              </div>
+              } @else if (booking.status === 'Rejected') {
+              <!-- No additional actions -->
+              } @else if (canEditBooking(booking)) {
+              <button
+                class="action-btn edit-btn"
+                (click)="editBooking(booking)"
+              >
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

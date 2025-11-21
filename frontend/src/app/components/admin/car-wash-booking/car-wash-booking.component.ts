@@ -230,8 +230,6 @@ export class RejectionDialogComponent {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatInputModule,
@@ -241,7 +239,6 @@ export class RejectionDialogComponent {
 })
 export class CarWashBookingComponent implements OnInit {
   bookings: CarWashBooking[] = [];
-  selectedStatus: string = 'All';
   employees: Employee[] = [];
   loading: boolean = false;
   error: string | null = null;
@@ -443,14 +440,6 @@ export class CarWashBookingComponent implements OnInit {
           },
         });
     });
-  }
-
-  filterBookings(status: string): CarWashBooking[] {
-    if (this.selectedStatus === 'All') return this.bookings;
-    const selected = this.selectedStatus.toLowerCase();
-    return this.bookings.filter(
-      (booking) => booking.status.toLowerCase() === selected
-    );
   }
 
   private showNotification(message: string): void {
