@@ -10,6 +10,36 @@ class Get extends GlobalMethods {
         $this->pdo = $pdo;
     }
 
+  private function ensureFeedbackEnhancements() {
+      try {
+          $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
+          $checkStmt = $this->pdo->prepare($checkSql);
+
+          $columns = [
+              'admin_comment' => "ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL",
+              'admin_commented_at' => "ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL",
+              'service_rating' => "ALTER TABLE customer_feedback ADD COLUMN service_rating INT NULL AFTER rating",
+              'service_comment' => "ALTER TABLE customer_feedback ADD COLUMN service_comment TEXT NULL AFTER comment",
+              'employee_rating' => "ALTER TABLE customer_feedback ADD COLUMN employee_rating INT NULL AFTER service_comment",
+              'employee_comment' => "ALTER TABLE customer_feedback ADD COLUMN employee_comment TEXT NULL AFTER employee_rating"
+          ];
+
+          foreach ($columns as $column => $ddl) {
+              $checkStmt->execute([$column]);
+              $exists = (int)$checkStmt->fetchColumn() > 0;
+              if (!$exists) {
+                  $this->pdo->exec($ddl);
+              }
+          }
+
+          $this->pdo->exec("UPDATE customer_feedback SET service_rating = rating WHERE service_rating IS NULL");
+          $this->pdo->exec("UPDATE customer_feedback SET service_comment = comment WHERE service_comment IS NULL");
+      } catch (\PDOException $e) {
+          // Best-effort: log and continue
+          error_log("Feedback column check failed: " . $e->getMessage());
+      }
+  }
+
     public function executeQuery($sql) {
         $data = array();
         $errmsg = "";
@@ -939,25 +969,7 @@ class Get extends GlobalMethods {
 
     public function get_customer_feedback($limit = 10) {
         try {
-            // Ensure admin_comment columns exist (backward compatible)
-            try {
-                $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
-                $checkStmt = $this->pdo->prepare($checkSql);
-
-                $checkStmt->execute(['admin_comment']);
-                $hasAdminComment = (int)$checkStmt->fetchColumn() > 0;
-                if (!$hasAdminComment) {
-                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL");
-                }
-
-                $checkStmt->execute(['admin_commented_at']);
-                $hasAdminCommentedAt = (int)$checkStmt->fetchColumn() > 0;
-                if (!$hasAdminCommentedAt) {
-                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL");
-                }
-            } catch (\PDOException $e) {
-                // If ALTER fails due to permissions, continue without breaking reads
-            }
+            $this->ensureFeedbackEnhancements();
 
             $sql = "SELECT 
                         cf.id,
@@ -965,6 +977,10 @@ class Get extends GlobalMethods {
                         cf.customer_id,
                         cf.rating,
                         cf.comment,
+                        cf.service_rating,
+                        cf.service_comment,
+                        cf.employee_rating,
+                        cf.employee_comment,
                         cf.admin_comment,
                         cf.admin_commented_at,
                         cf.is_public,

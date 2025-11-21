@@ -7,6 +7,35 @@ class Put {
         $this->pdo = $pdo;
     }
 
+    private function ensureFeedbackEnhancements() {
+        try {
+            $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
+            $checkStmt = $this->pdo->prepare($checkSql);
+
+            $columns = [
+                'admin_comment' => "ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL",
+                'admin_commented_at' => "ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL",
+                'service_rating' => "ALTER TABLE customer_feedback ADD COLUMN service_rating INT NULL AFTER rating",
+                'service_comment' => "ALTER TABLE customer_feedback ADD COLUMN service_comment TEXT NULL AFTER comment",
+                'employee_rating' => "ALTER TABLE customer_feedback ADD COLUMN employee_rating INT NULL AFTER service_comment",
+                'employee_comment' => "ALTER TABLE customer_feedback ADD COLUMN employee_comment TEXT NULL AFTER employee_rating"
+            ];
+
+            foreach ($columns as $column => $ddl) {
+                $checkStmt->execute([$column]);
+                $exists = (int)$checkStmt->fetchColumn() > 0;
+                if (!$exists) {
+                    $this->pdo->exec($ddl);
+                }
+            }
+
+            $this->pdo->exec("UPDATE customer_feedback SET service_rating = rating WHERE service_rating IS NULL");
+            $this->pdo->exec("UPDATE customer_feedback SET service_comment = comment WHERE service_comment IS NULL");
+        } catch (\PDOException $e) {
+            error_log("Feedback column sync failed (PUT): " . $e->getMessage());
+        }
+    }
+
     public function update_customer_profile($data) {
         try {
             if (!isset($data->id) || empty($data->id)) {
@@ -531,23 +560,7 @@ class Put {
                 return $this->sendPayload(null, "failed", "Feedback ID is required", 400);
             }
 
-            // Ensure column exists (backward compatible)
-            try {
-                $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
-                $checkStmt = $this->pdo->prepare($checkSql);
-                $checkStmt->execute(['admin_comment']);
-                $hasCol = (int)$checkStmt->fetchColumn() > 0;
-                if (!$hasCol) {
-                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL");
-                }
-                $checkStmt->execute(['admin_commented_at']);
-                $hasCol2 = (int)$checkStmt->fetchColumn() > 0;
-                if (!$hasCol2) {
-                    $this->pdo->exec("ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL");
-                }
-            } catch (\PDOException $e) {
-                // ignore if cannot alter
-            }
+            $this->ensureFeedbackEnhancements();
 
             $sql = "UPDATE customer_feedback SET admin_comment = ?, admin_commented_at = CURRENT_TIMESTAMP WHERE id = ?";
             $stmt = $this->pdo->prepare($sql);
@@ -555,7 +568,7 @@ class Put {
 
             if ($stmt->rowCount() > 0) {
                 // Return updated record
-                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
+                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, service_rating, service_comment, employee_rating, employee_comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
                 $stmtGet->execute([$data->id]);
                 $feedback = $stmtGet->fetch(PDO::FETCH_ASSOC);
                 return $this->sendPayload(['customer_feedback' => $feedback], "success", "Admin comment updated", 200);
@@ -583,12 +596,10 @@ class Put {
                 return $this->sendPayload(null, "failed", "Feedback ID is required", 400);
             }
 
-            if (!isset($data->rating) || $data->rating < 1 || $data->rating > 5) {
-                return $this->sendPayload(null, "failed", "Rating must be between 1 and 5", 400);
-            }
+            $this->ensureFeedbackEnhancements();
 
             // Verify the feedback exists and belongs to the customer
-            $checkStmt = $this->pdo->prepare("SELECT id, customer_id FROM customer_feedback WHERE id = ?");
+            $checkStmt = $this->pdo->prepare("SELECT id, customer_id, rating, comment, service_rating, service_comment, employee_rating, employee_comment FROM customer_feedback WHERE id = ?");
             $checkStmt->execute([$data->id]);
             $existingFeedback = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -601,18 +612,64 @@ class Put {
                 return $this->sendPayload(null, "failed", "Unauthorized: Feedback does not belong to this customer", 403);
             }
 
-            // Update rating and comment
-            $sql = "UPDATE customer_feedback SET rating = ?, comment = ? WHERE id = ?";
+            $serviceRating = null;
+            if (isset($data->service_rating)) {
+                $serviceRating = (int)$data->service_rating;
+            } elseif (isset($data->rating)) {
+                $serviceRating = (int)$data->rating;
+            } elseif (isset($existingFeedback['service_rating'])) {
+                $serviceRating = (int)$existingFeedback['service_rating'];
+            } else {
+                $serviceRating = (int)$existingFeedback['rating'];
+            }
+
+            if (empty($serviceRating) || $serviceRating < 1 || $serviceRating > 5) {
+                return $this->sendPayload(null, "failed", "Rating must be between 1 and 5", 400);
+            }
+
+            $serviceComment = null;
+            if (isset($data->service_comment)) {
+                $serviceComment = trim((string)$data->service_comment);
+            } elseif (isset($data->comment)) {
+                $serviceComment = trim((string)$data->comment);
+            } else {
+                $serviceComment = $existingFeedback['service_comment'] ?? $existingFeedback['comment'] ?? '';
+            }
+
+            $employeeRating = $existingFeedback['employee_rating'] ?? null;
+            if (property_exists($data, 'employee_rating')) {
+                if ($data->employee_rating === null || $data->employee_rating === '') {
+                    $employeeRating = null;
+                } else {
+                    $employeeRating = (int)$data->employee_rating;
+                    if ($employeeRating < 1 || $employeeRating > 5) {
+                        return $this->sendPayload(null, "failed", "Employee rating must be between 1 and 5", 400);
+                    }
+                }
+            }
+
+            $employeeComment = $existingFeedback['employee_comment'] ?? null;
+            if (property_exists($data, 'employee_comment')) {
+                $employeeComment = trim((string)$data->employee_comment);
+                $employeeComment = $employeeComment === '' ? null : $employeeComment;
+            }
+
+            // Update rating and comments
+            $sql = "UPDATE customer_feedback SET rating = ?, comment = ?, service_rating = ?, service_comment = ?, employee_rating = ?, employee_comment = ? WHERE id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                $data->rating,
-                $data->comment ?? '',
+                $serviceRating,
+                $serviceComment,
+                $serviceRating,
+                $serviceComment,
+                $employeeRating,
+                $employeeComment,
                 $data->id
             ]);
 
             if ($stmt->rowCount() > 0) {
                 // Return updated record
-                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
+                $stmtGet = $this->pdo->prepare("SELECT id, booking_id, customer_id, rating, comment, service_rating, service_comment, employee_rating, employee_comment, admin_comment, admin_commented_at, is_public, created_at FROM customer_feedback WHERE id = ?");
                 $stmtGet->execute([$data->id]);
                 $feedback = $stmtGet->fetch(PDO::FETCH_ASSOC);
                 return $this->sendPayload(['customer_feedback' => $feedback], "success", "Feedback updated successfully", 200);

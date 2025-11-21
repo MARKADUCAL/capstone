@@ -483,16 +483,25 @@
           </div>
         </div>
 
-        <!-- Customer Rating Section (if available) -->
-        <div class="detail-card" *ngIf="getCustomerRating(selectedBooking)">
+        <!-- Customer & Employee Feedback Section -->
+        <div
+          class="detail-card"
+          *ngIf="
+            getCustomerRating(selectedBooking) ||
+            getEmployeeRating(selectedBooking)
+          "
+        >
           <div class="detail-header">
             <span class="detail-icon">⭐</span>
-            <h4>Customer Rating</h4>
+            <h4>Your Feedback</h4>
           </div>
           <div class="detail-content">
-            <div class="detail-row">
-              <span class="label">Rating:</span>
-              <span class="value rating-display">
+            <div class="feedback-summary-grid">
+              <div
+                class="feedback-summary-item"
+                *ngIf="getCustomerRating(selectedBooking)"
+              >
+                <div class="summary-title">Service Experience</div>
                 <div class="star-rating-display">
                   <span class="stars">{{
                     getStarDisplay(getCustomerRating(selectedBooking) || 0)
@@ -501,25 +510,45 @@
                     >{{ getCustomerRating(selectedBooking) }}/5</span
                   >
                 </div>
-              </span>
-            </div>
-            <div
-              class="detail-row"
-              *ngIf="getCustomerRatingLabel(selectedBooking)"
-            >
-              <span class="label">Feedback Summary:</span>
-              <span class="value">{{
-                getCustomerRatingLabel(selectedBooking)
-              }}</span>
-            </div>
-            <div
-              class="detail-row"
-              *ngIf="getCustomerRatingComment(selectedBooking)"
-            >
-              <span class="label">Comment:</span>
-              <span class="value rating-comment">{{
-                getCustomerRatingComment(selectedBooking)
-              }}</span>
+                <div
+                  class="rating-pill"
+                  *ngIf="getCustomerRatingLabel(selectedBooking)"
+                >
+                  {{ getCustomerRatingLabel(selectedBooking) }}
+                </div>
+                <p
+                  class="rating-comment"
+                  *ngIf="getCustomerRatingComment(selectedBooking)"
+                >
+                  {{ getCustomerRatingComment(selectedBooking) }}
+                </p>
+              </div>
+
+              <div
+                class="feedback-summary-item"
+                *ngIf="getEmployeeRating(selectedBooking)"
+              >
+                <div class="summary-title">
+                  Staff Experience
+                  <span class="summary-subtitle">{{
+                    getEmployeeInfo(selectedBooking)
+                  }}</span>
+                </div>
+                <div class="star-rating-display">
+                  <span class="stars">{{
+                    getStarDisplay(getEmployeeRating(selectedBooking) || 0)
+                  }}</span>
+                  <span class="rating-value"
+                    >{{ getEmployeeRating(selectedBooking) }}/5</span
+                  >
+                </div>
+                <p
+                  class="rating-comment"
+                  *ngIf="getEmployeeRatingComment(selectedBooking)"
+                >
+                  {{ getEmployeeRatingComment(selectedBooking) }}
+                </p>
+              </div>
             </div>
             <div
               class="detail-row"
@@ -743,8 +772,18 @@
   >
     <div class="modal-header">
       <div class="modal-title">
-        <h2>{{ isEditingFeedback ? "Edit Your Feedback" : "Share Your Experience" }}</h2>
-        <p>{{ isEditingFeedback ? "Update your feedback for this service" : "We'd love to hear about your car wash service" }}</p>
+        <h2>
+          {{
+            isEditingFeedback ? "Edit Your Feedback" : "Share Your Experience"
+          }}
+        </h2>
+        <p>
+          {{
+            isEditingFeedback
+              ? "Update your feedback for this service"
+              : "We'd love to hear about your car wash service"
+          }}
+        </p>
       </div>
       <button class="close-btn" (click)="closeFeedbackModal()">
         <span class="close-icon">✕</span>
@@ -819,11 +858,66 @@
       </div>
 
       <div class="feedback-section">
-        <label for="feedback-text">Tell us more about your experience:</label>
+        <label for="feedback-text"
+          >Tell us more about the service you received:</label
+        >
         <textarea
           id="feedback-text"
           [(ngModel)]="feedbackComment"
           placeholder="Share your thoughts, suggestions, or any issues you encountered..."
+          rows="4"
+          class="feedback-textarea"
+        ></textarea>
+      </div>
+
+      <div
+        class="rating-section employee-rating"
+        *ngIf="selectedBooking && hasEmployeeAssigned(selectedBooking)"
+      >
+        <h3>How would you rate {{ getEmployeeInfo(selectedBooking) }}?</h3>
+        <p class="rating-helper">
+          Let us know how the assigned staff member handled your vehicle.
+        </p>
+        <div class="star-rating">
+          <button
+            class="star-btn"
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            [class.active]="star <= employeeRating"
+            (click)="setEmployeeRating(star)"
+          >
+            <span class="star-icon">★</span>
+          </button>
+        </div>
+        <p class="rating-text">
+          {{ getEmployeeRatingText() || "Tap a star to rate your detailer" }}
+        </p>
+      </div>
+
+      <div
+        class="info-banner"
+        *ngIf="selectedBooking && !hasEmployeeAssigned(selectedBooking)"
+      >
+        <span class="info-icon">ℹ️</span>
+        <div>
+          <h4>Waiting for staff assignment</h4>
+          <p>
+            We'll ask for employee feedback once a team member has been assigned
+            to your booking.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="feedback-section"
+        *ngIf="selectedBooking && hasEmployeeAssigned(selectedBooking)"
+      >
+        <label for="employee-feedback-text"
+          >Feedback for {{ getEmployeeInfo(selectedBooking) }}</label
+        >
+        <textarea
+          id="employee-feedback-text"
+          [(ngModel)]="employeeFeedbackComment"
+          placeholder="Recognize excellent service or share how we can better support our staff."
           rows="4"
           class="feedback-textarea"
         ></textarea>
@@ -850,12 +944,22 @@
       </button>
       <button
         class="modal-btn primary submit-btn"
-        [disabled]="currentRating === 0 || isSubmittingFeedback"
+        [disabled]="isSubmitFeedbackDisabled()"
         (click)="submitFeedback()"
       >
-        <span class="btn-icon" *ngIf="!isSubmittingFeedback">{{ isEditingFeedback ? "💾" : "📤" }}</span>
+        <span class="btn-icon" *ngIf="!isSubmittingFeedback">{{
+          isEditingFeedback ? "💾" : "📤"
+        }}</span>
         <span class="btn-icon" *ngIf="isSubmittingFeedback">⏳</span>
-        {{ isSubmittingFeedback ? (isEditingFeedback ? "Updating..." : "Submitting...") : (isEditingFeedback ? "Update Feedback" : "Submit Feedback") }}
+        {{
+          isSubmittingFeedback
+            ? isEditingFeedback
+              ? "Updating..."
+              : "Submitting..."
+            : isEditingFeedback
+            ? "Update Feedback"
+            : "Submit Feedback"
+        }}
       </button>
     </div>
   </div>

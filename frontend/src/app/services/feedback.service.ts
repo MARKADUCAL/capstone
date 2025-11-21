@@ -10,6 +10,10 @@ export interface CustomerFeedback {
   customer_id: number;
   rating: number;
   comment: string;
+  service_rating?: number | null;
+  service_comment?: string | null;
+  employee_rating?: number | null;
+  employee_comment?: string | null;
   admin_comment?: string | null;
   admin_commented_at?: string | null;
   is_public: boolean;
@@ -173,7 +177,9 @@ export class FeedbackService {
   }
 
   // Update customer feedback (rating and comment)
-  updateCustomerFeedback(feedback: CustomerFeedback): Observable<FeedbackResponse> {
+  updateCustomerFeedback(
+    feedback: CustomerFeedback
+  ): Observable<FeedbackResponse> {
     console.log('🔧 Service: updateCustomerFeedback called');
     console.log('📤 Feedback data:', feedback);
 
@@ -186,6 +192,10 @@ export class FeedbackService {
       customer_id: feedback.customer_id,
       rating: feedback.rating,
       comment: feedback.comment || '',
+      service_rating: feedback.service_rating ?? feedback.rating,
+      service_comment: feedback.service_comment ?? feedback.comment ?? '',
+      employee_rating: feedback.employee_rating ?? null,
+      employee_comment: feedback.employee_comment ?? null,
     };
 
     return this.http

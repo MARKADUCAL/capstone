@@ -29,6 +29,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   isFeedbackModalOpen = false;
   isCancelModalOpen = false;
   currentRating = 0;
+  employeeRating = 0;
   ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
   bookings: Booking[] = [];
   filteredBookings: Booking[] = [];
@@ -43,6 +44,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   // Feedback related properties
   feedbackComment: string = '';
+  employeeFeedbackComment: string = '';
   isSubmittingFeedback = false;
   feedbackSuccessMessage: string | null = null;
   feedbackErrorMessage: string | null = null;
@@ -348,8 +350,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
     if (booking) {
       this.selectedBooking = booking;
-      const bookingId = parseInt(booking.id);
-      
+      const canRateEmployee = this.hasEmployeeAssigned(booking);
+      this.employeeRating = 0;
+      this.employeeFeedbackComment = '';
+
       // Check if feedback exists for this booking
       if (this.hasFeedback(booking)) {
         // Load existing feedback for editing
@@ -361,10 +365,17 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         this.currentRating = 0;
         this.feedbackComment = '';
       }
+
+      if (!canRateEmployee) {
+        this.employeeRating = 0;
+        this.employeeFeedbackComment = '';
+      }
     } else {
       this.isEditingFeedback = false;
       this.currentRating = 0;
       this.feedbackComment = '';
+      this.employeeRating = 0;
+      this.employeeFeedbackComment = '';
     }
     
     this.feedbackSuccessMessage = null;
@@ -386,8 +397,17 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         );
         
         if (feedbackForBooking) {
-          this.currentRating = feedbackForBooking.rating || 0;
-          this.feedbackComment = feedbackForBooking.comment || '';
+          this.currentRating =
+            feedbackForBooking.service_rating ??
+            feedbackForBooking.rating ??
+            0;
+          this.feedbackComment =
+            feedbackForBooking.service_comment ??
+            feedbackForBooking.comment ??
+            '';
+          this.employeeRating = feedbackForBooking.employee_rating || 0;
+          this.employeeFeedbackComment =
+            feedbackForBooking.employee_comment || '';
           this.feedbackIdMap.set(bookingId, feedbackForBooking.id!);
           console.log('Loaded existing feedback for editing:', feedbackForBooking);
         }
@@ -405,6 +425,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     this.selectedBooking = null;
     this.currentRating = 0;
     this.feedbackComment = '';
+    this.employeeRating = 0;
+    this.employeeFeedbackComment = '';
     this.feedbackSuccessMessage = null;
     this.feedbackErrorMessage = null;
     this.isEditingFeedback = false;
@@ -514,11 +536,32 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     return this.currentRating > 0 ? this.ratingTexts[this.currentRating] : '';
   }
 
+  setEmployeeRating(rating: number): void {
+    console.log('Setting employee rating to:', rating);
+    this.employeeRating = rating;
+  }
+
+  getEmployeeRatingText(): string {
+    return this.employeeRating > 0
+      ? this.ratingTexts[this.employeeRating]
+      : '';
+  }
+
   // Submit feedback for a completed booking (create or update)
   async submitFeedback(): Promise<void> {
     if (!this.selectedBooking || this.currentRating === 0) {
       this.feedbackErrorMessage =
         'Please select a rating before submitting feedback.';
+      return;
+    }
+
+    const requiresEmployeeFeedback = this.selectedBooking
+      ? this.hasEmployeeAssigned(this.selectedBooking)
+      : false;
+
+    if (requiresEmployeeFeedback && this.employeeRating === 0) {
+      this.feedbackErrorMessage =
+        'Please rate your assigned staff member before submitting.';
       return;
     }
 
@@ -550,6 +593,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       const bookingId = parseInt(this.selectedBooking.id);
       const feedbackId = this.feedbackIdMap.get(bookingId);
 
+      const serviceComment = this.feedbackComment.trim();
+      const employeeComment = this.employeeFeedbackComment.trim();
+      const employeeRatingValue =
+        requiresEmployeeFeedback && this.employeeRating > 0
+          ? this.employeeRating
+          : null;
+
       if (this.isEditingFeedback && feedbackId) {
         // Update existing feedback
         const feedbackData: CustomerFeedback = {
@@ -557,7 +607,11 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           booking_id: bookingId,
           customer_id: customerId,
           rating: this.currentRating,
-          comment: this.feedbackComment.trim() || '',
+          comment: serviceComment || '',
+          service_rating: this.currentRating,
+          service_comment: serviceComment || '',
+          employee_rating: employeeRatingValue,
+          employee_comment: employeeComment || null,
           is_public: true,
         };
 
@@ -587,7 +641,11 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           booking_id: bookingId,
           customer_id: customerId,
           rating: this.currentRating,
-          comment: this.feedbackComment.trim() || '',
+          comment: serviceComment || '',
+          service_rating: this.currentRating,
+          service_comment: serviceComment || '',
+          employee_rating: employeeRatingValue,
+          employee_comment: employeeComment || null,
           is_public: true,
         };
 
@@ -660,10 +718,25 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           console.log(`Feedback exists for booking ${bookingId}: ${exists}`);
           // Attach customer rating/comment and admin comment (if present) to the booking for modal display
           if (feedbackForBooking) {
-            (booking as any).customerRating = feedbackForBooking.rating;
-            (booking as any).rating = feedbackForBooking.rating;
-            (booking as any).customerRatingComment = feedbackForBooking.comment;
-            (booking as any).ratingComment = feedbackForBooking.comment;
+            const serviceRating =
+              feedbackForBooking.service_rating ??
+              feedbackForBooking.rating ??
+              null;
+            const serviceComment =
+              feedbackForBooking.service_comment ??
+              feedbackForBooking.comment ??
+              null;
+
+            (booking as any).serviceRating = serviceRating;
+            (booking as any).customerRating = serviceRating;
+            (booking as any).rating = serviceRating;
+            (booking as any).serviceComment = serviceComment;
+            (booking as any).customerRatingComment = serviceComment;
+            (booking as any).ratingComment = serviceComment;
+            (booking as any).employeeRating =
+              feedbackForBooking.employee_rating ?? null;
+            (booking as any).employeeComment =
+              feedbackForBooking.employee_comment ?? null;
             (booking as any).feedbackCreatedAt = feedbackForBooking.created_at;
             (booking as any).feedbackCustomerName =
               feedbackForBooking.customer_name;
@@ -708,10 +781,25 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         const exists = !!feedbackForBooking;
         this.feedbackExistsMap.set(bookingId, exists);
         if (feedbackForBooking) {
-          (booking as any).customerRating = feedbackForBooking.rating;
-          (booking as any).rating = feedbackForBooking.rating;
-          (booking as any).customerRatingComment = feedbackForBooking.comment;
-          (booking as any).ratingComment = feedbackForBooking.comment;
+          const serviceRating =
+            feedbackForBooking.service_rating ??
+            feedbackForBooking.rating ??
+            null;
+          const serviceComment =
+            feedbackForBooking.service_comment ??
+            feedbackForBooking.comment ??
+            null;
+
+          (booking as any).serviceRating = serviceRating;
+          (booking as any).customerRating = serviceRating;
+          (booking as any).rating = serviceRating;
+          (booking as any).serviceComment = serviceComment;
+          (booking as any).customerRatingComment = serviceComment;
+          (booking as any).ratingComment = serviceComment;
+          (booking as any).employeeRating =
+            feedbackForBooking.employee_rating ?? null;
+          (booking as any).employeeComment =
+            feedbackForBooking.employee_comment ?? null;
           (booking as any).feedbackCreatedAt = feedbackForBooking.created_at;
           (booking as any).feedbackCustomerName =
             feedbackForBooking.customer_name;
@@ -938,11 +1026,40 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   // New methods for enhanced modal display
   getCustomerRating(booking: any): number | null {
-    return booking.customerRating || booking.rating || null;
+    const rating =
+      booking.serviceRating ??
+      booking.customerRating ??
+      booking.rating ??
+      null;
+    return typeof rating === 'number' ? rating : null;
   }
 
   getCustomerRatingComment(booking: any): string | null {
-    return booking.customerRatingComment || booking.ratingComment || null;
+    return (
+      booking.serviceComment ||
+      booking.customerRatingComment ||
+      booking.ratingComment ||
+      null
+    );
+  }
+
+  getEmployeeRating(booking: any): number | null {
+    const rating = booking.employeeRating ?? null;
+    return typeof rating === 'number' ? rating : null;
+  }
+
+  getEmployeeRatingComment(booking: any): string | null {
+    return booking.employeeComment || null;
+  }
+
+  isSubmitFeedbackDisabled(): boolean {
+    const requiresEmployeeFeedback =
+      this.selectedBooking && this.hasEmployeeAssigned(this.selectedBooking);
+    const missingEmployeeRating =
+      requiresEmployeeFeedback && this.employeeRating === 0;
+    return (
+      this.currentRating === 0 || missingEmployeeRating || this.isSubmittingFeedback
+    );
   }
 
   getBookingNotes(booking: Booking): string | null {

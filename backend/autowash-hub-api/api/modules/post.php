@@ -45,6 +45,66 @@ class Post extends GlobalMethods
 
 
 
+    private function ensureFeedbackEnhancements()
+
+    {
+
+        try {
+
+            $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
+
+            $checkStmt = $this->pdo->prepare($checkSql);
+
+
+
+            $columns = [
+
+                'admin_comment' => "ALTER TABLE customer_feedback ADD COLUMN admin_comment TEXT NULL",
+
+                'admin_commented_at' => "ALTER TABLE customer_feedback ADD COLUMN admin_commented_at TIMESTAMP NULL",
+
+                'service_rating' => "ALTER TABLE customer_feedback ADD COLUMN service_rating INT NULL AFTER rating",
+
+                'service_comment' => "ALTER TABLE customer_feedback ADD COLUMN service_comment TEXT NULL AFTER comment",
+
+                'employee_rating' => "ALTER TABLE customer_feedback ADD COLUMN employee_rating INT NULL AFTER service_comment",
+
+                'employee_comment' => "ALTER TABLE customer_feedback ADD COLUMN employee_comment TEXT NULL AFTER employee_rating"
+
+            ];
+
+
+
+            foreach ($columns as $column => $ddl) {
+
+                $checkStmt->execute([$column]);
+
+                $exists = (int)$checkStmt->fetchColumn() > 0;
+
+                if (!$exists) {
+
+                    $this->pdo->exec($ddl);
+
+                }
+
+            }
+
+
+
+            $this->pdo->exec("UPDATE customer_feedback SET service_rating = rating WHERE service_rating IS NULL");
+
+            $this->pdo->exec("UPDATE customer_feedback SET service_comment = comment WHERE service_comment IS NULL");
+
+        } catch (\PDOException $e) {
+
+            error_log("Feedback column sync failed (POST): " . $e->getMessage());
+
+        }
+
+    }
+
+
+
     public function executeQuery($sql)
 
     {
@@ -473,37 +533,6 @@ class Post extends GlobalMethods
 
         }
 
-        // Require 6-digit verification code sent to this email
-        if (!isset($data->verification_code) || !preg_match('/^\d{6}$/', $data->verification_code)) {
-            return $this->sendPayload(null, "failed", "Verification code is required", 400);
-        }
-
-        // Ensure verification table exists
-        $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            email VARCHAR(255) NOT NULL,
-            code VARCHAR(6) NOT NULL,
-            expires_at DATETIME NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_email (email),
-            KEY idx_code (code)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-
-        // Validate code for this email and not expired
-        $verifyStmt = $this->pdo->prepare("SELECT code, expires_at FROM email_verification_codes WHERE email = ?");
-        $verifyStmt->execute([$data->email]);
-        $row = $verifyStmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || $row['code'] !== $data->verification_code) {
-            return $this->sendPayload(null, "failed", "Invalid verification code", 400);
-        }
-        if (strtotime($row['expires_at']) < time()) {
-            return $this->sendPayload(null, "failed", "Verification code has expired", 400);
-        }
-
-        // Admin key check temporarily removed
-
-
-
         try {
             // Check if email already exists
             $sql = "SELECT COUNT(*) FROM admins WHERE email = ?";
@@ -538,7 +567,7 @@ class Post extends GlobalMethods
 
             if ($hasIsApprovedColumn) {
                 $sql = "INSERT INTO admins (admin_id, first_name, last_name, email, phone, password, is_approved) 
-                        VALUES (?, ?, ?, ?, ?, ?, 0)";
+                        VALUES (?, ?, ?, ?, ?, ?, 1)";
                 $statement = $this->pdo->prepare($sql);
                 $statement->execute([
                     $data->admin_id,
@@ -563,10 +592,6 @@ class Post extends GlobalMethods
             }
 
             if ($statement->rowCount() > 0) {
-                // Consume code on successful registration
-                $del = $this->pdo->prepare("DELETE FROM email_verification_codes WHERE email = ?");
-                $del->execute([$data->email]);
-                
                 return $this->sendPayload(null, "success", "Admin successfully registered", 200);
             } else {
                 return $this->sendPayload(null, "failed", "Registration failed", 400);
@@ -722,35 +747,6 @@ class Post extends GlobalMethods
 
         }
 
-        // Require 6-digit verification code sent to this email
-        if (!isset($data->verification_code) || !preg_match('/^\d{6}$/', $data->verification_code)) {
-            return $this->sendPayload(null, "failed", "Verification code is required", 400);
-        }
-
-        // Ensure verification table exists
-        $this->pdo->exec("CREATE TABLE IF NOT EXISTS email_verification_codes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            email VARCHAR(255) NOT NULL,
-            code VARCHAR(6) NOT NULL,
-            expires_at DATETIME NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_email (email),
-            KEY idx_code (code)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-
-        // Validate code for this email and not expired
-        $verifyStmt = $this->pdo->prepare("SELECT code, expires_at FROM email_verification_codes WHERE email = ?");
-        $verifyStmt->execute([$data->email]);
-        $row = $verifyStmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || $row['code'] !== $data->verification_code) {
-            return $this->sendPayload(null, "failed", "Invalid verification code", 400);
-        }
-        if (strtotime($row['expires_at']) < time()) {
-            return $this->sendPayload(null, "failed", "Verification code has expired", 400);
-        }
-
-
-
         try {
 
             // Check if email already exists
@@ -814,9 +810,8 @@ class Post extends GlobalMethods
 
 
             // Proceed with registration (explicit id to keep sequence consistent)
-            // New registrations are set to is_approved = 0 (pending) by default
-            // If is_approved is explicitly provided (e.g., by admin), use that value
-            $isApproved = isset($data->is_approved) ? (int)$data->is_approved : 0;
+            // New registrations are marked as approved (1) by default unless explicitly overridden
+            $isApproved = isset($data->is_approved) ? (int)$data->is_approved : 1;
 
             // Check if is_approved column exists in the employees table
             $hasIsApprovedColumn = false;
@@ -867,10 +862,6 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
-                // Consume code on successful registration
-                $del = $this->pdo->prepare("DELETE FROM email_verification_codes WHERE email = ?");
-                $del->execute([$data->email]);
-
                 return $this->sendPayload(null, "success", "Employee successfully registered", 200);
 
             } else {
@@ -2276,7 +2267,7 @@ class Post extends GlobalMethods
 
         // Validate required fields
 
-        if (empty($data->booking_id) || empty($data->customer_id) || !isset($data->rating)) {
+        if (empty($data->booking_id) || empty($data->customer_id)) {
 
             return $this->sendPayload(null, "failed", "Missing required fields", 400);
 
@@ -2284,9 +2275,25 @@ class Post extends GlobalMethods
 
 
 
-        // Validate rating range
+        $this->ensureFeedbackEnhancements();
 
-        if ($data->rating < 1 || $data->rating > 5) {
+
+
+        $serviceRating = null;
+
+        if (isset($data->service_rating)) {
+
+            $serviceRating = (int)$data->service_rating;
+
+        } elseif (isset($data->rating)) {
+
+            $serviceRating = (int)$data->rating;
+
+        }
+
+
+
+        if (empty($serviceRating) || $serviceRating < 1 || $serviceRating > 5) {
 
             return $this->sendPayload(null, "failed", "Rating must be between 1 and 5", 400);
 
@@ -2294,11 +2301,63 @@ class Post extends GlobalMethods
 
 
 
+        $serviceComment = isset($data->service_comment)
+
+            ? trim($data->service_comment)
+
+            : (isset($data->comment) ? trim($data->comment) : '');
+
+
+
+        $employeeRating = null;
+
+        if (isset($data->employee_rating) && $data->employee_rating !== null && $data->employee_rating !== '') {
+
+            $employeeRating = (int)$data->employee_rating;
+
+            if ($employeeRating < 1 || $employeeRating > 5) {
+
+                return $this->sendPayload(null, "failed", "Employee rating must be between 1 and 5", 400);
+
+            }
+
+        }
+
+
+
+        $employeeComment = isset($data->employee_comment)
+
+            ? trim($data->employee_comment)
+
+            : '';
+
+
+
         try {
 
-            $sql = "INSERT INTO customer_feedback (booking_id, customer_id, rating, comment, is_public) 
+            $sql = "INSERT INTO customer_feedback (
 
-                    VALUES (?, ?, ?, ?, ?)";
+                        booking_id,
+
+                        customer_id,
+
+                        rating,
+
+                        comment,
+
+                        service_rating,
+
+                        service_comment,
+
+                        employee_rating,
+
+                        employee_comment,
+
+                        is_public
+
+                    )
+
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             
 
@@ -2314,9 +2373,17 @@ class Post extends GlobalMethods
 
                 $data->customer_id,
 
-                $data->rating,
+                $serviceRating,
 
-                $data->comment ?? '',
+                $serviceComment,
+
+                $serviceRating,
+
+                $serviceComment,
+
+                $employeeRating,
+
+                $employeeComment !== '' ? $employeeComment : null,
 
                 $isPublic
 
@@ -2332,7 +2399,7 @@ class Post extends GlobalMethods
 
                 // Fetch the created feedback
 
-                $sql = "SELECT id, booking_id, customer_id, rating, comment, is_public, created_at 
+                $sql = "SELECT id, booking_id, customer_id, rating, comment, service_rating, service_comment, employee_rating, employee_comment, is_public, created_at 
 
                        FROM customer_feedback WHERE id = ?";
 
