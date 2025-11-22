@@ -1398,5 +1398,72 @@ class Get extends GlobalMethods {
             );
         }
     }
+
+    public function get_customer_vehicles($customerId) {
+        try {
+            if (!is_numeric($customerId) || $customerId <= 0) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Invalid customer ID",
+                    400
+                );
+            }
+
+            // Ensure customer_vehicles table exists
+            $this->ensure_customer_vehicles_table();
+
+            $sql = "SELECT 
+                        id,
+                        customer_id,
+                        nickname,
+                        vehicle_type,
+                        vehicle_model,
+                        plate_number,
+                        vehicle_color,
+                        created_at
+                    FROM customer_vehicles 
+                    WHERE customer_id = ? 
+                    ORDER BY created_at DESC";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$customerId]);
+            $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->sendPayload(
+                ['vehicles' => $vehicles],
+                "success",
+                "Customer vehicles retrieved successfully",
+                200
+            );
+        } catch (\PDOException $e) {
+            return $this->sendPayload(
+                null,
+                "failed",
+                "Failed to retrieve customer vehicles: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    private function ensure_customer_vehicles_table() {
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS customer_vehicles (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                nickname VARCHAR(100) DEFAULT NULL,
+                vehicle_type VARCHAR(50) NOT NULL,
+                vehicle_model VARCHAR(100) NOT NULL,
+                plate_number VARCHAR(20) NOT NULL,
+                vehicle_color VARCHAR(30) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_customer_id (customer_id)
+            )";
+            $this->pdo->exec($sql);
+        } catch (\PDOException $e) {
+            error_log("Failed to ensure customer_vehicles table: " . $e->getMessage());
+        }
+    }
 }
 ?>

@@ -4087,5 +4087,149 @@ class Post extends GlobalMethods
         }
     }
 
+    public function add_customer_vehicle($data) {
+        // Validate required fields
+        if (empty($data->customer_id) || !is_numeric($data->customer_id)) {
+            return $this->sendPayload(null, "failed", "Customer ID is required", 400);
+        }
+
+        if (empty($data->vehicle_type)) {
+            return $this->sendPayload(null, "failed", "Vehicle type is required", 400);
+        }
+
+        if (empty($data->vehicle_model)) {
+            return $this->sendPayload(null, "failed", "Vehicle model is required", 400);
+        }
+
+        if (empty($data->plate_number)) {
+            return $this->sendPayload(null, "failed", "Plate number is required", 400);
+        }
+
+        // Ensure customer_vehicles table exists
+        $this->ensure_customer_vehicles_table();
+
+        try {
+            $sql = "INSERT INTO customer_vehicles (
+                        customer_id,
+                        nickname,
+                        vehicle_type,
+                        vehicle_model,
+                        plate_number,
+                        vehicle_color
+                    ) VALUES (?, ?, ?, ?, ?, ?)";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                $data->customer_id,
+                $data->nickname ?? null,
+                $data->vehicle_type,
+                $data->vehicle_model,
+                strtoupper(trim($data->plate_number)),
+                $data->vehicle_color ?? null
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                $vehicleId = $this->pdo->lastInsertId();
+
+                // Fetch the created vehicle
+                $fetchSql = "SELECT 
+                                id,
+                                customer_id,
+                                nickname,
+                                vehicle_type,
+                                vehicle_model,
+                                plate_number,
+                                vehicle_color,
+                                created_at
+                            FROM customer_vehicles 
+                            WHERE id = ?";
+                
+                $fetchStmt = $this->pdo->prepare($fetchSql);
+                $fetchStmt->execute([$vehicleId]);
+                $vehicle = $fetchStmt->fetch(PDO::FETCH_ASSOC);
+
+                return $this->sendPayload(
+                    ['vehicle' => $vehicle],
+                    "success",
+                    "Vehicle added successfully",
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to add vehicle", 400);
+            }
+        } catch (\PDOException $e) {
+            error_log("Customer vehicle creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null,
+                "failed",
+                "A database error occurred: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    public function delete_customer_vehicle($id) {
+        // Validate vehicle ID
+        if (!is_numeric($id) || $id <= 0) {
+            return $this->sendPayload(null, "failed", "Invalid vehicle ID", 400);
+        }
+
+        try {
+            // Check if the vehicle exists
+            $sql = "SELECT COUNT(*) FROM customer_vehicles WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$id]);
+            $count = $stmt->fetchColumn();
+
+            if ($count == 0) {
+                return $this->sendPayload(null, "failed", "Vehicle not found", 404);
+            }
+
+            // Delete the vehicle
+            $sql = "DELETE FROM customer_vehicles WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$id]);
+
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(
+                    null,
+                    "success",
+                    "Vehicle deleted successfully",
+                    200
+                );
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to delete vehicle", 400);
+            }
+        } catch (\PDOException $e) {
+            error_log("Customer vehicle deletion error: " . $e->getMessage());
+            return $this->sendPayload(
+                null,
+                "failed",
+                "A database error occurred: " . $e->getMessage(),
+                500
+            );
+        }
+    }
+
+    private function ensure_customer_vehicles_table() {
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS customer_vehicles (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                nickname VARCHAR(100) DEFAULT NULL,
+                vehicle_type VARCHAR(50) NOT NULL,
+                vehicle_model VARCHAR(100) NOT NULL,
+                plate_number VARCHAR(20) NOT NULL,
+                vehicle_color VARCHAR(30) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_customer_id (customer_id)
+            )";
+            $this->pdo->exec($sql);
+        } catch (\PDOException $e) {
+            error_log("Failed to ensure customer_vehicles table: " . $e->getMessage());
+        }
+    }
+
 }
 

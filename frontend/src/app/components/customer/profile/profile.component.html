@@ -194,8 +194,8 @@
       <div class="vehicle-card" *ngFor="let vehicle of customerVehicles">
         <div class="vehicle-card-header">
           <div>
-            <h4>{{ vehicle.nickname || vehicle.vehicleModel }}</h4>
-            <span class="vehicle-type-label">{{ vehicle.vehicleType }}</span>
+            <h4>{{ vehicle.nickname || vehicle.vehicle_model }}</h4>
+            <span class="vehicle-type-label">{{ vehicle.vehicle_type }}</span>
           </div>
           <button
             type="button"
@@ -208,19 +208,19 @@
         <div class="vehicle-card-body">
           <div class="vehicle-info-row">
             <span>Model</span>
-            <strong>{{ vehicle.vehicleModel }}</strong>
+            <strong>{{ vehicle.vehicle_model }}</strong>
           </div>
           <div class="vehicle-info-row">
             <span>Plate Number</span>
-            <strong>{{ vehicle.plateNumber }}</strong>
+            <strong>{{ vehicle.plate_number }}</strong>
           </div>
           <div class="vehicle-info-row">
             <span>Color</span>
-            <strong>{{ vehicle.vehicleColor || "Not set" }}</strong>
+            <strong>{{ vehicle.vehicle_color || "Not set" }}</strong>
           </div>
           <div class="vehicle-info-row">
             <span>Added</span>
-            <strong>{{ vehicle.createdAt | date : "mediumDate" }}</strong>
+            <strong>{{ vehicle.created_at | date : "mediumDate" }}</strong>
           </div>
         </div>
       </div>

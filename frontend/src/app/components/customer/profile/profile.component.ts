@@ -15,16 +15,23 @@ interface CustomerProfile {
 }
 
 interface CustomerVehicle {
-  id: string;
-  nickname: string;
+  id: number;
+  customer_id: number;
+  nickname: string | null;
+  vehicle_type: string;
+  vehicle_model: string;
+  plate_number: string;
+  vehicle_color: string | null;
+  created_at: string;
+}
+
+type VehicleForm = {
+  nickname?: string;
   vehicleType: string;
   vehicleModel: string;
   plateNumber: string;
   vehicleColor?: string;
-  createdAt: string;
-}
-
-type VehicleForm = Omit<CustomerVehicle, 'id' | 'createdAt'>;
+};
 
 @Component({
   selector: 'app-profile',
@@ -262,95 +269,129 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const vehicle: CustomerVehicle = {
-      id: this.generateVehicleId(),
-      nickname: this.newVehicle.nickname?.trim() || '',
-      vehicleType: this.newVehicle.vehicleType,
-      vehicleModel: this.newVehicle.vehicleModel.trim(),
-      plateNumber: this.newVehicle.plateNumber.trim().toUpperCase(),
-      vehicleColor: this.newVehicle.vehicleColor?.trim() || '',
-      createdAt: new Date().toISOString(),
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      this.vehicleErrorMessage = 'Not authorized';
+      return;
+    }
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    const vehicleData = {
+      customer_id: this.profile.id,
+      nickname: this.newVehicle.nickname?.trim() || null,
+      vehicle_type: this.newVehicle.vehicleType,
+      vehicle_model: this.newVehicle.vehicleModel.trim(),
+      plate_number: this.newVehicle.plateNumber.trim().toUpperCase(),
+      vehicle_color: this.newVehicle.vehicleColor?.trim() || null,
     };
 
-    const previousVehicles = [...this.customerVehicles];
-    this.customerVehicles = [...this.customerVehicles, vehicle];
-
-    if (this.persistVehicles()) {
-      this.vehicleSuccessMessage = 'Vehicle added successfully.';
-      this.isAddingVehicle = false;
-      this.resetVehicleForm();
-    } else {
-      this.customerVehicles = previousVehicles;
-    }
+    this.http
+      .post(`${this.apiUrl}/add_customer_vehicle`, vehicleData, { headers })
+      .subscribe({
+        next: (response: any) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.vehicleSuccessMessage = 'Vehicle added successfully.';
+            this.isAddingVehicle = false;
+            this.resetVehicleForm();
+            // Reload vehicles from database
+            this.loadVehiclesForCurrentProfile();
+          } else {
+            this.vehicleErrorMessage =
+              response.status?.message || 'Failed to add vehicle';
+          }
+        },
+        error: (error) => {
+          this.vehicleErrorMessage =
+            error.error?.status?.message ||
+            'An error occurred while adding vehicle';
+          console.error('Vehicle add error:', error);
+        },
+      });
   }
 
-  removeVehicle(vehicleId: string): void {
+  removeVehicle(vehicleId: number): void {
     this.vehicleSuccessMessage = '';
     this.vehicleErrorMessage = '';
 
-    const previousVehicles = [...this.customerVehicles];
-    this.customerVehicles = this.customerVehicles.filter(
-      (vehicle) => vehicle.id !== vehicleId
-    );
-
-    if (this.persistVehicles()) {
-      this.vehicleSuccessMessage = 'Vehicle removed.';
-    } else {
-      this.customerVehicles = previousVehicles;
+    if (!this.isBrowser) {
+      this.vehicleErrorMessage =
+        'Vehicle management is only available in the browser.';
+      return;
     }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      this.vehicleErrorMessage = 'Not authorized';
+      return;
+    }
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    this.http
+      .delete(`${this.apiUrl}/customer_vehicles/${vehicleId}`, { headers })
+      .subscribe({
+        next: (response: any) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.vehicleSuccessMessage = 'Vehicle removed.';
+            // Reload vehicles from database
+            this.loadVehiclesForCurrentProfile();
+          } else {
+            this.vehicleErrorMessage =
+              response.status?.message || 'Failed to remove vehicle';
+          }
+        },
+        error: (error) => {
+          this.vehicleErrorMessage =
+            error.error?.status?.message ||
+            'An error occurred while removing vehicle';
+          console.error('Vehicle remove error:', error);
+        },
+      });
   }
 
   private loadVehiclesForCurrentProfile(): void {
     if (!this.isBrowser) return;
 
-    const key = this.getVehicleStorageKey();
-    let storedVehicles = this.readVehiclesFromStorage(key);
-
-    if ((!storedVehicles || storedVehicles.length === 0) && this.profile.id) {
-      const guestVehicles = this.readVehiclesFromStorage('customer_vehicles_guest');
-      if (guestVehicles.length > 0) {
-        storedVehicles = guestVehicles;
-        try {
-          localStorage.setItem(key, JSON.stringify(guestVehicles));
-          localStorage.removeItem('customer_vehicles_guest');
-        } catch (error) {
-          console.error('Failed to migrate vehicle storage:', error);
-        }
-      }
+    if (!this.profile.id) {
+      this.customerVehicles = [];
+      return;
     }
 
-    this.customerVehicles = storedVehicles;
-  }
-
-  private readVehiclesFromStorage(key: string): CustomerVehicle[] {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as CustomerVehicle[]) : [];
-    } catch (error) {
-      console.error('Failed to parse stored vehicles:', error);
-      return [];
-    }
-  }
-
-  private persistVehicles(): boolean {
-    if (!this.isBrowser) {
-      this.vehicleErrorMessage =
-        'Vehicle management is only available in the browser.';
-      return false;
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.warn('No auth token found, cannot load vehicles');
+      this.customerVehicles = [];
+      return;
     }
 
-    try {
-      localStorage.setItem(
-        this.getVehicleStorageKey(),
-        JSON.stringify(this.customerVehicles)
-      );
-      return true;
-    } catch (error) {
-      console.error('Failed to persist vehicles:', error);
-      this.vehicleErrorMessage =
-        'We could not save your vehicles locally. Please check your browser storage settings.';
-      return false;
-    }
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    this.http
+      .get<any>(
+        `${this.apiUrl}/get_customer_vehicles?customer_id=${this.profile.id}`,
+        { headers }
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.customerVehicles = response.payload?.vehicles || [];
+          } else {
+            console.error('Failed to load vehicles:', response.status?.message);
+            this.customerVehicles = [];
+          }
+        },
+        error: (error) => {
+          console.error('Error loading vehicles:', error);
+          this.customerVehicles = [];
+        },
+      });
   }
 
   private resetVehicleForm(): void {
@@ -361,18 +402,5 @@ export class ProfileComponent implements OnInit {
       plateNumber: '',
       vehicleColor: '',
     };
-  }
-
-  private getVehicleStorageKey(): string {
-    const id = this.profile?.id;
-    return `customer_vehicles_${id && id > 0 ? id : 'guest'}`;
-  }
-
-  private generateVehicleId(): string {
-    const cryptoRef = typeof globalThis !== 'undefined' ? (globalThis as any).crypto : undefined;
-    if (cryptoRef?.randomUUID) {
-      return cryptoRef.randomUUID();
-    }
-    return `vehicle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }
 }

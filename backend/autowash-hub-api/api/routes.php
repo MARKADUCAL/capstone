@@ -389,6 +389,19 @@ if ($method === 'GET') {
         exit();
     }
 
+    // Get customer vehicles
+    if (strpos($request, 'get_customer_vehicles') !== false) {
+        if (isset($_GET['customer_id'])) {
+            $customerId = $_GET['customer_id'];
+            $result = $get->get_customer_vehicles($customerId);
+            echo json_encode($result);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Customer ID is required.']);
+        }
+        exit();
+    }
+
     if (strpos($request, 'get_payment_methods') !== false) {
         $result = $get->get_payment_methods();
         echo json_encode($result);
@@ -661,6 +674,13 @@ if ($method === 'POST') {
 
     if (strpos($request, 'create_booking') !== false) {
         $result = $post->create_booking($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Add customer vehicle
+    if (strpos($request, 'add_customer_vehicle') !== false) {
+        $result = $post->add_customer_vehicle($data);
         echo json_encode($result);
         exit();
     }
@@ -1128,6 +1148,13 @@ if ($method === 'DELETE') {
     
     if (strpos($request, 'bookings') !== false && is_numeric($id)) {
         $result = $post->delete_booking($id);
+        echo json_encode($result);
+        exit();
+    }
+
+    // Delete customer vehicle
+    if (strpos($request, 'customer_vehicles') !== false && is_numeric($id)) {
+        $result = $post->delete_customer_vehicle($id);
         echo json_encode($result);
         exit();
     }
