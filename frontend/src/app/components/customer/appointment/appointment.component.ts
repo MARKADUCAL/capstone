@@ -343,8 +343,19 @@ export class AppointmentComponent implements OnInit {
   onVehicleTypeChange(): void {
     this.calculatePrice();
     this.loadCustomerVehiclesForType();
-    // Reset selected vehicle when type changes
-    this.selectedVehicleId = null;
+    // Reset selected vehicle when type changes manually (if it doesn't match)
+    if (this.selectedVehicleId) {
+      const selectedVehicle = this.customerVehicles.find(
+        (v) => v.id === this.selectedVehicleId
+      );
+      if (
+        selectedVehicle &&
+        this.getVehicleTypeCode(this.bookingForm.vehicleType) !==
+          selectedVehicle.vehicle_type
+      ) {
+        this.selectedVehicleId = null;
+      }
+    }
   }
 
   // Handle service change
@@ -488,17 +499,36 @@ export class AppointmentComponent implements OnInit {
   onSavedVehicleSelect(vehicleId: number | null): void {
     if (!vehicleId) {
       this.selectedVehicleId = null;
+      // Clear form fields when "Enter manually" is selected
+      this.bookingForm.plateNumber = '';
+      this.bookingForm.vehicleModel = '';
+      this.bookingForm.vehicleColor = '';
+      this.bookingForm.nickname = '';
       return;
     }
 
     const vehicle = this.customerVehicles.find((v) => v.id === vehicleId);
     if (vehicle) {
       this.selectedVehicleId = vehicleId;
-      // Auto-fill form fields with selected vehicle data
+
+      // Convert vehicle type code to full description and set it
+      const vehicleTypeCode = vehicle.vehicle_type;
+      const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
+      if (
+        vehicleTypeIndex >= 0 &&
+        vehicleTypeIndex < this.vehicleTypes.length
+      ) {
+        this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
+      }
+
+      // Auto-fill all form fields with selected vehicle data
       this.bookingForm.plateNumber = vehicle.plate_number || '';
       this.bookingForm.vehicleModel = vehicle.vehicle_model || '';
       this.bookingForm.vehicleColor = vehicle.vehicle_color || '';
       this.bookingForm.nickname = vehicle.nickname || '';
+
+      // Recalculate price after setting vehicle type
+      this.calculatePrice();
     }
   }
 

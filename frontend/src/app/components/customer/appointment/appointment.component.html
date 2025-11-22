@@ -32,6 +32,37 @@
             <span>Vehicle & Service</span>
           </div>
 
+          <!-- Saved Vehicles Dropdown (shown first if customer has saved vehicles) -->
+          <div class="form-row" *ngIf="customerVehicles.length > 0">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>Select from Saved Vehicles (Optional)</mat-label>
+              <mat-select
+                [(ngModel)]="selectedVehicleId"
+                name="savedVehicle"
+                (selectionChange)="onSavedVehicleSelect($event.value)"
+              >
+                <mat-option [value]="null">
+                  <em>Enter vehicle details manually</em>
+                </mat-option>
+                <mat-option
+                  *ngFor="let vehicle of customerVehicles"
+                  [value]="vehicle.id"
+                >
+                  <div class="vehicle-option">
+                    <span class="vehicle-name">{{
+                      vehicle.nickname || vehicle.vehicle_model
+                    }}</span>
+                    <span class="vehicle-details"
+                      >{{ vehicle.vehicle_type }} • {{ vehicle.plate_number }} •
+                      {{ vehicle.vehicle_model }}</span
+                    >
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>bookmark</mat-icon>
+            </mat-form-field>
+          </div>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Vehicle Type*</mat-label>
@@ -40,6 +71,7 @@
                 name="vehicleType"
                 required
                 (selectionChange)="onVehicleTypeChange()"
+                [disabled]="selectedVehicleId !== null"
               >
                 <mat-option *ngFor="let type of vehicleTypes" [value]="type">
                   <i class="fas fa-car"></i> {{ type }}
@@ -102,40 +134,6 @@
             <span>Vehicle Information</span>
           </div>
 
-          <!-- Saved Vehicles Dropdown (shown when vehicle type is selected and vehicles exist) -->
-          <div
-            class="form-row"
-            *ngIf="bookingForm.vehicleType && filteredVehicles.length > 0"
-          >
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>Select from Saved Vehicles (Optional)</mat-label>
-              <mat-select
-                [(ngModel)]="selectedVehicleId"
-                name="savedVehicle"
-                (selectionChange)="onSavedVehicleSelect($event.value)"
-              >
-                <mat-option [value]="null">
-                  <em>Enter vehicle details manually</em>
-                </mat-option>
-                <mat-option
-                  *ngFor="let vehicle of filteredVehicles"
-                  [value]="vehicle.id"
-                >
-                  <div class="vehicle-option">
-                    <span class="vehicle-name">{{
-                      vehicle.nickname || vehicle.vehicle_model
-                    }}</span>
-                    <span class="vehicle-details"
-                      >{{ vehicle.plate_number }} •
-                      {{ vehicle.vehicle_model }}</span
-                    >
-                  </div>
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>bookmark</mat-icon>
-            </mat-form-field>
-          </div>
-
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Plate Number*</mat-label>
@@ -146,6 +144,7 @@
                 required
                 placeholder="Enter plate number"
                 maxlength="20"
+                [readonly]="selectedVehicleId !== null"
               />
               <mat-icon matSuffix>badge</mat-icon>
             </mat-form-field>
@@ -159,6 +158,7 @@
                 required
                 placeholder="e.g., Toyota Vios, Honda Civic"
                 maxlength="50"
+                [readonly]="selectedVehicleId !== null"
               />
               <mat-icon matSuffix>directions_car</mat-icon>
             </mat-form-field>
@@ -173,6 +173,7 @@
                 name="vehicleColor"
                 placeholder="e.g., Red, Blue, White (optional)"
                 maxlength="30"
+                [readonly]="selectedVehicleId !== null"
               />
               <mat-icon matSuffix>palette</mat-icon>
             </mat-form-field>
