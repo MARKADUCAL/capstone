@@ -63,31 +63,6 @@ export class AdminLoginComponent {
           console.log('Login response:', response);
 
           if (response.status && response.status.remarks === 'success') {
-            // Check if admin account is approved
-            const admin = response.payload?.admin;
-            const isApproved = admin?.is_approved;
-
-            // Check if account is pending approval
-            if (
-              isApproved === 0 ||
-              isApproved === null ||
-              isApproved === undefined ||
-              isApproved === false
-            ) {
-              const errorMessage =
-                'Your account is pending approval. Please wait for admin approval before logging in.';
-              this.errorMessage = errorMessage;
-
-              // Show error message
-              Swal.fire({
-                title: 'Account Pending Approval',
-                text: errorMessage,
-                icon: 'warning',
-                confirmButtonText: 'OK',
-              });
-              return;
-            }
-
             // Save token and admin data to localStorage if in browser
             if (this.isBrowser && response.payload && response.payload.token) {
               try {
