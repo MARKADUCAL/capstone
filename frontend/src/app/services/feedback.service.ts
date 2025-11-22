@@ -153,10 +153,16 @@ export class FeedbackService {
   // Get feedback for a specific booking
   getFeedbackByBookingId(bookingId: number): Observable<CustomerFeedback[]> {
     // This would need a new backend endpoint, but for now we'll get all and filter
-    return this.getAllFeedback().pipe(
-      map((feedbackList) =>
-        feedbackList.filter((feedback) => feedback.booking_id === bookingId)
-      )
+    // Use a high limit to ensure we get all feedback
+    return this.getAllFeedback(1000).pipe(
+      map((feedbackList) => {
+        // Handle both string and number booking_id types
+        return feedbackList.filter(
+          (feedback) =>
+            Number(feedback.booking_id) === Number(bookingId) ||
+            feedback.booking_id === bookingId
+        );
+      })
     );
   }
 

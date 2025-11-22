@@ -188,14 +188,20 @@ export class CustomerRecordsComponent implements OnInit {
     // Always load individual feedback for this booking
     const bookingWithFeedback = { ...booking };
 
+    console.log('Loading feedback for booking ID:', booking.id);
     this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
       next: (feedbackList) => {
+        console.log('Feedback list received:', feedbackList);
         if (feedbackList && feedbackList.length > 0) {
           const feedback = feedbackList[0];
+          console.log('Setting feedback data:', feedback);
           bookingWithFeedback.customerRating = feedback.rating;
-          bookingWithFeedback.customerRatingComment = feedback.comment;
+          bookingWithFeedback.customerRatingComment = feedback.comment || '';
           bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
           bookingWithFeedback.feedbackId = feedback.id;
+          console.log('Booking with feedback:', bookingWithFeedback);
+        } else {
+          console.log('No feedback found for booking ID:', booking.id);
         }
         this.selectedBooking = bookingWithFeedback;
       },

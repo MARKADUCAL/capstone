@@ -257,7 +257,11 @@
         <!-- Customer Feedback Section (individual feedback for this booking) -->
         <section
           class="info-card"
-          *ngIf="sb.customerRating !== undefined && sb.customerRating !== null"
+          *ngIf="
+            (sb.customerRating !== undefined && sb.customerRating !== null) ||
+            sb.customerRatingComment ||
+            sb.feedbackCreatedAt
+          "
         >
           <div class="card-title">
             <span class="dot">💬</span> Customer Feedback
