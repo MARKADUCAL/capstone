@@ -710,9 +710,27 @@ export class AppointmentComponent implements OnInit {
     }
 
     // Verify vehicle type is set (should be auto-set from saved vehicle)
-    if (!this.bookingForm.vehicleType) {
-      this.errorMessage = 'Vehicle type is required';
-      return false;
+    // Only check if vehicle type is missing, which shouldn't happen if vehicle is selected
+    if (!this.bookingForm.vehicleType && this.selectedVehicleId) {
+      // If vehicle is selected but type is not set, try to set it again
+      const vehicle = this.customerVehicles.find(
+        (v) => v.id === this.selectedVehicleId
+      );
+      if (vehicle) {
+        const vehicleTypeCode = vehicle.vehicle_type;
+        const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
+        if (
+          vehicleTypeIndex >= 0 &&
+          vehicleTypeIndex < this.vehicleTypes.length
+        ) {
+          this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
+        }
+      }
+      // If still not set after retry, show error
+      if (!this.bookingForm.vehicleType) {
+        this.errorMessage = 'Please select a saved vehicle';
+        return false;
+      }
     }
 
     if (!this.bookingForm.services) {

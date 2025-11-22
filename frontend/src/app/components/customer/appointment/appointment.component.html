@@ -32,9 +32,9 @@
             <span>Vehicle & Service</span>
           </div>
 
-          <!-- Saved Vehicles Dropdown (Required) -->
+          <!-- Saved Vehicles and Services (Side by Side) -->
           <div class="form-row" *ngIf="customerVehicles.length > 0">
-            <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Select from Saved Vehicles*</mat-label>
               <mat-select
                 [(ngModel)]="selectedVehicleId"
@@ -59,21 +59,8 @@
               </mat-select>
               <mat-icon matSuffix>bookmark</mat-icon>
             </mat-form-field>
-          </div>
 
-          <!-- Message if no saved vehicles -->
-          <div class="form-row" *ngIf="customerVehicles.length === 0">
-            <div class="no-vehicles-message">
-              <i class="fas fa-exclamation-circle"></i>
-              <p>
-                You need to add a vehicle to your profile before booking. Please
-                go to your profile to add a vehicle first.
-              </p>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>Select Services*</mat-label>
               <mat-select
                 [(ngModel)]="bookingForm.services"
@@ -91,6 +78,17 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+
+          <!-- Message if no saved vehicles -->
+          <div class="form-row" *ngIf="customerVehicles.length === 0">
+            <div class="no-vehicles-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>
+                You need to add a vehicle to your profile before booking. Please
+                go to your profile to add a vehicle first.
+              </p>
+            </div>
           </div>
 
           <!-- Price Display -->
