@@ -229,6 +229,32 @@
   color: rgba(0, 0, 0, 0.6);
 }
 
+/* No Vehicles Message */
+.no-vehicles-message {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+}
+
+.no-vehicles-message i {
+  color: #ffc107;
+  font-size: 1.5rem;
+  margin-top: 2px;
+}
+
+.no-vehicles-message p {
+  margin: 0;
+  color: #856404;
+  font-size: 1rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
 .full-width {
   width: 100%;
 }

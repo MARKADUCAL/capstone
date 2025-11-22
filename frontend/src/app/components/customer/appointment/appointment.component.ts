@@ -498,12 +498,6 @@ export class AppointmentComponent implements OnInit {
   // Handle saved vehicle selection
   onSavedVehicleSelect(vehicleId: number | null): void {
     if (!vehicleId) {
-      this.selectedVehicleId = null;
-      // Clear form fields when "Enter manually" is selected
-      this.bookingForm.plateNumber = '';
-      this.bookingForm.vehicleModel = '';
-      this.bookingForm.vehicleColor = '';
-      this.bookingForm.nickname = '';
       return;
     }
 
@@ -703,8 +697,21 @@ export class AppointmentComponent implements OnInit {
 
   // Validate form before submission
   validateForm(): boolean {
+    // Check if customer has saved vehicles
+    if (this.customerVehicles.length === 0) {
+      this.errorMessage = 'Please add a vehicle to your profile before booking';
+      return false;
+    }
+
+    // Check if a saved vehicle is selected
+    if (!this.selectedVehicleId) {
+      this.errorMessage = 'Please select a saved vehicle';
+      return false;
+    }
+
+    // Verify vehicle type is set (should be auto-set from saved vehicle)
     if (!this.bookingForm.vehicleType) {
-      this.errorMessage = 'Please select a vehicle type';
+      this.errorMessage = 'Vehicle type is required';
       return false;
     }
 
@@ -713,6 +720,7 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
+    // Verify vehicle information is set (should be auto-set from saved vehicle)
     if (!this.bookingForm.plateNumber) {
       this.errorMessage = 'Plate number is required';
       return false;

@@ -32,18 +32,16 @@
             <span>Vehicle & Service</span>
           </div>
 
-          <!-- Saved Vehicles Dropdown (shown first if customer has saved vehicles) -->
+          <!-- Saved Vehicles Dropdown (Required) -->
           <div class="form-row" *ngIf="customerVehicles.length > 0">
             <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>Select from Saved Vehicles (Optional)</mat-label>
+              <mat-label>Select from Saved Vehicles*</mat-label>
               <mat-select
                 [(ngModel)]="selectedVehicleId"
                 name="savedVehicle"
+                required
                 (selectionChange)="onSavedVehicleSelect($event.value)"
               >
-                <mat-option [value]="null">
-                  <em>Enter vehicle details manually</em>
-                </mat-option>
                 <mat-option
                   *ngFor="let vehicle of customerVehicles"
                   [value]="vehicle.id"
@@ -63,23 +61,19 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Vehicle Type*</mat-label>
-              <mat-select
-                [(ngModel)]="bookingForm.vehicleType"
-                name="vehicleType"
-                required
-                (selectionChange)="onVehicleTypeChange()"
-                [disabled]="selectedVehicleId !== null"
-              >
-                <mat-option *ngFor="let type of vehicleTypes" [value]="type">
-                  <i class="fas fa-car"></i> {{ type }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+          <!-- Message if no saved vehicles -->
+          <div class="form-row" *ngIf="customerVehicles.length === 0">
+            <div class="no-vehicles-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>
+                You need to add a vehicle to your profile before booking. Please
+                go to your profile to add a vehicle first.
+              </p>
+            </div>
+          </div>
 
-            <mat-form-field appearance="outline" class="form-field">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>Select Services*</mat-label>
               <mat-select
                 [(ngModel)]="bookingForm.services"
@@ -124,59 +118,6 @@
                 This combination is currently inactive
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Vehicle Information -->
-        <div class="form-section">
-          <div class="section-title">
-            <i class="fas fa-car-side"></i>
-            <span>Vehicle Information</span>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Plate Number*</mat-label>
-              <input
-                matInput
-                [(ngModel)]="bookingForm.plateNumber"
-                name="plateNumber"
-                required
-                placeholder="Enter plate number"
-                maxlength="20"
-                [readonly]="selectedVehicleId !== null"
-              />
-              <mat-icon matSuffix>badge</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Vehicle Model*</mat-label>
-              <input
-                matInput
-                [(ngModel)]="bookingForm.vehicleModel"
-                name="vehicleModel"
-                required
-                placeholder="e.g., Toyota Vios, Honda Civic"
-                maxlength="50"
-                [readonly]="selectedVehicleId !== null"
-              />
-              <mat-icon matSuffix>directions_car</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row single-field">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Vehicle Color</mat-label>
-              <input
-                matInput
-                [(ngModel)]="bookingForm.vehicleColor"
-                name="vehicleColor"
-                placeholder="e.g., Red, Blue, White (optional)"
-                maxlength="30"
-                [readonly]="selectedVehicleId !== null"
-              />
-              <mat-icon matSuffix>palette</mat-icon>
-            </mat-form-field>
           </div>
         </div>
 
