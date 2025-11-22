@@ -497,13 +497,18 @@ export class AppointmentComponent implements OnInit {
 
   // Handle saved vehicle selection
   onSavedVehicleSelect(vehicleId: number | null): void {
-    if (!vehicleId) {
+    if (!vehicleId || vehicleId === null || vehicleId === undefined) {
+      this.selectedVehicleId = null;
       return;
     }
 
-    const vehicle = this.customerVehicles.find((v) => v.id === vehicleId);
+    // Ensure vehicleId is a number (handle string conversion)
+    const id =
+      typeof vehicleId === 'string' ? parseInt(vehicleId, 10) : vehicleId;
+
+    const vehicle = this.customerVehicles.find((v) => v.id == id);
     if (vehicle) {
-      this.selectedVehicleId = vehicleId;
+      this.selectedVehicleId = id;
 
       // Convert vehicle type code to full description and set it
       const vehicleTypeCode = vehicle.vehicle_type;
@@ -523,6 +528,9 @@ export class AppointmentComponent implements OnInit {
 
       // Recalculate price after setting vehicle type
       this.calculatePrice();
+    } else {
+      console.error('Vehicle not found with ID:', id);
+      this.selectedVehicleId = null;
     }
   }
 
@@ -703,38 +711,65 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
-    // Check if a saved vehicle is selected
-    if (!this.selectedVehicleId) {
+    // Check if a saved vehicle is selected (handle both number and string types)
+    const hasSelectedVehicle =
+      this.selectedVehicleId !== null &&
+      this.selectedVehicleId !== undefined &&
+      this.selectedVehicleId !== 0;
+
+    if (!hasSelectedVehicle) {
       this.errorMessage = 'Please select a saved vehicle';
       return false;
     }
 
-    // Verify vehicle type is set (should be auto-set from saved vehicle)
-    // Only check if vehicle type is missing, which shouldn't happen if vehicle is selected
-    if (!this.bookingForm.vehicleType && this.selectedVehicleId) {
-      // If vehicle is selected but type is not set, try to set it again
-      const vehicle = this.customerVehicles.find(
-        (v) => v.id === this.selectedVehicleId
-      );
-      if (vehicle) {
-        const vehicleTypeCode = vehicle.vehicle_type;
-        const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
-        if (
-          vehicleTypeIndex >= 0 &&
-          vehicleTypeIndex < this.vehicleTypes.length
-        ) {
-          this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
-        }
+    // Verify vehicle exists and set vehicle type if missing
+    const vehicle = this.customerVehicles.find(
+      (v) => v.id == this.selectedVehicleId
+    );
+
+    if (!vehicle) {
+      this.errorMessage = 'Selected vehicle not found. Please select again.';
+      return false;
+    }
+
+    // Ensure vehicle type is set (should be auto-set from saved vehicle)
+    if (!this.bookingForm.vehicleType) {
+      // If vehicle type is not set, set it from the selected vehicle
+      const vehicleTypeCode = vehicle.vehicle_type;
+      const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
+      if (
+        vehicleTypeIndex >= 0 &&
+        vehicleTypeIndex < this.vehicleTypes.length
+      ) {
+        this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
       }
-      // If still not set after retry, show error
-      if (!this.bookingForm.vehicleType) {
-        this.errorMessage = 'Please select a saved vehicle';
-        return false;
-      }
+    }
+
+    // Ensure vehicle information is set (should be auto-set from saved vehicle)
+    if (!this.bookingForm.plateNumber && vehicle.plate_number) {
+      this.bookingForm.plateNumber = vehicle.plate_number;
+    }
+
+    if (!this.bookingForm.vehicleModel && vehicle.vehicle_model) {
+      this.bookingForm.vehicleModel = vehicle.vehicle_model;
+    }
+
+    if (!this.bookingForm.vehicleColor && vehicle.vehicle_color) {
+      this.bookingForm.vehicleColor = vehicle.vehicle_color;
+    }
+
+    if (!this.bookingForm.nickname && vehicle.nickname) {
+      this.bookingForm.nickname = vehicle.nickname;
     }
 
     if (!this.bookingForm.services) {
       this.errorMessage = 'Please select a service';
+      return false;
+    }
+
+    // Verify vehicle type is set (final check)
+    if (!this.bookingForm.vehicleType) {
+      this.errorMessage = 'Vehicle type is required';
       return false;
     }
 
