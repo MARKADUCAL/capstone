@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
 import { MatStepperModule } from '@angular/material/stepper';
@@ -98,6 +98,11 @@ export class AppointmentComponent implements OnInit {
 
   // Customer bookings
   customerBookings: Booking[] = [];
+
+  // Customer saved vehicles
+  customerVehicles: any[] = [];
+  filteredVehicles: any[] = [];
+  selectedVehicleId: number | null = null;
 
   // Time picker properties
   showTimePicker = false;
@@ -337,6 +342,9 @@ export class AppointmentComponent implements OnInit {
   // Handle vehicle type change
   onVehicleTypeChange(): void {
     this.calculatePrice();
+    this.loadCustomerVehiclesForType();
+    // Reset selected vehicle when type changes
+    this.selectedVehicleId = null;
   }
 
   // Handle service change
@@ -376,6 +384,8 @@ export class AppointmentComponent implements OnInit {
 
         // Load bookings after user data is loaded
         this.loadBookings();
+        // Load customer vehicles
+        this.loadCustomerVehicles();
       } catch (error) {
         console.error('Error parsing customer data:', error);
       }
@@ -399,6 +409,106 @@ export class AppointmentComponent implements OnInit {
         this.errorMessage = 'Failed to load bookings: ' + error.message;
       }
     );
+  }
+
+  // Load customer vehicles from database
+  loadCustomerVehicles(): void {
+    if (!this.isBrowser || !this.userCustomerId) {
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      console.warn('No auth token found, cannot load vehicles');
+      return;
+    }
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    this.http
+      .get<any>(
+        `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.userCustomerId}`,
+        { headers }
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.customerVehicles = response.payload?.vehicles || [];
+            this.filterVehiclesByType();
+          } else {
+            console.error('Failed to load vehicles:', response.status?.message);
+            this.customerVehicles = [];
+            this.filteredVehicles = [];
+          }
+        },
+        error: (error) => {
+          console.error('Error loading vehicles:', error);
+          this.customerVehicles = [];
+          this.filteredVehicles = [];
+        },
+      });
+  }
+
+  // Load and filter vehicles when vehicle type is selected
+  loadCustomerVehiclesForType(): void {
+    if (!this.bookingForm.vehicleType) {
+      this.filteredVehicles = [];
+      return;
+    }
+
+    // Extract vehicle type code from the selected type (e.g., "M - SUVs..." -> "M")
+    const vehicleTypeCode = this.getVehicleTypeCode(
+      this.bookingForm.vehicleType
+    );
+
+    // Filter vehicles by the selected vehicle type
+    this.filteredVehicles = this.customerVehicles.filter(
+      (vehicle) => vehicle.vehicle_type === vehicleTypeCode
+    );
+  }
+
+  // Filter vehicles by current vehicle type
+  filterVehiclesByType(): void {
+    if (!this.bookingForm.vehicleType) {
+      this.filteredVehicles = [];
+      return;
+    }
+
+    const vehicleTypeCode = this.getVehicleTypeCode(
+      this.bookingForm.vehicleType
+    );
+    this.filteredVehicles = this.customerVehicles.filter(
+      (vehicle) => vehicle.vehicle_type === vehicleTypeCode
+    );
+  }
+
+  // Handle saved vehicle selection
+  onSavedVehicleSelect(vehicleId: number | null): void {
+    if (!vehicleId) {
+      this.selectedVehicleId = null;
+      return;
+    }
+
+    const vehicle = this.customerVehicles.find((v) => v.id === vehicleId);
+    if (vehicle) {
+      this.selectedVehicleId = vehicleId;
+      // Auto-fill form fields with selected vehicle data
+      this.bookingForm.plateNumber = vehicle.plate_number || '';
+      this.bookingForm.vehicleModel = vehicle.vehicle_model || '';
+      this.bookingForm.vehicleColor = vehicle.vehicle_color || '';
+      this.bookingForm.nickname = vehicle.nickname || '';
+    }
+  }
+
+  // Clear selected vehicle and reset form fields
+  clearSavedVehicleSelection(): void {
+    this.selectedVehicleId = null;
+    // Optionally clear the vehicle fields or keep them filled
+    // this.bookingForm.plateNumber = '';
+    // this.bookingForm.vehicleModel = '';
+    // this.bookingForm.vehicleColor = '';
   }
 
   // Open booking modal
@@ -451,6 +561,8 @@ export class AppointmentComponent implements OnInit {
       onlinePaymentOption: '',
       notes: '',
     };
+    this.selectedVehicleId = null;
+    this.filteredVehicles = [];
     this.successMessage = '';
     this.errorMessage = '';
   }

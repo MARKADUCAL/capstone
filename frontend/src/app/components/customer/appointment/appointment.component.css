@@ -47,7 +47,7 @@
 
 .page-subtitle {
   font-size: 1.3rem;
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   margin: 0;
   font-weight: 400;
 }
@@ -130,7 +130,7 @@
 }
 
 .form-header p {
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-size: 1.2rem;
   margin: 0;
 }
@@ -149,7 +149,7 @@
   font-weight: 600;
   color: var(--text-dark);
   padding-bottom: 15px;
-  border-bottom: 2px solid rgba(0,0,0,0.06);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
 }
 
 .section-title i {
@@ -197,18 +197,36 @@
 
 .form-field input[readonly],
 .form-field input[readonly]:focus {
-  background-color: rgba(0,0,0,0.02);
-  color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.02);
+  color: rgba(0, 0, 0, 0.6);
   cursor: not-allowed;
-  border-color: rgba(0,0,0,0.15);
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .form-field input[readonly]::placeholder {
-  color: rgba(0,0,0,0.35);
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .form-field input[readonly]:hover {
-  background-color: rgba(0,0,0,0.02);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Vehicle Option Styling */
+.vehicle-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vehicle-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.vehicle-details {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .full-width {
@@ -217,7 +235,7 @@
 
 /* Material Design Overrides */
 ::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
-  color: rgba(0,0,0,0.3);
+  color: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
 }
 
@@ -233,7 +251,7 @@
 }
 
 ::ng-deep .mat-form-field-label {
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-weight: 500;
   font-size: 1.1rem;
 }
@@ -269,7 +287,7 @@
 
 .service-details {
   font-size: 1rem;
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 /* Messages */
@@ -311,7 +329,11 @@
 }
 
 .submit-button {
-  background: linear-gradient(135deg, var(--accent), var(--secondary)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--secondary)
+  ) !important;
   color: white !important;
   padding: 18px 50px !important;
   font-size: 1.3rem !important;
@@ -355,12 +377,12 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.08));
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.08));
   padding: 25px;
   display: flex;
   align-items: center;
   gap: 15px;
-  border-bottom: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .card-header i {
@@ -391,7 +413,7 @@
   align-items: flex-start;
   gap: 15px;
   padding: 15px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   font-size: 1.1rem;
 }
 
@@ -407,7 +429,7 @@
 }
 
 .tips-list span {
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -424,7 +446,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .hours-row:last-child {
@@ -438,7 +460,7 @@
 }
 
 .time {
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -1175,7 +1197,7 @@
   align-items: center;
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 2px solid rgba(0,0,0,0.06);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
 }
 
 .time-picker-header h3 {
@@ -1189,7 +1211,7 @@
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -1197,7 +1219,7 @@
 }
 
 .close-btn:hover {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   color: var(--secondary);
 }
 
@@ -1218,7 +1240,7 @@
 
 .column-header {
   font-size: 0.9rem;
-  color: rgba(0,0,0,0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-weight: 500;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -1228,11 +1250,11 @@
 .column-content {
   height: 200px;
   overflow-y: auto;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 10px;
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.3) rgba(0,0,0,0.02);
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.02);
 }
 
 .column-content::-webkit-scrollbar {
@@ -1240,17 +1262,17 @@
 }
 
 .column-content::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 10px;
 }
 
 .column-content::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
 }
 
 .column-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .time-option {
@@ -1258,7 +1280,7 @@
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 1.1rem;
   font-weight: 500;
   color: var(--text-dark);
@@ -1273,7 +1295,7 @@
 }
 
 .time-option:hover {
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .time-option.selected {
@@ -1294,7 +1316,7 @@
   gap: 15px;
   justify-content: flex-end;
   padding-top: 20px;
-  border-top: 2px solid rgba(0,0,0,0.06);
+  border-top: 2px solid rgba(0, 0, 0, 0.06);
 }
 
 .btn-cancel,
@@ -1310,12 +1332,12 @@
 }
 
 .btn-cancel {
-  background: rgba(0,0,0,0.06);
-  color: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .btn-cancel:hover {
-  background: rgba(0,0,0,0.12);
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .btn-confirm {
@@ -1408,7 +1430,7 @@
 .form-section .form-row:has(mat-form-field:only-child) + .form-row {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid rgba(0,0,0,0.12);
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .form-section
@@ -1431,11 +1453,15 @@
 
 /* Online Payment Options Styling */
 .online-payment-options {
-  background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.02) 0%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
   border-radius: 12px;
   padding: 20px;
   margin-top: 15px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
@@ -1456,7 +1482,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 15px;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-weight: 600;
   font-size: 14px;
 }
@@ -1520,7 +1546,11 @@
 }
 
 .price-card.unavailable {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    var(--secondary) 100%
+  );
 }
 
 .price-header {
@@ -1544,7 +1574,11 @@
 
 /* Pricing Guide Styles */
 .pricing-guide {
-  background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.08) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.02) 0%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
   border: 2px solid var(--secondary);
 }
 
@@ -1556,7 +1590,7 @@
 .pricing-step {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .pricing-step:last-child {
@@ -1565,7 +1599,7 @@
 }
 
 .pricing-step h4 {
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -1609,7 +1643,7 @@
 .vehicle-desc,
 .service-desc {
   font-size: 0.85rem;
-  color: rgba(0,0,0,0.65);
+  color: rgba(0, 0, 0, 0.65);
   line-height: 1.4;
 }
 
@@ -1643,7 +1677,7 @@
 .pricing-row {
   display: grid;
   grid-template-columns: 1fr repeat(5, 1fr);
-  border-bottom: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .pricing-row:last-child {
@@ -1654,16 +1688,16 @@
   padding: 0.5rem;
   text-align: center;
   font-weight: 600;
-  background: rgba(0,0,0,0.02);
-  color: rgba(0,0,0,0.65);
-  border-right: 1px solid rgba(0,0,0,0.15);
+  background: rgba(0, 0, 0, 0.02);
+  color: rgba(0, 0, 0, 0.65);
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .price-cell {
   padding: 0.5rem;
   text-align: center;
-  color: rgba(0,0,0,0.65);
-  border-right: 1px solid rgba(0,0,0,0.15);
+  color: rgba(0, 0, 0, 0.65);
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
   font-weight: 500;
 }
 
