@@ -26,6 +26,9 @@ interface Task {
   rawDate?: string;
   rawTime?: string;
   sortValue?: number;
+  customerRating?: number;
+  customerRatingComment?: string;
+  feedbackCreatedAt?: string;
 }
 
 interface DailyStats {
@@ -411,7 +414,7 @@ export class DashboardComponent implements OnInit {
     if (task) {
       // Load feedback data for completed bookings
       const taskWithFeedback = { ...task };
-      
+
       if (task.status === 'Completed') {
         this.feedbackService.getFeedbackByBookingId(task.id).subscribe({
           next: (feedbackList) => {
@@ -434,7 +437,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  private openTaskDetailsDialog(task: Task & { customerRating?: number; customerRatingComment?: string; feedbackCreatedAt?: string }): void {
+  private openTaskDetailsDialog(task: Task): void {
     const dialogRef = this.dialog.open(TaskDetailsDialog, {
       width: '600px',
       data: task,
