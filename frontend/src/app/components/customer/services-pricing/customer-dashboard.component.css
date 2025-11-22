@@ -362,26 +362,27 @@
 
 /* Booking Guide */
 .booking-guide {
-  background-color: var(--mat-sys-primary-container);
+  background-color: #E3F2FD;
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
 }
 
-.booking-guide h4 {
-  color: var(--secondary);
+.booking-title {
+  color: #424242;
   margin-bottom: 15px;
   font-size: 1.3rem;
+  font-weight: bold;
 }
 
-.booking-guide ol {
-  color: rgba(0,0,0,0.7);
+.booking-steps {
+  color: #424242;
   line-height: 1.8;
   margin: 0;
   padding-left: 20px;
 }
 
-.booking-guide li {
+.booking-steps li {
   margin-bottom: 8px;
 }
 
