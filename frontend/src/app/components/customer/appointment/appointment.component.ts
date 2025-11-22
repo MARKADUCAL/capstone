@@ -510,14 +510,46 @@ export class AppointmentComponent implements OnInit {
     if (vehicle) {
       this.selectedVehicleId = id;
 
-      // Convert vehicle type code to full description and set it
-      const vehicleTypeCode = vehicle.vehicle_type;
-      const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
-      if (
-        vehicleTypeIndex >= 0 &&
-        vehicleTypeIndex < this.vehicleTypes.length
-      ) {
-        this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
+      // Handle vehicle type - it might be stored as full description or just code
+      let vehicleTypeToSet = '';
+
+      // Check if vehicle_type is already in the vehicleTypes array (full description)
+      if (this.vehicleTypes.includes(vehicle.vehicle_type)) {
+        vehicleTypeToSet = vehicle.vehicle_type;
+      } else {
+        // Try to extract code from description (e.g., "S" from "S - Sedans...")
+        const codeMatch = vehicle.vehicle_type.match(/^([A-Z]+)\s*-\s*/);
+        if (codeMatch) {
+          const vehicleTypeCode = codeMatch[1];
+          const vehicleTypeIndex =
+            this.vehicleTypeCodes.indexOf(vehicleTypeCode);
+          if (
+            vehicleTypeIndex >= 0 &&
+            vehicleTypeIndex < this.vehicleTypes.length
+          ) {
+            vehicleTypeToSet = this.vehicleTypes[vehicleTypeIndex];
+          }
+        } else {
+          // Try direct code match
+          const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(
+            vehicle.vehicle_type
+          );
+          if (
+            vehicleTypeIndex >= 0 &&
+            vehicleTypeIndex < this.vehicleTypes.length
+          ) {
+            vehicleTypeToSet = this.vehicleTypes[vehicleTypeIndex];
+          }
+        }
+      }
+
+      // Set vehicle type
+      if (vehicleTypeToSet) {
+        this.bookingForm.vehicleType = vehicleTypeToSet;
+      } else {
+        console.warn('Could not match vehicle type:', vehicle.vehicle_type);
+        // Fallback: try to use the stored value directly
+        this.bookingForm.vehicleType = vehicle.vehicle_type;
       }
 
       // Auto-fill all form fields with selected vehicle data
@@ -735,13 +767,43 @@ export class AppointmentComponent implements OnInit {
     // Ensure vehicle type is set (should be auto-set from saved vehicle)
     if (!this.bookingForm.vehicleType) {
       // If vehicle type is not set, set it from the selected vehicle
-      const vehicleTypeCode = vehicle.vehicle_type;
-      const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(vehicleTypeCode);
-      if (
-        vehicleTypeIndex >= 0 &&
-        vehicleTypeIndex < this.vehicleTypes.length
-      ) {
-        this.bookingForm.vehicleType = this.vehicleTypes[vehicleTypeIndex];
+      let vehicleTypeToSet = '';
+
+      // Check if vehicle_type is already in the vehicleTypes array (full description)
+      if (this.vehicleTypes.includes(vehicle.vehicle_type)) {
+        vehicleTypeToSet = vehicle.vehicle_type;
+      } else {
+        // Try to extract code from description (e.g., "S" from "S - Sedans...")
+        const codeMatch = vehicle.vehicle_type.match(/^([A-Z]+)\s*-\s*/);
+        if (codeMatch) {
+          const vehicleTypeCode = codeMatch[1];
+          const vehicleTypeIndex =
+            this.vehicleTypeCodes.indexOf(vehicleTypeCode);
+          if (
+            vehicleTypeIndex >= 0 &&
+            vehicleTypeIndex < this.vehicleTypes.length
+          ) {
+            vehicleTypeToSet = this.vehicleTypes[vehicleTypeIndex];
+          }
+        } else {
+          // Try direct code match
+          const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(
+            vehicle.vehicle_type
+          );
+          if (
+            vehicleTypeIndex >= 0 &&
+            vehicleTypeIndex < this.vehicleTypes.length
+          ) {
+            vehicleTypeToSet = this.vehicleTypes[vehicleTypeIndex];
+          }
+        }
+      }
+
+      if (vehicleTypeToSet) {
+        this.bookingForm.vehicleType = vehicleTypeToSet;
+      } else {
+        // Fallback: use stored value directly
+        this.bookingForm.vehicleType = vehicle.vehicle_type;
       }
     }
 
