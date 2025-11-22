@@ -15,6 +15,10 @@ interface TaskDetails {
   service: string;
   time: string;
   date: string;
+  status?: string;
+  customerRating?: number;
+  customerRatingComment?: string;
+  feedbackCreatedAt?: string;
 }
 
 @Component({
@@ -78,6 +82,43 @@ interface TaskDetails {
             <div class="detail-row">
               <span class="label">Scheduled Time:</span>
               <span class="value time-value">{{ data.time }}</span>
+            </div>
+          </div>
+
+          <!-- Customer Feedback Section (if feedback exists for completed bookings) -->
+          <div
+            class="detail-section"
+            *ngIf="
+              data.status === 'Completed' && data.customerRating !== undefined
+            "
+          >
+            <div class="section-header">
+              <mat-icon class="section-icon">star</mat-icon>
+              <h3 class="section-title">Customer Feedback</h3>
+            </div>
+            <div class="detail-row">
+              <span class="label">Rating:</span>
+              <span class="value rating-display">
+                <span class="stars">{{
+                  getStarDisplay(data.customerRating || 0)
+                }}</span>
+                <span class="rating-value">{{ data.customerRating }}/5</span>
+              </span>
+            </div>
+            <div
+              class="detail-row feedback-comment-row"
+              *ngIf="data.customerRatingComment"
+            >
+              <span class="label">Comment:</span>
+              <span class="value feedback-comment">{{
+                data.customerRatingComment
+              }}</span>
+            </div>
+            <div class="detail-row" *ngIf="data.feedbackCreatedAt">
+              <span class="label">Submitted On:</span>
+              <span class="value">{{
+                formatDate(data.feedbackCreatedAt)
+              }}</span>
             </div>
           </div>
         </div>
@@ -223,6 +264,43 @@ interface TaskDetails {
         color: #666;
       }
 
+      .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stars {
+        color: #fbbf24;
+        font-size: 18px;
+        letter-spacing: 2px;
+      }
+
+      .rating-value {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .feedback-comment-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .feedback-comment {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 100%;
+        line-height: 1.5;
+        background: #fefce8;
+        border: 1px solid #fde047;
+        border-radius: 8px;
+        padding: 12px;
+        color: #713f12;
+        font-weight: 500;
+        text-align: left;
+      }
+
       /* Status Badge Styles */
       /* Actions Styles */
       mat-dialog-actions {
@@ -286,4 +364,31 @@ export class TaskDetailsDialog {
     public dialogRef: MatDialogRef<TaskDetailsDialog>,
     @Inject(MAT_DIALOG_DATA) public data: TaskDetails
   ) {}
+
+  getStarDisplay(rating: number): string {
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) {
+      stars += '☆';
+    }
+    return stars;
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (error) {
+      return '';
+    }
+  }
 }

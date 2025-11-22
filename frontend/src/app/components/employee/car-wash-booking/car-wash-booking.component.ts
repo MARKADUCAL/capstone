@@ -380,29 +380,25 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   private openBookingDialog(booking: CarWashBooking, mode: 'view') {
-    // Load feedback data for completed bookings
+    // Always load feedback data for all bookings
     const bookingWithFeedback = { ...booking };
-    
-    if (booking.status === 'Completed') {
-      this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
-        next: (feedbackList) => {
-          if (feedbackList && feedbackList.length > 0) {
-            const feedback = feedbackList[0];
-            bookingWithFeedback.customerRating = feedback.rating;
-            bookingWithFeedback.customerRatingComment = feedback.comment;
-            bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
-            bookingWithFeedback.feedbackId = feedback.id;
-          }
-          this.openDialog(bookingWithFeedback, mode);
-        },
-        error: (err) => {
-          console.error('Error loading feedback:', err);
-          this.openDialog(bookingWithFeedback, mode);
-        },
-      });
-    } else {
-      this.openDialog(bookingWithFeedback, mode);
-    }
+
+    this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+      next: (feedbackList) => {
+        if (feedbackList && feedbackList.length > 0) {
+          const feedback = feedbackList[0];
+          bookingWithFeedback.customerRating = feedback.rating;
+          bookingWithFeedback.customerRatingComment = feedback.comment;
+          bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+          bookingWithFeedback.feedbackId = feedback.id;
+        }
+        this.openDialog(bookingWithFeedback, mode);
+      },
+      error: (err) => {
+        console.error('Error loading feedback:', err);
+        this.openDialog(bookingWithFeedback, mode);
+      },
+    });
   }
 
   private openDialog(booking: CarWashBooking, mode: 'view') {
@@ -476,11 +472,15 @@ export class CarWashBookingComponent implements OnInit {
             </div>
             <div class="info-item">
               <span class="label">Vehicle Model</span>
-              <span class="value">{{ data.booking.vehicleModel || 'N/A' }}</span>
+              <span class="value">{{
+                data.booking.vehicleModel || 'N/A'
+              }}</span>
             </div>
             <div class="info-item">
               <span class="label">Vehicle Color</span>
-              <span class="value">{{ data.booking.vehicleColor || 'N/A' }}</span>
+              <span class="value">{{
+                data.booking.vehicleColor || 'N/A'
+              }}</span>
             </div>
           </div>
         </div>
@@ -551,12 +551,12 @@ export class CarWashBookingComponent implements OnInit {
           </div>
         </div>
 
-        <!-- Customer Feedback Section (if feedback exists for completed bookings) -->
+        <!-- Customer Feedback Section (if feedback exists) -->
         <div
           class="info-section"
           *ngIf="
-            data.booking.status === 'Completed' &&
-            data.booking.customerRating
+            data.booking.customerRating !== undefined &&
+            data.booking.customerRating !== null
           "
         >
           <div class="section-header">
@@ -567,8 +567,12 @@ export class CarWashBookingComponent implements OnInit {
             <div class="info-item">
               <span class="label">Rating</span>
               <span class="value rating-display">
-                <span class="stars">{{ getStarDisplay(data.booking.customerRating || 0) }}</span>
-                <span class="rating-value">{{ data.booking.customerRating }}/5</span>
+                <span class="stars">{{
+                  getStarDisplay(data.booking.customerRating || 0)
+                }}</span>
+                <span class="rating-value"
+                  >{{ data.booking.customerRating }}/5</span
+                >
               </span>
             </div>
             <div
@@ -580,10 +584,7 @@ export class CarWashBookingComponent implements OnInit {
                 data.booking.customerRatingComment
               }}</span>
             </div>
-            <div
-              class="info-item"
-              *ngIf="data.booking.feedbackCreatedAt"
-            >
+            <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
               <span class="label">Submitted On</span>
               <span class="value">{{
                 formatDate(data.booking.feedbackCreatedAt)

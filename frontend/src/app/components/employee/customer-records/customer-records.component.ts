@@ -185,29 +185,25 @@ export class CustomerRecordsComponent implements OnInit {
   }
 
   openDetails(booking: CustomerBooking) {
-    // Load individual feedback for this booking if it's completed
+    // Always load individual feedback for this booking
     const bookingWithFeedback = { ...booking };
-    
-    if (booking.status === 'Completed') {
-      this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
-        next: (feedbackList) => {
-          if (feedbackList && feedbackList.length > 0) {
-            const feedback = feedbackList[0];
-            bookingWithFeedback.customerRating = feedback.rating;
-            bookingWithFeedback.customerRatingComment = feedback.comment;
-            bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
-            bookingWithFeedback.feedbackId = feedback.id;
-          }
-          this.selectedBooking = bookingWithFeedback;
-        },
-        error: (err) => {
-          console.error('Error loading feedback:', err);
-          this.selectedBooking = bookingWithFeedback;
-        },
-      });
-    } else {
-      this.selectedBooking = bookingWithFeedback;
-    }
+
+    this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+      next: (feedbackList) => {
+        if (feedbackList && feedbackList.length > 0) {
+          const feedback = feedbackList[0];
+          bookingWithFeedback.customerRating = feedback.rating;
+          bookingWithFeedback.customerRatingComment = feedback.comment;
+          bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+          bookingWithFeedback.feedbackId = feedback.id;
+        }
+        this.selectedBooking = bookingWithFeedback;
+      },
+      error: (err) => {
+        console.error('Error loading feedback:', err);
+        this.selectedBooking = bookingWithFeedback;
+      },
+    });
   }
 
   closeDetails() {
@@ -244,9 +240,7 @@ export class CustomerRecordsComponent implements OnInit {
     const trimmed = time.trim();
     if (!trimmed || trimmed === '—') return '—';
 
-    const match = trimmed.match(
-      /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i
-    );
+    const match = trimmed.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i);
 
     if (!match) {
       return trimmed;

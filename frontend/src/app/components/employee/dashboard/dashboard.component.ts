@@ -409,16 +409,41 @@ export class DashboardComponent implements OnInit {
   viewTaskDetails(taskId: number): void {
     const task = this.upcomingTasks.find((t) => t.id === taskId);
     if (task) {
-      const dialogRef = this.dialog.open(TaskDetailsDialog, {
-        width: '600px',
-        data: task,
-        disableClose: false,
-        autoFocus: false,
-      });
-
-      dialogRef.afterClosed().subscribe((result) => {
-        console.log('Task details dialog closed');
-      });
+      // Load feedback data for completed bookings
+      const taskWithFeedback = { ...task };
+      
+      if (task.status === 'Completed') {
+        this.feedbackService.getFeedbackByBookingId(task.id).subscribe({
+          next: (feedbackList) => {
+            if (feedbackList && feedbackList.length > 0) {
+              const feedback = feedbackList[0];
+              taskWithFeedback.customerRating = feedback.rating;
+              taskWithFeedback.customerRatingComment = feedback.comment;
+              taskWithFeedback.feedbackCreatedAt = feedback.created_at;
+            }
+            this.openTaskDetailsDialog(taskWithFeedback);
+          },
+          error: (err) => {
+            console.error('Error loading feedback:', err);
+            this.openTaskDetailsDialog(taskWithFeedback);
+          },
+        });
+      } else {
+        this.openTaskDetailsDialog(taskWithFeedback);
+      }
     }
+  }
+
+  private openTaskDetailsDialog(task: Task & { customerRating?: number; customerRatingComment?: string; feedbackCreatedAt?: string }): void {
+    const dialogRef = this.dialog.open(TaskDetailsDialog, {
+      width: '600px',
+      data: task,
+      disableClose: false,
+      autoFocus: false,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Task details dialog closed');
+    });
   }
 }

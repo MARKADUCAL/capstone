@@ -192,10 +192,7 @@
               <div class="info-label">Vehicle Type:</div>
               <div class="info-value">
                 {{
-                  sb.vehicleType ||
-                    raw?.vehicleType ||
-                    raw?.vehicle_type ||
-                    "—"
+                  sb.vehicleType || raw?.vehicleType || raw?.vehicle_type || "—"
                 }}
               </div>
             </div>
@@ -203,10 +200,7 @@
               <div class="info-label">Plate Number:</div>
               <div class="info-value">
                 {{
-                  sb.plateNumber ||
-                    raw?.plateNumber ||
-                    raw?.plate_number ||
-                    "—"
+                  sb.plateNumber || raw?.plateNumber || raw?.plate_number || "—"
                 }}
               </div>
             </div>
@@ -263,7 +257,7 @@
         <!-- Customer Feedback Section (individual feedback for this booking) -->
         <section
           class="info-card"
-          *ngIf="sb.status === 'Completed' && sb.customerRating"
+          *ngIf="sb.customerRating !== undefined && sb.customerRating !== null"
         >
           <div class="card-title">
             <span class="dot">💬</span> Customer Feedback
@@ -272,7 +266,9 @@
             <div class="info-item">
               <div class="info-label">Rating:</div>
               <div class="info-value rating-display">
-                <span class="stars-display">{{ getStarDisplay(sb.customerRating) }}</span>
+                <span class="stars-display">{{
+                  getStarDisplay(sb.customerRating)
+                }}</span>
                 <span class="rating-value">{{ sb.customerRating }}/5</span>
               </div>
             </div>
@@ -367,10 +363,7 @@
               <div class="info-label">Method:</div>
               <div class="info-value">
                 {{
-                  sb.paymentType ||
-                    raw?.paymentType ||
-                    raw?.payment_type ||
-                    "—"
+                  sb.paymentType || raw?.paymentType || raw?.payment_type || "—"
                 }}
               </div>
             </div>
