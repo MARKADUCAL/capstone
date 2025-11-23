@@ -770,8 +770,13 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   private openDialog(booking: CarWashBooking, mode: 'view' | 'edit') {
+    const isMobile = window.innerWidth <= 768;
     const dialogRef = this.dialog.open(BookingDetailsDialogComponent, {
-      width: '520px',
+      width: isMobile ? '100vw' : '520px',
+      maxWidth: isMobile ? '100vw' : '600px',
+      height: isMobile ? '100vh' : 'auto',
+      maxHeight: isMobile ? '100vh' : '90vh',
+      panelClass: isMobile ? 'mobile-dialog' : '',
       data: { booking, mode },
     });
 
@@ -1898,6 +1903,9 @@ export class CreateWalkInBookingDialogComponent {
         overflow: hidden;
         min-width: 500px;
         max-width: 600px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
       }
 
       .modal-header {
@@ -1968,16 +1976,21 @@ export class CreateWalkInBookingDialogComponent {
 
       .modal-content {
         padding: 24px;
-        max-height: 60vh;
+        flex: 1;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .info-section {
-        margin-bottom: 24px;
-        padding: 20px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: transparent;
+        border-radius: 0;
+        border: none;
+      }
+
+      .info-section:last-of-type {
+        margin-bottom: 0;
       }
 
       .section-header {
@@ -2009,10 +2022,11 @@ export class CreateWalkInBookingDialogComponent {
 
       .info-item {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
         padding: 12px 16px;
-        background: white;
+        background: #f8fafc;
         border-radius: 8px;
         border: 1px solid #e2e8f0;
       }
@@ -2020,13 +2034,15 @@ export class CreateWalkInBookingDialogComponent {
       .label {
         font-weight: 600;
         color: #475569;
-        font-size: 14px;
+        font-size: 13px;
+        margin-bottom: 4px;
       }
 
       .value {
         color: #1e293b;
         font-size: 14px;
         font-weight: 500;
+        width: 100%;
       }
 
       .value.price {
@@ -2170,12 +2186,13 @@ export class CreateWalkInBookingDialogComponent {
       }
 
       .modal-actions {
-        padding: 20px 24px;
+        padding: 16px 20px;
         background: #f8fafc;
         border-top: 1px solid #e2e8f0;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         gap: 12px;
+        flex-shrink: 0;
       }
 
       .action-btn {
@@ -2217,33 +2234,150 @@ export class CreateWalkInBookingDialogComponent {
       }
 
       /* Responsive Design */
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
         .modal-container {
-          min-width: 90vw;
-          margin: 20px;
+          min-width: 100vw;
+          max-width: 100vw;
+          width: 100vw;
+          height: 100vh;
+          max-height: 100vh;
+          border-radius: 0;
+          margin: 0;
         }
 
         .modal-header {
-          padding: 20px;
+          padding: 16px 20px;
+          border-radius: 0;
+        }
+
+        .header-content {
+          gap: 12px;
+        }
+
+        .header-icon {
+          padding: 10px;
+          border-radius: 10px;
+        }
+
+        .header-icon mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        .modal-title {
+          font-size: 18px;
+        }
+
+        .modal-subtitle {
+          font-size: 13px;
+        }
+
+        .close-button {
+          padding: 6px;
+        }
+
+        .close-button mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
         }
 
         .modal-content {
-          padding: 20px;
+          padding: 16px 20px;
+          max-height: none;
+        }
+
+        .info-section {
+          margin-bottom: 20px;
+          padding: 0;
+        }
+
+        .section-header {
+          margin-bottom: 12px;
+          gap: 10px;
+        }
+
+        .section-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .section-header h3 {
+          font-size: 15px;
+        }
+
+        .info-grid {
+          gap: 12px;
         }
 
         .info-item {
+          padding: 12px 16px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          min-height: 48px;
+          display: flex;
           flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
+          justify-content: center;
+        }
+
+        .label {
+          font-size: 12px;
+          color: #64748b;
+          margin-bottom: 4px;
+          font-weight: 500;
+        }
+
+        .value {
+          font-size: 15px;
+          color: #1e293b;
+          font-weight: 400;
         }
 
         .modal-actions {
+          padding: 16px 20px;
           flex-direction: column;
         }
 
         .action-btn {
           width: 100%;
           justify-content: center;
+          padding: 14px 20px;
+          font-size: 15px;
+        }
+
+        .secondary-btn {
+          background: #e2e8f0;
+          color: #475569;
+        }
+
+        .notes-item {
+          padding: 14px 16px;
+        }
+
+        .notes-text {
+          font-size: 14px;
+          line-height: 1.6;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .modal-header {
+          padding: 14px 16px;
+        }
+
+        .modal-content {
+          padding: 14px 16px;
+        }
+
+        .info-item {
+          padding: 12px 14px;
+        }
+
+        .modal-actions {
+          padding: 14px 16px;
         }
       }
     `,

@@ -1,3 +1,29 @@
+/* Global styles for mobile dialog */
+::ng-deep .mobile-dialog {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+::ng-deep .mobile-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+}
+
+::ng-deep .mobile-dialog .cdk-overlay-pane {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
 .bookings-container {
   padding: 20px;
   position: relative;
