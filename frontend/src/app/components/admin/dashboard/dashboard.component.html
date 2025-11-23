@@ -87,14 +87,24 @@
     <div class="calendar-container">
       <!-- Calendar Header -->
       <div class="calendar-header">
-        <button class="calendar-nav-btn" (click)="previousMonth()" aria-label="Previous month">
+        <button
+          class="calendar-nav-btn"
+          (click)="previousMonth()"
+          aria-label="Previous month"
+        >
           <mat-icon>chevron_left</mat-icon>
         </button>
         <div class="calendar-header-content">
           <div class="calendar-month-year">{{ currentMonthYear }}</div>
-          <button class="calendar-today-btn" (click)="goToToday()">Today</button>
+          <button class="calendar-today-btn" (click)="goToToday()">
+            Today
+          </button>
         </div>
-        <button class="calendar-nav-btn" (click)="nextMonth()" aria-label="Next month">
+        <button
+          class="calendar-nav-btn"
+          (click)="nextMonth()"
+          aria-label="Next month"
+        >
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
@@ -113,6 +123,8 @@
             *ngFor="let day of calendarDays"
             [class.other-month]="day.isOtherMonth"
             [class.today]="day.isToday"
+            [class.has-events]="day.events.length > 0"
+            (click)="openDateBookingsModal(day)"
           >
             <div class="day-number">{{ day.date }}</div>
             <div class="day-events">

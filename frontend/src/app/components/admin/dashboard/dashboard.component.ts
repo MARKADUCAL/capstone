@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
+import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 
 interface BusinessStats {
   totalCustomers: number;
@@ -38,6 +39,8 @@ interface CalendarEvent {
 
 interface CalendarDay {
   date: number;
+  year: number;
+  month: number;
   isOtherMonth: boolean;
   isToday: boolean;
   events: CalendarEvent[];
@@ -110,7 +113,9 @@ export class DashboardComponent implements OnInit {
       'Nov',
       'Dec',
     ];
-    return `${monthNames[this.currentDate.getMonth()]}, ${this.currentDate.getFullYear()}`;
+    return `${
+      monthNames[this.currentDate.getMonth()]
+    }, ${this.currentDate.getFullYear()}`;
   }
 
   constructor(
@@ -520,6 +525,8 @@ export class DashboardComponent implements OnInit {
         prevYear === today.getFullYear();
       this.calendarDays.push({
         date: date,
+        year: prevYear,
+        month: prevMonthNum,
         isOtherMonth: true,
         isToday: isToday,
         events: this.getEventsForDate(prevYear, prevMonthNum, date),
@@ -535,6 +542,8 @@ export class DashboardComponent implements OnInit {
 
       this.calendarDays.push({
         date: day,
+        year: year,
+        month: month,
         isOtherMonth: false,
         isToday: isToday,
         events: this.getEventsForDate(year, month, day),
@@ -552,6 +561,8 @@ export class DashboardComponent implements OnInit {
         nextYear === today.getFullYear();
       this.calendarDays.push({
         date: day,
+        year: nextYear,
+        month: nextMonth,
         isOtherMonth: true,
         isToday: isToday,
         events: this.getEventsForDate(nextYear, nextMonth, day),
@@ -574,7 +585,7 @@ export class DashboardComponent implements OnInit {
           ) {
             // Determine event type based on booking status or service
             let eventType: 'quotes' | 'giveaway' | 'reel' = 'quotes';
-            
+
             // You can customize this logic based on your needs
             if (booking.status?.toLowerCase().includes('completed')) {
               eventType = 'reel';
@@ -668,5 +679,51 @@ export class DashboardComponent implements OnInit {
       this.currentDate.getMonth() === today.getMonth() &&
       this.currentDate.getFullYear() === today.getFullYear()
     );
+  }
+
+  openDateBookingsModal(day: CalendarDay): void {
+    const selectedDate = new Date(day.year, day.month, day.date);
+    const bookingsForDate = this.getBookingsForDate(selectedDate);
+
+    const dialogRef = this.dialog.open(DateBookingsDialogComponent, {
+      width: window.innerWidth <= 768 ? '100vw' : '600px',
+      maxWidth: window.innerWidth <= 768 ? '100vw' : '700px',
+      height: window.innerWidth <= 768 ? '100vh' : 'auto',
+      maxHeight: window.innerWidth <= 768 ? '100vh' : '80vh',
+      panelClass: window.innerWidth <= 768 ? 'mobile-dialog' : '',
+      data: {
+        date: selectedDate,
+        bookings: bookingsForDate,
+        formattedDate: this.formatDateForModal(selectedDate),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.bookingId) {
+        this.viewBookingDetails(result.bookingId);
+      }
+    });
+  }
+
+  getBookingsForDate(date: Date): RecentBooking[] {
+    const dateStr = date.toISOString().split('T')[0];
+    return this.recentBookings.filter((booking) => {
+      try {
+        const bookingDate = new Date(booking.date);
+        const bookingDateStr = bookingDate.toISOString().split('T')[0];
+        return bookingDateStr === dateStr;
+      } catch (error) {
+        return false;
+      }
+    });
+  }
+
+  formatDateForModal(date: Date): string {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 }
