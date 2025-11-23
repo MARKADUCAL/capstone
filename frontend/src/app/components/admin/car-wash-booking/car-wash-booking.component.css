@@ -1,5 +1,294 @@
 .bookings-container {
   padding: 20px;
+  position: relative;
+}
+
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin: -20px -20px 20px -20px;
+}
+
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.mobile-menu-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  flex: 1;
+  text-align: center;
+}
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.mobile-chevron {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* Mobile Management Section */
+.mobile-management-section {
+  display: none;
+  margin-bottom: 24px;
+}
+
+.mobile-management-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.mobile-management-subtitle {
+  margin: 0 0 16px 0;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+.mobile-create-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mobile-create-btn:hover {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: var(--primary);
+}
+
+.mobile-create-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile Booking Cards */
+.mobile-bookings-cards {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.mobile-card-column-headers {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mobile-header-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mobile-booking-card {
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 16px;
+}
+
+.mobile-booking-card:last-child {
+  border-bottom: none;
+}
+
+.mobile-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.mobile-card-customer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.mobile-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mobile-card-customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mobile-card-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 15px;
+}
+
+.mobile-card-vehicle {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.mobile-card-date {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.mobile-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mobile-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+.mobile-action-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.mobile-view-btn {
+  background-color: var(--accent);
+  color: white;
+}
+
+.mobile-approve-btn {
+  background-color: var(--primary);
+  color: white;
+}
+
+.mobile-reject-btn {
+  background-color: var(--secondary);
+  color: white;
+}
+
+.mobile-complete-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+}
+
+.mobile-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+  justify-content: center;
+}
+
+.mobile-status-badge mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.mobile-approved-badge {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.mobile-completed-badge {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+/* Desktop/Mobile visibility classes */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
 }
 
 /* Loading State */
@@ -159,10 +448,12 @@
 
 .status-count {
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.7);
-  padding: 6px 14px;
+  color: white;
+  padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(37, 99, 235, 0.8);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .status-empty {
@@ -177,6 +468,28 @@
 
 .status-empty mat-icon {
   color: rgba(0, 0, 0, 0.35);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.status-empty-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-empty-content h4 {
+  margin: 0;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+.status-empty-content p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .table-scroll {
@@ -689,69 +1002,98 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .bookings-container {
+    padding: 0;
+  }
+
+  /* Show mobile header, hide desktop header */
+  .mobile-header {
+    display: flex;
+  }
+
   .header {
-    flex-direction: column;
-    align-items: stretch;
+    display: none;
   }
 
-  .header-left {
-    flex-direction: column;
-    align-items: stretch;
+  /* Show mobile management section */
+  .mobile-management-section {
+    display: block;
+    padding: 20px 16px;
   }
 
-  .header-right {
-    flex-direction: column;
-    align-items: stretch;
+  /* Show mobile cards, hide desktop table */
+  .desktop-only {
+    display: none !important;
   }
 
-  .bookings-grid {
-    grid-template-columns: 1fr;
+  .mobile-only {
+    display: flex !important;
   }
 
-  /* Keep action buttons horizontal but adjust height */
-  .action-buttons {
-    padding: 8px 16px 12px;
+  .status-sections {
+    padding: 0 16px 20px 16px;
+    gap: 24px;
+  }
+
+  .status-header {
     flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
-    min-height: unset;
   }
 
-  .action-btn {
-    padding: 12px 16px;
-    font-size: 13px;
-    width: 100%;
-    min-height: 44px;
-    height: auto;
-    min-width: auto;
-    flex: none;
+  .status-header h3 {
+    font-size: 18px;
   }
 
-  .completed-badge,
-  .approved-badge,
-  .done-badge {
-    width: 100%;
-    justify-content: center;
-    min-height: 44px;
-    height: auto;
-    font-size: 13px;
+  .status-count {
+    align-self: flex-end;
+    font-size: 12px;
+    padding: 4px 12px;
+  }
+
+  .status-empty {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .status-empty mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .status-empty h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .status-empty p {
+    margin: 0;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .action-btn,
-  .completed-badge,
-  .approved-badge,
-  .done-badge {
-    font-size: 12px;
-    padding: 10px 12px;
+  .mobile-title {
+    font-size: 16px;
   }
 
-  .action-btn mat-icon,
-  .completed-badge mat-icon,
-  .approved-badge mat-icon,
-  .done-badge mat-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
+  .mobile-management-title {
+    font-size: 18px;
+  }
+
+  .mobile-card-actions {
+    flex-direction: column;
+  }
+
+  .mobile-action-btn,
+  .mobile-status-badge {
+    width: 100%;
+  }
+
+  .mobile-card-date {
+    font-size: 12px;
   }
 }

@@ -1,4 +1,17 @@
 <div class="bookings-container">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <h2 class="mobile-title">Car Wash Bookings</h2>
+    <div class="mobile-user-info">
+      <div class="mobile-user-avatar">{{ getUserInitials("Admin User") }}</div>
+      <mat-icon class="mobile-chevron">keyboard_arrow_down</mat-icon>
+    </div>
+  </div>
+
+  <!-- Desktop Header -->
   <div class="header">
     <div class="header-left">
       <h2>Car Wash Bookings Management</h2>
@@ -10,6 +23,18 @@
         Create Booking
       </button>
     </div>
+  </div>
+
+  <!-- Mobile Management Section -->
+  <div class="mobile-management-section">
+    <h2 class="mobile-management-title">Car Wash Bookings Management</h2>
+    <p class="mobile-management-subtitle">
+      Manage and oversee all car wash bookings
+    </p>
+    <button class="mobile-create-btn" (click)="openCreateBooking()">
+      <mat-icon>add</mat-icon>
+      <span>Create Booking</span>
+    </button>
   </div>
 
   <!-- Loading State -->
@@ -49,9 +74,12 @@
   </div>
 
   <!-- Bookings Table by Status -->
-  <div *ngIf="!loading && !error && bookings.length > 0" class="status-sections">
-    @for (section of statusSections; track section.value) {
-    @let sectionBookings = getBookingsByStatus(section.value);
+  <div
+    *ngIf="!loading && !error && bookings.length > 0"
+    class="status-sections"
+  >
+    @for (section of statusSections; track section.value) { @let sectionBookings
+    = getBookingsByStatus(section.value);
     <section class="status-section">
       <div class="status-header">
         <div>
@@ -62,7 +90,8 @@
       </div>
 
       @if (sectionBookings.length > 0) {
-      <div class="bookings-table-wrapper">
+      <!-- Desktop Table View -->
+      <div class="bookings-table-wrapper desktop-only">
         <div class="table-scroll">
           <table class="bookings-table">
             <thead>
@@ -87,7 +116,9 @@
                       </div>
                     </div>
                     <div class="customer-details">
-                      <span class="customer-name">{{ booking.customerName }}</span>
+                      <span class="customer-name">{{
+                        booking.customerName
+                      }}</span>
                       <span class="customer-vehicle"
                         >Vehicle • {{ booking.vehicleType }}</span
                       >
@@ -178,11 +209,82 @@
           </table>
         </div>
       </div>
+
+      <!-- Mobile Card View -->
+      <div class="mobile-bookings-cards mobile-only">
+        <div class="mobile-card-column-headers">
+          <div class="mobile-header-label">CUSTOMER</div>
+          <div class="mobile-header-label">DATE</div>
+        </div>
+        @for (booking of sectionBookings; track booking.id) {
+        <div class="mobile-booking-card">
+          <div class="mobile-card-content">
+            <div class="mobile-card-customer">
+              <div class="mobile-card-avatar">
+                {{ getUserInitials(booking.customerName) }}
+              </div>
+              <div class="mobile-card-customer-info">
+                <div class="mobile-card-name">{{ booking.customerName }}</div>
+                <div class="mobile-card-vehicle">
+                  Vehicle • {{ booking.vehicleType }}
+                </div>
+              </div>
+            </div>
+            <div class="mobile-card-date">
+              {{ formatDate(booking.date) || "No date set" }}
+            </div>
+          </div>
+          <div class="mobile-card-actions">
+            <button
+              class="mobile-action-btn mobile-view-btn"
+              (click)="viewBooking(booking)"
+            >
+              <mat-icon>visibility</mat-icon>
+              View
+            </button>
+            @if (booking.status === 'Pending') {
+            <button
+              class="mobile-action-btn mobile-approve-btn"
+              (click)="approveBooking(booking)"
+            >
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+            <button
+              class="mobile-action-btn mobile-reject-btn"
+              (click)="rejectBooking(booking)"
+            >
+              <mat-icon>cancel</mat-icon>
+              Decline
+            </button>
+            } @else if (booking.status === 'Approved') {
+            <div class="mobile-status-badge mobile-approved-badge">
+              <mat-icon>check_circle</mat-icon>
+              Approved
+            </div>
+            } @else if (booking.status === 'Done') {
+            <button
+              class="mobile-action-btn mobile-complete-btn"
+              (click)="completeBooking(booking)"
+            >
+              <mat-icon>done_all</mat-icon>
+              Complete
+            </button>
+            } @else if (booking.status === 'Completed') {
+            <div class="mobile-status-badge mobile-completed-badge">
+              <mat-icon>check_circle</mat-icon>
+              Completed
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
       } @else {
       <div class="status-empty">
         <mat-icon>inventory_2</mat-icon>
-        <div>
-          <h4>No {{ section.label.toLowerCase() }} bookings</h4>
+        <div class="status-empty-content">
+          <h4>No {{ section.label.toLowerCase() }} bookings.</h4>
           <p>{{ section.description }}</p>
         </div>
       </div>

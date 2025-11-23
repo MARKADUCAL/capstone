@@ -844,6 +844,11 @@ export class CarWashBookingComponent implements OnInit {
       (booking) => (booking.status || '').toLowerCase() === normalized
     );
   }
+
+  toggleMobileMenu(): void {
+    // This can be connected to a sidebar service if needed
+    console.log('Mobile menu toggled');
+  }
 }
 
 @Component({
