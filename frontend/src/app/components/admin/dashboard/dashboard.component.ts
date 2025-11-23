@@ -492,6 +492,7 @@ export class DashboardComponent implements OnInit {
   generateCalendar(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
+    const today = this.today;
 
     // Get first day of month and number of days
     const firstDay = new Date(year, month, 1);
@@ -503,30 +504,29 @@ export class DashboardComponent implements OnInit {
     if (startDay < 0) startDay = 6; // Sunday becomes 6
 
     // Get days from previous month
-    const prevMonth = new Date(year, month, 0);
-    const daysInPrevMonth = prevMonth.getDate();
+    const prevMonthDate = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonthDate.getDate();
 
     this.calendarDays = [];
 
     // Add days from previous month
     const prevYear = month === 0 ? year - 1 : year;
-    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevMonthNum = month === 0 ? 11 : month - 1;
     for (let i = startDay - 1; i >= 0; i--) {
       const date = daysInPrevMonth - i;
       const isToday =
         date === today.getDate() &&
-        prevMonth === today.getMonth() &&
+        prevMonthNum === today.getMonth() &&
         prevYear === today.getFullYear();
       this.calendarDays.push({
         date: date,
         isOtherMonth: true,
         isToday: isToday,
-        events: this.getEventsForDate(prevYear, prevMonth, date),
+        events: this.getEventsForDate(prevYear, prevMonthNum, date),
       });
     }
 
     // Add days from current month
-    const today = this.today;
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday =
         day === today.getDate() &&
