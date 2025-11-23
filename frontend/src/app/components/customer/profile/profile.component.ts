@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { VEHICLE_TYPES } from '../../../models/booking.model';
+import Swal from 'sweetalert2';
 
 interface CustomerProfile {
   id: number;
@@ -293,20 +294,34 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response.status && response.status.remarks === 'success') {
-            this.vehicleSuccessMessage = 'Vehicle added successfully.';
+            Swal.fire({
+              icon: 'success',
+              title: 'Vehicle Added!',
+              text: 'Your vehicle has been added successfully.',
+              confirmButtonColor: '#ff6347',
+            });
             this.isAddingVehicle = false;
             this.resetVehicleForm();
             // Reload vehicles from database
             this.loadVehiclesForCurrentProfile();
           } else {
-            this.vehicleErrorMessage =
-              response.status?.message || 'Failed to add vehicle';
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to Add Vehicle',
+              text: response.status?.message || 'Failed to add vehicle',
+              confirmButtonColor: '#ff6347',
+            });
           }
         },
         error: (error) => {
-          this.vehicleErrorMessage =
-            error.error?.status?.message ||
-            'An error occurred while adding vehicle';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text:
+              error.error?.status?.message ||
+              'An error occurred while adding vehicle',
+            confirmButtonColor: '#ff6347',
+          });
           console.error('Vehicle add error:', error);
         },
       });
@@ -317,41 +332,85 @@ export class ProfileComponent implements OnInit {
     this.vehicleErrorMessage = '';
 
     if (!this.isBrowser) {
-      this.vehicleErrorMessage =
-        'Vehicle management is only available in the browser.';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Vehicle management is only available in the browser.',
+        confirmButtonColor: '#ff6347',
+      });
       return;
     }
 
     const token = localStorage.getItem('auth_token');
     if (!token) {
-      this.vehicleErrorMessage = 'Not authorized';
+      Swal.fire({
+        icon: 'error',
+        title: 'Not Authorized',
+        text: 'You are not authorized to perform this action.',
+        confirmButtonColor: '#ff6347',
+      });
       return;
     }
 
-    const headers = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set('Authorization', `Bearer ${token}`);
+    // Find the vehicle to show its details in the confirmation
+    const vehicle = this.customerVehicles.find((v) => v.id === vehicleId);
+    const vehicleName = vehicle
+      ? vehicle.nickname || vehicle.vehicle_model
+      : 'this vehicle';
 
-    this.http
-      .delete(`${this.apiUrl}/customer_vehicles/${vehicleId}`, { headers })
-      .subscribe({
-        next: (response: any) => {
-          if (response.status && response.status.remarks === 'success') {
-            this.vehicleSuccessMessage = 'Vehicle removed.';
-            // Reload vehicles from database
-            this.loadVehiclesForCurrentProfile();
-          } else {
-            this.vehicleErrorMessage =
-              response.status?.message || 'Failed to remove vehicle';
-          }
-        },
-        error: (error) => {
-          this.vehicleErrorMessage =
-            error.error?.status?.message ||
-            'An error occurred while removing vehicle';
-          console.error('Vehicle remove error:', error);
-        },
-      });
+    // Show confirmation dialog
+    Swal.fire({
+      title: 'Remove Vehicle?',
+      html: `Are you sure you want to remove <strong>${vehicleName}</strong>?<br>This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Remove Vehicle',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ff6347',
+      cancelButtonColor: '#6b7280',
+      focusCancel: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+
+        this.http
+          .delete(`${this.apiUrl}/customer_vehicles/${vehicleId}`, { headers })
+          .subscribe({
+            next: (response: any) => {
+              if (response.status && response.status.remarks === 'success') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Vehicle Removed!',
+                  text: 'The vehicle has been removed successfully.',
+                  confirmButtonColor: '#ff6347',
+                });
+                // Reload vehicles from database
+                this.loadVehiclesForCurrentProfile();
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Failed to Remove Vehicle',
+                  text: response.status?.message || 'Failed to remove vehicle',
+                  confirmButtonColor: '#ff6347',
+                });
+              }
+            },
+            error: (error) => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text:
+                  error.error?.status?.message ||
+                  'An error occurred while removing vehicle',
+                confirmButtonColor: '#ff6347',
+              });
+              console.error('Vehicle remove error:', error);
+            },
+          });
+      }
+    });
   }
 
   private loadVehiclesForCurrentProfile(): void {
