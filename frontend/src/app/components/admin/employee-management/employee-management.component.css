@@ -426,8 +426,8 @@
 
 /* Wider modal variant for tables */
 .modal-content.modal-wide {
-  max-width: 1000px;
-  width: 95%;
+  max-width: 1500px;
+  width: 100%;
 }
 
 /* Pending modal should be wide to accommodate table */

@@ -315,7 +315,7 @@
             <table class="employee-table bookings-table">
               <thead>
                 <tr>
-                  <th>Package</th>
+                  <th>NO.</th>
                   <th>Customer</th>
                   <th>Date</th>
                   <th>Time</th>
@@ -331,7 +331,8 @@
                   <td>{{ b.time }}</td>
                   <td>
                     {{
-                      b.totalAmount | currency : "PHP" : "symbol-narrow" : "1.2-2"
+                      b.totalAmount
+                        | currency : "PHP" : "symbol-narrow" : "1.2-2"
                     }}
                   </td>
                   <td class="booking-actions">
@@ -479,7 +480,9 @@
           <div class="info-grid">
             <div class="info-item">
               <span class="label">Date</span>
-              <span class="value">{{ booking.date | date : "mediumDate" }}</span>
+              <span class="value">{{
+                booking.date | date : "mediumDate"
+              }}</span>
             </div>
             <div class="info-item">
               <span class="label">Time</span>
