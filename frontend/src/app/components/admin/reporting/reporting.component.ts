@@ -10,6 +10,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import {
   Chart,
   ChartConfiguration,
@@ -49,6 +52,7 @@ interface ServiceStats {
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
+    MatMenuModule,
   ],
   templateUrl: './reporting.component.html',
   styleUrl: './reporting.component.css',
@@ -78,6 +82,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private serviceCounts: number[] = [];
   private weeklyBookingLabels: string[] = [];
   private weeklyBookingValues: number[] = [];
+  
+  isGeneratingPDF: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -849,5 +855,341 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       (this.serviceStats.completedBookings / this.serviceStats.totalBookings) *
       100
     );
+  }
+
+  // PDF Generation Methods
+  async generatePDF(reportType: 'daily' | 'weekly' | 'monthly' | 'quantity'): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.error('PDF generation is only available in browser');
+      return;
+    }
+
+    if (this.isGeneratingPDF) {
+      return; // Prevent multiple simultaneous PDF generations
+    }
+
+    this.isGeneratingPDF = true;
+
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPosition = margin;
+
+      // Add header
+      pdf.setFontSize(20);
+      pdf.setTextColor(44, 62, 80);
+      pdf.text('AutoWash Hub - Reports & Analytics', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
+
+      // Add report type and date
+      pdf.setFontSize(14);
+      pdf.setTextColor(100, 100, 100);
+      const reportTypeLabel = this.getReportTypeLabel(reportType);
+      pdf.text(`${reportTypeLabel} Report`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 5;
+      pdf.setFontSize(10);
+      pdf.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
+
+      // Add summary statistics
+      pdf.setFontSize(16);
+      pdf.setTextColor(44, 62, 80);
+      pdf.text('Summary Statistics', margin, yPosition);
+      yPosition += 8;
+
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+      
+      // Revenue section
+      pdf.setFontSize(12);
+      pdf.setTextColor(25, 118, 210);
+      pdf.text('Revenue', margin, yPosition);
+      yPosition += 6;
+      pdf.setFontSize(10);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Weekly Revenue: ₱${this.revenueData.weekly.toLocaleString()}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Monthly Revenue: ₱${this.revenueData.monthly.toLocaleString()}`, margin + 5, yPosition);
+      yPosition += 8;
+
+      // Booking statistics section
+      pdf.setFontSize(12);
+      pdf.setTextColor(25, 118, 210);
+      pdf.text('Booking Statistics', margin, yPosition);
+      yPosition += 6;
+      pdf.setFontSize(10);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Total Bookings: ${this.serviceStats.totalBookings}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Completed: ${this.serviceStats.completedBookings}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Pending: ${this.serviceStats.pendingBookings}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Cancelled: ${this.serviceStats.cancelledBookings}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Declined: ${this.serviceStats.declinedBookings}`, margin + 5, yPosition);
+      yPosition += 5;
+      pdf.text(`Completion Rate: ${this.getCompletionRate().toFixed(1)}%`, margin + 5, yPosition);
+      yPosition += 10;
+
+      // Add report-specific data
+      if (reportType === 'quantity') {
+        yPosition = this.addQuantityReportData(pdf, yPosition, pageWidth, margin, pageHeight);
+      } else if (reportType === 'daily') {
+        yPosition = this.addDailyReportData(pdf, yPosition, pageWidth, margin, pageHeight);
+      } else if (reportType === 'weekly') {
+        yPosition = this.addWeeklyReportData(pdf, yPosition, pageWidth, margin, pageHeight);
+      } else if (reportType === 'monthly') {
+        yPosition = this.addMonthlyReportData(pdf, yPosition, pageWidth, margin, pageHeight);
+      }
+
+      // Capture and add charts
+      yPosition = await this.addChartsToPDF(pdf, yPosition, pageWidth, margin, pageHeight);
+
+      // Save PDF
+      const fileName = `AutoWash_${reportTypeLabel}_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      this.isGeneratingPDF = false;
+    }
+  }
+
+  private getReportTypeLabel(type: 'daily' | 'weekly' | 'monthly' | 'quantity'): string {
+    const labels: { [key: string]: string } = {
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
+      quantity: 'Quantity'
+    };
+    return labels[type] || 'Report';
+  }
+
+  private addQuantityReportData(pdf: jsPDF, yPosition: number, pageWidth: number, margin: number, pageHeight: number): number {
+    if (yPosition > pageHeight - 40) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+
+    pdf.setFontSize(16);
+    pdf.setTextColor(44, 62, 80);
+    pdf.text('Service Distribution by Quantity', margin, yPosition);
+    yPosition += 8;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0, 0, 0);
+    
+    // Add service distribution table
+    const tableStartY = yPosition;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.1);
+    
+    // Table header
+    pdf.setFillColor(25, 118, 210);
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(10);
+    pdf.text('Service Type', margin + 2, yPosition);
+    pdf.text('Quantity', pageWidth - margin - 30, yPosition, { align: 'right' });
+    yPosition += 8;
+    pdf.setTextColor(0, 0, 0);
+
+    // Table rows
+    for (let i = 0; i < this.serviceLabels.length; i++) {
+      if (yPosition > pageHeight - 20) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
+      pdf.text(this.serviceLabels[i], margin + 2, yPosition);
+      pdf.text(this.serviceCounts[i].toString(), pageWidth - margin - 30, yPosition, { align: 'right' });
+      yPosition += 6;
+    }
+
+    return yPosition + 5;
+  }
+
+  private addDailyReportData(pdf: jsPDF, yPosition: number, pageWidth: number, margin: number, pageHeight: number): number {
+    if (yPosition > pageHeight - 40) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+
+    pdf.setFontSize(16);
+    pdf.setTextColor(44, 62, 80);
+    pdf.text('Daily Booking Distribution', margin, yPosition);
+    yPosition += 8;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0, 0, 0);
+    
+    // Add daily bookings table
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.1);
+    
+    // Table header
+    pdf.setFillColor(25, 118, 210);
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('Day', margin + 2, yPosition);
+    pdf.text('Bookings', pageWidth - margin - 30, yPosition, { align: 'right' });
+    yPosition += 8;
+    pdf.setTextColor(0, 0, 0);
+
+    // Table rows
+    for (let i = 0; i < days.length; i++) {
+      if (yPosition > pageHeight - 20) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      const dayShort = days[i].substring(0, 3);
+      const index = this.weeklyBookingLabels.indexOf(dayShort);
+      const count = index >= 0 ? this.weeklyBookingValues[index] : 0;
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
+      pdf.text(days[i], margin + 2, yPosition);
+      pdf.text(count.toString(), pageWidth - margin - 30, yPosition, { align: 'right' });
+      yPosition += 6;
+    }
+
+    return yPosition + 5;
+  }
+
+  private addWeeklyReportData(pdf: jsPDF, yPosition: number, pageWidth: number, margin: number, pageHeight: number): number {
+    if (yPosition > pageHeight - 40) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+
+    pdf.setFontSize(16);
+    pdf.setTextColor(44, 62, 80);
+    pdf.text('Weekly Summary', margin, yPosition);
+    yPosition += 8;
+
+    pdf.setFontSize(11);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(`This week's revenue: ₱${this.revenueData.weekly.toLocaleString()}`, margin, yPosition);
+    yPosition += 6;
+    pdf.text(`Total bookings this week: ${this.weeklyBookingValues.reduce((a, b) => a + b, 0)}`, margin, yPosition);
+    yPosition += 6;
+    pdf.text(`Average daily bookings: ${(this.weeklyBookingValues.reduce((a, b) => a + b, 0) / 7).toFixed(1)}`, margin, yPosition);
+
+    return yPosition + 10;
+  }
+
+  private addMonthlyReportData(pdf: jsPDF, yPosition: number, pageWidth: number, margin: number, pageHeight: number): number {
+    if (yPosition > pageHeight - 40) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+
+    pdf.setFontSize(16);
+    pdf.setTextColor(44, 62, 80);
+    pdf.text('Monthly Revenue Trend', margin, yPosition);
+    yPosition += 8;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0, 0, 0);
+    
+    // Add monthly revenue table
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.1);
+    
+    // Table header
+    pdf.setFillColor(25, 118, 210);
+    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('Month', margin + 2, yPosition);
+    pdf.text('Revenue', pageWidth - margin - 30, yPosition, { align: 'right' });
+    yPosition += 8;
+    pdf.setTextColor(0, 0, 0);
+
+    // Table rows
+    for (let i = 0; i < this.revenueLabels.length; i++) {
+      if (yPosition > pageHeight - 20) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
+      pdf.text(this.revenueLabels[i], margin + 2, yPosition);
+      pdf.text(`₱${this.revenueValues[i].toLocaleString()}`, pageWidth - margin - 30, yPosition, { align: 'right' });
+      yPosition += 6;
+    }
+
+    return yPosition + 5;
+  }
+
+  private async addChartsToPDF(pdf: jsPDF, yPosition: number, pageWidth: number, margin: number, pageHeight: number): Promise<number> {
+    if (!isPlatformBrowser(this.platformId)) return yPosition;
+
+    try {
+      // Capture Revenue Chart
+      if (this.revenueChart) {
+        const revenueCanvas = document.getElementById('revenueChart') as HTMLCanvasElement;
+        if (revenueCanvas) {
+          if (yPosition > pageHeight - 80) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          const imgData = await html2canvas(revenueCanvas, { backgroundColor: '#ffffff' }).then(canvas => canvas.toDataURL('image/png'));
+          const imgWidth = pageWidth - 2 * margin;
+          const imgHeight = (revenueCanvas.height * imgWidth) / revenueCanvas.width;
+          pdf.setFontSize(12);
+          pdf.setTextColor(44, 62, 80);
+          pdf.text('Revenue Trend Chart', margin, yPosition);
+          yPosition += 5;
+          pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, Math.min(imgHeight, 60));
+          yPosition += Math.min(imgHeight, 60) + 10;
+        }
+      }
+
+      // Capture Service Distribution Chart
+      if (this.serviceChart) {
+        const serviceCanvas = document.getElementById('serviceChart') as HTMLCanvasElement;
+        if (serviceCanvas) {
+          if (yPosition > pageHeight - 80) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          const imgData = await html2canvas(serviceCanvas, { backgroundColor: '#ffffff' }).then(canvas => canvas.toDataURL('image/png'));
+          const imgWidth = pageWidth - 2 * margin;
+          const imgHeight = (serviceCanvas.height * imgWidth) / serviceCanvas.width;
+          pdf.setFontSize(12);
+          pdf.setTextColor(44, 62, 80);
+          pdf.text('Service Distribution Chart', margin, yPosition);
+          yPosition += 5;
+          pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, Math.min(imgHeight, 60));
+          yPosition += Math.min(imgHeight, 60) + 10;
+        }
+      }
+
+      // Capture Weekly Bookings Chart
+      if (this.bookingsChart) {
+        const bookingsCanvas = document.getElementById('bookingsChart') as HTMLCanvasElement;
+        if (bookingsCanvas) {
+          if (yPosition > pageHeight - 80) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          const imgData = await html2canvas(bookingsCanvas, { backgroundColor: '#ffffff' }).then(canvas => canvas.toDataURL('image/png'));
+          const imgWidth = pageWidth - 2 * margin;
+          const imgHeight = (bookingsCanvas.height * imgWidth) / bookingsCanvas.width;
+          pdf.setFontSize(12);
+          pdf.setTextColor(44, 62, 80);
+          pdf.text('Weekly Booking Distribution Chart', margin, yPosition);
+          yPosition += 5;
+          pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, Math.min(imgHeight, 60));
+          yPosition += Math.min(imgHeight, 60) + 10;
+        }
+      }
+    } catch (error) {
+      console.error('Error capturing charts:', error);
+    }
+
+    return yPosition;
   }
 }

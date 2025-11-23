@@ -6,6 +6,11 @@
 
 .header {
   margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .header h2 {
@@ -15,6 +20,7 @@
   font-weight: 600;
   position: relative;
   padding-bottom: 12px;
+  flex: 1;
 }
 
 .header h2::after {
@@ -26,6 +32,34 @@
   height: 4px;
   background: #1976d2;
   border-radius: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.export-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Stats Grid Styling */
@@ -184,8 +218,22 @@ canvas {
     padding: 16px;
   }
 
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .header h2 {
     font-size: 24px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .export-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

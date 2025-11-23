@@ -1,6 +1,38 @@
 <div class="reporting-container">
   <div class="header">
     <h2>Reports & Analytics</h2>
+    <div class="header-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        [matMenuTriggerFor]="reportMenu"
+        class="export-btn"
+        [disabled]="isGeneratingPDF"
+      >
+        <mat-icon>{{
+          isGeneratingPDF ? "hourglass_empty" : "picture_as_pdf"
+        }}</mat-icon>
+        {{ isGeneratingPDF ? "Generating..." : "Export PDF Report" }}
+      </button>
+      <mat-menu #reportMenu="matMenu">
+        <button mat-menu-item (click)="generatePDF('daily')">
+          <mat-icon>today</mat-icon>
+          <span>Daily Report</span>
+        </button>
+        <button mat-menu-item (click)="generatePDF('weekly')">
+          <mat-icon>date_range</mat-icon>
+          <span>Weekly Report</span>
+        </button>
+        <button mat-menu-item (click)="generatePDF('monthly')">
+          <mat-icon>calendar_month</mat-icon>
+          <span>Monthly Report</span>
+        </button>
+        <button mat-menu-item (click)="generatePDF('quantity')">
+          <mat-icon>inventory</mat-icon>
+          <span>Quantity Report</span>
+        </button>
+      </mat-menu>
+    </div>
   </div>
 
   <!-- Revenue Cards -->
@@ -32,7 +64,6 @@
         </div>
       </mat-card-content>
     </mat-card>
-
   </div>
 
   <!-- Service Statistics -->
