@@ -91,6 +91,7 @@ export class DashboardComponent implements OnInit {
 
   // Calendar properties
   currentDate = new Date();
+  today = new Date();
   weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
   calendarDays: CalendarDay[] = [];
 
@@ -296,7 +297,7 @@ export class DashboardComponent implements OnInit {
             const bookings = response.payload.bookings || [];
             console.log('API Response - Bookings:', bookings); // Debug log
 
-            this.recentBookings = bookings.slice(0, 10).map((booking: any) => {
+            this.recentBookings = bookings.map((booking: any) => {
               console.log('Processing booking:', booking); // Debug log for each booking
 
               // Get customer name from firstname and lastname
@@ -361,6 +362,9 @@ export class DashboardComponent implements OnInit {
               },
               0
             );
+
+            // Regenerate calendar with updated bookings
+            this.generateCalendar();
           }
         },
         error: (error) => {
@@ -505,18 +509,24 @@ export class DashboardComponent implements OnInit {
     this.calendarDays = [];
 
     // Add days from previous month
+    const prevYear = month === 0 ? year - 1 : year;
+    const prevMonth = month === 0 ? 11 : month - 1;
     for (let i = startDay - 1; i >= 0; i--) {
       const date = daysInPrevMonth - i;
+      const isToday =
+        date === today.getDate() &&
+        prevMonth === today.getMonth() &&
+        prevYear === today.getFullYear();
       this.calendarDays.push({
         date: date,
         isOtherMonth: true,
-        isToday: false,
-        events: this.getEventsForDate(year, month - 1, date),
+        isToday: isToday,
+        events: this.getEventsForDate(prevYear, prevMonth, date),
       });
     }
 
     // Add days from current month
-    const today = new Date();
+    const today = this.today;
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday =
         day === today.getDate() &&
@@ -532,73 +542,100 @@ export class DashboardComponent implements OnInit {
     }
 
     // Add days from next month to fill the grid (6 rows = 42 days)
+    const nextYear = month === 11 ? year + 1 : year;
+    const nextMonth = month === 11 ? 0 : month + 1;
     const remainingDays = 42 - this.calendarDays.length;
     for (let day = 1; day <= remainingDays; day++) {
+      const isToday =
+        day === today.getDate() &&
+        nextMonth === today.getMonth() &&
+        nextYear === today.getFullYear();
       this.calendarDays.push({
         date: day,
         isOtherMonth: true,
-        isToday: false,
-        events: this.getEventsForDate(year, month + 1, day),
+        isToday: isToday,
+        events: this.getEventsForDate(nextYear, nextMonth, day),
       });
     }
   }
 
   getEventsForDate(year: number, month: number, day: number): CalendarEvent[] {
-    // This is a sample implementation - you can replace this with actual booking data
-    // For now, we'll generate some sample events based on the image pattern
     const events: CalendarEvent[] = [];
 
-    // Sample pattern based on the image
-    // In a real implementation, you would fetch this from your bookings API
-    const sampleEvents: { [key: string]: CalendarEvent[] } = {
-      '2025-1-1': [{ label: 'Quotes', type: 'quotes' }],
-      '2025-1-3': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-      ],
-      '2025-1-5': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-      ],
-      '2025-1-7': [{ label: 'Quotes', type: 'quotes' }],
-      '2025-1-9': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-      ],
-      '2025-1-11': [{ label: 'Quotes', type: 'quotes' }],
-      '2025-1-14': [{ label: 'Quotes', type: 'quotes' }],
-      '2025-1-19': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-        { label: 'Reel', type: 'reel' },
-      ],
-      '2025-1-24': [{ label: 'Quotes', type: 'quotes' }],
-      '2025-1-25': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-        { label: 'Reel', type: 'reel' },
-      ],
-      '2025-1-27': [
-        { label: 'Quotes', type: 'quotes' },
-        { label: 'Giveaway', type: 'giveaway' },
-        { label: 'Reel', type: 'reel' },
-      ],
-      '2025-1-31': [{ label: 'Quotes', type: 'quotes' }],
-    };
+    // Map bookings to calendar events
+    if (this.recentBookings && this.recentBookings.length > 0) {
+      this.recentBookings.forEach((booking) => {
+        try {
+          const bookingDate = new Date(booking.date);
+          if (
+            bookingDate.getFullYear() === year &&
+            bookingDate.getMonth() === month &&
+            bookingDate.getDate() === day
+          ) {
+            // Determine event type based on booking status or service
+            let eventType: 'quotes' | 'giveaway' | 'reel' = 'quotes';
+            
+            // You can customize this logic based on your needs
+            if (booking.status?.toLowerCase().includes('completed')) {
+              eventType = 'reel';
+            } else if (booking.status?.toLowerCase().includes('approved')) {
+              eventType = 'giveaway';
+            }
 
-    const dateKey = `${year}-${month + 1}-${day}`;
-    return sampleEvents[dateKey] || [];
+            events.push({
+              label: booking.service || 'Booking',
+              type: eventType,
+            });
+          }
+        } catch (error) {
+          console.warn('Error parsing booking date:', booking.date, error);
+        }
+      });
+    }
 
-    // TODO: Replace with actual booking data
-    // You can map your bookings to calendar events like this:
-    // this.recentBookings.forEach(booking => {
-    //   const bookingDate = new Date(booking.date);
-    //   if (bookingDate.getFullYear() === year &&
-    //       bookingDate.getMonth() === month &&
-    //       bookingDate.getDate() === day) {
-    //     events.push({ label: booking.service, type: 'quotes' });
-    //   }
-    // });
+    // Sample events for demonstration (only for January 2025)
+    // Remove this when you have real booking data
+    if (year === 2025 && month === 0 && events.length === 0) {
+      const sampleEvents: { [key: number]: CalendarEvent[] } = {
+        1: [{ label: 'Quotes', type: 'quotes' }],
+        3: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+        ],
+        5: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+        ],
+        7: [{ label: 'Quotes', type: 'quotes' }],
+        9: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+        ],
+        11: [{ label: 'Quotes', type: 'quotes' }],
+        14: [{ label: 'Quotes', type: 'quotes' }],
+        19: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Reel', type: 'reel' },
+        ],
+        24: [{ label: 'Quotes', type: 'quotes' }],
+        25: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Reel', type: 'reel' },
+        ],
+        27: [
+          { label: 'Quotes', type: 'quotes' },
+          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Reel', type: 'reel' },
+        ],
+        31: [{ label: 'Quotes', type: 'quotes' }],
+      };
+
+      return sampleEvents[day] || [];
+    }
+
+    return events;
   }
 
   previousMonth(): void {
@@ -617,5 +654,19 @@ export class DashboardComponent implements OnInit {
       1
     );
     this.generateCalendar();
+  }
+
+  goToToday(): void {
+    this.currentDate = new Date();
+    this.today = new Date();
+    this.generateCalendar();
+  }
+
+  isCurrentMonth(): boolean {
+    const today = new Date();
+    return (
+      this.currentDate.getMonth() === today.getMonth() &&
+      this.currentDate.getFullYear() === today.getFullYear()
+    );
   }
 }

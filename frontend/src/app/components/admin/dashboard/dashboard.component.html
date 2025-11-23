@@ -87,7 +87,16 @@
     <div class="calendar-container">
       <!-- Calendar Header -->
       <div class="calendar-header">
-        <div class="calendar-month-year">{{ currentMonthYear }}</div>
+        <button class="calendar-nav-btn" (click)="previousMonth()" aria-label="Previous month">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="calendar-header-content">
+          <div class="calendar-month-year">{{ currentMonthYear }}</div>
+          <button class="calendar-today-btn" (click)="goToToday()">Today</button>
+        </div>
+        <button class="calendar-nav-btn" (click)="nextMonth()" aria-label="Next month">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
       </div>
 
       <!-- Calendar Grid -->
