@@ -177,10 +177,25 @@
   box-shadow: none;
 }
 
+@media (max-width: 768px) {
+  .calendar-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
 .calendar-container {
   background: #f5f5f5;
   padding: 0;
   position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    border-radius: 12px;
+  }
 }
 
 .calendar-header {
@@ -199,6 +214,13 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .calendar-header-content {
+    gap: 6px;
+  }
 }
 
 .calendar-month-year {
@@ -306,6 +328,18 @@
   border-color: rgba(37, 99, 235, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+@media (max-width: 768px) {
+  .calendar-day:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .calendar-day:active {
+    background: rgba(37, 99, 235, 0.1);
+    transform: scale(0.98);
+  }
 }
 
 .calendar-day.has-events {
@@ -607,21 +641,33 @@ mat-card-title {
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 16px;
+    padding: 12px;
+  }
+
+  .calendar-card {
+    margin-bottom: 16px;
   }
 
   .calendar-header {
-    padding: 12px 16px;
-    gap: 12px;
+    padding: 12px 14px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .calendar-header-content {
+    gap: 6px;
+    min-width: 0;
   }
 
   .calendar-month-year {
-    font-size: 16px;
+    font-size: 15px;
+    white-space: nowrap;
   }
 
   .calendar-nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
   }
 
   .calendar-nav-btn mat-icon {
@@ -631,33 +677,63 @@ mat-card-title {
   }
 
   .calendar-today-btn {
-    padding: 3px 10px;
-    font-size: 11px;
+    padding: 4px 10px;
+    font-size: 10px;
+    white-space: nowrap;
   }
 
   .calendar-grid {
-    padding: 12px;
-    border-left-width: 3px;
-    border-right-width: 3px;
-    border-bottom-width: 3px;
+    padding: 8px 6px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
   }
 
-  .calendar-day {
-    min-height: 60px;
-    padding: 6px;
-  }
-
-  .day-number {
-    font-size: 13px;
-  }
-
-  .event-label {
-    font-size: 10px;
-    padding: 1px 4px;
+  .calendar-weekdays {
+    gap: 4px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
   }
 
   .weekday {
-    font-size: 11px;
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  .calendar-days {
+    gap: 4px;
+  }
+
+  .calendar-day {
+    min-height: 50px;
+    padding: 4px 2px;
+    border-radius: 3px;
+  }
+
+  .day-number {
+    font-size: 12px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .day-events {
+    gap: 1px;
+    margin-top: 2px;
+  }
+
+  .event-label {
+    font-size: 9px;
+    padding: 1px 3px;
+    line-height: 1.2;
+    border-radius: 2px;
+  }
+
+  .calendar-day.today .day-number {
+    font-size: 13px;
+  }
+
+  .calendar-day.today {
+    border-width: 1.5px;
   }
 
   .stats-container {
@@ -728,6 +804,78 @@ mat-card-title {
 }
 
 @media (max-width: 480px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+
+  .calendar-card {
+    margin-bottom: 12px;
+  }
+
+  .calendar-header {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .calendar-month-year {
+    font-size: 14px;
+  }
+
+  .calendar-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .calendar-nav-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .calendar-today-btn {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+
+  .calendar-grid {
+    padding: 6px 4px;
+  }
+
+  .calendar-weekdays {
+    gap: 2px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  .weekday {
+    font-size: 9px;
+    padding: 1px;
+  }
+
+  .calendar-days {
+    gap: 2px;
+  }
+
+  .calendar-day {
+    min-height: 45px;
+    padding: 3px 1px;
+  }
+
+  .day-number {
+    font-size: 11px;
+    margin-bottom: 1px;
+  }
+
+  .event-label {
+    font-size: 8px;
+    padding: 1px 2px;
+    line-height: 1.1;
+  }
+
+  .calendar-day.today .day-number {
+    font-size: 12px;
+  }
+
   .stats-container {
     grid-template-columns: 1fr;
   }
