@@ -296,12 +296,14 @@ export class DashboardComponent implements OnInit {
 
   private loadRecentBookings(): Promise<void> {
     return new Promise((resolve) => {
+      // Load ALL bookings regardless of status (Pending, Approved, Rejected, Cancelled, Done, Completed)
       this.http.get(`${this.apiUrl}/get_all_bookings`).subscribe({
         next: (response: any) => {
           if (response?.status?.remarks === 'success') {
             const bookings = response.payload.bookings || [];
             console.log('API Response - Bookings:', bookings); // Debug log
 
+            // Map all bookings without filtering by status
             this.recentBookings = bookings.map((booking: any) => {
               console.log('Processing booking:', booking); // Debug log for each booking
 
@@ -706,13 +708,47 @@ export class DashboardComponent implements OnInit {
   }
 
   getBookingsForDate(date: Date): RecentBooking[] {
-    const dateStr = date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    
     return this.recentBookings.filter((booking) => {
       try {
-        const bookingDate = new Date(booking.date);
-        const bookingDateStr = bookingDate.toISOString().split('T')[0];
-        return bookingDateStr === dateStr;
+        // Try multiple date fields from the booking
+        const dateFields = [
+          booking.wash_date,
+          booking.washDate,
+          booking.date,
+          booking.booking_date,
+        ];
+        
+        for (const dateField of dateFields) {
+          if (!dateField) continue;
+          
+          try {
+            const bookingDate = new Date(dateField);
+            if (isNaN(bookingDate.getTime())) continue;
+            
+            // Compare year, month, and day
+            const bookingYear = bookingDate.getFullYear();
+            const bookingMonth = bookingDate.getMonth();
+            const bookingDay = bookingDate.getDate();
+            
+            if (
+              bookingYear === year &&
+              bookingMonth === month &&
+              bookingDay === day
+            ) {
+              return true;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        
+        return false;
       } catch (error) {
+        console.warn('Error parsing booking date:', booking, error);
         return false;
       }
     });

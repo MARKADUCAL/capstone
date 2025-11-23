@@ -71,12 +71,12 @@ interface DateBookingsDialogData {
                 </div>
               </div>
               <div class="booking-meta">
-                <span
-                  class="status-badge"
-                  [class]="booking.status.toLowerCase().replace(' ', '-')"
-                >
-                  {{ displayStatus(booking.status) }}
-                </span>
+              <span
+                class="status-badge"
+                [class]="getStatusClass(booking.status)"
+              >
+                {{ displayStatus(booking.status) }}
+              </span>
                 <p class="booking-amount">
                   {{ formatCurrency(booking.amount) }}
                 </p>
@@ -280,6 +280,10 @@ interface DateBookingsDialogData {
         white-space: nowrap;
       }
 
+      .status-badge {
+        text-transform: capitalize;
+      }
+
       .status-badge.pending {
         background-color: #fff7ed;
         color: #d97706;
@@ -303,6 +307,19 @@ interface DateBookingsDialogData {
         background-color: #fef2f2;
         color: #dc2626;
         border: 1px solid #fecaca;
+      }
+
+      .status-badge.cancelled,
+      .status-badge.canceled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+      }
+
+      .status-badge.done {
+        background-color: #f0f9ff;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
       }
 
       .booking-amount {
@@ -460,6 +477,22 @@ export class DateBookingsDialogComponent {
 
   displayStatus(status: string): string {
     const s = (status || '').toString();
-    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    return s;
+  }
+
+  getStatusClass(status: string): string {
+    if (!status) return 'pending';
+    const normalized = status.toLowerCase().trim().replace(/\s+/g, '-');
+    
+    // Handle all possible status values
+    if (normalized === 'rejected' || normalized === 'declined') {
+      return 'rejected';
+    }
+    if (normalized === 'cancelled' || normalized === 'canceled') {
+      return 'cancelled';
+    }
+    
+    return normalized;
   }
 }
