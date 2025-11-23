@@ -31,6 +31,18 @@ interface RecentBooking {
   date: string;
 }
 
+interface CalendarEvent {
+  label: string;
+  type: 'quotes' | 'giveaway' | 'reel';
+}
+
+interface CalendarDay {
+  date: number;
+  isOtherMonth: boolean;
+  isToday: boolean;
+  events: CalendarEvent[];
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -77,6 +89,29 @@ export class DashboardComponent implements OnInit {
   isLoadingStats = true;
   isLoadingBookings = true;
 
+  // Calendar properties
+  currentDate = new Date();
+  weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+  calendarDays: CalendarDay[] = [];
+
+  get currentMonthYear(): string {
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return `${monthNames[this.currentDate.getMonth()]}, ${this.currentDate.getFullYear()}`;
+  }
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
@@ -86,6 +121,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboardData();
+    this.generateCalendar();
   }
 
   loadDashboardData(): void {
@@ -446,5 +482,140 @@ export class DashboardComponent implements OnInit {
       default:
         return 'info';
     }
+  }
+
+  // Calendar methods
+  generateCalendar(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+
+    // Get the day of week for the first day (0 = Sunday, we want Monday = 0)
+    let startDay = firstDay.getDay() - 1;
+    if (startDay < 0) startDay = 6; // Sunday becomes 6
+
+    // Get days from previous month
+    const prevMonth = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+
+    this.calendarDays = [];
+
+    // Add days from previous month
+    for (let i = startDay - 1; i >= 0; i--) {
+      const date = daysInPrevMonth - i;
+      this.calendarDays.push({
+        date: date,
+        isOtherMonth: true,
+        isToday: false,
+        events: this.getEventsForDate(year, month - 1, date),
+      });
+    }
+
+    // Add days from current month
+    const today = new Date();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday =
+        day === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear();
+
+      this.calendarDays.push({
+        date: day,
+        isOtherMonth: false,
+        isToday: isToday,
+        events: this.getEventsForDate(year, month, day),
+      });
+    }
+
+    // Add days from next month to fill the grid (6 rows = 42 days)
+    const remainingDays = 42 - this.calendarDays.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      this.calendarDays.push({
+        date: day,
+        isOtherMonth: true,
+        isToday: false,
+        events: this.getEventsForDate(year, month + 1, day),
+      });
+    }
+  }
+
+  getEventsForDate(year: number, month: number, day: number): CalendarEvent[] {
+    // This is a sample implementation - you can replace this with actual booking data
+    // For now, we'll generate some sample events based on the image pattern
+    const events: CalendarEvent[] = [];
+
+    // Sample pattern based on the image
+    // In a real implementation, you would fetch this from your bookings API
+    const sampleEvents: { [key: string]: CalendarEvent[] } = {
+      '2025-1-1': [{ label: 'Quotes', type: 'quotes' }],
+      '2025-1-3': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+      ],
+      '2025-1-5': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+      ],
+      '2025-1-7': [{ label: 'Quotes', type: 'quotes' }],
+      '2025-1-9': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+      ],
+      '2025-1-11': [{ label: 'Quotes', type: 'quotes' }],
+      '2025-1-14': [{ label: 'Quotes', type: 'quotes' }],
+      '2025-1-19': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+        { label: 'Reel', type: 'reel' },
+      ],
+      '2025-1-24': [{ label: 'Quotes', type: 'quotes' }],
+      '2025-1-25': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+        { label: 'Reel', type: 'reel' },
+      ],
+      '2025-1-27': [
+        { label: 'Quotes', type: 'quotes' },
+        { label: 'Giveaway', type: 'giveaway' },
+        { label: 'Reel', type: 'reel' },
+      ],
+      '2025-1-31': [{ label: 'Quotes', type: 'quotes' }],
+    };
+
+    const dateKey = `${year}-${month + 1}-${day}`;
+    return sampleEvents[dateKey] || [];
+
+    // TODO: Replace with actual booking data
+    // You can map your bookings to calendar events like this:
+    // this.recentBookings.forEach(booking => {
+    //   const bookingDate = new Date(booking.date);
+    //   if (bookingDate.getFullYear() === year &&
+    //       bookingDate.getMonth() === month &&
+    //       bookingDate.getDate() === day) {
+    //     events.push({ label: booking.service, type: 'quotes' });
+    //   }
+    // });
+  }
+
+  previousMonth(): void {
+    this.currentDate = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth() - 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentDate = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth() + 1,
+      1
+    );
+    this.generateCalendar();
   }
 }
