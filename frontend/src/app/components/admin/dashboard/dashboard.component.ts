@@ -30,6 +30,10 @@ interface RecentBooking {
   status: string;
   amount: number;
   date: string;
+  // Additional date fields that may exist in the booking data
+  wash_date?: string;
+  washDate?: string;
+  booking_date?: string;
 }
 
 interface CalendarEvent {
@@ -715,11 +719,11 @@ export class DashboardComponent implements OnInit {
     return this.recentBookings.filter((booking) => {
       try {
         // Try multiple date fields from the booking
-        const dateFields = [
-          booking.wash_date,
-          booking.washDate,
+        const dateFields: (string | undefined)[] = [
+          (booking as any).wash_date,
+          (booking as any).washDate,
           booking.date,
-          booking.booking_date,
+          (booking as any).booking_date,
         ];
         
         for (const dateField of dateFields) {
