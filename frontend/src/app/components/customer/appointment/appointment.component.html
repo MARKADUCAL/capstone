@@ -163,144 +163,114 @@
             <span>Schedule</span>
           </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Wash Date*</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                [(ngModel)]="bookingForm.washDate"
-                name="washDate"
-                required
-                placeholder="Select wash date"
-                [min]="minDate"
-              />
-              <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Wash Time*</mat-label>
-              <input
-                matInput
-                type="time"
-                [(ngModel)]="bookingForm.washTime"
-                name="washTime"
-                required
-                placeholder="Select wash time"
-                class="time-input-field"
-                [min]="effectiveMinTime()"
-                [max]="'20:00'"
-                (ngModelChange)="onTimeInputChange($event)"
-              />
-              <mat-icon
-                matSuffix
-                class="time-picker-icon"
-                (click)="openTimePicker()"
-                >schedule</mat-icon
-              >
-
-              <!-- Time Picker Overlay -->
-              <div
-                class="time-picker-overlay"
-                *ngIf="showTimePicker"
-                (click)="closeTimePicker($event)"
-              >
-                <div
-                  class="time-picker-panel"
-                  (click)="$event.stopPropagation()"
+          <div class="schedule-grid">
+            <div class="calendar-panel">
+              <div class="calendar-nav">
+                <button
+                  type="button"
+                  class="nav-button"
+                  (click)="goToPreviousMonth()"
                 >
-                  <div class="time-picker-header">
-                    <h3>Select Time</h3>
-                    <button
-                      class="close-btn"
-                      type="button"
-                      title="Close time picker"
-                      aria-label="Close time picker"
-                      (click)="closeTimePicker($event)"
-                    >
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </div>
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="month-label">
+                  {{ currentCalendarMonth | date: 'MMMM, yyyy' }}
+                </div>
+                <button type="button" class="nav-button" (click)="goToNextMonth()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                <button type="button" class="today-button" (click)="goToToday()">
+                  Today
+                </button>
+              </div>
 
-                  <!-- Three Column Time Picker -->
-                  <!-- Availability Note -->
-                  <div class="time-availability-note">
-                    Available time: 8:00 AM – 8:00 PM
-                  </div>
+              <div class="calendar-weekdays">
+                <div class="weekday" *ngFor="let weekday of weekDayLabels">
+                  {{ weekday }}
+                </div>
+              </div>
 
-                  <div class="time-picker-columns">
-                    <!-- Hours Column -->
-                    <div class="time-column">
-                      <div class="column-header">Hour</div>
-                      <div class="column-content" #hoursContainer>
-                        <div
-                          *ngFor="let hour of availableHours"
-                          class="time-option"
-                          [class.disabled]="
-                            isHourDisabledForCurrentPeriod(hour)
-                          "
-                          [class.selected]="selectedHour === hour"
-                          (click)="selectHour(hour)"
-                        >
-                          {{ hour }}
-                        </div>
+              <div class="calendar-weeks">
+                <div class="calendar-row" *ngFor="let week of calendarWeeks">
+                  <div
+                    class="calendar-cell"
+                    *ngFor="let day of week"
+                    [class.other-month]="!day.isCurrentMonth"
+                    [class.today]="day.isToday"
+                    [class.selected]="isSelectedDate(day.date)"
+                    [class.disabled]="day.isDisabled"
+                    (click)="selectCalendarDate(day)"
+                  >
+                    <div class="date-number">{{ day.date.getDate() }}</div>
+                    <div class="day-bookings">
+                      <div
+                        class="booking-pill"
+                        *ngFor="let booking of day.bookings | slice: 0: 3"
+                        [ngClass]="getBookingBadgeClass(booking)"
+                      >
+                        {{ getBookingLabel(booking) }}
+                      </div>
+                      <div class="more-badge" *ngIf="day.bookings.length > 3">
+                        +{{ day.bookings.length - 3 }}
                       </div>
                     </div>
-
-                    <!-- Minutes Column -->
-                    <div class="time-column">
-                      <div class="column-header">Minute</div>
-                      <div class="column-content" #minutesContainer>
-                        <div
-                          *ngFor="let minute of availableMinutes"
-                          class="time-option"
-                          [class.selected]="selectedMinute === minute"
-                          (click)="selectMinute(minute)"
-                        >
-                          {{ minute }}
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- AM/PM Column -->
-                    <div class="time-column">
-                      <div class="column-header">Period</div>
-                      <div class="column-content" #periodContainer>
-                        <div
-                          *ngFor="let minute of availablePeriods"
-                          class="time-option"
-                          [class.selected]="selectedPeriod === minute"
-                          (click)="selectPeriod(minute)"
-                        >
-                          {{ minute }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="time-picker-actions">
-                    <button
-                      class="btn-cancel"
-                      (click)="closeTimePicker($event)"
-                      type="button"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      class="btn-confirm"
-                      (click)="confirmTimeSelection()"
-                      type="button"
-                    >
-                      Done
-                    </button>
                   </div>
                 </div>
               </div>
-            </mat-form-field>
+            </div>
+
+            <div class="time-panel">
+              <div class="time-panel-header">
+                <h3 *ngIf="selectedCalendarDate; else selectDatePrompt">
+                  Available time on
+                  {{ selectedCalendarDate | date: 'MMMM d, yyyy' }}
+                </h3>
+                <ng-template #selectDatePrompt>
+                  <h3>Select a date to view available time slots</h3>
+                </ng-template>
+              </div>
+
+              <div class="time-slot-status" *ngIf="isLoadingTimeSlots">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading available time...
+              </div>
+
+              <div
+                class="time-slot-status error"
+                *ngIf="!isLoadingTimeSlots && timeSlotError"
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                {{ timeSlotError }}
+              </div>
+
+              <div
+                class="time-slots"
+                *ngIf="
+                  selectedCalendarDate &&
+                  !isLoadingTimeSlots &&
+                  !timeSlotError
+                "
+              >
+                <button
+                  type="button"
+                  class="time-slot"
+                  *ngFor="let slot of availableTimeSlots"
+                  [class.selected]="bookingForm.washTime === slot"
+                  (click)="selectTimeSlot(slot)"
+                >
+                  {{ formatTimeSlot(slot) }}
+                </button>
+
+                <p *ngIf="availableTimeSlots.length === 0" class="time-slot-status">
+                  No available time for this date. Please choose another day.
+                </p>
+              </div>
+
+              <div class="selected-time" *ngIf="bookingForm.washTime">
+                <i class="fas fa-clock"></i>
+                Selected time: {{ formatTimeSlot(bookingForm.washTime) }}
+              </div>
+            </div>
           </div>
         </div>
 

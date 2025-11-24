@@ -30,6 +30,14 @@ import {
 import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
 
+interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isDisabled: boolean;
+  bookings: Booking[];
+}
+
 @Component({
   selector: 'app-appointment',
   standalone: true,
@@ -105,17 +113,18 @@ export class AppointmentComponent implements OnInit {
   selectedVehicleId: number | null = null;
   selectedVehicle: any | null = null;
 
-  // Time picker properties
-  showTimePicker = false;
-  selectedHour = 8; // Default to 8 AM
-  selectedMinute = '00';
-  selectedPeriod = 'AM';
-  availableHours: number[] = [8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8]; // 8 AM to 8 PM
-  availableMinutes: string[] = ['00', '15', '30', '45'];
-  availablePeriods: string[] = ['AM', 'PM'];
-
   // Date/time guards
   minDate: Date = new Date();
+
+  // Calendar view state
+  currentCalendarMonth: Date = new Date();
+  calendarWeeks: CalendarDay[][] = [];
+  weekDayLabels: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  selectedCalendarDate: Date | null = null;
+  availableTimeSlots: string[] = [];
+  isLoadingTimeSlots = false;
+  timeSlotError = '';
+  bookingsByDate: Record<string, Booking[]> = {};
 
   constructor(
     private bookingService: BookingService,
@@ -156,6 +165,8 @@ export class AppointmentComponent implements OnInit {
         }
       });
     }
+
+    this.buildCalendar();
   }
 
   // Helper: return min time (HH:MM) if selected date is today; else null (no limit)
@@ -461,9 +472,14 @@ export class AppointmentComponent implements OnInit {
     this.bookingService.getBookingsByCustomerId(this.userCustomerId).subscribe(
       (bookings) => {
         this.customerBookings = bookings;
+        this.rebuildBookingsByDate();
+        this.buildCalendar();
       },
       (error) => {
         this.errorMessage = 'Failed to load bookings: ' + error.message;
+        this.customerBookings = [];
+        this.rebuildBookingsByDate();
+        this.buildCalendar();
       }
     );
   }
@@ -667,6 +683,11 @@ export class AppointmentComponent implements OnInit {
     this.selectedVehicle = null;
     this.successMessage = '';
     this.errorMessage = '';
+    this.selectedCalendarDate = null;
+    this.availableTimeSlots = [];
+    this.timeSlotError = '';
+    this.currentCalendarMonth = new Date();
+    this.buildCalendar();
   }
 
   getVehicleTypeLabel(typeValue: string): string {
@@ -1092,6 +1113,287 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  // Calendar helpers -------------------------------------------------------
+  goToPreviousMonth(): void {
+    const previous = new Date(this.currentCalendarMonth);
+    previous.setMonth(previous.getMonth() - 1);
+    this.currentCalendarMonth = previous;
+    this.buildCalendar();
+  }
+
+  goToNextMonth(): void {
+    const next = new Date(this.currentCalendarMonth);
+    next.setMonth(next.getMonth() + 1);
+    this.currentCalendarMonth = next;
+    this.buildCalendar();
+  }
+
+  goToToday(): void {
+    this.currentCalendarMonth = new Date();
+    this.buildCalendar();
+  }
+
+  isSelectedDate(date: Date): boolean {
+    if (!this.selectedCalendarDate) {
+      return false;
+    }
+    return this.isSameDate(this.selectedCalendarDate, date);
+  }
+
+  selectCalendarDate(day: CalendarDay): void {
+    if (day.isDisabled) {
+      return;
+    }
+
+    if (!day.isCurrentMonth) {
+      this.currentCalendarMonth = new Date(
+        day.date.getFullYear(),
+        day.date.getMonth(),
+        1
+      );
+      this.buildCalendar();
+    }
+
+    this.selectedCalendarDate = new Date(
+      day.date.getFullYear(),
+      day.date.getMonth(),
+      day.date.getDate()
+    );
+
+    const normalizedDate = this.normalizeWashDateForApi(
+      this.selectedCalendarDate
+    );
+    this.bookingForm.washDate = normalizedDate;
+    this.bookingForm.washTime = '';
+    this.availableTimeSlots = [];
+    this.timeSlotError = '';
+
+    this.loadAvailableTimeSlots(normalizedDate);
+  }
+
+  selectTimeSlot(slot: string): void {
+    if (!slot) {
+      return;
+    }
+    this.bookingForm.washTime = slot;
+    this.errorMessage = '';
+  }
+
+  formatTimeSlot(slot: string): string {
+    try {
+      const [hourStr, minuteStr] = slot.split(':');
+      if (hourStr === undefined || minuteStr === undefined) {
+        return slot;
+      }
+      let hour = parseInt(hourStr, 10);
+      const minute = minuteStr.padStart(2, '0');
+      const period = hour >= 12 ? 'PM' : 'AM';
+      if (hour === 0) {
+        hour = 12;
+      } else if (hour > 12) {
+        hour -= 12;
+      }
+      return `${hour}:${minute} ${period}`;
+    } catch {
+      return slot;
+    }
+  }
+
+  getBookingLabel(booking: any): string {
+    const raw =
+      booking?.service_package ||
+      booking?.servicePackage ||
+      booking?.services ||
+      booking?.service ||
+      '';
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      return 'Booked';
+    }
+    const code = raw.split(' - ')[0];
+    if (/^p\d+/i.test(code)) {
+      return `Package ${code.toUpperCase()}`;
+    }
+    return raw;
+  }
+
+  getBookingBadgeClass(booking: any): string {
+    const raw =
+      booking?.service_package ||
+      booking?.servicePackage ||
+      booking?.services ||
+      booking?.service ||
+      '';
+    if (typeof raw !== 'string') {
+      return 'package-generic';
+    }
+    const code = raw.split(' - ')[0]?.toLowerCase().replace(/\s+/g, '');
+    if (!code) {
+      return 'package-generic';
+    }
+    return `package-${code}`;
+  }
+
+  private loadAvailableTimeSlots(date: string): void {
+    if (!date) {
+      return;
+    }
+
+    this.isLoadingTimeSlots = true;
+    this.timeSlotError = '';
+    this.availableTimeSlots = [];
+
+    this.bookingService.getAvailableTimeSlots(date).subscribe({
+      next: (slots) => {
+        const sanitized = this.sanitizeTimeSlots(slots || []);
+        const minTime = this.minTimeForSelectedDate();
+        const filtered = sanitized.filter((slot) => {
+          const withinBusiness = this.isSlotWithinBusinessHours(slot);
+          if (!withinBusiness) {
+            return false;
+          }
+          if (!minTime) {
+            return true;
+          }
+          return slot >= minTime;
+        });
+
+        this.availableTimeSlots = filtered;
+        if (filtered.length === 0) {
+          this.timeSlotError =
+            'No time slots available for this date. Please choose another day.';
+        }
+        this.isLoadingTimeSlots = false;
+      },
+      error: (error) => {
+        this.timeSlotError =
+          error?.message || 'Failed to load time slots. Please try again.';
+        this.isLoadingTimeSlots = false;
+      },
+    });
+  }
+
+  private sanitizeTimeSlots(slots: string[]): string[] {
+    const unique = new Set<string>();
+    slots.forEach((slot) => {
+      const normalized = this.normalizeTimeSlot(slot);
+      if (normalized) {
+        unique.add(normalized);
+      }
+    });
+    return Array.from(unique).sort();
+  }
+
+  private normalizeTimeSlot(slot: string): string | null {
+    if (!slot) {
+      return null;
+    }
+    const parts = slot.split(':');
+    if (parts.length < 2) {
+      return null;
+    }
+    const hour = parseInt(parts[0], 10);
+    const minute = parseInt(parts[1], 10);
+    if (isNaN(hour) || isNaN(minute)) {
+      return null;
+    }
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      return null;
+    }
+    return `${hour.toString().padStart(2, '0')}:${minute
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+  private isSlotWithinBusinessHours(slot: string): boolean {
+    try {
+      const [hourStr] = slot.split(':');
+      const hour = parseInt(hourStr, 10);
+      if (isNaN(hour)) {
+        return false;
+      }
+      return hour >= 8 && hour <= 20;
+    } catch {
+      return false;
+    }
+  }
+
+  private buildCalendar(): void {
+    const startOfMonth = new Date(
+      this.currentCalendarMonth.getFullYear(),
+      this.currentCalendarMonth.getMonth(),
+      1
+    );
+    const firstDayIndex = (startOfMonth.getDay() + 6) % 7; // convert to Monday-first
+    const calendarStart = new Date(startOfMonth);
+    calendarStart.setDate(startOfMonth.getDate() - firstDayIndex);
+
+    const weeks: CalendarDay[][] = [];
+    for (let week = 0; week < 6; week++) {
+      const weekDays: CalendarDay[] = [];
+      for (let day = 0; day < 7; day++) {
+        const cellDate = new Date(calendarStart);
+        cellDate.setDate(calendarStart.getDate() + week * 7 + day);
+        const normalizedKey = this.normalizeWashDateForApi(cellDate);
+        weekDays.push({
+          date: cellDate,
+          isCurrentMonth:
+            cellDate.getMonth() === this.currentCalendarMonth.getMonth(),
+          isToday: this.isSameDate(cellDate, new Date()),
+          isDisabled: this.isDateBeforeMin(cellDate),
+          bookings: this.bookingsByDate[normalizedKey] || [],
+        });
+      }
+      weeks.push(weekDays);
+    }
+    this.calendarWeeks = weeks;
+
+    if (this.bookingForm.washDate) {
+      const existingDate = new Date(this.bookingForm.washDate);
+      if (!isNaN(existingDate.getTime())) {
+        this.selectedCalendarDate = existingDate;
+      }
+    } else {
+      this.selectedCalendarDate = null;
+    }
+  }
+
+  private rebuildBookingsByDate(): void {
+    const map: Record<string, Booking[]> = {};
+    (this.customerBookings || []).forEach((booking: any) => {
+      const dateValue =
+        booking?.wash_date ||
+        booking?.washDate ||
+        booking?.wash_date_time ||
+        booking?.washDateTime ||
+        booking?.date;
+      const normalized = this.normalizeWashDateForApi(dateValue);
+      if (!normalized) {
+        return;
+      }
+      if (!map[normalized]) {
+        map[normalized] = [];
+      }
+      map[normalized].push(booking);
+    });
+    this.bookingsByDate = map;
+  }
+
+  private isSameDate(a: Date, b: Date): boolean {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+
+  private isDateBeforeMin(date: Date): boolean {
+    const candidate = new Date(date);
+    candidate.setHours(0, 0, 0, 0);
+    const min = new Date(this.minDate);
+    min.setHours(0, 0, 0, 0);
+    return candidate.getTime() < min.getTime();
+  }
+
   // Get status class for styling
   getStatusClass(status: BookingStatus): string {
     switch (status) {
@@ -1104,147 +1406,6 @@ export class AppointmentComponent implements OnInit {
       default:
         return 'status-pending';
     }
-  }
-
-  // Time picker methods
-  openTimePicker(): void {
-    this.showTimePicker = true;
-    // Parse current time if exists
-    if (this.bookingForm.washTime) {
-      const timeParts = this.bookingForm.washTime.split(':');
-      if (timeParts.length === 2) {
-        const hour = parseInt(timeParts[0]);
-        const minute = parseInt(timeParts[1]);
-        this.selectedHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-        this.selectedMinute = minute.toString().padStart(2, '0');
-        this.selectedPeriod = hour >= 12 ? 'PM' : 'AM';
-      }
-    }
-  }
-
-  closeTimePicker(event: Event): void {
-    event.stopPropagation();
-    this.showTimePicker = false;
-  }
-
-  selectHour(hour: number): void {
-    if (!this.isHourDisabledForCurrentPeriod(hour)) {
-      this.selectedHour = hour;
-    }
-  }
-
-  selectMinute(minute: string): void {
-    this.selectedMinute = minute;
-  }
-
-  selectPeriod(period: string): void {
-    this.selectedPeriod = period;
-  }
-
-  confirmTimeSelection(): void {
-    // Convert 12-hour format to 24-hour format
-    let hour24 = this.selectedHour;
-    if (this.selectedPeriod === 'PM' && this.selectedHour !== 12) {
-      hour24 += 12;
-    } else if (this.selectedPeriod === 'AM' && this.selectedHour === 12) {
-      hour24 = 0;
-    }
-
-    // Validate time is within 8:00 AM to 8:00 PM range
-    if (hour24 < 8 || hour24 > 20) {
-      const msg =
-        'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
-      this.errorMessage = msg;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Time not available',
-        text: msg,
-        confirmButtonColor: '#3498db',
-      });
-      return;
-    }
-
-    // Format time as HH:MM
-    const formattedHour = hour24.toString().padStart(2, '0');
-    const formattedMinute = this.selectedMinute.toString().padStart(2, '0');
-
-    // If selected date is today, clamp to current time if needed
-    const minTime = this.minTimeForSelectedDate();
-    let finalTime = `${formattedHour}:${formattedMinute}`;
-    if (minTime) {
-      // Compare HH:MM strings lexicographically works because both are zero-padded
-      if (finalTime < minTime) {
-        finalTime = minTime;
-      }
-    }
-
-    // Final validation: ensure the final time is still within business hours
-    const finalHour24 = parseInt(finalTime.split(':')[0]);
-    if (finalHour24 < 8 || finalHour24 > 20) {
-      const msg =
-        'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
-      this.errorMessage = msg;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Time not available',
-        text: msg,
-        confirmButtonColor: '#3498db',
-      });
-      return;
-    }
-
-    this.bookingForm.washTime = finalTime;
-    this.showTimePicker = false;
-  }
-
-  // Compute effective min time for the native time input
-  effectiveMinTime(): string | null {
-    const businessMin = '08:00';
-    const businessMax = '20:00';
-    const todayMin = this.minTimeForSelectedDate();
-    if (!todayMin) return businessMin;
-    // Clamp to business window
-    const minClamped = todayMin < businessMin ? businessMin : todayMin;
-    return minClamped > businessMax ? businessMax : minClamped;
-  }
-
-  // Handle manual/native time input changes
-  onTimeInputChange(value: string): void {
-    this.errorMessage = '';
-    if (!value) return;
-    try {
-      const [hStr, mStr] = value.split(':');
-      const h = parseInt(hStr, 10);
-      const m = parseInt(mStr, 10);
-      if (isNaN(h) || isNaN(m)) return;
-      if (h < 8 || h > 20) {
-        const msg =
-          'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
-        this.errorMessage = msg;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Time not available',
-          text: msg,
-          confirmButtonColor: '#3498db',
-        });
-        // Do not clear the field; allow browser min/max UI to guide
-        return;
-      }
-      this.bookingForm.washTime = `${hStr.padStart(2, '0')}:${mStr.padStart(
-        2,
-        '0'
-      )}`;
-    } catch {}
-  }
-
-  // Disable hours that are invalid for the currently selected period
-  isHourDisabledForCurrentPeriod(hour: number): boolean {
-    if (this.selectedPeriod === 'AM') {
-      // AM allows 8,9,10,11 only
-      return !(hour >= 8 && hour <= 11);
-    }
-    // PM allows 12,1..8
-    return false;
   }
 
   // Convert vehicle type code to full description
