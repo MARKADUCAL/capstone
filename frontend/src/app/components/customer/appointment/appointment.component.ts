@@ -239,6 +239,23 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  // Find a saved vehicle by plate number (case/format insensitive)
+  private findSavedVehicleByPlate(
+    plateNumber: string
+  ): Record<string, any> | null {
+    const normalizedTargetPlate = this.normalizePlate(plateNumber);
+    if (!normalizedTargetPlate) return null;
+
+    const match = this.customerVehicles.find((vehicle: any) => {
+      const normalizedVehiclePlate = this.normalizePlate(
+        vehicle?.plate_number ?? vehicle?.plateNumber
+      );
+      return normalizedVehiclePlate === normalizedTargetPlate;
+    });
+
+    return match || null;
+  }
+
   // Normalize a date-like value to local YYYY-MM-DD (no timezone shift)
   private normalizeWashDateForApi(dateValue: unknown): string {
     try {
@@ -666,6 +683,28 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
+    // Ensure the selected plate belongs to one of the user's saved vehicles
+    const savedVehicle = this.findSavedVehicleByPlate(
+      this.bookingForm.plateNumber
+    );
+    if (!savedVehicle) {
+      const msg =
+        'Please select one of your saved vehicles from your profile before booking.';
+      this.errorMessage = msg;
+      Swal.fire({
+        icon: 'info',
+        title: 'Vehicle not found',
+        text: msg,
+        confirmButtonColor: '#3498db',
+      });
+      return;
+    }
+
+    // Keep the booking form aligned with the saved vehicle data
+    this.bookingForm.vehicleModel = savedVehicle.vehicle_model || '';
+    this.bookingForm.vehicleColor = savedVehicle.vehicle_color || '';
+    this.bookingForm.nickname = savedVehicle.nickname || '';
+
     // Prevent booking in the past (date or time)
     if (
       this.isDateTimeInPast(
@@ -837,6 +876,16 @@ export class AppointmentComponent implements OnInit {
 
     if (!this.bookingForm.nickname && vehicle.nickname) {
       this.bookingForm.nickname = vehicle.nickname;
+    }
+
+    // Ensure the plate number still matches the selected saved vehicle
+    if (
+      this.normalizePlate(this.bookingForm.plateNumber) !==
+      this.normalizePlate(vehicle.plate_number)
+    ) {
+      this.errorMessage =
+        'Please use the plate number stored in your profile for the selected vehicle.';
+      return false;
     }
 
     if (!this.bookingForm.services) {
