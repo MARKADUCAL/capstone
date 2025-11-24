@@ -480,7 +480,9 @@ export class DashboardComponent implements OnInit {
   // Display-friendly status mapping
   displayStatus(status: string): string {
     const s = (status || '').toString();
-    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
+    return s;
   }
 
   // Helper method to get status icon
@@ -715,7 +717,7 @@ export class DashboardComponent implements OnInit {
     const year = date.getFullYear();
     const month = date.getMonth();
     const day = date.getDate();
-    
+
     return this.recentBookings.filter((booking) => {
       try {
         // Try multiple date fields from the booking
@@ -725,19 +727,19 @@ export class DashboardComponent implements OnInit {
           booking.date,
           (booking as any).booking_date,
         ];
-        
+
         for (const dateField of dateFields) {
           if (!dateField) continue;
-          
+
           try {
             const bookingDate = new Date(dateField);
             if (isNaN(bookingDate.getTime())) continue;
-            
+
             // Compare year, month, and day
             const bookingYear = bookingDate.getFullYear();
             const bookingMonth = bookingDate.getMonth();
             const bookingDay = bookingDate.getDate();
-            
+
             if (
               bookingYear === year &&
               bookingMonth === month &&
@@ -749,7 +751,7 @@ export class DashboardComponent implements OnInit {
             continue;
           }
         }
-        
+
         return false;
       } catch (error) {
         console.warn('Error parsing booking date:', booking, error);

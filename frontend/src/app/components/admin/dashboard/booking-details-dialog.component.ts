@@ -430,6 +430,8 @@ export class BookingDetailsDialog {
 
   displayStatus(status: string): string {
     const s = (status || '').toString();
-    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
+    return s;
   }
 }

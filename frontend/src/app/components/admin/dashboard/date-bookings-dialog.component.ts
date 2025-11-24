@@ -71,12 +71,12 @@ interface DateBookingsDialogData {
                 </div>
               </div>
               <div class="booking-meta">
-              <span
-                class="status-badge"
-                [class]="getStatusClass(booking.status)"
-              >
-                {{ displayStatus(booking.status) }}
-              </span>
+                <span
+                  class="status-badge"
+                  [class]="getStatusClass(booking.status)"
+                >
+                  {{ displayStatus(booking.status) }}
+                </span>
                 <p class="booking-amount">
                   {{ formatCurrency(booking.amount) }}
                 </p>
@@ -478,13 +478,14 @@ export class DateBookingsDialogComponent {
   displayStatus(status: string): string {
     const s = (status || '').toString();
     if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
     return s;
   }
 
   getStatusClass(status: string): string {
     if (!status) return 'pending';
     const normalized = status.toLowerCase().trim().replace(/\s+/g, '-');
-    
+
     // Handle all possible status values
     if (normalized === 'rejected' || normalized === 'declined') {
       return 'rejected';
@@ -492,7 +493,7 @@ export class DateBookingsDialogComponent {
     if (normalized === 'cancelled' || normalized === 'canceled') {
       return 'cancelled';
     }
-    
+
     return normalized;
   }
 }
