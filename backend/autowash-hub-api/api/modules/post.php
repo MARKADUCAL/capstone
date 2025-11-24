@@ -1162,17 +1162,29 @@ class Post extends GlobalMethods
 
 
         try {
-            // Block creating a new booking if the customer has an active booking (Pending or Approved)
-            $checkSql = "SELECT COUNT(*) FROM bookings WHERE customer_id = ? AND status IN ('Pending','Approved')";
+            // Block creating a new booking only if this specific vehicle already has an active booking (Pending or Approved)
+            $checkSql = "SELECT plate_number FROM bookings 
+                        WHERE customer_id = ?
+                          AND status IN ('Pending','Approved')";
             $checkStmt = $this->pdo->prepare($checkSql);
             $checkStmt->execute([$data->customer_id]);
-            $activeCount = (int)$checkStmt->fetchColumn();
+            $activePlates = $checkStmt->fetchAll(\PDO::FETCH_COLUMN);
 
-            if ($activeCount > 0) {
+            $targetPlate = $this->normalize_plate_number($data->plate_number);
+
+            $hasActiveForPlate = false;
+            foreach ($activePlates as $plate) {
+                if ($this->normalize_plate_number($plate) === $targetPlate) {
+                    $hasActiveForPlate = true;
+                    break;
+                }
+            }
+
+            if ($hasActiveForPlate) {
                 return $this->sendPayload(
                     null,
                     "failed",
-                    "You already have an active booking. Please wait until it's completed, cancelled, or rejected before making a new one.",
+                    "You already have an active booking for this vehicle. Please wait until it's completed, cancelled, or rejected before booking it again.",
                     400
                 );
             }
@@ -1970,6 +1982,7 @@ class Post extends GlobalMethods
                 } else {
                     return $this->sendPayload(null, "failed", "Image upload failed: " . $uploadData['message'], 400);
                 }
+
             }
 
             $sql = "INSERT INTO inventory (name, image_url, stock, price, category) VALUES (?, ?, ?, ?, ?)";
@@ -4229,6 +4242,18 @@ class Post extends GlobalMethods
         } catch (\PDOException $e) {
             error_log("Failed to ensure customer_vehicles table: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Normalize plate numbers for case/format-insensitive comparison
+     */
+    private function normalize_plate_number($plate) {
+        if (!is_string($plate)) {
+            return '';
+        }
+
+        $alphanumericOnly = preg_replace('/[^a-zA-Z0-9]/', '', $plate);
+        return strtolower($alphanumericOnly ?? '');
     }
 
 }
