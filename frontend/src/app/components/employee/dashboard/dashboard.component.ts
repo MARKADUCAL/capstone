@@ -10,6 +10,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { TaskDetailsDialog } from './task-details-dialog.component';
+import { DateTasksDialogComponent } from './date-tasks-dialog.component';
 import { BookingService } from '../../../services/booking.service';
 import { FeedbackService } from '../../../services/feedback.service';
 
@@ -640,15 +641,31 @@ export class DashboardComponent implements OnInit {
     const selectedDate = new Date(day.year, day.month, day.date);
     const tasksForDate = this.getTasksForDate(selectedDate);
 
-    // For now, just show a simple alert. You can create a dialog component later if needed
-    if (tasksForDate.length > 0) {
-      const taskList = tasksForDate
-        .map((t) => `${t.customerName} - ${t.service}`)
-        .join('\n');
-      alert(`Tasks for ${this.formatDateForModal(selectedDate)}:\n\n${taskList}`);
-    } else {
-      alert(`No tasks scheduled for ${this.formatDateForModal(selectedDate)}`);
-    }
+    const dialogRef = this.dialog.open(DateTasksDialogComponent, {
+      width: window.innerWidth <= 768 ? '100vw' : '600px',
+      maxWidth: window.innerWidth <= 768 ? '100vw' : '700px',
+      height: window.innerWidth <= 768 ? '100vh' : 'auto',
+      maxHeight: window.innerWidth <= 768 ? '100vh' : '80vh',
+      panelClass: window.innerWidth <= 768 ? 'mobile-dialog' : '',
+      data: {
+        date: selectedDate,
+        tasks: tasksForDate.map((task) => ({
+          id: task.id,
+          customerName: task.customerName,
+          service: task.service,
+          status: task.status,
+          time: task.time,
+          date: task.date,
+        })),
+        formattedDate: this.formatDateForModal(selectedDate),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.taskId) {
+        this.viewTaskDetails(result.taskId);
+      }
+    });
   }
 
   getTasksForDate(date: Date): Task[] {
