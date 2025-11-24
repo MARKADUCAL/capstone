@@ -250,9 +250,9 @@ export class CarWashBookingComponent implements OnInit {
       description: 'Awaiting admin approval',
     },
     {
-      label: 'Approved',
+      label: 'Ongoing',
       value: 'Approved',
-      description: 'Approved and awaiting employee assignment/completion',
+      description: 'Ongoing and awaiting employee assignment/completion',
     },
     {
       label: 'Done',
@@ -491,7 +491,9 @@ export class CarWashBookingComponent implements OnInit {
   // Display-friendly mapping for status labels
   displayStatus(status: string): string {
     const s = (status || '').toString();
-    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
+    return s;
   }
 
   getUserInitials(name: string): string {
@@ -2500,7 +2502,9 @@ export class BookingDetailsDialogComponent {
   // Display-friendly status mapping for this dialog
   displayStatus(status: string): string {
     const s = (status || '').toString();
-    return s.toLowerCase() === 'rejected' ? 'Declined' : s;
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
+    return s;
   }
 
   getStarDisplay(rating: number): string {
