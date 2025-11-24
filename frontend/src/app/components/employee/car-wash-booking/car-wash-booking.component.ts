@@ -62,6 +62,32 @@ export class CarWashBookingComponent implements OnInit {
   selectedStatus: string = 'All';
   loading: boolean = false;
   error: string | null = null;
+  statusSections: {
+    label: string;
+    value: CarWashBooking['status'];
+    description: string;
+  }[] = [
+    {
+      label: 'Pending',
+      value: 'Pending',
+      description: 'Awaiting admin approval',
+    },
+    {
+      label: 'Ongoing',
+      value: 'Approved',
+      description: 'Assigned to you - ready to work on',
+    },
+    {
+      label: 'Done',
+      value: 'Done',
+      description: 'Service completed, awaiting admin review',
+    },
+    {
+      label: 'Completed',
+      value: 'Completed',
+      description: 'Officially completed bookings',
+    },
+  ];
   private apiUrl = environment.apiUrl;
 
   constructor(
@@ -194,6 +220,20 @@ export class CarWashBookingComponent implements OnInit {
       .slice(0, 2);
   }
 
+  displayStatus(status: string): string {
+    const s = (status || '').toString();
+    if (s.toLowerCase() === 'rejected') return 'Declined';
+    if (s.toLowerCase() === 'approved') return 'Ongoing';
+    return s;
+  }
+
+  getBookingsByStatus(status: CarWashBooking['status']): CarWashBooking[] {
+    const normalized = (status || '').toLowerCase();
+    return this.bookings.filter(
+      (booking) => (booking.status || '').toLowerCase() === normalized
+    );
+  }
+
   private normalizeStatus(
     status: string
   ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' {
@@ -301,7 +341,7 @@ export class CarWashBookingComponent implements OnInit {
     }
   }
 
-  private formatDate(dateString: string): string {
+  formatDate(dateString: string): string {
     if (!dateString) {
       return 'Date TBD';
     }
@@ -318,7 +358,7 @@ export class CarWashBookingComponent implements OnInit {
     });
   }
 
-  private formatTime(timeString?: string): string {
+  formatTime(timeString?: string): string {
     if (!timeString) {
       return 'Time TBD';
     }
