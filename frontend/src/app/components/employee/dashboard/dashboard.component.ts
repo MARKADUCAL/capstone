@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { TaskDetailsDialog } from './task-details-dialog.component';
@@ -38,6 +38,20 @@ interface DailyStats {
   customerRating: number;
 }
 
+interface CalendarEvent {
+  label: string;
+  type: 'quotes' | 'giveaway' | 'reel';
+}
+
+interface CalendarDay {
+  date: number;
+  year: number;
+  month: number;
+  isOtherMonth: boolean;
+  isToday: boolean;
+  events: CalendarEvent[];
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -49,6 +63,7 @@ interface DailyStats {
     MatTabsModule,
     MatTableModule,
     MatMenuModule,
+    MatDialogModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -72,6 +87,32 @@ export class DashboardComponent implements OnInit {
     'actions',
   ];
 
+  // Calendar properties
+  currentDate = new Date();
+  today = new Date();
+  weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+  calendarDays: CalendarDay[] = [];
+
+  get currentMonthYear(): string {
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return `${
+      monthNames[this.currentDate.getMonth()]
+    }, ${this.currentDate.getFullYear()}`;
+  }
+
   private apiUrl = environment.apiUrl;
 
   constructor(
@@ -86,6 +127,7 @@ export class DashboardComponent implements OnInit {
     this.loadBookingStats();
     this.loadUpcomingTasks();
     this.loadCustomerRating();
+    this.generateCalendar();
   }
 
   private loadBookingStats(): void {
@@ -242,6 +284,9 @@ export class DashboardComponent implements OnInit {
               b.sortValue !== undefined ? b.sortValue : Number.MAX_SAFE_INTEGER;
             return aValue - bValue;
           });
+
+          // Regenerate calendar with updated tasks
+          this.generateCalendar();
 
           this.loading = false;
         },
@@ -447,6 +492,194 @@ export class DashboardComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log('Task details dialog closed');
+    });
+  }
+
+  // Calendar methods
+  generateCalendar(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    const today = this.today;
+
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+
+    // Get the day of week for the first day (0 = Sunday, we want Monday = 0)
+    let startDay = firstDay.getDay() - 1;
+    if (startDay < 0) startDay = 6; // Sunday becomes 6
+
+    // Get days from previous month
+    const prevMonthDate = new Date(year, month, 0);
+    const daysInPrevMonth = prevMonthDate.getDate();
+
+    this.calendarDays = [];
+
+    // Add days from previous month
+    const prevYear = month === 0 ? year - 1 : year;
+    const prevMonthNum = month === 0 ? 11 : month - 1;
+    for (let i = startDay - 1; i >= 0; i--) {
+      const date = daysInPrevMonth - i;
+      const isToday =
+        date === today.getDate() &&
+        prevMonthNum === today.getMonth() &&
+        prevYear === today.getFullYear();
+      this.calendarDays.push({
+        date: date,
+        year: prevYear,
+        month: prevMonthNum,
+        isOtherMonth: true,
+        isToday: isToday,
+        events: this.getEventsForDate(prevYear, prevMonthNum, date),
+      });
+    }
+
+    // Add days from current month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday =
+        day === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear();
+
+      this.calendarDays.push({
+        date: day,
+        year: year,
+        month: month,
+        isOtherMonth: false,
+        isToday: isToday,
+        events: this.getEventsForDate(year, month, day),
+      });
+    }
+
+    // Add days from next month to fill the grid (6 rows = 42 days)
+    const nextYear = month === 11 ? year + 1 : year;
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const remainingDays = 42 - this.calendarDays.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      const isToday =
+        day === today.getDate() &&
+        nextMonth === today.getMonth() &&
+        nextYear === today.getFullYear();
+      this.calendarDays.push({
+        date: day,
+        year: nextYear,
+        month: nextMonth,
+        isOtherMonth: true,
+        isToday: isToday,
+        events: this.getEventsForDate(nextYear, nextMonth, day),
+      });
+    }
+  }
+
+  getEventsForDate(year: number, month: number, day: number): CalendarEvent[] {
+    const events: CalendarEvent[] = [];
+
+    // Map tasks to calendar events
+    if (this.upcomingTasks && this.upcomingTasks.length > 0) {
+      this.upcomingTasks.forEach((task) => {
+        try {
+          if (!task.rawDate) return;
+          const taskDate = new Date(task.rawDate);
+          if (
+            taskDate.getFullYear() === year &&
+            taskDate.getMonth() === month &&
+            taskDate.getDate() === day
+          ) {
+            // Determine event type based on task status
+            let eventType: 'quotes' | 'giveaway' | 'reel' = 'quotes';
+
+            if (task.status?.toLowerCase().includes('completed')) {
+              eventType = 'reel';
+            } else if (
+              task.status?.toLowerCase().includes('confirmed') ||
+              task.status?.toLowerCase().includes('approved')
+            ) {
+              eventType = 'giveaway';
+            }
+
+            events.push({
+              label: task.service || 'Task',
+              type: eventType,
+            });
+          }
+        } catch (error) {
+          console.warn('Error parsing task date:', task.rawDate, error);
+        }
+      });
+    }
+
+    return events;
+  }
+
+  previousMonth(): void {
+    this.currentDate = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth() - 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentDate = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth() + 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  goToToday(): void {
+    this.currentDate = new Date();
+    this.today = new Date();
+    this.generateCalendar();
+  }
+
+  openDateTasksModal(day: CalendarDay): void {
+    const selectedDate = new Date(day.year, day.month, day.date);
+    const tasksForDate = this.getTasksForDate(selectedDate);
+
+    // For now, just show a simple alert. You can create a dialog component later if needed
+    if (tasksForDate.length > 0) {
+      const taskList = tasksForDate
+        .map((t) => `${t.customerName} - ${t.service}`)
+        .join('\n');
+      alert(`Tasks for ${this.formatDateForModal(selectedDate)}:\n\n${taskList}`);
+    } else {
+      alert(`No tasks scheduled for ${this.formatDateForModal(selectedDate)}`);
+    }
+  }
+
+  getTasksForDate(date: Date): Task[] {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    return this.upcomingTasks.filter((task) => {
+      try {
+        if (!task.rawDate) return false;
+        const taskDate = new Date(task.rawDate);
+        if (isNaN(taskDate.getTime())) return false;
+
+        return (
+          taskDate.getFullYear() === year &&
+          taskDate.getMonth() === month &&
+          taskDate.getDate() === day
+        );
+      } catch (error) {
+        console.warn('Error parsing task date:', task, error);
+        return false;
+      }
+    });
+  }
+
+  formatDateForModal(date: Date): string {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   }
 }

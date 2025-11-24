@@ -58,6 +58,66 @@
     </mat-card>
   </div>
 
+  <!-- Calendar Section -->
+  <mat-card class="calendar-card" *ngIf="!loading">
+    <div class="calendar-container">
+      <!-- Calendar Header -->
+      <div class="calendar-header">
+        <button
+          class="calendar-nav-btn"
+          (click)="previousMonth()"
+          aria-label="Previous month"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="calendar-header-content">
+          <div class="calendar-month-year">{{ currentMonthYear }}</div>
+          <button class="calendar-today-btn" (click)="goToToday()">
+            Today
+          </button>
+        </div>
+        <button
+          class="calendar-nav-btn"
+          (click)="nextMonth()"
+          aria-label="Next month"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="calendar-grid">
+        <!-- Days of Week Header -->
+        <div class="calendar-weekdays">
+          <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+        </div>
+
+        <!-- Calendar Days -->
+        <div class="calendar-days">
+          <div
+            class="calendar-day"
+            *ngFor="let day of calendarDays"
+            [class.other-month]="day.isOtherMonth"
+            [class.today]="day.isToday"
+            [class.has-events]="day.events.length > 0"
+            (click)="openDateTasksModal(day)"
+          >
+            <div class="day-number">{{ day.date }}</div>
+            <div class="day-events">
+              <div
+                class="event-label"
+                *ngFor="let event of day.events"
+                [class]="'event-' + event.type"
+              >
+                {{ event.label }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
   <!-- Tasks Table -->
   <mat-card class="tasks-card">
     <mat-card-header>

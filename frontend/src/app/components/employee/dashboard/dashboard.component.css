@@ -78,6 +78,351 @@ h1 {
   color: #2c3e50;
 }
 
+/* Calendar Styles */
+.calendar-card {
+  border-radius: 0;
+  margin-bottom: 24px;
+  border: none;
+  transition: all 0.3s ease;
+  background: #f5f5f5;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .calendar-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.calendar-container {
+  background: #f5f5f5;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    border-radius: 12px;
+  }
+}
+
+.calendar-header {
+  background: #2563eb;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.calendar-header-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .calendar-header-content {
+    gap: 6px;
+  }
+}
+
+.calendar-month-year {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.calendar-nav-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.calendar-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.calendar-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.calendar-nav-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.calendar-today-btn {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-today-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.calendar-grid {
+  background: white;
+  border-left: 4px solid #2563eb;
+  border-right: 4px solid #2563eb;
+  border-bottom: 4px solid #2563eb;
+  padding: 16px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day {
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+@media (max-width: 768px) {
+  .calendar-day:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .calendar-day:active {
+    background: rgba(37, 99, 235, 0.1);
+    transform: scale(0.98);
+  }
+}
+
+.calendar-day.has-events {
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.calendar-day.has-events:hover {
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.calendar-day.other-month {
+  background: #fafafa;
+}
+
+.calendar-day.other-month .day-number {
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: 400;
+}
+
+.calendar-day.today {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: #2563eb;
+  border-width: 2px;
+}
+
+.calendar-day.today .day-number {
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.calendar-day.other-month.today {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.day-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 4px;
+}
+
+.day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  margin-top: 4px;
+}
+
+.event-label {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-quotes {
+  background: rgba(37, 99, 235, 0.15);
+  color: #2563eb;
+}
+
+.event-giveaway {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.event-reel {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .calendar-card {
+    margin-bottom: 16px;
+  }
+
+  .calendar-header {
+    padding: 12px 14px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .calendar-header-content {
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .calendar-month-year {
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  .calendar-nav-btn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .calendar-nav-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .calendar-today-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .calendar-grid {
+    padding: 8px 6px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+  }
+
+  .calendar-weekdays {
+    gap: 4px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+
+  .weekday {
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  .calendar-days {
+    gap: 4px;
+  }
+
+  .calendar-day {
+    min-height: 50px;
+    padding: 4px 2px;
+    border-radius: 3px;
+  }
+
+  .day-number {
+    font-size: 12px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  .day-events {
+    gap: 1px;
+    margin-top: 2px;
+  }
+
+  .event-label {
+    font-size: 9px;
+    padding: 1px 3px;
+    line-height: 1.2;
+    border-radius: 2px;
+  }
+
+  .calendar-day.today .day-number {
+    font-size: 13px;
+  }
+
+  .calendar-day.today {
+    border-width: 1.5px;
+  }
+}
+
 /* Tasks Table */
 .tasks-card {
   border-radius: 12px;
