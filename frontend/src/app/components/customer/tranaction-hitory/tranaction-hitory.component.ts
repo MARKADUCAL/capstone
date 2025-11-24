@@ -12,7 +12,12 @@ import {
   FeedbackService,
   CustomerFeedback,
 } from '../../../services/feedback.service';
-import { Booking, BookingStatus } from '../../../models/booking.model';
+import {
+  Booking,
+  BookingStatus,
+  VEHICLE_TYPES,
+  VEHICLE_TYPE_CODES,
+} from '../../../models/booking.model';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -51,6 +56,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   feedbackExistsMap: Map<number, boolean> = new Map(); // Track which bookings have feedback
   feedbackIdMap: Map<number, number> = new Map(); // Track feedback IDs for each booking
   isEditingFeedback = false; // Track if we're editing existing feedback
+
+  readonly vehicleTypeLabels = VEHICLE_TYPES;
+  readonly vehicleTypeCodes = VEHICLE_TYPE_CODES;
 
   private isBrowser: boolean;
 
@@ -148,6 +156,69 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (s === 'completed' || s === 'complete') return 'completed';
     if (s === 'pending') return 'pending';
     return s;
+  }
+
+  getVehicleDisplayName(booking: Booking): string {
+    const nickname =
+      (booking as any).nickname ?? (booking as any).vehicleNickname;
+    if (nickname && nickname.toString().trim().length > 0) {
+      return nickname.toString().trim();
+    }
+
+    const model =
+      (booking as any).vehicleModel ?? (booking as any).vehicle_model;
+    if (model && model.toString().trim().length > 0) {
+      return model.toString().trim();
+    }
+
+    const type = booking.vehicleType ?? (booking as any).vehicle_type;
+    if (type && type.toString().trim().length > 0) {
+      return type.toString().trim();
+    }
+
+    return 'Saved Vehicle';
+  }
+
+  getVehiclePlate(booking: Booking): string {
+    const plate =
+      booking.plateNumber ??
+      (booking as any).plate_number ??
+      (booking as any).vehiclePlate;
+
+    if (plate && plate.toString().trim().length > 0) {
+      return plate.toString().trim();
+    }
+
+    return 'Plate not set';
+  }
+
+  getVehicleTypeLabel(booking: Booking): string {
+    const rawType =
+      booking.vehicleType ??
+      (booking as any).vehicle_type ??
+      (booking as any).vehicleTypeCode;
+
+    if (!rawType) {
+      return 'Vehicle';
+    }
+
+    const normalized = rawType.toString().trim().toUpperCase();
+    const directIndex = this.vehicleTypeCodes.indexOf(normalized);
+    if (directIndex >= 0) {
+      return this.vehicleTypeLabels[directIndex];
+    }
+
+    const codeMatch = rawType.toString().match(/^([A-Z]+)\s*-\s*/);
+    if (codeMatch) {
+      const matchIndex = this.vehicleTypeCodes.indexOf(
+        codeMatch[1].toUpperCase()
+      );
+      if (matchIndex >= 0) {
+        return this.vehicleTypeLabels[matchIndex];
+      }
+    }
+
+    return rawType.toString();
   }
 
   private resolveServicePackageCode(booking: any): string | null {
@@ -377,7 +448,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       this.employeeRating = 0;
       this.employeeFeedbackComment = '';
     }
-    
+
     this.feedbackSuccessMessage = null;
     this.feedbackErrorMessage = null;
     this.isFeedbackModalOpen = true;
@@ -389,18 +460,14 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   // Load existing feedback data for editing
   private loadExistingFeedback(booking: Booking): void {
     const bookingId = parseInt(booking.id);
-    
+
     this.feedbackService.getAllFeedback(200).subscribe({
       next: (list) => {
-        const feedbackForBooking = list.find(
-          (f) => f.booking_id === bookingId
-        );
-        
+        const feedbackForBooking = list.find((f) => f.booking_id === bookingId);
+
         if (feedbackForBooking) {
           this.currentRating =
-            feedbackForBooking.service_rating ??
-            feedbackForBooking.rating ??
-            0;
+            feedbackForBooking.service_rating ?? feedbackForBooking.rating ?? 0;
           this.feedbackComment =
             feedbackForBooking.service_comment ??
             feedbackForBooking.comment ??
@@ -409,7 +476,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           this.employeeFeedbackComment =
             feedbackForBooking.employee_comment || '';
           this.feedbackIdMap.set(bookingId, feedbackForBooking.id!);
-          console.log('Loaded existing feedback for editing:', feedbackForBooking);
+          console.log(
+            'Loaded existing feedback for editing:',
+            feedbackForBooking
+          );
         }
       },
       error: (error) => {
@@ -542,9 +612,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   }
 
   getEmployeeRatingText(): string {
-    return this.employeeRating > 0
-      ? this.ratingTexts[this.employeeRating]
-      : '';
+    return this.employeeRating > 0 ? this.ratingTexts[this.employeeRating] : '';
   }
 
   // Submit feedback for a completed booking (create or update)
@@ -662,7 +730,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
           // Mark this booking as having feedback
           this.feedbackExistsMap.set(bookingId, true);
-          
+
           // Store feedback ID if available
           if (result.data && result.data.id) {
             this.feedbackIdMap.set(bookingId, result.data.id);
@@ -1027,10 +1095,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   // New methods for enhanced modal display
   getCustomerRating(booking: any): number | null {
     const rating =
-      booking.serviceRating ??
-      booking.customerRating ??
-      booking.rating ??
-      null;
+      booking.serviceRating ?? booking.customerRating ?? booking.rating ?? null;
     return typeof rating === 'number' ? rating : null;
   }
 
@@ -1058,7 +1123,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     const missingEmployeeRating =
       requiresEmployeeFeedback && this.employeeRating === 0;
     return (
-      this.currentRating === 0 || missingEmployeeRating || this.isSubmittingFeedback
+      this.currentRating === 0 ||
+      missingEmployeeRating ||
+      this.isSubmittingFeedback
     );
   }
 

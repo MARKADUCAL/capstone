@@ -183,6 +183,31 @@
       </div>
 
       <div class="card-body">
+        <div class="vehicle-summary">
+          <div class="vehicle-summary-icon">🚘</div>
+          <div class="vehicle-summary-content">
+            <div class="vehicle-summary-top">
+              <span class="vehicle-summary-name">{{
+                getVehicleDisplayName(booking)
+              }}</span>
+              <span class="vehicle-summary-plate">{{
+                getVehiclePlate(booking)
+              }}</span>
+            </div>
+            <div class="vehicle-summary-meta">
+              <span class="vehicle-summary-type">{{
+                getVehicleTypeLabel(booking)
+              }}</span>
+              <span
+                class="vehicle-summary-color"
+                *ngIf="booking.vehicleColor"
+              >
+                {{ booking.vehicleColor }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div class="service-info">
           <div class="service-icon">🚿</div>
           <div class="service-details">
@@ -214,9 +239,9 @@
           <div class="detail-row">
             <div class="detail-item">
               <span class="detail-icon">🚗</span>
-              <span class="detail-label">Vehicle</span>
+              <span class="detail-label">Vehicle Type</span>
               <span class="detail-value">{{
-                booking.vehicleType || "Car"
+                getVehicleTypeLabel(booking)
               }}</span>
             </div>
             <div class="detail-item">

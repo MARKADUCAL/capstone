@@ -79,6 +79,43 @@
               </mat-select>
             </mat-form-field>
           </div>
+          <div class="selected-vehicle-highlight" *ngIf="selectedVehicle">
+            <div class="selected-vehicle-primary">
+              <span class="selected-vehicle-name">
+                {{
+                  selectedVehicle.nickname ||
+                    selectedVehicle.vehicle_model ||
+                    selectedVehicle.vehicleModel
+                }}
+              </span>
+              <span class="selected-vehicle-plate">
+                {{
+                  selectedVehicle.plate_number ||
+                    selectedVehicle.plateNumber ||
+                    selectedVehicle.plate
+                }}
+              </span>
+            </div>
+            <div class="selected-vehicle-meta">
+              <span class="selected-vehicle-type">
+                {{
+                  getVehicleTypeLabel(
+                    selectedVehicle.vehicle_type || selectedVehicle.vehicleType
+                  )
+                }}
+              </span>
+              <span
+                class="selected-vehicle-model"
+                *ngIf="
+                  selectedVehicle.vehicle_model || selectedVehicle.vehicleModel
+                "
+              >
+                {{
+                  selectedVehicle.vehicle_model || selectedVehicle.vehicleModel
+                }}
+              </span>
+            </div>
+          </div>
 
           <!-- Message if no saved vehicles -->
           <div class="form-row" *ngIf="customerVehicles.length === 0">

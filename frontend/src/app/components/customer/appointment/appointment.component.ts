@@ -103,6 +103,7 @@ export class AppointmentComponent implements OnInit {
   customerVehicles: any[] = [];
   filteredVehicles: any[] = [];
   selectedVehicleId: number | null = null;
+  selectedVehicle: any | null = null;
 
   // Time picker properties
   showTimePicker = false;
@@ -544,6 +545,7 @@ export class AppointmentComponent implements OnInit {
   onSavedVehicleSelect(vehicleId: number | null): void {
     if (!vehicleId || vehicleId === null || vehicleId === undefined) {
       this.selectedVehicleId = null;
+      this.selectedVehicle = null;
       return;
     }
 
@@ -554,6 +556,7 @@ export class AppointmentComponent implements OnInit {
     const vehicle = this.customerVehicles.find((v) => v.id == id);
     if (vehicle) {
       this.selectedVehicleId = id;
+      this.selectedVehicle = vehicle;
 
       // Handle vehicle type - it might be stored as full description or just code
       let vehicleTypeToSet = '';
@@ -608,12 +611,14 @@ export class AppointmentComponent implements OnInit {
     } else {
       console.error('Vehicle not found with ID:', id);
       this.selectedVehicleId = null;
+      this.selectedVehicle = null;
     }
   }
 
   // Clear selected vehicle and reset form fields
   clearSavedVehicleSelection(): void {
     this.selectedVehicleId = null;
+    this.selectedVehicle = null;
     // Optionally clear the vehicle fields or keep them filled
     // this.bookingForm.plateNumber = '';
     // this.bookingForm.vehicleModel = '';
@@ -659,8 +664,32 @@ export class AppointmentComponent implements OnInit {
     };
     this.selectedVehicleId = null;
     this.filteredVehicles = [];
+    this.selectedVehicle = null;
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+  getVehicleTypeLabel(typeValue: string): string {
+    if (!typeValue) {
+      return 'Vehicle';
+    }
+
+    const normalized = typeValue.trim().toUpperCase();
+    const exactMatchIndex = this.vehicleTypeCodes.indexOf(normalized);
+    if (exactMatchIndex >= 0) {
+      return this.vehicleTypes[exactMatchIndex];
+    }
+
+    const codeMatch = typeValue.match(/^([A-Z]+)\s*-\s*/);
+    if (codeMatch) {
+      const code = codeMatch[1].toUpperCase();
+      const matchIndex = this.vehicleTypeCodes.indexOf(code);
+      if (matchIndex >= 0) {
+        return this.vehicleTypes[matchIndex];
+      }
+    }
+
+    return typeValue;
   }
 
   // Submit booking
