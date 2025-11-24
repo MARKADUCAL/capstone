@@ -34,6 +34,23 @@ interface RecentBooking {
   wash_date?: string;
   washDate?: string;
   booking_date?: string;
+  // Status-specific fields
+  assignedEmployeeName?: string;
+  assigned_employee_name?: string;
+  employee_first_name?: string;
+  employee_last_name?: string;
+  cancellationReason?: string;
+  cancellation_reason?: string;
+  rejectionReason?: string;
+  rejection_reason?: string;
+  customerRating?: number;
+  customerRatingComment?: string;
+  customer_rating?: number;
+  customer_rating_comment?: string;
+  feedback_comment?: string;
+  assignedBy?: string;
+  assigned_by?: string;
+  admin_name?: string;
 }
 
 interface CalendarEvent {
@@ -363,6 +380,36 @@ export class DashboardComponent implements OnInit {
                   booking.date ||
                   booking.booking_date ||
                   'Unknown Date',
+                // Employee assignment fields
+                assignedEmployeeName:
+                  booking.assignedEmployeeName ||
+                  booking.assigned_employee_name ||
+                  (booking.employee_first_name && booking.employee_last_name
+                    ? `${booking.employee_first_name} ${booking.employee_last_name}`
+                    : undefined),
+                employee_first_name: booking.employee_first_name,
+                employee_last_name: booking.employee_last_name,
+                // Cancellation reason
+                cancellationReason:
+                  booking.cancellationReason || booking.cancellation_reason,
+                // Rejection reason
+                rejectionReason:
+                  booking.rejectionReason || booking.rejection_reason,
+                // Customer feedback
+                customerRating:
+                  booking.customerRating ||
+                  booking.customer_rating ||
+                  booking.rating,
+                customerRatingComment:
+                  booking.customerRatingComment ||
+                  booking.customer_rating_comment ||
+                  booking.feedback_comment ||
+                  booking.comment,
+                // Who assigned the employee
+                assignedBy:
+                  booking.assignedBy ||
+                  booking.assigned_by ||
+                  booking.admin_name,
               };
             });
 

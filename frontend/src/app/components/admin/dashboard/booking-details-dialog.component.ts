@@ -16,6 +16,23 @@ interface BookingDetails {
   status: string;
   amount: number;
   date: string;
+  // Status-specific fields
+  assignedEmployeeName?: string;
+  assigned_employee_name?: string;
+  employee_first_name?: string;
+  employee_last_name?: string;
+  cancellationReason?: string;
+  cancellation_reason?: string;
+  rejectionReason?: string;
+  rejection_reason?: string;
+  customerRating?: number;
+  customerRatingComment?: string;
+  customer_rating?: number;
+  customer_rating_comment?: string;
+  feedback_comment?: string;
+  assignedBy?: string;
+  assigned_by?: string;
+  admin_name?: string;
 }
 
 @Component({
@@ -85,6 +102,77 @@ interface BookingDetails {
                   {{ displayStatus(data.status) }}
                 </span>
               </span>
+            </div>
+            <!-- Ongoing: Show assigned employee -->
+            <div
+              class="detail-row"
+              *ngIf="isOngoingStatus() && getAssignedEmployeeName()"
+            >
+              <span class="label">Assigned Employee:</span>
+              <span class="value employee-name">{{
+                getAssignedEmployeeName()
+              }}</span>
+            </div>
+            <!-- Cancelled: Show cancellation reason -->
+            <div
+              class="detail-row"
+              *ngIf="isCancelledStatus() && getCancellationReason()"
+            >
+              <span class="label">Cancellation Reason:</span>
+              <span class="value reason-text">{{ getCancellationReason() }}</span>
+            </div>
+            <!-- Declined/Rejected: Show rejection reason -->
+            <div
+              class="detail-row"
+              *ngIf="isDeclinedStatus() && getRejectionReason()"
+            >
+              <span class="label">Decline Reason:</span>
+              <span class="value reason-text">{{ getRejectionReason() }}</span>
+            </div>
+            <!-- Completed: Show assigned employee and feedback -->
+            <div
+              class="detail-row"
+              *ngIf="isCompletedStatus() && getAssignedEmployeeName()"
+            >
+              <span class="label">Assigned Employee:</span>
+              <span class="value employee-name">{{
+                getAssignedEmployeeName()
+              }}</span>
+            </div>
+            <div
+              class="detail-row"
+              *ngIf="isCompletedStatus() && getAssignedBy()"
+            >
+              <span class="label">Assigned By:</span>
+              <span class="value admin-name">{{ getAssignedBy() }}</span>
+            </div>
+          </div>
+
+          <!-- Customer Feedback Section (for Completed bookings) -->
+          <div
+            class="detail-section"
+            *ngIf="
+              isCompletedStatus() &&
+              (getCustomerRating() || getCustomerFeedback())
+            "
+          >
+            <div class="section-header">
+              <mat-icon class="section-icon">star</mat-icon>
+              <h3 class="section-title">Customer Feedback</h3>
+            </div>
+            <div class="detail-row" *ngIf="getCustomerRating()">
+              <span class="label">Rating:</span>
+              <span class="value rating-value">
+                <span class="rating-stars">{{ getRatingStars() }}</span>
+                <span class="rating-number">({{ getCustomerRating() }}/5)</span>
+              </span>
+            </div>
+            <div
+              class="detail-row feedback-row"
+              *ngIf="getCustomerFeedback()"
+            >
+              <span class="label">Feedback:</span>
+              <span class="value feedback-text">{{ getCustomerFeedback() }}</span>
             </div>
           </div>
 
@@ -310,6 +398,72 @@ interface BookingDetails {
         box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
       }
 
+      .status-badge.ongoing,
+      .status-badge.approved {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+      }
+
+      .status-badge.rejected,
+      .status-badge.declined {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        color: white;
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+      }
+
+      .employee-name {
+        font-weight: 600;
+        color: #2196f3;
+      }
+
+      .admin-name {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .reason-text {
+        color: #d32f2f;
+        font-style: italic;
+        text-align: left;
+        word-break: break-word;
+      }
+
+      .rating-value {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .rating-stars {
+        color: #ffc107;
+        font-size: 18px;
+        letter-spacing: 2px;
+      }
+
+      .rating-number {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .feedback-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .feedback-text {
+        text-align: left;
+        color: #2c3e50;
+        font-style: italic;
+        line-height: 1.5;
+        word-break: break-word;
+        padding: 12px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+      }
+
       /* Actions Styles */
       mat-dialog-actions {
         padding: 24px 32px;
@@ -420,12 +574,35 @@ export class BookingDetailsDialog {
       case 'pending':
         return 'schedule';
       case 'in progress':
+      case 'approved':
+      case 'ongoing':
         return 'play_arrow';
       case 'cancelled':
+        return 'cancel';
+      case 'rejected':
+      case 'declined':
         return 'cancel';
       default:
         return 'info';
     }
+  }
+
+  isOngoingStatus(): boolean {
+    const status = (this.data.status || '').toLowerCase();
+    return status === 'approved' || status === 'ongoing';
+  }
+
+  isCancelledStatus(): boolean {
+    return (this.data.status || '').toLowerCase() === 'cancelled';
+  }
+
+  isDeclinedStatus(): boolean {
+    const status = (this.data.status || '').toLowerCase();
+    return status === 'rejected' || status === 'declined';
+  }
+
+  isCompletedStatus(): boolean {
+    return (this.data.status || '').toLowerCase() === 'completed';
   }
 
   displayStatus(status: string): string {
@@ -433,5 +610,75 @@ export class BookingDetailsDialog {
     if (s.toLowerCase() === 'rejected') return 'Declined';
     if (s.toLowerCase() === 'approved') return 'Ongoing';
     return s;
+  }
+
+  getAssignedEmployeeName(): string | null {
+    if (this.data.assignedEmployeeName) {
+      return this.data.assignedEmployeeName;
+    }
+    if (this.data.assigned_employee_name) {
+      return this.data.assigned_employee_name;
+    }
+    if (
+      this.data.employee_first_name &&
+      this.data.employee_last_name
+    ) {
+      return `${this.data.employee_first_name} ${this.data.employee_last_name}`;
+    }
+    return null;
+  }
+
+  getCancellationReason(): string | null {
+    return (
+      this.data.cancellationReason ||
+      this.data.cancellation_reason ||
+      null
+    );
+  }
+
+  getRejectionReason(): string | null {
+    return (
+      this.data.rejectionReason ||
+      this.data.rejection_reason ||
+      null
+    );
+  }
+
+  getCustomerRating(): number | null {
+    return (
+      this.data.customerRating ||
+      this.data.customer_rating ||
+      null
+    );
+  }
+
+  getCustomerFeedback(): string | null {
+    return (
+      this.data.customerRatingComment ||
+      this.data.customer_rating_comment ||
+      this.data.feedback_comment ||
+      null
+    );
+  }
+
+  getAssignedBy(): string | null {
+    return (
+      this.data.assignedBy ||
+      this.data.assigned_by ||
+      this.data.admin_name ||
+      null
+    );
+  }
+
+  getRatingStars(): string {
+    const rating = this.getCustomerRating();
+    if (!rating) return '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar && fullStars < 5) {
+      stars += '½';
+    }
+    return stars;
   }
 }
