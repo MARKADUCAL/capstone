@@ -196,16 +196,44 @@ export class AppointmentComponent implements OnInit {
   private hasActiveBooking(): boolean {
     try {
       if (!Array.isArray(this.customerBookings)) return false;
-      const activeStatuses = new Set([
-        'Pending',
-        'Approved',
-        // handle possible lowercase backend or enum mappings just in case
-        'pending',
-        'approved',
-      ]);
       return this.customerBookings.some((b: any) =>
-        activeStatuses.has(b?.status)
+        this.isActiveBookingStatus(b?.status)
       );
+    } catch {
+      return false;
+    }
+  }
+
+  // Determine if a booking status should be treated as active
+  private isActiveBookingStatus(status: unknown): boolean {
+    if (typeof status !== 'string') return false;
+    const normalizedStatus = status.toLowerCase();
+    return normalizedStatus === 'pending' || normalizedStatus === 'approved';
+  }
+
+  // Normalize the plate number to compare regardless of casing/spaces
+  private normalizePlate(plate: unknown): string {
+    if (typeof plate !== 'string') return '';
+    return plate.replace(/[^a-z0-9]/gi, '').toLowerCase();
+  }
+
+  // Check if there's an active booking for the provided plate number
+  private hasActiveBookingForPlate(plateNumber: string): boolean {
+    const normalizedTargetPlate = this.normalizePlate(plateNumber);
+    if (!normalizedTargetPlate) {
+      return false;
+    }
+
+    try {
+      return this.customerBookings.some((booking: any) => {
+        if (!this.isActiveBookingStatus(booking?.status)) {
+          return false;
+        }
+        const bookingPlate = this.normalizePlate(
+          booking?.plate_number ?? booking?.plateNumber
+        );
+        return bookingPlate && bookingPlate === normalizedTargetPlate;
+      });
     } catch {
       return false;
     }
@@ -577,19 +605,6 @@ export class AppointmentComponent implements OnInit {
 
   // Open booking modal
   openBookingModal(): void {
-    if (this.hasActiveBooking()) {
-      const msg =
-        'You already have an active booking. Please wait until it’s completed, cancelled, or declined before making a new one.';
-      this.errorMessage = msg;
-      Swal.fire({
-        icon: 'info',
-        title: 'Active booking found',
-        text: msg,
-        confirmButtonColor: '#3498db',
-      });
-      return;
-    }
-
     if (!this.userCustomerId) {
       this.errorMessage = 'Customer ID not found. Please log in again.';
       return;
@@ -637,14 +652,14 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
-    // Prevent creating a new booking when an active one exists
-    if (this.hasActiveBooking()) {
+    // Prevent creating a new booking for the same vehicle when one is active
+    if (this.hasActiveBookingForPlate(this.bookingForm.plateNumber)) {
       const msg =
-        'You already have an active booking. Please wait until it’s completed, cancelled, or declined before making a new one.';
+        'You already have an active booking for this vehicle. Please wait until it’s completed, cancelled, or declined before booking it again.';
       this.errorMessage = msg;
       Swal.fire({
         icon: 'info',
-        title: 'Active booking found',
+        title: 'Vehicle already booked',
         text: msg,
         confirmButtonColor: '#3498db',
       });
