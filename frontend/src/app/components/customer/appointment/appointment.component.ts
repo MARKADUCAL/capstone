@@ -701,9 +701,9 @@ export class AppointmentComponent implements OnInit {
     }
 
     // Keep the booking form aligned with the saved vehicle data
-    this.bookingForm.vehicleModel = savedVehicle.vehicle_model || '';
-    this.bookingForm.vehicleColor = savedVehicle.vehicle_color || '';
-    this.bookingForm.nickname = savedVehicle.nickname || '';
+    this.bookingForm.vehicleModel = savedVehicle['vehicle_model'] || '';
+    this.bookingForm.vehicleColor = savedVehicle['vehicle_color'] || '';
+    this.bookingForm.nickname = savedVehicle['nickname'] || '';
 
     // Prevent booking in the past (date or time)
     if (
