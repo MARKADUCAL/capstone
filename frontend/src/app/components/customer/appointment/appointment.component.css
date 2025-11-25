@@ -595,7 +595,8 @@
   }
 
   .appointment-sidebar {
-    order: -1;
+    order: 2;
+    width: 100%;
   }
 
   .sidebar-card {
@@ -604,6 +605,7 @@
 
   .form-container {
     padding: 40px;
+    order: 1;
   }
 
   .header-content {
@@ -1800,6 +1802,18 @@
   .vehicle-desc,
   .service-desc {
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .pricing-table {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .pricing-header,
+  .pricing-row {
+    min-width: 520px;
   }
 }
 
