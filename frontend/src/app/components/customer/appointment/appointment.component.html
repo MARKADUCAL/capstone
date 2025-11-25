@@ -169,17 +169,27 @@
                 <button
                   type="button"
                   class="nav-button"
+                  aria-label="Previous month"
                   (click)="goToPreviousMonth()"
                 >
                   <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="month-label">
-                  {{ currentCalendarMonth | date: 'MMMM, yyyy' }}
+                  {{ currentCalendarMonth | date : "MMMM, yyyy" }}
                 </div>
-                <button type="button" class="nav-button" (click)="goToNextMonth()">
+                <button
+                  type="button"
+                  class="nav-button"
+                  aria-label="Next month"
+                  (click)="goToNextMonth()"
+                >
                   <i class="fas fa-chevron-right"></i>
                 </button>
-                <button type="button" class="today-button" (click)="goToToday()">
+                <button
+                  type="button"
+                  class="today-button"
+                  (click)="goToToday()"
+                >
                   Today
                 </button>
               </div>
@@ -205,7 +215,7 @@
                     <div class="day-bookings">
                       <div
                         class="booking-pill"
-                        *ngFor="let booking of day.bookings | slice: 0: 3"
+                        *ngFor="let booking of day.bookings | slice : 0 : 3"
                         [ngClass]="getBookingBadgeClass(booking)"
                       >
                         {{ getBookingLabel(booking) }}
@@ -223,7 +233,7 @@
               <div class="time-panel-header">
                 <h3 *ngIf="selectedCalendarDate; else selectDatePrompt">
                   Available time on
-                  {{ selectedCalendarDate | date: 'MMMM d, yyyy' }}
+                  {{ selectedCalendarDate | date : "MMMM d, yyyy" }}
                 </h3>
                 <ng-template #selectDatePrompt>
                   <h3>Select a date to view available time slots</h3>
@@ -246,9 +256,7 @@
               <div
                 class="time-slots"
                 *ngIf="
-                  selectedCalendarDate &&
-                  !isLoadingTimeSlots &&
-                  !timeSlotError
+                  selectedCalendarDate && !isLoadingTimeSlots && !timeSlotError
                 "
               >
                 <button
@@ -261,7 +269,10 @@
                   {{ formatTimeSlot(slot) }}
                 </button>
 
-                <p *ngIf="availableTimeSlots.length === 0" class="time-slot-status">
+                <p
+                  *ngIf="availableTimeSlots.length === 0"
+                  class="time-slot-status"
+                >
                   No available time for this date. Please choose another day.
                 </p>
               </div>
@@ -457,6 +468,27 @@
                   *ngFor="let serviceCode of serviceCodes"
                 >
                   {{ formatPrice(vehicleCode, serviceCode) }}
+                </div>
+              </div>
+            </div>
+            <div class="pricing-table-mobile">
+              <div
+                class="pricing-mobile-card"
+                *ngFor="let vehicleCode of vehicleTypeCodes"
+              >
+                <div class="pricing-mobile-header">
+                  Vehicle Type: {{ vehicleCode }}
+                </div>
+                <div
+                  class="pricing-mobile-row"
+                  *ngFor="let serviceCode of serviceCodes"
+                >
+                  <span class="pricing-mobile-label">
+                    {{ serviceCode.replace("p", "Package ") }}
+                  </span>
+                  <span class="pricing-mobile-value">
+                    {{ formatPrice(vehicleCode, serviceCode) }}
+                  </span>
                 </div>
               </div>
             </div>
