@@ -2163,29 +2163,39 @@
   overflow: hidden;
 }
 
-.booking-pill.package-p1 {
-  background: #ffdfe1;
-  color: #b03b44;
+.booking-pill.status-pending {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
 }
 
-.booking-pill.package-p2 {
-  background: #ffe7cc;
-  color: #c05d00;
+.booking-pill.status-ongoing {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
 }
 
-.booking-pill.package-p3 {
-  background: #dff6ff;
-  color: #0b6ba8;
+.booking-pill.status-cancelled {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
 }
 
-.booking-pill.package-p4 {
-  background: #e5e0ff;
-  color: #4f3bb8;
+.booking-pill.status-declined {
+  background: rgba(234, 88, 12, 0.12);
+  color: #ea580c;
 }
 
-.booking-pill.package-generic {
-  background: #e0f7e9;
-  color: #207245;
+.booking-pill.status-done {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+}
+
+.booking-pill.status-complete {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+}
+
+.booking-pill.status-default {
+  background: rgba(75, 85, 99, 0.12);
+  color: #4b5563;
 }
 
 .more-badge {

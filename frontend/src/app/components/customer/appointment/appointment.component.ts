@@ -1,4 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Inject,
+  PLATFORM_ID,
+  HostListener,
+} from '@angular/core';
 import Swal from 'sweetalert2';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -37,6 +43,15 @@ interface CalendarDay {
   isDisabled: boolean;
   bookings: Booking[];
 }
+
+type CalendarStatusType =
+  | 'pending'
+  | 'ongoing'
+  | 'cancelled'
+  | 'declined'
+  | 'done'
+  | 'complete'
+  | 'default';
 
 @Component({
   selector: 'app-appointment',
@@ -125,6 +140,7 @@ export class AppointmentComponent implements OnInit {
   isLoadingTimeSlots = false;
   timeSlotError = '';
   bookingsByDate: Record<string, Booking[]> = {};
+  shouldUseCompactCalendarLabels = false;
   private readonly BUSINESS_DAY_START_MINUTES = 7 * 60; // 7:00 AM
   private readonly BUSINESS_DAY_END_MINUTES = 19 * 60 + 30; // 7:30 PM
 
@@ -139,6 +155,7 @@ export class AppointmentComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.updateResponsiveState();
     if (this.isBrowser) {
       this.loadUserData();
       this.loadPricingData(); // Load pricing data from database
@@ -169,6 +186,11 @@ export class AppointmentComponent implements OnInit {
     }
 
     this.buildCalendar();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateResponsiveState();
   }
 
   // Helper: return min time (HH:MM) if selected date is today; else null (no limit)
@@ -1199,38 +1221,71 @@ export class AppointmentComponent implements OnInit {
     }
   }
 
+  private normalizeCalendarStatus(status: unknown): string {
+    return typeof status === 'string' ? status.trim().toLowerCase() : '';
+  }
+
+  private getCalendarStatusType(status: unknown): CalendarStatusType {
+    const normalized = this.normalizeCalendarStatus(status);
+    switch (normalized) {
+      case 'pending':
+        return 'pending';
+      case 'approved':
+      case 'confirmed':
+      case 'in progress':
+      case 'in_progress':
+      case 'ongoing':
+        return 'ongoing';
+      case 'cancelled':
+      case 'canceled':
+        return 'cancelled';
+      case 'rejected':
+      case 'declined':
+        return 'declined';
+      case 'done':
+        return 'done';
+      case 'completed':
+      case 'complete':
+        return 'complete';
+      default:
+        return 'default';
+    }
+  }
+
+  private getCalendarStatusLabel(status: unknown): string {
+    const type = this.getCalendarStatusType(status);
+    switch (type) {
+      case 'pending':
+        return 'Pending';
+      case 'ongoing':
+        return 'Ongoing';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'declined':
+        return 'Declined';
+      case 'done':
+        return 'Done';
+      case 'complete':
+        return 'Complete';
+      default:
+        return 'Pending';
+    }
+  }
+
+  private getCalendarStatusAbbreviation(status: unknown): string {
+    const label = this.getCalendarStatusLabel(status);
+    return label ? label.charAt(0) : 'P';
+  }
+
   getBookingLabel(booking: any): string {
-    const raw =
-      booking?.service_package ||
-      booking?.servicePackage ||
-      booking?.services ||
-      booking?.service ||
-      '';
-    if (typeof raw !== 'string' || raw.trim().length === 0) {
-      return 'Booked';
-    }
-    const code = raw.split(' - ')[0];
-    if (/^p\d+/i.test(code)) {
-      return `Package ${code.toUpperCase()}`;
-    }
-    return raw;
+    const label = this.getCalendarStatusLabel(booking?.status);
+    return this.shouldUseCompactCalendarLabels
+      ? this.getCalendarStatusAbbreviation(booking?.status)
+      : label;
   }
 
   getBookingBadgeClass(booking: any): string {
-    const raw =
-      booking?.service_package ||
-      booking?.servicePackage ||
-      booking?.services ||
-      booking?.service ||
-      '';
-    if (typeof raw !== 'string') {
-      return 'package-generic';
-    }
-    const code = raw.split(' - ')[0]?.toLowerCase().replace(/\s+/g, '');
-    if (!code) {
-      return 'package-generic';
-    }
-    return `package-${code}`;
+    return `status-${this.getCalendarStatusType(booking?.status)}`;
   }
 
   private loadAvailableTimeSlots(date: string): void {
@@ -1374,6 +1429,16 @@ export class AppointmentComponent implements OnInit {
       }
     } else {
       this.selectedCalendarDate = null;
+    }
+  }
+
+  private updateResponsiveState(): void {
+    const shouldCompact =
+      this.isBrowser &&
+      typeof window !== 'undefined' &&
+      window.innerWidth <= 640;
+    if (this.shouldUseCompactCalendarLabels !== shouldCompact) {
+      this.shouldUseCompactCalendarLabels = shouldCompact;
     }
   }
 

@@ -1,4 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Inject,
+  PLATFORM_ID,
+  HostListener,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,9 +45,18 @@ interface DailyStats {
   customerRating: number;
 }
 
+type CalendarEventType =
+  | 'pending'
+  | 'ongoing'
+  | 'cancelled'
+  | 'declined'
+  | 'done'
+  | 'complete'
+  | 'default';
+
 interface CalendarEvent {
   label: string;
-  type: 'quotes' | 'giveaway' | 'reel';
+  type: CalendarEventType;
 }
 
 interface CalendarDay {
@@ -94,6 +109,9 @@ export class DashboardComponent implements OnInit {
   weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
   calendarDays: CalendarDay[] = [];
 
+  private isBrowser: boolean;
+  private shouldUseCompactCalendarLabels = false;
+
   get currentMonthYear(): string {
     const monthNames = [
       'Jan',
@@ -122,13 +140,21 @@ export class DashboardComponent implements OnInit {
     private bookingService: BookingService,
     private feedbackService: FeedbackService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
+    this.updateResponsiveState(false);
     this.loadBookingStats();
     this.loadUpcomingTasks();
     this.loadCustomerRating();
     this.generateCalendar();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateResponsiveState();
   }
 
   private loadBookingStats(): void {
@@ -313,6 +339,68 @@ export class DashboardComponent implements OnInit {
     if (statusLower === 'in progress' || statusLower === 'in_progress')
       return 'In Progress';
     return 'Pending';
+  }
+
+  private normalizeCalendarStatus(status: string): string {
+    return (status || '').toString().trim().toLowerCase();
+  }
+
+  private getCalendarStatusType(status: string): CalendarEventType {
+    const normalized = this.normalizeCalendarStatus(status);
+    switch (normalized) {
+      case 'pending':
+        return 'pending';
+      case 'confirmed':
+      case 'approved':
+      case 'in progress':
+      case 'in_progress':
+      case 'ongoing':
+        return 'ongoing';
+      case 'cancelled':
+      case 'canceled':
+        return 'cancelled';
+      case 'rejected':
+      case 'declined':
+        return 'declined';
+      case 'done':
+        return 'done';
+      case 'completed':
+      case 'complete':
+        return 'complete';
+      default:
+        return 'default';
+    }
+  }
+
+  private getCalendarStatusLabel(status: string): string {
+    const type = this.getCalendarStatusType(status);
+    switch (type) {
+      case 'pending':
+        return 'Pending';
+      case 'ongoing':
+        return 'Ongoing';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'declined':
+        return 'Declined';
+      case 'done':
+        return 'Done';
+      case 'complete':
+        return 'Complete';
+      default:
+        return 'Pending';
+    }
+  }
+
+  private getCalendarStatusAbbreviation(status: string): string {
+    const label = this.getCalendarStatusLabel(status);
+    return label ? label.charAt(0) : 'P';
+  }
+
+  private getCalendarStatusDisplay(status: string): string {
+    return this.shouldUseCompactCalendarLabels
+      ? this.getCalendarStatusAbbreviation(status)
+      : this.getCalendarStatusLabel(status);
   }
 
   private formatTime(timeString: string): string {
@@ -587,21 +675,9 @@ export class DashboardComponent implements OnInit {
             taskDate.getMonth() === month &&
             taskDate.getDate() === day
           ) {
-            // Determine event type based on task status
-            let eventType: 'quotes' | 'giveaway' | 'reel' = 'quotes';
-
-            if (task.status?.toLowerCase().includes('completed')) {
-              eventType = 'reel';
-            } else if (
-              task.status?.toLowerCase().includes('confirmed') ||
-              task.status?.toLowerCase().includes('approved')
-            ) {
-              eventType = 'giveaway';
-            }
-
             events.push({
-              label: task.service || 'Task',
-              type: eventType,
+              label: this.getCalendarStatusDisplay(task.status),
+              type: this.getCalendarStatusType(task.status),
             });
           }
         } catch (error) {
@@ -698,5 +774,18 @@ export class DashboardComponent implements OnInit {
       month: 'long',
       day: 'numeric',
     });
+  }
+
+  private updateResponsiveState(triggerRebuild: boolean = true): void {
+    const shouldCompact =
+      this.isBrowser &&
+      typeof window !== 'undefined' &&
+      window.innerWidth <= 640;
+    if (this.shouldUseCompactCalendarLabels !== shouldCompact) {
+      this.shouldUseCompactCalendarLabels = shouldCompact;
+      if (triggerRebuild) {
+        this.generateCalendar();
+      }
+    }
   }
 }
