@@ -903,6 +903,97 @@
 @media (max-width: 480px) {
   .appointment-container {
     padding: 8px;
+    background: linear-gradient(160deg, var(--secondary) 0%, #e7eefc 60%);
+  }
+
+  .appointment-header {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+
+  .form-container {
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .form-header {
+    margin-bottom: 20px;
+  }
+
+  .form-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .form-header p {
+    font-size: 0.9rem;
+  }
+
+  .form-section {
+    margin-bottom: 20px;
+  }
+
+  .form-field {
+    margin-bottom: 15px;
+  }
+
+  .section-title {
+    font-size: 0.95rem;
+    gap: 6px;
+  }
+
+  .section-title i {
+    font-size: 0.95rem;
+  }
+
+  .calendar-panel,
+  .time-panel {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .calendar-nav {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .calendar-nav .month-label {
+    font-size: 1rem;
+  }
+
+  .nav-button,
+  .today-button {
+    flex: 1 1 calc(33% - 6px);
+    min-width: 90px;
+  }
+
+  .calendar-cell {
+    min-height: 80px;
+    padding: 8px;
+  }
+
+  .time-slot {
+    flex: 1 1 100%;
+  }
+
+  .pricing-mobile-card {
+    padding: 0.75rem;
+  }
+
+  .pricing-mobile-row {
+    font-size: 0.85rem;
+  }
+
+  .card-header,
+  .card-content {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointment-container {
+    padding: 8px;
   }
 
   .appointment-header {
