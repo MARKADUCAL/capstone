@@ -125,6 +125,8 @@ export class AppointmentComponent implements OnInit {
   isLoadingTimeSlots = false;
   timeSlotError = '';
   bookingsByDate: Record<string, Booking[]> = {};
+  private readonly BUSINESS_DAY_START_MINUTES = 7 * 60; // 7:00 AM
+  private readonly BUSINESS_DAY_END_MINUTES = 19 * 60 + 30; // 7:30 PM
 
   constructor(
     private bookingService: BookingService,
@@ -180,9 +182,15 @@ export class AppointmentComponent implements OnInit {
         selected.getMonth() === now.getMonth() &&
         selected.getDate() === now.getDate()
       ) {
-        const hh = now.getHours().toString().padStart(2, '0');
-        const mm = now.getMinutes().toString().padStart(2, '0');
-        return `${hh}:${mm}`;
+        const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000);
+        const minutesFromStartOfDay =
+          thirtyMinutesFromNow.getHours() * 60 +
+          thirtyMinutesFromNow.getMinutes();
+        const clampedMinutes = Math.max(
+          this.BUSINESS_DAY_START_MINUTES,
+          minutesFromStartOfDay
+        );
+        return this.minutesToTimeString(clampedMinutes);
       }
       return null;
     } catch {
@@ -985,20 +993,12 @@ export class AppointmentComponent implements OnInit {
       return false;
     }
 
-    // Validate wash time is within business hours (8:00 AM to 8:00 PM)
-    try {
-      const [hours, minutes] = this.bookingForm.washTime
-        .split(':')
-        .map((v) => parseInt(v, 10));
-      if (hours < 8 || hours > 20) {
-        const msg =
-          'Selected time is not available. Please choose between 8:00 AM and 8:00 PM.';
-        this.errorMessage = msg;
-        alert(msg);
-        return false;
-      }
-    } catch {
-      this.errorMessage = 'Invalid wash time format';
+    // Validate wash time is within business hours (7:00 AM to 7:30 PM)
+    if (!this.isSlotWithinBusinessHours(this.bookingForm.washTime)) {
+      const msg =
+        'Selected time is not available. Please choose between 7:00 AM and 7:30 PM.';
+      this.errorMessage = msg;
+      alert(msg);
       return false;
     }
 
@@ -1305,16 +1305,36 @@ export class AppointmentComponent implements OnInit {
   }
 
   private isSlotWithinBusinessHours(slot: string): boolean {
-    try {
-      const [hourStr] = slot.split(':');
-      const hour = parseInt(hourStr, 10);
-      if (isNaN(hour)) {
-        return false;
-      }
-      return hour >= 8 && hour <= 20;
-    } catch {
+    const minutes = this.timeStringToMinutes(slot);
+    if (minutes === null) {
       return false;
     }
+    return (
+      minutes >= this.BUSINESS_DAY_START_MINUTES &&
+      minutes <= this.BUSINESS_DAY_END_MINUTES
+    );
+  }
+
+  private timeStringToMinutes(value: string): number | null {
+    if (!value) {
+      return null;
+    }
+    const [hourStr, minuteStr] = value.split(':');
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    if (isNaN(hour) || isNaN(minute)) {
+      return null;
+    }
+    return hour * 60 + minute;
+  }
+
+  private minutesToTimeString(minutes: number): string {
+    const clamped = Math.max(0, Math.min(minutes, 23 * 60 + 59));
+    const hrs = Math.floor(clamped / 60)
+      .toString()
+      .padStart(2, '0');
+    const mins = (clamped % 60).toString().padStart(2, '0');
+    return `${hrs}:${mins}`;
   }
 
   private buildCalendar(): void {
