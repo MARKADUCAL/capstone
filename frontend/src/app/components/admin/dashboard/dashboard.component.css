@@ -401,19 +401,39 @@
   text-overflow: ellipsis;
 }
 
-.event-quotes {
-  background: rgba(37, 99, 235, 0.15);
-  color: #2563eb;
+.event-pending {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
 }
 
-.event-giveaway {
-  background: rgba(249, 115, 22, 0.15);
-  color: #f97316;
+.event-ongoing {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
 }
 
-.event-reel {
-  background: rgba(220, 38, 38, 0.15);
+.event-cancelled {
+  background: rgba(220, 38, 38, 0.12);
   color: #dc2626;
+}
+
+.event-declined {
+  background: rgba(234, 88, 12, 0.12);
+  color: #ea580c;
+}
+
+.event-done {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+}
+
+.event-complete {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+}
+
+.event-default {
+  background: rgba(75, 85, 99, 0.12);
+  color: #4b5563;
 }
 
 /* Bookings Table */

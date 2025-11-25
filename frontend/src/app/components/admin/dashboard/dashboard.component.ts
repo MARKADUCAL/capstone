@@ -53,9 +53,18 @@ interface RecentBooking {
   admin_name?: string;
 }
 
+type CalendarEventType =
+  | 'pending'
+  | 'ongoing'
+  | 'cancelled'
+  | 'declined'
+  | 'done'
+  | 'complete'
+  | 'default';
+
 interface CalendarEvent {
   label: string;
-  type: 'quotes' | 'giveaway' | 'reel';
+  type: CalendarEventType;
 }
 
 interface CalendarDay {
@@ -532,6 +541,55 @@ export class DashboardComponent implements OnInit {
     return s;
   }
 
+  private normalizeStatus(status: string): string {
+    return (status || '').toString().trim().toLowerCase();
+  }
+
+  private getCalendarStatusType(status: string): CalendarEventType {
+    const normalized = this.normalizeStatus(status);
+    switch (normalized) {
+      case 'pending':
+        return 'pending';
+      case 'approved':
+      case 'in progress':
+      case 'ongoing':
+        return 'ongoing';
+      case 'cancelled':
+      case 'canceled':
+        return 'cancelled';
+      case 'rejected':
+      case 'declined':
+        return 'declined';
+      case 'done':
+        return 'done';
+      case 'completed':
+      case 'complete':
+        return 'complete';
+      default:
+        return 'default';
+    }
+  }
+
+  private getCalendarStatusLabel(status: string): string {
+    const type = this.getCalendarStatusType(status);
+    switch (type) {
+      case 'pending':
+        return 'Pending';
+      case 'ongoing':
+        return 'Ongoing';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'declined':
+        return 'Declined';
+      case 'done':
+        return 'Done';
+      case 'complete':
+        return 'Complete';
+      default:
+        return this.displayStatus(status) || 'Pending';
+    }
+  }
+
   // Helper method to get status icon
   getStatusIcon(status: string): string {
     switch (status.toLowerCase()) {
@@ -638,19 +696,9 @@ export class DashboardComponent implements OnInit {
             bookingDate.getMonth() === month &&
             bookingDate.getDate() === day
           ) {
-            // Determine event type based on booking status or service
-            let eventType: 'quotes' | 'giveaway' | 'reel' = 'quotes';
-
-            // You can customize this logic based on your needs
-            if (booking.status?.toLowerCase().includes('completed')) {
-              eventType = 'reel';
-            } else if (booking.status?.toLowerCase().includes('approved')) {
-              eventType = 'giveaway';
-            }
-
             events.push({
-              label: booking.service || 'Booking',
-              type: eventType,
+              label: this.getCalendarStatusLabel(booking.status),
+              type: this.getCalendarStatusType(booking.status),
             });
           }
         } catch (error) {
@@ -663,39 +711,39 @@ export class DashboardComponent implements OnInit {
     // Remove this when you have real booking data
     if (year === 2025 && month === 0 && events.length === 0) {
       const sampleEvents: { [key: number]: CalendarEvent[] } = {
-        1: [{ label: 'Quotes', type: 'quotes' }],
+        1: [{ label: 'Pending', type: 'pending' }],
         3: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Ongoing', type: 'ongoing' },
+          { label: 'Cancelled', type: 'cancelled' },
         ],
         5: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Pending', type: 'pending' },
+          { label: 'Declined', type: 'declined' },
         ],
-        7: [{ label: 'Quotes', type: 'quotes' }],
+        7: [{ label: 'Done', type: 'done' }],
         9: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
+          { label: 'Pending', type: 'pending' },
+          { label: 'Ongoing', type: 'ongoing' },
         ],
-        11: [{ label: 'Quotes', type: 'quotes' }],
-        14: [{ label: 'Quotes', type: 'quotes' }],
+        11: [{ label: 'Cancelled', type: 'cancelled' }],
+        14: [{ label: 'Complete', type: 'complete' }],
         19: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
-          { label: 'Reel', type: 'reel' },
+          { label: 'Pending', type: 'pending' },
+          { label: 'Declined', type: 'declined' },
+          { label: 'Complete', type: 'complete' },
         ],
-        24: [{ label: 'Quotes', type: 'quotes' }],
+        24: [{ label: 'Ongoing', type: 'ongoing' }],
         25: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
-          { label: 'Reel', type: 'reel' },
+          { label: 'Pending', type: 'pending' },
+          { label: 'Done', type: 'done' },
+          { label: 'Complete', type: 'complete' },
         ],
         27: [
-          { label: 'Quotes', type: 'quotes' },
-          { label: 'Giveaway', type: 'giveaway' },
-          { label: 'Reel', type: 'reel' },
+          { label: 'Cancelled', type: 'cancelled' },
+          { label: 'Declined', type: 'declined' },
+          { label: 'Pending', type: 'pending' },
         ],
-        31: [{ label: 'Quotes', type: 'quotes' }],
+        31: [{ label: 'Complete', type: 'complete' }],
       };
 
       return sampleEvents[day] || [];
