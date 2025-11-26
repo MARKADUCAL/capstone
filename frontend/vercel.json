@@ -2,9 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/autowash-hub/browser",
   "framework": "angular",
-  "analytics": {
-    "enabled": true
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
