@@ -327,13 +327,13 @@ export class AppointmentComponent implements OnInit {
   private getBookingDateTime(booking: any): Date | null {
     if (!booking) return null;
 
-    const rawDateValue =
-      booking?.wash_date ??
-      booking?.washDate ??
-      booking?.wash_date_time ??
-      booking?.washDateTime ??
-      booking?.date ??
-      null;
+    const rawDateValue = this.getFirstNonEmptyValue(
+      booking?.wash_date,
+      booking?.washDate,
+      booking?.wash_date_time,
+      booking?.washDateTime,
+      booking?.date
+    );
 
     if (!rawDateValue) {
       return null;
@@ -382,8 +382,11 @@ export class AppointmentComponent implements OnInit {
     booking: any,
     rawDateValue: any
   ): string | null {
-    const timeValue =
-      booking?.wash_time ?? booking?.washTime ?? booking?.time ?? null;
+    const timeValue = this.getFirstNonEmptyValue(
+      booking?.wash_time,
+      booking?.washTime,
+      booking?.time
+    );
 
     if (typeof timeValue === 'string' && timeValue.trim()) {
       return timeValue.trim();
@@ -396,6 +399,19 @@ export class AppointmentComponent implements OnInit {
       }
     }
 
+    return null;
+  }
+
+  private getFirstNonEmptyValue(...values: unknown[]): string | null {
+    for (const value of values) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+      const str = value.toString().trim();
+      if (str.length > 0 && str.toLowerCase() !== 'null') {
+        return str;
+      }
+    }
     return null;
   }
 
