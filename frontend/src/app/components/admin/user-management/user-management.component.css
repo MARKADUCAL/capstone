@@ -157,6 +157,22 @@
   background: #d32f2f;
 }
 
+.password-btn {
+  background: #8b5cf6;
+}
+
+.password-btn:hover {
+  background: #7c3aed;
+}
+
+.email-btn {
+  background: #0ea5e9;
+}
+
+.email-btn:hover {
+  background: #0284c7;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .customer-table {

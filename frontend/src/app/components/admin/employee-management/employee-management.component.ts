@@ -668,4 +668,93 @@ export class EmployeeManagementComponent implements OnInit {
 
     return text;
   }
+
+  changePassword(employee: Employee): void {
+    Swal.fire({
+      title: 'Change Password',
+      html: `
+        <div style="text-align: left; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #475569;">
+            <strong>Employee:</strong> ${employee.name}
+          </p>
+          <p style="margin: 0; color: #64748b; font-size: 14px;">
+            <strong>ID:</strong> ${employee.employeeId || 'N/A'}
+          </p>
+        </div>
+        <div style="text-align: left;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">New Password</label>
+          <input type="password" id="swal-new-password" class="swal2-input" placeholder="Enter new password" style="margin: 0 0 12px 0;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">Confirm Password</label>
+          <input type="password" id="swal-confirm-password" class="swal2-input" placeholder="Confirm new password" style="margin: 0;">
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Update Password',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280',
+      focusConfirm: false,
+      preConfirm: () => {
+        const newPassword = (document.getElementById('swal-new-password') as HTMLInputElement).value;
+        const confirmPassword = (document.getElementById('swal-confirm-password') as HTMLInputElement).value;
+
+        if (!newPassword || !confirmPassword) {
+          Swal.showValidationMessage('Please fill in both password fields');
+          return false;
+        }
+
+        if (newPassword.length < 6) {
+          Swal.showValidationMessage('Password must be at least 6 characters');
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage('Passwords do not match');
+          return false;
+        }
+
+        return { newPassword };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const payload = {
+          id: employee.id,
+          password: result.value.newPassword
+        };
+
+        this.http.put(`${this.apiUrl}/update_employee_password`, payload).subscribe({
+          next: (response: any) => {
+            if (response?.status?.remarks === 'success') {
+              Swal.fire({
+                title: 'Success!',
+                text: `Password for ${employee.name} has been updated successfully.`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#16a34a',
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to update password',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error updating password:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: error?.error?.status?.message || 'Failed to update password. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#dc2626',
+            });
+          }
+        });
+      }
+    });
+  }
 }

@@ -85,6 +85,13 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button
+                class="action-btn password-btn"
+                (click)="changePassword(employee)"
+                title="Change Password"
+              >
+                <mat-icon>lock_reset</mat-icon>
+              </button>
+              <button
                 class="action-btn delete-btn"
                 (click)="deleteEmployee(employee)"
                 title="Delete Employee"

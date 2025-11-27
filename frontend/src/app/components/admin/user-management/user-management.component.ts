@@ -550,4 +550,202 @@ export class UserManagementComponent implements OnInit {
     this.customerBookingsError = null;
     this.customerBookingsLoading = false;
   }
+
+  changePassword(user: User): void {
+    Swal.fire({
+      title: 'Change Password',
+      html: `
+        <div style="text-align: left; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #475569;">
+            <strong>Customer:</strong> ${user.name}
+          </p>
+          <p style="margin: 0; color: #64748b; font-size: 14px;">
+            <strong>Email:</strong> ${user.email}
+          </p>
+        </div>
+        <div style="text-align: left;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">New Password</label>
+          <input type="password" id="swal-new-password" class="swal2-input" placeholder="Enter new password" style="margin: 0 0 12px 0;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">Confirm Password</label>
+          <input type="password" id="swal-confirm-password" class="swal2-input" placeholder="Confirm new password" style="margin: 0;">
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Update Password',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280',
+      focusConfirm: false,
+      preConfirm: () => {
+        const newPassword = (document.getElementById('swal-new-password') as HTMLInputElement).value;
+        const confirmPassword = (document.getElementById('swal-confirm-password') as HTMLInputElement).value;
+
+        if (!newPassword || !confirmPassword) {
+          Swal.showValidationMessage('Please fill in both password fields');
+          return false;
+        }
+
+        if (newPassword.length < 6) {
+          Swal.showValidationMessage('Password must be at least 6 characters');
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage('Passwords do not match');
+          return false;
+        }
+
+        return { newPassword };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const payload = {
+          id: user.id,
+          password: result.value.newPassword
+        };
+
+        this.http.put(`${this.apiUrl}/update_customer_password`, payload).subscribe({
+          next: (response: any) => {
+            if (response?.status?.remarks === 'success') {
+              Swal.fire({
+                title: 'Success!',
+                text: `Password for ${user.name} has been updated successfully.`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#16a34a',
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to update password',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error updating password:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: error?.error?.status?.message || 'Failed to update password. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#dc2626',
+            });
+          }
+        });
+      }
+    });
+  }
+
+  changeEmail(user: User): void {
+    Swal.fire({
+      title: 'Change Email',
+      html: `
+        <div style="text-align: left; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #475569;">
+            <strong>Customer:</strong> ${user.name}
+          </p>
+          <p style="margin: 0; color: #64748b; font-size: 14px;">
+            <strong>Current Email:</strong> ${user.email}
+          </p>
+        </div>
+        <div style="text-align: left;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #334155;">New Email Address</label>
+          <input type="email" id="swal-new-email" class="swal2-input" placeholder="Enter new email address" style="margin: 0;" value="">
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Update Email',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#0ea5e9',
+      cancelButtonColor: '#6b7280',
+      focusConfirm: false,
+      preConfirm: () => {
+        const newEmail = (document.getElementById('swal-new-email') as HTMLInputElement).value.trim();
+
+        if (!newEmail) {
+          Swal.showValidationMessage('Please enter a new email address');
+          return false;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) {
+          Swal.showValidationMessage('Please enter a valid email address');
+          return false;
+        }
+
+        if (newEmail.toLowerCase() === user.email.toLowerCase()) {
+          Swal.showValidationMessage('New email must be different from the current email');
+          return false;
+        }
+
+        return { newEmail };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        // Split name into first and last name for API
+        const [first_name, ...rest] = (user.name || '').split(' ');
+        const last_name = rest.join(' ').trim();
+
+        const payload = {
+          id: user.id,
+          first_name: first_name || user.name,
+          last_name: last_name || '',
+          email: result.value.newEmail,
+          phone: user.phone
+        };
+
+        this.http.put(`${this.apiUrl}/update_customer_profile`, payload).subscribe({
+          next: (response: any) => {
+            if (response?.status?.remarks === 'success') {
+              // Update the local user data
+              const index = this.users.findIndex(u => u.id === user.id);
+              if (index > -1) {
+                this.users[index].email = result.value.newEmail;
+              }
+
+              Swal.fire({
+                title: 'Success!',
+                text: `Email for ${user.name} has been updated to ${result.value.newEmail}`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#16a34a',
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: response?.status?.message || 'Failed to update email',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error updating email:', error);
+
+            let errorMessage = 'Failed to update email. Please try again.';
+            if (error.status === 409) {
+              errorMessage = 'This email is already in use. Please use a different email.';
+            } else if (error?.error?.status?.message) {
+              errorMessage = error.error.status.message;
+            }
+
+            Swal.fire({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#dc2626',
+            });
+          }
+        });
+      }
+    });
+  }
 }
