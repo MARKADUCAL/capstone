@@ -574,22 +574,70 @@ export class CarWashBookingComponent implements OnInit {
   }
 
   completeBooking(booking: CarWashBooking): void {
-    const prev = booking.status;
-    booking.status = 'Completed';
-    this.bookingService.updateBookingStatus(booking.id, 'Completed').subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Booking Completed!',
-          text: `Booking #${booking.id} for ${booking.customerName} has been marked as completed successfully.`,
-          confirmButtonColor: '#2563eb',
-        });
-        this.showNotification('Booking marked as completed');
-      },
-      error: (err) => {
-        booking.status = prev;
-        this.showNotification(err.message || 'Failed to complete booking');
-      },
+    // Show confirmation dialog before completing
+    Swal.fire({
+      title: 'Complete Booking?',
+      html: `
+        <div style="text-align: left; padding: 10px 0;">
+          <p style="margin-bottom: 12px;">Are you sure you want to mark this booking as completed?</p>
+          <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #166534;">Booking Details:</p>
+            <p style="margin: 4px 0; color: #15803d;"><strong>Customer:</strong> ${
+              booking.customerName
+            }</p>
+            <p style="margin: 4px 0; color: #15803d;"><strong>Service:</strong> ${
+              booking.serviceType || 'Standard Wash'
+            }</p>
+            <p style="margin: 4px 0; color: #15803d;"><strong>Booking ID:</strong> #${
+              booking.id
+            }</p>
+          </div>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Complete Booking',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#16a34a',
+      cancelButtonColor: '#6b7280',
+      focusCancel: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const prev = booking.status;
+        booking.status = 'Completed';
+        this.bookingService
+          .updateBookingStatus(booking.id, 'Completed')
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                icon: 'success',
+                title: '🎉 Booking Completed!',
+                html: `
+                <div style="text-align: center;">
+                  <p style="font-size: 16px; margin-bottom: 8px;">Booking #${booking.id} has been successfully completed.</p>
+                  <p style="color: #059669; font-weight: 600;">Customer: ${booking.customerName}</p>
+                </div>
+              `,
+                confirmButtonColor: '#16a34a',
+                confirmButtonText: 'Great!',
+              });
+              this.showNotification('Booking marked as completed');
+              // Refresh to update the list
+              this.loadBookings();
+            },
+            error: (err) => {
+              booking.status = prev;
+              Swal.fire({
+                icon: 'error',
+                title: 'Completion Failed',
+                text:
+                  err.message ||
+                  'Failed to complete booking. Please try again.',
+                confirmButtonColor: '#dc2626',
+              });
+            },
+          });
+      }
     });
   }
 
