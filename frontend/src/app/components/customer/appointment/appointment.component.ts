@@ -238,8 +238,9 @@ export class AppointmentComponent implements OnInit {
   private hasActiveBooking(): boolean {
     try {
       if (!Array.isArray(this.customerBookings)) return false;
-      return this.customerBookings.some((b: any) =>
-        this.isActiveBookingStatus(b?.status)
+      return this.customerBookings.some(
+        (b: any) =>
+          this.isActiveBookingStatus(b?.status) && !this.isBookingExpired(b)
       );
     } catch {
       return false;
@@ -268,7 +269,10 @@ export class AppointmentComponent implements OnInit {
 
     try {
       return this.customerBookings.some((booking: any) => {
-        if (!this.isActiveBookingStatus(booking?.status)) {
+        if (
+          !this.isActiveBookingStatus(booking?.status) ||
+          this.isBookingExpired(booking)
+        ) {
           return false;
         }
         const bookingPlate = this.normalizePlate(
@@ -296,6 +300,95 @@ export class AppointmentComponent implements OnInit {
     });
 
     return match || null;
+  }
+
+  // Determine if a booking's scheduled date/time has already passed
+  private isBookingExpired(booking: any): boolean {
+    if (!booking) return false;
+
+    const status =
+      typeof booking?.status === 'string' ? booking.status.toLowerCase() : '';
+    if (status === 'expired') {
+      return true;
+    }
+
+    const schedule = this.getBookingDateTime(booking);
+    if (!schedule) {
+      return false;
+    }
+
+    return schedule.getTime() < Date.now();
+  }
+
+  // Extract a Date representing the booking's scheduled wash date/time
+  private getBookingDateTime(booking: any): Date | null {
+    if (!booking) return null;
+
+    const rawDateValue =
+      booking?.wash_date ??
+      booking?.washDate ??
+      booking?.wash_date_time ??
+      booking?.washDateTime ??
+      booking?.date ??
+      null;
+
+    if (!rawDateValue) {
+      return null;
+    }
+
+    try {
+      const parsedDate = new Date(rawDateValue);
+      if (isNaN(parsedDate.getTime())) {
+        return null;
+      }
+
+      const timeString = this.extractBookingTimeString(booking, rawDateValue);
+      if (timeString) {
+        const [hoursStr, minutesStr = '0'] = timeString.split(':');
+        const hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10);
+        parsedDate.setHours(
+          isNaN(hours) ? 0 : hours,
+          isNaN(minutes) ? 0 : minutes,
+          0,
+          0
+        );
+      } else if (
+        typeof rawDateValue === 'string' &&
+        /\d{2}:\d{2}/.test(rawDateValue)
+      ) {
+        // rawDateValue already includes time information; keep parsedDate as-is
+      } else {
+        // No explicit time, consider the booking active for the whole day
+        parsedDate.setHours(23, 59, 59, 999);
+      }
+
+      return parsedDate;
+    } catch {
+      return null;
+    }
+  }
+
+  // Extract a HH:MM time string for a booking, if any
+  private extractBookingTimeString(
+    booking: any,
+    rawDateValue: any
+  ): string | null {
+    const timeValue =
+      booking?.wash_time ?? booking?.washTime ?? booking?.time ?? null;
+
+    if (typeof timeValue === 'string' && timeValue.trim()) {
+      return timeValue.trim();
+    }
+
+    if (typeof rawDateValue === 'string') {
+      const timeMatch = rawDateValue.match(/(\d{2}:\d{2})/);
+      if (timeMatch) {
+        return timeMatch[1];
+      }
+    }
+
+    return null;
   }
 
   // Normalize a date-like value to local YYYY-MM-DD (no timezone shift)
