@@ -1162,19 +1162,26 @@ class Post extends GlobalMethods
 
 
         try {
-            // Block creating a new booking only if this specific vehicle already has an active booking (Pending or Approved)
-            $checkSql = "SELECT plate_number FROM bookings 
+            // Block creating a new booking only if this specific vehicle already has an active (non-expired) booking
+            $checkSql = "SELECT id, plate_number, wash_date, wash_time, status FROM bookings 
                         WHERE customer_id = ?
                           AND status IN ('Pending','Approved')";
             $checkStmt = $this->pdo->prepare($checkSql);
             $checkStmt->execute([$data->customer_id]);
-            $activePlates = $checkStmt->fetchAll(\PDO::FETCH_COLUMN);
+            $activeBookings = $checkStmt->fetchAll(\PDO::FETCH_ASSOC);
 
             $targetPlate = $this->normalize_plate_number($data->plate_number);
 
             $hasActiveForPlate = false;
-            foreach ($activePlates as $plate) {
-                if ($this->normalize_plate_number($plate) === $targetPlate) {
+            foreach ($activeBookings as $booking) {
+                $normalizedPlate = $this->normalize_plate_number($booking['plate_number']);
+
+                if ($this->isBookingScheduleExpired($booking['wash_date'] ?? null, $booking['wash_time'] ?? null)) {
+                    $this->markBookingAsExpired($booking['id']);
+                    continue;
+                }
+
+                if ($normalizedPlate === $targetPlate) {
                     $hasActiveForPlate = true;
                     break;
                 }
@@ -1184,7 +1191,7 @@ class Post extends GlobalMethods
                 return $this->sendPayload(
                     null,
                     "failed",
-                    "You already have an active booking for this vehicle. Please wait until it's completed, cancelled, or rejected before booking it again.",
+                    "You already have an active booking for this vehicle. Please wait until it's completed, cancelled, rejected, or expired before booking it again.",
                     400
                 );
             }
@@ -1357,6 +1364,44 @@ class Post extends GlobalMethods
 
         }
 
+    }
+
+    /**
+     * Determine if a booking schedule has already passed.
+     */
+    private function isBookingScheduleExpired($washDate, $washTime) {
+        if (empty($washDate)) {
+            return false;
+        }
+
+        $dateString = trim($washDate);
+        $timeString = (!empty($washTime) && trim($washTime) !== '') ? trim($washTime) : '23:59:59';
+
+        try {
+            $bookingDateTime = new \DateTime("{$dateString} {$timeString}", new \DateTimeZone('Asia/Manila'));
+            $now = new \DateTime('now', new \DateTimeZone('Asia/Manila'));
+            return $bookingDateTime < $now;
+        } catch (\Exception $e) {
+            error_log("Failed to evaluate booking expiration for {$dateString} {$timeString}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Mark a booking as expired in the database.
+     */
+    private function markBookingAsExpired($bookingId) {
+        if (empty($bookingId)) {
+            return;
+        }
+
+        try {
+            $sql = "UPDATE bookings SET status = 'Expired', updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$bookingId]);
+        } catch (\PDOException $e) {
+            error_log("Failed to mark booking {$bookingId} as expired: " . $e->getMessage());
+        }
     }
 
 

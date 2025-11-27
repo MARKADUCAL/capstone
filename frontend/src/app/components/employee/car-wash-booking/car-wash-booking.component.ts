@@ -68,11 +68,6 @@ export class CarWashBookingComponent implements OnInit {
     description: string;
   }[] = [
     {
-      label: 'Pending',
-      value: 'Pending',
-      description: 'Awaiting admin approval',
-    },
-    {
       label: 'Ongoing',
       value: 'Approved',
       description: 'Assigned to you - ready to work on',
@@ -299,33 +294,35 @@ export class CarWashBookingComponent implements OnInit {
       // Load bookings assigned to this employee
       this.bookingService.getBookingsByEmployee(employeeId).subscribe({
         next: (bookings) => {
-          this.bookings = bookings.map((b: any, idx: number) => {
-            // Debug: Log the raw status from database
-            console.log('Raw status from DB:', b.status);
+          this.bookings = bookings
+            .map((b: any, idx: number) => {
+              // Debug: Log the raw status from database
+              console.log('Raw status from DB:', b.status);
 
-            const normalizedStatus = this.normalizeStatus(
-              b.status ?? 'Pending'
-            );
-            console.log('Normalized status:', normalizedStatus);
+              const normalizedStatus = this.normalizeStatus(
+                b.status ?? 'Pending'
+              );
+              console.log('Normalized status:', normalizedStatus);
 
-            return {
-              id: Number(b.id ?? idx + 1),
-              customerName: this.resolveCustomerName(
-                b.customerName,
-                b.nickname
-              ),
-              vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
-              plateNumber: b.plateNumber ?? b.plate_number,
-              vehicleModel: b.vehicleModel ?? b.vehicle_model,
-              vehicleColor: b.vehicleColor ?? b.vehicle_color,
-              date: b.washDate ? this.formatDate(b.washDate) : 'Date TBD',
-              time: this.formatTime(b.washTime),
-              status: normalizedStatus,
-              serviceType: b.serviceName ?? 'Standard Wash',
-              price: this.normalizePrice(b.price),
-              imageUrl: 'assets/images/profile-placeholder.jpg',
-            };
-          });
+              return {
+                id: Number(b.id ?? idx + 1),
+                customerName: this.resolveCustomerName(
+                  b.customerName,
+                  b.nickname
+                ),
+                vehicleType: b.vehicleType ?? b.vehicle_type ?? 'Unknown',
+                plateNumber: b.plateNumber ?? b.plate_number,
+                vehicleModel: b.vehicleModel ?? b.vehicle_model,
+                vehicleColor: b.vehicleColor ?? b.vehicle_color,
+                date: b.washDate ? this.formatDate(b.washDate) : 'Date TBD',
+                time: this.formatTime(b.washTime),
+                status: normalizedStatus,
+                serviceType: b.serviceName ?? 'Standard Wash',
+                price: this.normalizePrice(b.price),
+                imageUrl: 'assets/images/profile-placeholder.jpg',
+              };
+            })
+            .filter((booking) => booking.status !== 'Pending');
           this.loading = false;
         },
         error: (err) => {

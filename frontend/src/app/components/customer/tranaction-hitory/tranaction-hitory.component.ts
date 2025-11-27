@@ -135,7 +135,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       case 'pending':
         return 'Pending';
       case 'approved':
-        return 'Approved';
+        return 'Ongoing';
       case 'completed':
         return 'Completed';
       case 'cancelled':
