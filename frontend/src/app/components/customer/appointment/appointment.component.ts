@@ -869,7 +869,7 @@ export class AppointmentComponent implements OnInit {
     // Prevent creating a new booking for the same vehicle when one is active
     if (this.hasActiveBookingForPlate(this.bookingForm.plateNumber)) {
       const msg =
-        'You already have an active booking for this vehicle. Please wait until it’s completed, cancelled, or declined before booking it again.';
+        'You already have an active booking for this vehicle. Please wait until it’s completed, cancelled, rejected, or expired before booking it again.';
       this.errorMessage = msg;
       Swal.fire({
         icon: 'info',
