@@ -249,8 +249,7 @@ export class AppointmentComponent implements OnInit {
 
   // Determine if a booking status should be treated as active
   private isActiveBookingStatus(status: unknown): boolean {
-    if (typeof status !== 'string') return false;
-    const normalizedStatus = status.toLowerCase();
+    const normalizedStatus = this.normalizeStatusString(status);
     return normalizedStatus === 'pending' || normalizedStatus === 'approved';
   }
 
@@ -306,9 +305,13 @@ export class AppointmentComponent implements OnInit {
   private isBookingExpired(booking: any): boolean {
     if (!booking) return false;
 
-    const status =
-      typeof booking?.status === 'string' ? booking.status.toLowerCase() : '';
-    if (status === 'expired') {
+    const status = this.normalizeStatusString(booking?.status);
+    if (
+      status === 'expired' ||
+      status === 'expire' ||
+      status === 'expiring' ||
+      status.startsWith('expire')
+    ) {
       return true;
     }
 
@@ -367,6 +370,11 @@ export class AppointmentComponent implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  private normalizeStatusString(status: unknown): string {
+    if (typeof status !== 'string') return '';
+    return status.trim().toLowerCase();
   }
 
   // Extract a HH:MM time string for a booking, if any
