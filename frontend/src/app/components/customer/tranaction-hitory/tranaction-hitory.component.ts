@@ -355,6 +355,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
                   return dateB.getTime() - dateA.getTime();
                 });
 
+                // Check for expired pending bookings and mark them
+                this.markExpiredBookings();
+
                 this.applyFilter();
                 this.isLoading = false;
                 console.log(
@@ -594,6 +597,63 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   canCancelBooking(booking: Booking): boolean {
     return this.normalizeStatus(booking.status) === 'pending';
+  }
+
+  // Check if a booking date has passed (is in the past)
+  private isBookingDatePassed(dateString: string): boolean {
+    if (!dateString) return false;
+    const trimmed = String(dateString).trim();
+    if (
+      trimmed === '0000-00-00' ||
+      trimmed === '0000-00-00 00:00:00' ||
+      trimmed.toLowerCase() === 'invalid date'
+    ) {
+      return false;
+    }
+
+    const bookingDate = new Date(trimmed);
+    if (isNaN(bookingDate.getTime())) return false;
+
+    // Set booking date to end of day for comparison
+    bookingDate.setHours(23, 59, 59, 999);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return bookingDate < today;
+  }
+
+  // Mark pending bookings as expired if their date has passed
+  private markExpiredBookings(): void {
+    const expiredBookingIds: string[] = [];
+
+    this.bookings.forEach((booking) => {
+      const normalizedStatus = this.normalizeStatus(booking.status);
+      const washDate = booking.washDate || (booking as any).wash_date;
+      if (normalizedStatus === 'pending' && this.isBookingDatePassed(washDate)) {
+        // Mark locally as expired
+        (booking as any).status = 'Expired';
+        expiredBookingIds.push(booking.id);
+      }
+    });
+
+    // Update expired bookings in the backend
+    expiredBookingIds.forEach((bookingId) => {
+      this.bookingService.updateBookingStatus(bookingId, 'Expired').subscribe({
+        next: () => {
+          console.log(`Booking #${bookingId} marked as Expired`);
+        },
+        error: (err) => {
+          console.error(`Failed to mark booking #${bookingId} as Expired:`, err);
+        },
+      });
+    });
+
+    if (expiredBookingIds.length > 0) {
+      console.log(
+        `${expiredBookingIds.length} pending booking(s) marked as expired`
+      );
+    }
   }
 
   clearSuccessMessage(): void {

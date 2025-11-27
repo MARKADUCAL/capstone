@@ -431,6 +431,9 @@ export class DashboardComponent implements OnInit {
               0
             );
 
+            // Check for expired pending bookings and mark them
+            this.markExpiredBookings();
+
             // Regenerate calendar with updated bookings
             this.generateCalendar();
           }
@@ -442,6 +445,74 @@ export class DashboardComponent implements OnInit {
         complete: () => resolve(),
       });
     });
+  }
+
+  // Check if a booking date has passed (is in the past)
+  private isBookingDatePassed(dateString: string): boolean {
+    if (!dateString || dateString === 'Unknown Date') return false;
+    const trimmed = String(dateString).trim();
+    if (
+      trimmed === '0000-00-00' ||
+      trimmed === '0000-00-00 00:00:00' ||
+      trimmed.toLowerCase() === 'invalid date'
+    ) {
+      return false;
+    }
+
+    const bookingDate = new Date(trimmed);
+    if (isNaN(bookingDate.getTime())) return false;
+
+    // Set booking date to end of day for comparison
+    bookingDate.setHours(23, 59, 59, 999);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return bookingDate < today;
+  }
+
+  // Mark pending bookings as expired if their date has passed
+  private markExpiredBookings(): void {
+    const expiredBookingIds: number[] = [];
+
+    this.recentBookings.forEach((booking) => {
+      const normalizedStatus = this.normalizeStatus(booking.status);
+      if (
+        normalizedStatus === 'pending' &&
+        this.isBookingDatePassed(booking.date)
+      ) {
+        // Mark locally as expired
+        booking.status = 'Expired';
+        expiredBookingIds.push(booking.id);
+      }
+    });
+
+    // Update expired bookings in the backend
+    expiredBookingIds.forEach((bookingId) => {
+      this.http
+        .put(`${this.apiUrl}/update_booking_status`, {
+          id: bookingId,
+          status: 'Expired',
+        })
+        .subscribe({
+          next: (response: any) => {
+            if (response?.status?.remarks === 'success') {
+              console.log(`Booking #${bookingId} marked as Expired`);
+            }
+          },
+          error: (err) => {
+            console.error(`Failed to mark booking #${bookingId} as Expired:`, err);
+          },
+        });
+    });
+
+    if (expiredBookingIds.length > 0) {
+      this.showInfo(
+        `${expiredBookingIds.length} pending booking(s) marked as expired`
+      );
+      // Regenerate calendar to reflect changes
+      this.generateCalendar();
+    }
   }
 
   updateBookingStatus(bookingId: number, newStatus: string): void {
