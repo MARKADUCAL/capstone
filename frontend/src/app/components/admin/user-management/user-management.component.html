@@ -412,10 +412,11 @@
               type="email"
               id="edit-email"
               name="edit-email"
-              [(ngModel)]="editUserData.email"
-              required
-              placeholder="Enter email"
+              [ngModel]="editUserData.email"
+              readonly
+              disabled
             />
+            <small class="readonly-hint">Email cannot be changed.</small>
           </div>
 
           <div class="form-group">

@@ -317,7 +317,6 @@ export class UserManagementComponent implements OnInit {
       id: this.editUserData.id,
       first_name: first_name || this.editUserData.name,
       last_name: last_name || '',
-      email: this.editUserData.email,
       phone: this.editUserData.phone,
     };
 
