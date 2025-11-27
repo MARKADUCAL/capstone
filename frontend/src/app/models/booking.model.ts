@@ -46,6 +46,7 @@ export enum BookingStatus {
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
   REJECTED = 'rejected',
+  EXPIRED = 'expired',
 }
 
 export interface CarWashService {

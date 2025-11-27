@@ -308,6 +308,12 @@
   border: 1px solid var(--mat-sys-outline-variant);
 }
 
+.mobile-expired-badge {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
 /* Desktop/Mobile visibility classes */
 .desktop-only {
   display: block;
@@ -733,6 +739,12 @@
   border-color: var(--mat-sys-outline-variant);
 }
 
+.status-chip.status-expired {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
 .card-body {
   padding: 16px;
   flex: 1;
@@ -953,6 +965,21 @@
   height: 16px;
 }
 
+.expired-badge {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+  max-width: 100%;
+}
+
+.expired-badge mat-icon {
+  color: #f59e0b;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* Status-based styling */
 .pending {
   border-left: 4px solid var(--accent); /* Amber */
@@ -968,6 +995,10 @@
 
 .completed {
   border-left: 4px solid var(--secondary); /* Purple */
+}
+
+.expired {
+  border-left: 4px solid #f59e0b; /* Amber/Orange */
 }
 
 /* Rejection indicator */

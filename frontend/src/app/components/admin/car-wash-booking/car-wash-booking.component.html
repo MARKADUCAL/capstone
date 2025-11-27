@@ -193,6 +193,11 @@
                   </div>
                   } @else if (booking.status === 'Rejected') {
                   <!-- No additional actions -->
+                  } @else if (booking.status === 'Expired') {
+                  <div class="table-badge expired-badge">
+                    <mat-icon>schedule</mat-icon>
+                    Expired
+                  </div>
                   } @else if (canEditBooking(booking)) {
                   <button
                     class="action-btn edit-btn"
@@ -274,6 +279,11 @@
             <div class="mobile-status-badge mobile-completed-badge">
               <mat-icon>check_circle</mat-icon>
               Completed
+            </div>
+            } @else if (booking.status === 'Expired') {
+            <div class="mobile-status-badge mobile-expired-badge">
+              <mat-icon>schedule</mat-icon>
+              Expired
             </div>
             }
           </div>

@@ -69,7 +69,8 @@ interface CarWashBooking {
     | 'Rejected'
     | 'Done'
     | 'Completed'
-    | 'Cancelled';
+    | 'Cancelled'
+    | 'Expired';
   serviceType?: string;
   price?: number;
   imageUrl?: string;
@@ -273,6 +274,11 @@ export class CarWashBookingComponent implements OnInit {
       label: 'Cancelled',
       value: 'Cancelled',
       description: 'Bookings cancelled by admin or customer',
+    },
+    {
+      label: 'Expired',
+      value: 'Expired',
+      description: 'Pending bookings whose scheduled date has passed',
     },
   ];
   employees: Employee[] = [];
@@ -493,7 +499,69 @@ export class CarWashBookingComponent implements OnInit {
     const s = (status || '').toString();
     if (s.toLowerCase() === 'rejected') return 'Declined';
     if (s.toLowerCase() === 'approved') return 'Ongoing';
+    if (s.toLowerCase() === 'expired') return 'Expired';
     return s;
+  }
+
+  // Check if a booking date has passed (is in the past)
+  private isBookingDatePassed(dateString: string): boolean {
+    if (!dateString) return false;
+    const trimmed = String(dateString).trim();
+    if (
+      trimmed === '0000-00-00' ||
+      trimmed === '0000-00-00 00:00:00' ||
+      trimmed.toLowerCase() === 'invalid date'
+    ) {
+      return false;
+    }
+
+    const bookingDate = new Date(trimmed);
+    if (isNaN(bookingDate.getTime())) return false;
+
+    // Set booking date to end of day for comparison
+    bookingDate.setHours(23, 59, 59, 999);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return bookingDate < today;
+  }
+
+  // Mark pending bookings as expired if their date has passed
+  private markExpiredBookings(): void {
+    const expiredBookingIds: number[] = [];
+
+    this.bookings.forEach((booking) => {
+      if (
+        booking.status === 'Pending' &&
+        this.isBookingDatePassed(booking.date || booking.washDate || '')
+      ) {
+        // Mark locally as expired
+        booking.status = 'Expired';
+        expiredBookingIds.push(booking.id);
+      }
+    });
+
+    // Update expired bookings in the backend
+    expiredBookingIds.forEach((bookingId) => {
+      this.bookingService.updateBookingStatus(bookingId, 'Expired').subscribe({
+        next: () => {
+          console.log(`Booking #${bookingId} marked as Expired`);
+        },
+        error: (err) => {
+          console.error(
+            `Failed to mark booking #${bookingId} as Expired:`,
+            err
+          );
+        },
+      });
+    });
+
+    if (expiredBookingIds.length > 0) {
+      this.showNotification(
+        `${expiredBookingIds.length} pending booking(s) marked as expired`
+      );
+    }
   }
 
   getUserInitials(name: string): string {
@@ -569,7 +637,9 @@ export class CarWashBookingComponent implements OnInit {
               | 'Approved'
               | 'Rejected'
               | 'Done'
-              | 'Completed',
+              | 'Completed'
+              | 'Cancelled'
+              | 'Expired',
             serviceType: resolvedServiceType,
             price: b.price ? Number(b.price) : undefined,
             imageUrl: 'assets/images/profile-placeholder.jpg',
@@ -603,6 +673,10 @@ export class CarWashBookingComponent implements OnInit {
 
           return booking;
         });
+
+        // Check for expired pending bookings
+        this.markExpiredBookings();
+
         this.loading = false;
       },
       error: (err) => {
@@ -2101,6 +2175,12 @@ export class CreateWalkInBookingDialogComponent {
         border: 1px solid #fecaca;
       }
 
+      .status-expired {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+      }
+
       .status-select {
         min-width: 120px;
       }
@@ -2392,7 +2472,8 @@ export class BookingDetailsDialogComponent {
     | 'Rejected'
     | 'Done'
     | 'Completed'
-    | 'Cancelled';
+    | 'Cancelled'
+    | 'Expired';
   ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
 
   constructor(

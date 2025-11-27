@@ -281,7 +281,8 @@ export class BookingService {
       | 'Rejected'
       | 'Done'
       | 'Completed'
-      | 'Cancelled',
+      | 'Cancelled'
+      | 'Expired',
     reason?: string
   ): Observable<any> {
     const normalized = this.normalizeStatus(status);
@@ -425,14 +426,16 @@ export class BookingService {
       | 'Done'
       | 'Completed'
       | 'Cancelled'
-  ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' | 'Cancelled' {
+      | 'Expired'
+  ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' | 'Cancelled' | 'Expired' {
     if (
       status === 'Pending' ||
       status === 'Approved' ||
       status === 'Rejected' ||
       status === 'Done' ||
       status === 'Completed' ||
-      status === 'Cancelled'
+      status === 'Cancelled' ||
+      status === 'Expired'
     ) {
       return status;
     }
@@ -448,6 +451,8 @@ export class BookingService {
         return 'Completed';
       case BookingStatus.CANCELLED:
         return 'Cancelled';
+      case BookingStatus.EXPIRED:
+        return 'Expired';
       default:
         return 'Pending';
     }
