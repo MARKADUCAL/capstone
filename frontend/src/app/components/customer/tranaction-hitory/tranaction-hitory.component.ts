@@ -142,6 +142,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         return 'Cancelled';
       case 'rejected':
         return 'Declined';
+      case 'expired':
+        return 'Expired';
       default:
         return s || 'pending';
     }
@@ -149,12 +151,13 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
 
   normalizeStatus(
     status: string
-  ): 'pending' | 'approved' | 'completed' | 'cancelled' | 'rejected' | string {
+  ): 'pending' | 'approved' | 'completed' | 'cancelled' | 'rejected' | 'expired' | string {
     const s = (status ?? '').toString().trim().toLowerCase();
     if (s === 'confirmed' || s === 'approved') return 'approved';
     if (s === 'cancelled' || s === 'canceled') return 'cancelled';
     if (s === 'completed' || s === 'complete') return 'completed';
     if (s === 'pending') return 'pending';
+    if (s === 'expired') return 'expired';
     return s;
   }
 
@@ -932,6 +935,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         return '❌';
       case 'rejected':
         return '❌';
+      case 'expired':
+        return '⌛';
       default:
         return '📋';
     }
@@ -949,6 +954,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         return 'This booking has been cancelled.';
       case 'rejected':
         return 'This booking has been declined.';
+      case 'expired':
+        return 'This booking has expired as the scheduled date has passed.';
       default:
         return 'Your booking status is being updated.';
     }

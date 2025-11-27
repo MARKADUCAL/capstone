@@ -60,6 +60,7 @@ type CalendarEventType =
   | 'declined'
   | 'done'
   | 'complete'
+  | 'expired'
   | 'default';
 
 interface CalendarEvent {
@@ -538,6 +539,7 @@ export class DashboardComponent implements OnInit {
     const s = (status || '').toString();
     if (s.toLowerCase() === 'rejected') return 'Declined';
     if (s.toLowerCase() === 'approved') return 'Ongoing';
+    if (s.toLowerCase() === 'expired') return 'Expired';
     return s;
   }
 
@@ -565,6 +567,8 @@ export class DashboardComponent implements OnInit {
       case 'completed':
       case 'complete':
         return 'complete';
+      case 'expired':
+        return 'expired';
       default:
         return 'default';
     }
@@ -585,6 +589,8 @@ export class DashboardComponent implements OnInit {
         return 'Done';
       case 'complete':
         return 'Complete';
+      case 'expired':
+        return 'Expired';
       default:
         return this.displayStatus(status) || 'Pending';
     }

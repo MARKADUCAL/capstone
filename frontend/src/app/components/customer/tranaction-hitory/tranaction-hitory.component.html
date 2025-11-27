@@ -81,6 +81,15 @@
         <span class="tab-text">Declined</span>
         <span class="tab-count">{{ getFilterCount("rejected") }}</span>
       </button>
+      <button
+        class="filter-tab"
+        [class.active]="currentFilter === 'expired'"
+        (click)="setFilter('expired')"
+      >
+        <span class="tab-icon">⌛</span>
+        <span class="tab-text">Expired</span>
+        <span class="tab-count">{{ getFilterCount("expired") }}</span>
+      </button>
     </div>
   </div>
 

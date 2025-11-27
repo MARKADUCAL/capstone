@@ -322,6 +322,12 @@ interface DateBookingsDialogData {
         border: 1px solid #bae6fd;
       }
 
+      .status-badge.expired {
+        background-color: #fef3c7;
+        color: #d97706;
+        border: 1px solid #fcd34d;
+      }
+
       .booking-amount {
         margin: 0;
         font-size: 18px;
@@ -479,6 +485,7 @@ export class DateBookingsDialogComponent {
     const s = (status || '').toString();
     if (s.toLowerCase() === 'rejected') return 'Declined';
     if (s.toLowerCase() === 'approved') return 'Ongoing';
+    if (s.toLowerCase() === 'expired') return 'Expired';
     return s;
   }
 
@@ -492,6 +499,9 @@ export class DateBookingsDialogComponent {
     }
     if (normalized === 'cancelled' || normalized === 'canceled') {
       return 'cancelled';
+    }
+    if (normalized === 'expired') {
+      return 'expired';
     }
 
     return normalized;

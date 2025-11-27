@@ -1655,6 +1655,16 @@
   color: #dc2626;
 }
 
+.status-expired {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d;
+}
+
+.status-expired .status-icon {
+  color: #d97706;
+}
+
 /* Enhanced Rating Display */
 .star-rating-display {
   display: flex;
