@@ -51,7 +51,7 @@
         (click)="setFilter('approved')"
       >
         <span class="tab-icon">✅</span>
-        <span class="tab-text">Approved</span>
+        <span class="tab-text">Ongoing</span>
         <span class="tab-count">{{ getFilterCount("approved") }}</span>
       </button>
       <button
@@ -207,10 +207,7 @@
               <span class="vehicle-summary-type">{{
                 getVehicleTypeLabel(booking)
               }}</span>
-              <span
-                class="vehicle-summary-color"
-                *ngIf="booking.vehicleColor"
-              >
+              <span class="vehicle-summary-color" *ngIf="booking.vehicleColor">
                 {{ booking.vehicleColor }}
               </span>
             </div>
