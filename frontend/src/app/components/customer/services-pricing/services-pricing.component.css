@@ -386,6 +386,73 @@
   margin-bottom: 8px;
 }
 
+/* Booking Tips Section */
+.booking-tips-section {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 30px;
+}
+
+.booking-tips-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.tips-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.booking-tips-title {
+  color: #424242;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.booking-tips-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.booking-tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.booking-tip-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.tip-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.tip-text {
+  color: #424242;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.booking-tips-divider-small {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
