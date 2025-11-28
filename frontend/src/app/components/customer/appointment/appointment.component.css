@@ -102,7 +102,7 @@
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 40px;
-  max-width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -554,6 +554,9 @@
   .appointment-content {
     max-width: 1200px;
   }
+  .form-container {
+    max-width: 1200px;
+  }
 
   .header-content {
     max-width: 1200px;
@@ -568,6 +571,9 @@
   .appointment-content {
     max-width: 1000px;
     gap: 30px;
+  }
+  .form-container {
+    max-width: 1000px;
   }
 
   .header-content {
@@ -606,6 +612,7 @@
   .form-container {
     padding: 40px;
     order: 1;
+    max-width: 900px;
   }
 
   .header-content {
@@ -631,12 +638,17 @@
     gap: 25px;
   }
 
+  .form-container {
+    max-width: 100%;
+  }
+
   .header-content {
     max-width: 100%;
   }
 
   .form-container {
     padding: 35px;
+    max-width: 100%;
   }
 
   .page-title {
