@@ -2,7 +2,7 @@
 .appointment-container {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-  padding: 30px;
+  padding: clamp(16px, 3vw, 30px);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -12,8 +12,8 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  padding: 40px;
-  margin-bottom: 40px;
+  padding: clamp(24px, 4vw, 40px);
+  margin-bottom: clamp(24px, 4vw, 40px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -22,6 +22,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(12px, 2vw, 32px);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -31,22 +33,22 @@
 }
 
 .page-title {
-  font-size: 3rem;
+  font-size: clamp(2rem, 3vw, 3rem);
   font-weight: 700;
   color: var(--text-dark);
   margin: 0 0 15px 0;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .page-title i {
   color: var(--accent);
-  font-size: 2.8rem;
+  font-size: clamp(1.8rem, 2.8vw, 2.8rem);
 }
 
 .page-subtitle {
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
   color: rgba(0, 0, 0, 0.55);
   margin: 0;
   font-weight: 400;
@@ -60,24 +62,24 @@
 .available-slots-card {
   background: linear-gradient(135deg, var(--accent), var(--secondary));
   color: white;
-  padding: 25px;
+  padding: clamp(16px, 2.5vw, 25px);
   border-radius: 15px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: clamp(12px, 2vw, 20px);
   box-shadow: var(--mat-sys-level2);
-  min-width: 250px;
+  min-width: clamp(200px, 20vw, 250px);
 }
 
 .slots-icon {
   background: rgba(255, 255, 255, 0.2);
-  width: 60px;
-  height: 60px;
+  width: clamp(44px, 4vw, 60px);
+  height: clamp(44px, 4vw, 60px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
 }
 
 .slots-info {
@@ -92,7 +94,7 @@
 }
 
 .slots-count {
-  font-size: 2.5rem;
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
   font-weight: 700;
   line-height: 1;
 }
@@ -100,8 +102,8 @@
 /* Main Content */
 .appointment-content {
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+  gap: clamp(20px, 3vw, 40px);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -112,26 +114,26 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  padding: 50px;
+  padding: clamp(24px, 4vw, 50px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: clamp(28px, 4vw, 50px);
 }
 
 .form-header h2 {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 2.5vw, 2.5rem);
   color: var(--text-dark);
-  margin: 0 0 15px 0;
+  margin: 0 0 12px 0;
   font-weight: 600;
 }
 
 .form-header p {
   color: rgba(0, 0, 0, 0.55);
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
   margin: 0;
 }
 
@@ -160,8 +162,8 @@
 /* Form Rows */
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: clamp(16px, 2vw, 30px);
 }
 
 .form-row.single-field {
@@ -169,7 +171,7 @@
 }
 
 .form-row.single-field .form-field {
-  max-width: 48%;
+  max-width: min(420px, 100%);
 }
 
 /* Form Fields */
@@ -571,6 +573,7 @@
   .appointment-content {
     max-width: 1000px;
     gap: 30px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.9fr);
   }
   .form-container {
     max-width: 1000px;
@@ -2036,12 +2039,12 @@
 /* Calendar & Time Selection */
 .schedule-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr);
+  gap: clamp(16px, 2.5vw, 32px);
   margin-top: 16px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .schedule-grid {
     grid-template-columns: 1fr;
   }
