@@ -1921,47 +1921,6 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
-        <!-- Customer Feedback Section (if feedback exists for completed bookings) -->
-        <div
-          class="info-section"
-          *ngIf="
-            data.booking.status === 'Completed' && data.booking.customerRating
-          "
-        >
-          <div class="section-header">
-            <mat-icon class="section-icon">star</mat-icon>
-            <h3>Customer Feedback</h3>
-          </div>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Rating</span>
-              <span class="value rating-display">
-                <span class="stars">{{
-                  getStarDisplay(data.booking.customerRating || 0)
-                }}</span>
-                <span class="rating-value"
-                  >{{ data.booking.customerRating }}/5</span
-                >
-              </span>
-            </div>
-            <div
-              class="info-item notes-item"
-              *ngIf="data.booking.customerRatingComment"
-            >
-              <span class="label">Comment</span>
-              <span class="value notes-text customer-feedback-text">{{
-                data.booking.customerRatingComment
-              }}</span>
-            </div>
-            <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
-              <span class="label">Submitted On</span>
-              <span class="value">{{
-                formatDate(data.booking.feedbackCreatedAt)
-              }}</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Employee Feedback Section (if employee feedback exists) -->
         <div
           class="info-section employee-feedback-section"

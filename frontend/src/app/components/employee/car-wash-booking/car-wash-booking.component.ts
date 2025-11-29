@@ -39,6 +39,9 @@ interface CarWashBooking {
   customerRatingComment?: string;
   feedbackCreatedAt?: string;
   feedbackId?: number;
+  // Employee feedback fields
+  employeeRating?: number | null;
+  employeeComment?: string | null;
 }
 
 @Component({
@@ -427,10 +430,14 @@ export class CarWashBookingComponent implements OnInit {
         if (feedbackList && feedbackList.length > 0) {
           const feedback = feedbackList[0];
           console.log('Setting feedback data:', feedback);
+          // General feedback
           bookingWithFeedback.customerRating = feedback.rating;
           bookingWithFeedback.customerRatingComment = feedback.comment || '';
           bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
           bookingWithFeedback.feedbackId = feedback.id;
+          // Employee feedback
+          bookingWithFeedback.employeeRating = feedback.employee_rating;
+          bookingWithFeedback.employeeComment = feedback.employee_comment;
           console.log('Booking with feedback:', bookingWithFeedback);
         } else {
           console.log('No feedback found for booking ID:', booking.id);
@@ -594,39 +601,37 @@ export class CarWashBookingComponent implements OnInit {
           </div>
         </div>
 
-        <!-- Customer Feedback Section (if feedback exists) -->
+        <!-- Employee Feedback Section (if employee feedback exists for completed bookings) -->
         <div
-          class="info-section"
+          class="info-section employee-feedback-section"
           *ngIf="
-            (data.booking.customerRating !== undefined &&
-              data.booking.customerRating !== null) ||
-            data.booking.customerRatingComment ||
-            data.booking.feedbackCreatedAt
+            data.booking.status === 'Completed' &&
+            (data.booking.employeeRating || data.booking.employeeComment)
           "
         >
           <div class="section-header">
-            <mat-icon class="section-icon">star</mat-icon>
-            <h3>Customer Feedback</h3>
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
           </div>
           <div class="info-grid">
-            <div class="info-item">
+            <div class="info-item" *ngIf="data.booking.employeeRating">
               <span class="label">Rating</span>
               <span class="value rating-display">
                 <span class="stars">{{
-                  getStarDisplay(data.booking.customerRating || 0)
+                  getStarDisplay(data.booking.employeeRating || 0)
                 }}</span>
                 <span class="rating-value"
-                  >{{ data.booking.customerRating }}/5</span
+                  >{{ data.booking.employeeRating }}/5</span
                 >
               </span>
             </div>
             <div
               class="info-item notes-item"
-              *ngIf="data.booking.customerRatingComment"
+              *ngIf="data.booking.employeeComment"
             >
               <span class="label">Comment</span>
-              <span class="value notes-text customer-feedback-text">{{
-                data.booking.customerRatingComment
+              <span class="value notes-text employee-feedback-text">{{
+                data.booking.employeeComment
               }}</span>
             </div>
             <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
@@ -879,6 +884,31 @@ export class CarWashBookingComponent implements OnInit {
         border-radius: 8px;
         padding: 12px;
         color: #713f12;
+        font-weight: 500;
+      }
+
+      .employee-feedback-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border: 1px solid #e0e7ff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .employee-feedback-section .section-header h3 {
+        color: #6366f1;
+      }
+
+      .employee-feedback-section .section-icon {
+        color: #6366f1;
+      }
+
+      .employee-feedback-text {
+        background: #f0f4ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 12px;
+        color: #4338ca;
         font-weight: 500;
       }
 
