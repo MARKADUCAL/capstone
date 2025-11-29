@@ -535,6 +535,56 @@
           </div>
         </div>
 
+        <div
+          class="info-section feedback-section"
+          *ngIf="booking.employeeRating || booking.employeeComment"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="booking.employeeRating">
+              <span class="label">Rating</span>
+              <span class="value rating-value">
+                <span class="star-rating">
+                  <mat-icon
+                    *ngFor="let star of getStarArray()"
+                    [class.filled]="star <= (booking.employeeRating || 0)"
+                  >
+                    {{ star <= (booking.employeeRating || 0) ? 'star' : 'star_border' }}
+                  </mat-icon>
+                </span>
+                <span class="rating-number">({{ booking.employeeRating }}/5)</span>
+              </span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.employeeComment">
+              <span class="label">Comment</span>
+              <span class="value comment-value">{{ booking.employeeComment }}</span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.feedbackCreatedAt">
+              <span class="label">Feedback Date</span>
+              <span class="value">{{ booking.feedbackCreatedAt | date : "medium" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-section feedback-section empty-feedback"
+          *ngIf="!booking.employeeRating && !booking.employeeComment"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
+          </div>
+          <div class="info-grid single">
+            <div class="info-item">
+              <span class="label">Status</span>
+              <span class="value no-feedback">No feedback provided yet</span>
+            </div>
+          </div>
+        </div>
+
         <div class="modal-actions single-action">
           <button
             type="button"
