@@ -93,6 +93,7 @@ export class DashboardComponent implements OnInit {
   };
 
   upcomingTasks: Task[] = [];
+  allBookings: Task[] = []; // All bookings including done and completed for calendar display
   loading = false;
   error: string | null = null;
 
@@ -258,7 +259,8 @@ export class DashboardComponent implements OnInit {
       // Load bookings assigned to this employee
       this.bookingService.getBookingsByEmployee(employeeId).subscribe({
         next: (bookings) => {
-          this.upcomingTasks = bookings.map((b: any, idx: number) => {
+          // Map all bookings to tasks
+          this.allBookings = bookings.map((b: any, idx: number) => {
             // Normalize status
             const normalizedStatus = this.normalizeStatus(
               b.status ?? 'Pending'
@@ -296,8 +298,8 @@ export class DashboardComponent implements OnInit {
             };
           });
 
-          // Filter to show only upcoming/pending tasks (not completed)
-          this.upcomingTasks = this.upcomingTasks.filter(
+          // Filter to show only upcoming/pending tasks (not completed) for the table
+          this.upcomingTasks = this.allBookings.filter(
             (task) =>
               task.status.toLowerCase() !== 'completed' &&
               task.status.toLowerCase() !== 'cancelled'
@@ -312,7 +314,7 @@ export class DashboardComponent implements OnInit {
             return aValue - bValue;
           });
 
-          // Regenerate calendar with updated tasks
+          // Regenerate calendar with all bookings (including done and completed)
           this.generateCalendar();
 
           this.loading = false;
@@ -544,7 +546,8 @@ export class DashboardComponent implements OnInit {
   }
 
   viewTaskDetails(taskId: number): void {
-    const task = this.upcomingTasks.find((t) => t.id === taskId);
+    // Search in all bookings, not just upcoming tasks
+    const task = this.allBookings.find((t) => t.id === taskId);
     if (task) {
       // Load feedback data for completed bookings
       const taskWithFeedback = { ...task };
@@ -664,9 +667,9 @@ export class DashboardComponent implements OnInit {
   getEventsForDate(year: number, month: number, day: number): CalendarEvent[] {
     const events: CalendarEvent[] = [];
 
-    // Map tasks to calendar events
-    if (this.upcomingTasks && this.upcomingTasks.length > 0) {
-      this.upcomingTasks.forEach((task) => {
+    // Map all bookings (including done and completed) to calendar events
+    if (this.allBookings && this.allBookings.length > 0) {
+      this.allBookings.forEach((task) => {
         try {
           if (!task.rawDate) return;
           const taskDate = new Date(task.rawDate);
@@ -749,7 +752,8 @@ export class DashboardComponent implements OnInit {
     const month = date.getMonth();
     const day = date.getDate();
 
-    return this.upcomingTasks.filter((task) => {
+    // Return all bookings for the date (including done and completed)
+    return this.allBookings.filter((task) => {
       try {
         if (!task.rawDate) return false;
         const taskDate = new Date(task.rawDate);
