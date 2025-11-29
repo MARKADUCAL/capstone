@@ -365,6 +365,108 @@
           </div>
         </div>
 
+        <!-- Service Feedback Section -->
+        <div
+          class="info-section feedback-section service-feedback"
+          *ngIf="booking.serviceRating || booking.serviceComment || (booking.rating && !booking.serviceRating && !booking.employeeRating)"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Service)</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="booking.serviceRating || (booking.rating && !booking.serviceRating && !booking.employeeRating)">
+              <span class="label">Rating</span>
+              <span class="value rating-value">
+                <span class="star-rating">
+                  <mat-icon
+                    *ngFor="let star of getStarArray()"
+                    [class.filled]="star <= (booking.serviceRating || booking.rating || 0)"
+                  >
+                    {{ star <= (booking.serviceRating || booking.rating || 0) ? 'star' : 'star_border' }}
+                  </mat-icon>
+                </span>
+                <span class="rating-number">({{ booking.serviceRating || booking.rating }}/5)</span>
+              </span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.serviceComment || (booking.comment && !booking.serviceComment && !booking.employeeComment)">
+              <span class="label">Comment</span>
+              <span class="value comment-value">{{ booking.serviceComment || booking.comment }}</span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.feedbackCreatedAt">
+              <span class="label">Feedback Date</span>
+              <span class="value">{{ booking.feedbackCreatedAt | date : "medium" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-section feedback-section service-feedback empty-feedback"
+          *ngIf="!booking.serviceRating && !booking.serviceComment && !booking.employeeRating && !booking.employeeComment && !booking.rating && !booking.comment"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Service)</h3>
+          </div>
+          <div class="info-grid single">
+            <div class="info-item">
+              <span class="label">Status</span>
+              <span class="value no-feedback">No feedback provided yet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Feedback Section -->
+        <div
+          class="info-section feedback-section employee-feedback"
+          *ngIf="booking.employeeRating || booking.employeeComment"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="booking.employeeRating">
+              <span class="label">Rating</span>
+              <span class="value rating-value">
+                <span class="star-rating">
+                  <mat-icon
+                    *ngFor="let star of getStarArray()"
+                    [class.filled]="star <= (booking.employeeRating || 0)"
+                  >
+                    {{ star <= (booking.employeeRating || 0) ? 'star' : 'star_border' }}
+                  </mat-icon>
+                </span>
+                <span class="rating-number">({{ booking.employeeRating }}/5)</span>
+              </span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.employeeComment">
+              <span class="label">Comment</span>
+              <span class="value comment-value">{{ booking.employeeComment }}</span>
+            </div>
+            <div class="info-item full-width" *ngIf="booking.feedbackCreatedAt">
+              <span class="label">Feedback Date</span>
+              <span class="value">{{ booking.feedbackCreatedAt | date : "medium" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-section feedback-section employee-feedback empty-feedback"
+          *ngIf="!booking.employeeRating && !booking.employeeComment && (booking.serviceRating || booking.serviceComment)"
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
+          </div>
+          <div class="info-grid single">
+            <div class="info-item">
+              <span class="label">Status</span>
+              <span class="value no-feedback">No feedback provided yet</span>
+            </div>
+          </div>
+        </div>
+
         <div class="modal-actions single-action">
           <button
             type="button"

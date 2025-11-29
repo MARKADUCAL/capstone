@@ -803,3 +803,114 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Customer Feedback Sections */
+.feedback-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.feedback-section.service-feedback {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #bae6fd;
+}
+
+.feedback-section.employee-feedback {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-color: #e0e7ff;
+}
+
+.feedback-section .section-header {
+  margin-bottom: 16px;
+}
+
+.feedback-section .section-header h3 {
+  color: #4f46e5;
+}
+
+.feedback-section.service-feedback .section-header h3 {
+  color: #0284c7;
+}
+
+.feedback-section.employee-feedback .section-header h3 {
+  color: #6366f1;
+}
+
+.feedback-section .section-icon {
+  color: #6366f1;
+}
+
+.feedback-section.service-feedback .section-icon {
+  color: #0284c7;
+}
+
+.feedback-section.employee-feedback .section-icon {
+  color: #6366f1;
+}
+
+.rating-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-rating mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #fbbf24;
+}
+
+.star-rating mat-icon.filled {
+  color: #f59e0b;
+}
+
+.rating-number {
+  font-weight: 600;
+  color: #4f46e5;
+  font-size: 14px;
+}
+
+.comment-value {
+  display: block;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+  color: #374151;
+  line-height: 1.6;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.empty-feedback {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.empty-feedback .section-header h3 {
+  color: #6b7280;
+}
+
+.empty-feedback .section-icon {
+  color: #9ca3af;
+}
+
+.no-feedback {
+  color: #9ca3af;
+  font-style: italic;
+}

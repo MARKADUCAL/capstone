@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
+import { FeedbackService, CustomerFeedback } from '../../../services/feedback.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
@@ -38,6 +39,16 @@ interface CustomerBookingSummary {
   status: string;
   totalAmount: number;
   raw: any;
+  // Service feedback
+  serviceRating?: number | null;
+  serviceComment?: string | null;
+  // Employee feedback
+  employeeRating?: number | null;
+  employeeComment?: string | null;
+  // General feedback
+  rating?: number | null;
+  comment?: string | null;
+  feedbackCreatedAt?: string;
 }
 
 @Component({
@@ -90,7 +101,8 @@ export class UserManagementComponent implements OnInit {
     private snackBar: MatSnackBar,
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private feedbackService: FeedbackService
   ) {}
 
   ngOnInit(): void {
@@ -516,8 +528,34 @@ export class UserManagementComponent implements OnInit {
   }
 
   openBookingDetailsModal(booking: CustomerBookingSummary): void {
-    this.selectedBookingDetails = booking;
-    this.isBookingDetailsModalOpen = true;
+    // Load feedback for this booking
+    const bookingWithFeedback = { ...booking };
+    
+    this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
+      next: (feedbackList) => {
+        if (feedbackList && feedbackList.length > 0) {
+          const feedback = feedbackList[0];
+          // Service feedback
+          bookingWithFeedback.serviceRating = feedback.service_rating;
+          bookingWithFeedback.serviceComment = feedback.service_comment;
+          // Employee feedback
+          bookingWithFeedback.employeeRating = feedback.employee_rating;
+          bookingWithFeedback.employeeComment = feedback.employee_comment;
+          // General feedback (fallback)
+          bookingWithFeedback.rating = feedback.rating;
+          bookingWithFeedback.comment = feedback.comment;
+          bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
+        }
+        this.selectedBookingDetails = bookingWithFeedback;
+        this.isBookingDetailsModalOpen = true;
+      },
+      error: (err) => {
+        console.error('Error loading feedback:', err);
+        // Still open modal even if feedback loading fails
+        this.selectedBookingDetails = bookingWithFeedback;
+        this.isBookingDetailsModalOpen = true;
+      },
+    });
   }
 
   closeBookingDetailsModal(): void {
@@ -548,6 +586,10 @@ export class UserManagementComponent implements OnInit {
     this.customerBookings = [];
     this.customerBookingsError = null;
     this.customerBookingsLoading = false;
+  }
+
+  getStarArray(): number[] {
+    return [1, 2, 3, 4, 5];
   }
 
   changePassword(user: User): void {
