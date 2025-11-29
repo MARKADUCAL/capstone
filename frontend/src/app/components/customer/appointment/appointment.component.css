@@ -2046,16 +2046,10 @@
 /* Calendar & Time Selection */
 .schedule-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr);
-  gap: clamp(16px, 2.5vw, 32px);
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 3vw, 32px);
   margin-top: 16px;
   align-items: flex-start;
-}
-
-@media (max-width: 960px) {
-  .schedule-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .calendar-panel,
@@ -2073,11 +2067,11 @@
   margin: 0 auto;
 }
 
-/* Keep the time panel from crowding the calendar */
+/* Time panel positioned below the calendar */
 .time-panel {
   width: 100%;
-  max-width: 420px;
-  margin-left: auto;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .calendar-nav {
