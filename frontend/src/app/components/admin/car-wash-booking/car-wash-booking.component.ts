@@ -106,6 +106,12 @@ interface CarWashBooking {
   customerRatingComment?: string;
   feedbackCreatedAt?: string;
   feedbackId?: number;
+  // Employee feedback fields
+  employeeRating?: number | null;
+  employeeComment?: string | null;
+  // Service feedback fields
+  serviceRating?: number | null;
+  serviceComment?: string | null;
 }
 
 // Simple confirmation dialog for destructive actions
@@ -876,10 +882,17 @@ export class CarWashBookingComponent implements OnInit {
         next: (feedbackList) => {
           if (feedbackList && feedbackList.length > 0) {
             const feedback = feedbackList[0];
+            // General feedback
             bookingWithFeedback.customerRating = feedback.rating;
             bookingWithFeedback.customerRatingComment = feedback.comment;
             bookingWithFeedback.feedbackCreatedAt = feedback.created_at;
             bookingWithFeedback.feedbackId = feedback.id;
+            // Employee feedback
+            bookingWithFeedback.employeeRating = feedback.employee_rating;
+            bookingWithFeedback.employeeComment = feedback.employee_comment;
+            // Service feedback
+            bookingWithFeedback.serviceRating = feedback.service_rating;
+            bookingWithFeedback.serviceComment = feedback.service_comment;
           }
           this.openDialog(bookingWithFeedback, mode);
         },
@@ -1949,6 +1962,90 @@ export class CreateWalkInBookingDialogComponent {
           </div>
         </div>
 
+        <!-- Employee Feedback Section (if employee feedback exists) -->
+        <div
+          class="info-section employee-feedback-section"
+          *ngIf="
+            data.booking.status === 'Completed' &&
+            (data.booking.employeeRating || data.booking.employeeComment)
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Employee)</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="data.booking.employeeRating">
+              <span class="label">Rating</span>
+              <span class="value rating-display">
+                <span class="stars">{{
+                  getStarDisplay(data.booking.employeeRating || 0)
+                }}</span>
+                <span class="rating-value"
+                  >{{ data.booking.employeeRating }}/5</span
+                >
+              </span>
+            </div>
+            <div
+              class="info-item notes-item"
+              *ngIf="data.booking.employeeComment"
+            >
+              <span class="label">Comment</span>
+              <span class="value notes-text employee-feedback-text">{{
+                data.booking.employeeComment
+              }}</span>
+            </div>
+            <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
+              <span class="label">Submitted On</span>
+              <span class="value">{{
+                formatDate(data.booking.feedbackCreatedAt)
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Feedback Section (if service feedback exists) -->
+        <div
+          class="info-section service-feedback-section"
+          *ngIf="
+            data.booking.status === 'Completed' &&
+            (data.booking.serviceRating || data.booking.serviceComment)
+          "
+        >
+          <div class="section-header">
+            <mat-icon class="section-icon">rate_review</mat-icon>
+            <h3>Customer Feedback (Service)</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="data.booking.serviceRating">
+              <span class="label">Rating</span>
+              <span class="value rating-display">
+                <span class="stars">{{
+                  getStarDisplay(data.booking.serviceRating || 0)
+                }}</span>
+                <span class="rating-value"
+                  >{{ data.booking.serviceRating }}/5</span
+                >
+              </span>
+            </div>
+            <div
+              class="info-item notes-item"
+              *ngIf="data.booking.serviceComment"
+            >
+              <span class="label">Comment</span>
+              <span class="value notes-text service-feedback-text">{{
+                data.booking.serviceComment
+              }}</span>
+            </div>
+            <div class="info-item" *ngIf="data.booking.feedbackCreatedAt">
+              <span class="label">Submitted On</span>
+              <span class="value">{{
+                formatDate(data.booking.feedbackCreatedAt)
+              }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Admin Reply Section (if admin replied to feedback) -->
         <div
           class="info-section"
@@ -2296,6 +2393,56 @@ export class CreateWalkInBookingDialogComponent {
         border-radius: 8px;
         padding: 12px;
         color: #713f12;
+        font-weight: 500;
+      }
+
+      .employee-feedback-section {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border: 1px solid #e0e7ff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .employee-feedback-section .section-header h3 {
+        color: #6366f1;
+      }
+
+      .employee-feedback-section .section-icon {
+        color: #6366f1;
+      }
+
+      .employee-feedback-text {
+        background: #f0f4ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 12px;
+        color: #4338ca;
+        font-weight: 500;
+      }
+
+      .service-feedback-section {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .service-feedback-section .section-header h3 {
+        color: #0284c7;
+      }
+
+      .service-feedback-section .section-icon {
+        color: #0284c7;
+      }
+
+      .service-feedback-text {
+        background: #e0f2fe;
+        border: 1px solid #7dd3fc;
+        border-radius: 8px;
+        padding: 12px;
+        color: #0c4a6e;
         font-weight: 500;
       }
 
