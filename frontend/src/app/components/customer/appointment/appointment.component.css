@@ -2071,7 +2071,6 @@
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
-  overflow: hidden;
 }
 
 /* Keep the time panel from crowding the calendar */
