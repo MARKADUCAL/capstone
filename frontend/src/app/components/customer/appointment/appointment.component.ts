@@ -1172,24 +1172,46 @@ export class AppointmentComponent implements OnInit {
 
   // Format date for display
   formatDate(dateString: string): string {
-    if (!dateString) return '';
-    // If it's already YYYY-MM-DD, format using local components to avoid UTC shift
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      const [y, m, d] = dateString.split('-').map((v) => parseInt(v, 10));
-      const localDate = new Date(y, (m || 1) - 1, d || 1);
-      const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      };
-      return localDate.toLocaleDateString(undefined, options);
+    if (!dateString) {
+      return '';
     }
+
+    // Try to extract a clean YYYY-MM-DD portion even if there is extra text,
+    // e.g. "2025-12-06 Completed" or "2025-12-06 10:00:00"
+    const trimmed = dateString.toString().trim();
+    const isoMatch = trimmed.match(/(\d{4}-\d{2}-\d{2})/);
+    const clean =
+      isoMatch && isoMatch[1]
+        ? isoMatch[1]
+        : /^\d{4}-\d{2}-\d{2}$/.test(trimmed)
+        ? trimmed
+        : null;
+
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+
+    // If we found a valid YYYY-MM-DD fragment, build using local components
+    if (clean) {
+      const [y, m, d] = clean.split('-').map((v) => parseInt(v, 10));
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+        const localDate = new Date(y, (m || 1) - 1, d || 1);
+        if (!isNaN(localDate.getTime())) {
+          return localDate.toLocaleDateString(undefined, options);
+        }
+      }
+    }
+
+    // Fallback: let the browser try to parse; if it fails, just return the
+    // original string instead of showing "Invalid Date" or a broken value.
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString(undefined, options);
+    }
+
+    return trimmed;
   }
 
   // Format price for pricing matrix cell
