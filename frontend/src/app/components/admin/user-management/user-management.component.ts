@@ -646,31 +646,74 @@ export class UserManagementComponent implements OnInit {
           password: result.value.newPassword
         };
 
-        this.http.put(`${this.apiUrl}/update_customer_password`, payload).subscribe({
-          next: (response: any) => {
-            if (response?.status?.remarks === 'success') {
-              Swal.fire({
-                title: 'Success!',
-                text: `Password for ${user.name} has been updated successfully.`,
-                icon: 'success',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#16a34a',
-              });
-            } else {
-              Swal.fire({
-                title: 'Error!',
-                text: response?.status?.message || 'Failed to update password',
-                icon: 'error',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc2626',
-              });
+        this.http.put(`${this.apiUrl}/update_customer_password`, payload, {
+          observe: 'response'
+        }).subscribe({
+          next: (httpResponse) => {
+            const response = httpResponse.body as any;
+            console.log('Password update response:', response);
+            console.log('HTTP Status:', httpResponse.status);
+            
+            // Handle different response formats
+            if (httpResponse.status === 200) {
+              // Check for success in various response formats
+              const isSuccess = response?.status?.remarks === 'success' ||
+                               response?.success === true ||
+                               response?.status === 'success' ||
+                               (response?.message && response?.message.toLowerCase().includes('success'));
+              
+              if (isSuccess) {
+                Swal.fire({
+                  title: 'Success!',
+                  text: `Password for ${user.name} has been updated successfully.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#16a34a',
+                });
+                return;
+              }
             }
+            
+            // If we get here, it's not a success response
+            const errorMessage = response?.status?.message || 
+                                 response?.message || 
+                                 response?.error ||
+                                 'Failed to update password';
+            Swal.fire({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#dc2626',
+            });
           },
           error: (error) => {
             console.error('Error updating password:', error);
+            
+            let errorMessage = 'Failed to update password. Please try again.';
+            
+            if (error.error) {
+              if (error.error.status?.message) {
+                errorMessage = error.error.status.message;
+              } else if (error.error.message) {
+                errorMessage = error.error.message;
+              } else if (typeof error.error === 'string') {
+                errorMessage = error.error;
+              }
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            
+            // Check if endpoint doesn't exist (404) or server error (500)
+            if (error.status === 404) {
+              errorMessage = 'Password update endpoint not found. Please contact administrator.';
+            } else if (error.status === 500) {
+              errorMessage = 'Server error occurred. Please try again later.';
+            }
+            
             Swal.fire({
               title: 'Error!',
-              text: error?.error?.status?.message || 'Failed to update password. Please try again.',
+              text: errorMessage,
               icon: 'error',
               confirmButtonText: 'OK',
               confirmButtonColor: '#dc2626',
