@@ -84,10 +84,19 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private serviceCounts: number[] = [];
   private weeklyBookingLabels: string[] = [];
   private weeklyBookingValues: number[] = [];
+  private monthlyBookingLabels: string[] = [];
+  private monthlyBookingValues: number[] = [];
+
+  // Week selector
+  selectedWeek: string = '';
+  private currentWeekStart: Date = new Date();
 
   // Month selector
   selectedMonth: string = '';
   private currentMonthStart: Date = new Date();
+
+  // Track current bookings view type
+  private currentBookingsType: 'weekly' | 'monthly' = 'weekly';
 
   isGeneratingPDF: boolean = false;
 
@@ -97,13 +106,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Initialize month selector to current month
+    // Initialize week and month selectors to current week/month
+    this.initializeWeekSelector();
     this.initializeMonthSelector();
 
     // Fetch live data
     this.loadDashboardSummary();
     this.loadRevenueAnalytics();
     this.loadServiceDistribution();
+    this.loadWeeklyBookings();
     this.loadMonthlyBookings();
   }
 
@@ -127,7 +138,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             break;
           case 1:
             console.log('Switching to Service Distribution tab');
-            // Double check canvas exists before initializing
             const serviceCanvas = document.getElementById('serviceChart');
             if (serviceCanvas) {
               this.initializeServiceChart();
@@ -137,12 +147,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             break;
           case 2:
             console.log('Switching to Weekly Bookings tab');
-            // Double check canvas exists before initializing
-            const bookingsCanvas = document.getElementById('bookingsChart');
-            if (bookingsCanvas) {
-              this.initializeBookingsChart();
+            this.currentBookingsType = 'weekly';
+            const weeklyCanvas = document.getElementById('weeklyBookingsChart');
+            if (weeklyCanvas) {
+              this.initializeWeeklyBookingsChart();
             } else {
-              setTimeout(() => this.initializeBookingsChart(), 100);
+              setTimeout(() => this.initializeWeeklyBookingsChart(), 100);
+            }
+            break;
+          case 3:
+            console.log('Switching to Monthly Bookings tab');
+            this.currentBookingsType = 'monthly';
+            const monthlyCanvas = document.getElementById('monthlyBookingsChart');
+            if (monthlyCanvas) {
+              this.initializeMonthlyBookingsChart();
+            } else {
+              setTimeout(() => this.initializeMonthlyBookingsChart(), 100);
             }
             break;
         }
@@ -299,6 +319,64 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeServiceChart(), 100);
         }
+      },
+    });
+  }
+
+  private loadWeeklyBookings(): void {
+    this.reportingService.getWeeklyBookings().subscribe({
+      next: (points) => {
+        console.log('Weekly bookings data received:', points);
+        
+        // Map day names to short format (Mon, Tue, etc.)
+        const dayMap: { [key: string]: string } = {
+          Monday: 'Mon',
+          Tuesday: 'Tue',
+          Wednesday: 'Wed',
+          Thursday: 'Thu',
+          Friday: 'Fri',
+          Saturday: 'Sat',
+          Sunday: 'Sun',
+        };
+
+        const orderedDays = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ];
+        const bookingMap = new Map<string, number>();
+
+        points.forEach((p) => {
+          const day = p.day.trim();
+          const count = Number(p.bookings_count) || 0;
+          bookingMap.set(day, count);
+        });
+
+        this.weeklyBookingLabels = orderedDays.map(
+          (day) => dayMap[day] || day.substring(0, 3)
+        );
+        this.weeklyBookingValues = orderedDays.map((day) => {
+          const value = bookingMap.get(day);
+          return value !== undefined ? value : 0;
+        });
+
+        console.log('Processed weekly bookings:', {
+          labels: this.weeklyBookingLabels,
+          values: this.weeklyBookingValues,
+        });
+
+        if (isPlatformBrowser(this.platformId)) {
+          // Chart will be initialized on tab switch
+        }
+      },
+      error: (err) => {
+        console.error('Error loading weekly bookings:', err);
+        this.weeklyBookingLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        this.weeklyBookingValues = [0, 0, 0, 0, 0, 0, 0];
       },
     });
   }
@@ -660,15 +738,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.serviceChart.update('active');
   }
 
-  private initializeBookingsChart(): void {
+  private initializeWeeklyBookingsChart(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Bookings Chart
+    // Weekly Bookings Chart
     const bookingsCtx = document.getElementById(
-      'bookingsChart'
+      'weeklyBookingsChart'
     ) as HTMLCanvasElement;
     if (!bookingsCtx) {
-      console.warn('Bookings chart canvas element not found');
+      console.warn('Weekly bookings chart canvas element not found');
       return;
     }
 
@@ -684,7 +762,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       ? this.weeklyBookingValues
       : [0, 0, 0, 0, 0, 0, 0];
 
-    console.log('Initializing bookings chart with:', { labels, data });
+    console.log('Initializing weekly bookings chart with:', { labels, data });
 
     this.bookingsChart = new Chart(bookingsCtx, {
       type: 'bar',
@@ -758,7 +836,122 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private initializeMonthlyBookingsChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Monthly Bookings Chart
+    const bookingsCtx = document.getElementById(
+      'monthlyBookingsChart'
+    ) as HTMLCanvasElement;
+    if (!bookingsCtx) {
+      console.warn('Monthly bookings chart canvas element not found');
+      return;
+    }
+
+    if (this.bookingsChart) {
+      this.bookingsChart.destroy();
+    }
+
+    // Ensure we have valid data
+    const labels = this.monthlyBookingLabels.length
+      ? this.monthlyBookingLabels
+      : Array.from({ length: 30 }, (_, i) => String(i + 1));
+    const data = this.monthlyBookingValues.length
+      ? this.monthlyBookingValues
+      : Array(30).fill(0);
+
+    console.log('Initializing monthly bookings chart with:', { labels, data });
+
+    this.bookingsChart = new Chart(bookingsCtx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Daily Bookings',
+            data: data,
+            backgroundColor: 'rgba(76, 175, 80, 0.8)',
+            borderRadius: 6,
+            borderColor: '#4caf50',
+            borderWidth: 1,
+            hoverBackgroundColor: 'rgba(76, 175, 80, 1)',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              font: {
+                size: 12,
+              },
+              usePointStyle: true,
+            },
+          },
+          title: {
+            display: true,
+            text: 'Monthly Booking Distribution',
+            font: {
+              size: 16,
+              weight: 'bold',
+            },
+            padding: {
+              top: 20,
+              bottom: 20,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = context.parsed.y || 0;
+                return `Bookings: ${value}`;
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 5,
+              precision: 0,
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+            },
+          },
+          x: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private initializeBookingsChart(): void {
+    // Keep this method for backwards compatibility
+    if (this.currentBookingsType === 'weekly') {
+      this.initializeWeeklyBookingsChart();
+    } else {
+      this.initializeMonthlyBookingsChart();
+    }
+  }
+
   private updateBookingsChart(): void {
+    if (this.currentBookingsType === 'weekly') {
+      this.updateWeeklyBookingsChart();
+    } else {
+      this.updateMonthlyBookingsChart();
+    }
+  }
+
+  private updateWeeklyBookingsChart(): void {
     if (!this.bookingsChart || !isPlatformBrowser(this.platformId)) return;
 
     const labels = this.weeklyBookingLabels.length
@@ -767,6 +960,21 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const data = this.weeklyBookingValues.length
       ? this.weeklyBookingValues
       : [0, 0, 0, 0, 0, 0, 0];
+
+    this.bookingsChart.data.labels = labels;
+    this.bookingsChart.data.datasets[0].data = data;
+    this.bookingsChart.update('active');
+  }
+
+  private updateMonthlyBookingsChart(): void {
+    if (!this.bookingsChart || !isPlatformBrowser(this.platformId)) return;
+
+    const labels = this.monthlyBookingLabels.length
+      ? this.monthlyBookingLabels
+      : Array.from({ length: 30 }, (_, i) => String(i + 1));
+    const data = this.monthlyBookingValues.length
+      ? this.monthlyBookingValues
+      : Array(30).fill(0);
 
     this.bookingsChart.data.labels = labels;
     this.bookingsChart.data.datasets[0].data = data;
@@ -1373,6 +1581,101 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return yPosition;
   }
 
+  // Week selector methods
+  private initializeWeekSelector(): void {
+    const today = new Date();
+    this.currentWeekStart = this.getMonday(today);
+    this.selectedWeek = this.dateToWeekString(this.currentWeekStart);
+  }
+
+  private getMonday(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+
+  private dateToWeekString(date: Date): string {
+    const year = date.getFullYear();
+    const week = this.getWeekNumber(date);
+    const weekStr = String(week).padStart(2, '0');
+    return `${year}-W${weekStr}`;
+  }
+
+  private getWeekNumber(date: Date): number {
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    );
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  }
+
+  getWeekDateRange(): string {
+    if (!this.selectedWeek) return '';
+    const [year, week] = this.selectedWeek.split('-W').map(Number);
+
+    const jan4 = new Date(year, 0, 4);
+    const weekStart = new Date(jan4);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+
+    const startDate = new Date(weekStart);
+    startDate.setDate(startDate.getDate() + (week - 1) * 7);
+
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = startDate.toLocaleDateString('en-US', options);
+    const endStr = endDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  onWeekChange(): void {
+    if (!this.selectedWeek) return;
+
+    const [year, week] = this.selectedWeek.split('-W').map(Number);
+
+    const jan4 = new Date(year, 0, 4);
+    const weekStart = new Date(jan4);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+
+    this.currentWeekStart = new Date(weekStart);
+    this.currentWeekStart.setDate(
+      this.currentWeekStart.getDate() + (week - 1) * 7
+    );
+
+    console.log(
+      'Week changed to:',
+      this.selectedWeek,
+      'Starting:',
+      this.currentWeekStart
+    );
+
+    // Load bookings for selected week
+    this.loadWeeklyBookings();
+    
+    // Update chart
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.bookingsChart && this.currentBookingsType === 'weekly') {
+        this.updateWeeklyBookingsChart();
+      }
+    }
+  }
+
   // Month selector methods
   private initializeMonthSelector(): void {
     const today = new Date();
@@ -1409,18 +1712,21 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const [year, month] = this.selectedMonth.split('-').map(Number);
     this.currentMonthStart = new Date(year, month - 1, 1);
 
-    console.log('Month changed to:', this.selectedMonth, 'Starting:', this.currentMonthStart);
+    console.log(
+      'Month changed to:',
+      this.selectedMonth,
+      'Starting:',
+      this.currentMonthStart
+    );
 
     // Reload the monthly bookings data for the selected month
     this.loadMonthlyBookings();
-  }
-
-  getWeekDateRange(): string {
-    // This method is kept for backwards compatibility but is not used
-    return '';
-  }
-
-  onWeekChange(): void {
-    // This method is kept for backwards compatibility but is not used
+    
+    // Update chart
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.bookingsChart && this.currentBookingsType === 'monthly') {
+        this.updateMonthlyBookingsChart();
+      }
+    }
   }
 }
