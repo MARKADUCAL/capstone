@@ -93,4 +93,17 @@ export class ReportingService {
       )
       .pipe(map((res) => res?.payload?.weekly_bookings ?? []));
   }
+
+  getMonthlyBookingsByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Observable<WeeklyBookingPoint[]> {
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
+    return this.http
+      .get<any>(
+        `${this.baseUrl}/get_monthly_bookings_range?start_date=${start}&end_date=${end}`
+      )
+      .pipe(map((res) => res?.payload?.monthly_bookings ?? []));
+  }
 }

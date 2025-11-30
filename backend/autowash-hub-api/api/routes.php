@@ -370,6 +370,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_monthly_bookings_range') !== false) {
+        $result = $get->get_monthly_bookings_range();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_weekly_bookings') !== false) {
         $result = $get->get_weekly_bookings();
         echo json_encode($result);

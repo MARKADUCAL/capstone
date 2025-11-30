@@ -158,18 +158,18 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Weekly Bookings">
+    <mat-tab label="Monthly Bookings">
       <div class="chart-wrapper">
-        <div class="week-selector">
-          <label for="weekPicker">Select Week:</label>
+        <div class="month-selector">
+          <label for="monthPicker">Select Month:</label>
           <input
-            id="weekPicker"
-            type="week"
-            [(ngModel)]="selectedWeek"
-            (change)="onWeekChange()"
-            class="week-input"
+            id="monthPicker"
+            type="month"
+            [(ngModel)]="selectedMonth"
+            (change)="onMonthChange()"
+            class="month-input"
           />
-          <span class="week-range">{{ getWeekDateRange() }}</span>
+          <span class="month-range">{{ getMonthDateRange() }}</span>
         </div>
         <canvas id="bookingsChart"></canvas>
       </div>

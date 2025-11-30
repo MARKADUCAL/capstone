@@ -85,9 +85,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private weeklyBookingLabels: string[] = [];
   private weeklyBookingValues: number[] = [];
 
-  // Week selector
-  selectedWeek: string = '';
-  private currentWeekStart: Date = new Date();
+  // Month selector
+  selectedMonth: string = '';
+  private currentMonthStart: Date = new Date();
 
   isGeneratingPDF: boolean = false;
 
@@ -97,14 +97,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Initialize week selector to current week
-    this.initializeWeekSelector();
+    // Initialize month selector to current month
+    this.initializeMonthSelector();
 
     // Fetch live data
     this.loadDashboardSummary();
     this.loadRevenueAnalytics();
     this.loadServiceDistribution();
-    this.loadWeeklyBookings();
+    this.loadMonthlyBookings();
   }
 
   ngAfterViewInit(): void {
@@ -303,117 +303,104 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private loadWeeklyBookings(): void {
-    this.reportingService.getWeeklyBookings().subscribe({
-      next: (points) => {
-        console.log('Weekly bookings data received:', points);
+  private loadMonthlyBookings(): void {
+    if (!this.selectedMonth) {
+      // Get current month bookings if selectedMonth is not set yet
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      this.selectedMonth = `${year}-${month}`;
+    }
 
-        // Map day names to short format (Mon, Tue, etc.)
-        const dayMap: { [key: string]: string } = {
-          Monday: 'Mon',
-          Tuesday: 'Tue',
-          Wednesday: 'Wed',
-          Thursday: 'Thu',
-          Friday: 'Fri',
-          Saturday: 'Sat',
-          Sunday: 'Sun',
-          Mon: 'Mon',
-          Tue: 'Tue',
-          Wed: 'Wed',
-          Thu: 'Thu',
-          Fri: 'Fri',
-          Sat: 'Sat',
-          Sun: 'Sun',
-        };
+    const [year, month] = this.selectedMonth.split('-').map(Number);
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
 
-        // Normalize day names (handle both full and short names)
-        const normalizeDay = (day: string): string => {
-          const normalized = day.trim();
-          if (dayMap[normalized]) {
-            return dayMap[normalized];
-          }
-          // Try to match partial names
-          const lower = normalized.toLowerCase();
-          for (const [full, short] of Object.entries(dayMap)) {
-            if (
-              full.toLowerCase().startsWith(lower) ||
-              lower.startsWith(full.toLowerCase().substring(0, 3))
-            ) {
-              return short;
+    console.log('Loading bookings for month:', {
+      start: monthStart.toISOString(),
+      end: monthEnd.toISOString(),
+    });
+
+    this.reportingService
+      .getMonthlyBookingsByDateRange(monthStart, monthEnd)
+      .subscribe({
+        next: (points) => {
+          console.log('Monthly bookings data received:', points);
+          if (points && points.length > 0) {
+            this.processMonthlyBookings(points, monthStart, monthEnd);
+          } else {
+            console.warn('No bookings data received');
+            // Use fallback data
+            this.weeklyBookingLabels = [];
+            this.weeklyBookingValues = [];
+            for (let i = 1; i <= new Date(year, month, 0).getDate(); i++) {
+              this.weeklyBookingLabels.push(i.toString());
+              this.weeklyBookingValues.push(0);
             }
           }
-          return normalized.substring(0, 3);
-        };
-
-        // Ensure we have data for all 7 days in order
-        const orderedDays = [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ];
-        const bookingMap = new Map<string, number>();
-
-        points.forEach((p) => {
-          const normalizedDay = normalizeDay(p.day);
-          const count = Number(p.bookings_count) || 0;
-          // Map to full day name for lookup
-          const fullDay = orderedDays.find(
-            (d) =>
-              dayMap[d] === normalizedDay ||
-              d.toLowerCase().startsWith(normalizedDay.toLowerCase())
-          );
-          if (fullDay) {
-            bookingMap.set(fullDay, count);
-          } else {
-            // Fallback: try direct match
-            bookingMap.set(p.day, count);
+        },
+        error: (err) => {
+          console.error('Error loading monthly bookings:', err);
+          // Fallback: show empty data
+          this.weeklyBookingLabels = [];
+          this.weeklyBookingValues = [];
+          const daysInMonth = new Date(year, month, 0).getDate();
+          for (let i = 1; i <= daysInMonth; i++) {
+            this.weeklyBookingLabels.push(i.toString());
+            this.weeklyBookingValues.push(0);
           }
-        });
-
-        this.weeklyBookingLabels = orderedDays.map(
-          (day) => dayMap[day] || day.substring(0, 3)
-        );
-        this.weeklyBookingValues = orderedDays.map((day) => {
-          const value = bookingMap.get(day);
-          return value !== undefined ? value : 0;
-        });
-
-        console.log('Processed weekly bookings:', {
-          labels: this.weeklyBookingLabels,
-          values: this.weeklyBookingValues,
-        });
-
-        if (isPlatformBrowser(this.platformId)) {
-          // Update existing chart or initialize if not exists
-          if (this.bookingsChart) {
-            this.updateBookingsChart();
-          } else {
+          if (isPlatformBrowser(this.platformId)) {
             setTimeout(() => this.initializeBookingsChart(), 100);
           }
-        }
-      },
-      error: (err) => {
-        console.error('Error loading weekly bookings:', err);
-        // Use fallback data if API fails
-        this.weeklyBookingLabels = [
-          'Mon',
-          'Tue',
-          'Wed',
-          'Thu',
-          'Fri',
-          'Sat',
-          'Sun',
-        ];
-        this.weeklyBookingValues = [0, 0, 0, 0, 0, 0, 0];
-        if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => this.initializeBookingsChart(), 100);
-        }
-      },
+        },
+      });
+  }
+
+  private processMonthlyBookings(
+    points: any[],
+    monthStart: Date,
+    monthEnd: Date
+  ): void {
+    console.log('Starting to process monthly bookings with points:', points);
+
+    const daysInMonth = monthEnd.getDate();
+    const bookingMap = new Map<number, number>();
+
+    // Initialize all days with 0
+    for (let i = 1; i <= daysInMonth; i++) {
+      bookingMap.set(i, 0);
+    }
+
+    // Populate with actual booking data
+    points.forEach((p) => {
+      const day = Number(p.day) || 0;
+      const count = Number(p.bookings_count) || 0;
+      if (day > 0 && day <= daysInMonth) {
+        bookingMap.set(day, count);
+      }
     });
+
+    // Create labels and values for all days of the month
+    this.weeklyBookingLabels = [];
+    this.weeklyBookingValues = [];
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      this.weeklyBookingLabels.push(i.toString());
+      this.weeklyBookingValues.push(bookingMap.get(i) || 0);
+    }
+
+    console.log('Processed monthly bookings:', {
+      labels: this.weeklyBookingLabels,
+      values: this.weeklyBookingValues,
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.bookingsChart) {
+        this.updateBookingsChart();
+      } else {
+        setTimeout(() => this.initializeBookingsChart(), 100);
+      }
+    }
   }
 
   private initializeRevenueChart(): void {
@@ -1386,11 +1373,46 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return yPosition;
   }
 
-  // Week selector methods
-  private initializeWeekSelector(): void {
+  // Month selector methods
+  private initializeMonthSelector(): void {
     const today = new Date();
-    this.currentWeekStart = this.getMonday(today);
-    this.selectedWeek = this.dateToWeekString(this.currentWeekStart);
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    this.selectedMonth = `${year}-${month}`;
+    this.currentMonthStart = new Date(year, today.getMonth(), 1);
+  }
+
+  getMonthDateRange(): string {
+    if (!this.selectedMonth) return '';
+    const [year, month] = this.selectedMonth.split('-').map(Number);
+
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = monthStart.toLocaleDateString('en-US', options);
+    const endStr = monthEnd.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  onMonthChange(): void {
+    if (!this.selectedMonth) return;
+
+    const [year, month] = this.selectedMonth.split('-').map(Number);
+    this.currentMonthStart = new Date(year, month - 1, 1);
+
+    console.log('Month changed to:', this.selectedMonth, 'Starting:', this.currentMonthStart);
+
+    // Reload the monthly bookings data for the selected month
+    this.loadMonthlyBookings();
   }
 
   private getMonday(date: Date): Date {
@@ -1497,16 +1519,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       .getWeeklyBookingsByDateRange(weekStart, weekEnd)
       .subscribe({
         next: (points) => {
-          console.log(
-            'Weekly bookings data for selected week:',
-            points
-          );
+          console.log('Weekly bookings data for selected week:', points);
           if (points && points.length > 0) {
             this.processWeeklyBookings(points);
           } else {
-            console.warn(
-              'No bookings data received from date range endpoint'
-            );
+            console.warn('No bookings data received from date range endpoint');
             // Try fallback: get all bookings and filter on client side
             this.loadAllBookingsAndFilter(weekStart, weekEnd);
           }
@@ -1523,15 +1540,10 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private loadAllBookingsAndFilter(
-    weekStart: Date,
-    weekEnd: Date
-  ): void {
+  private loadAllBookingsAndFilter(weekStart: Date, weekEnd: Date): void {
     // Fallback: Use the current week bookings and assume it's cached
     // In a real scenario, you would fetch all bookings or implement the date range endpoint
-    console.log(
-      'Using fallback: displaying current cached weekly bookings'
-    );
+    console.log('Using fallback: displaying current cached weekly bookings');
 
     // For now, we'll show empty since we don't have a way to fetch all bookings
     this.weeklyBookingValues = [0, 0, 0, 0, 0, 0, 0];
@@ -1545,7 +1557,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   private processWeeklyBookings(points: WeeklyBookingPoint[]): void {
     console.log('Starting to process weekly bookings with points:', points);
-    
+
     const dayMap: { [key: string]: string } = {
       Monday: 'Mon',
       Tuesday: 'Tue',
