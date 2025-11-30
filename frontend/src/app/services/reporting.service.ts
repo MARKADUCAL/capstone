@@ -81,11 +81,16 @@ export class ReportingService {
       .pipe(map((res) => res?.payload?.weekly_bookings ?? []));
   }
 
-  getWeeklyBookingsByDateRange(startDate: Date, endDate: Date): Observable<WeeklyBookingPoint[]> {
+  getWeeklyBookingsByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Observable<WeeklyBookingPoint[]> {
     const start = startDate.toISOString().split('T')[0];
     const end = endDate.toISOString().split('T')[0];
     return this.http
-      .get<any>(`${this.baseUrl}/get_weekly_bookings_range?start_date=${start}&end_date=${end}`)
+      .get<any>(
+        `${this.baseUrl}/get_weekly_bookings_range?start_date=${start}&end_date=${end}`
+      )
       .pipe(map((res) => res?.payload?.weekly_bookings ?? []));
   }
 }
