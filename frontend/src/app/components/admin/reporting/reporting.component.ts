@@ -6,6 +6,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,6 +49,7 @@ interface ServiceStats {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -83,6 +85,10 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private weeklyBookingLabels: string[] = [];
   private weeklyBookingValues: number[] = [];
 
+  // Week selector
+  selectedWeek: string = '';
+  private currentWeekStart: Date = new Date();
+
   isGeneratingPDF: boolean = false;
 
   constructor(
@@ -91,6 +97,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    // Initialize week selector to current week
+    this.initializeWeekSelector();
+
     // Fetch live data
     this.loadDashboardSummary();
     this.loadRevenueAnalytics();
@@ -1375,5 +1384,186 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     }
 
     return yPosition;
+  }
+
+  // Week selector methods
+  private initializeWeekSelector(): void {
+    const today = new Date();
+    this.currentWeekStart = this.getMonday(today);
+    this.selectedWeek = this.dateToWeekString(this.currentWeekStart);
+  }
+
+  private getMonday(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    return new Date(d.setDate(diff));
+  }
+
+  private dateToWeekString(date: Date): string {
+    const year = date.getFullYear();
+    const week = this.getWeekNumber(date);
+    const weekStr = String(week).padStart(2, '0');
+    return `${year}-W${weekStr}`;
+  }
+
+  private getWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  }
+
+  getWeekDateRange(): string {
+    if (!this.selectedWeek) return '';
+    const [year, week] = this.selectedWeek.split('-W').map(Number);
+    
+    // Create a date for Jan 4th of the year (always in week 1)
+    const jan4 = new Date(year, 0, 4);
+    
+    // Get Monday of week 1
+    const weekStart = new Date(jan4);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+    
+    // Calculate the start of the selected week
+    const startDate = new Date(weekStart);
+    startDate.setDate(startDate.getDate() + (week - 1) * 7);
+    
+    // Calculate end date (Sunday)
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6);
+    
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const startStr = startDate.toLocaleDateString('en-US', options);
+    const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    return `${startStr} - ${endStr}`;
+  }
+
+  onWeekChange(): void {
+    if (!this.selectedWeek) return;
+    
+    const [year, week] = this.selectedWeek.split('-W').map(Number);
+    
+    // Create a date for Jan 4th of the year (always in week 1)
+    const jan4 = new Date(year, 0, 4);
+    
+    // Get Monday of week 1
+    const weekStart = new Date(jan4);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+    
+    // Calculate the start of the selected week
+    this.currentWeekStart = new Date(weekStart);
+    this.currentWeekStart.setDate(this.currentWeekStart.getDate() + (week - 1) * 7);
+    
+    console.log('Week changed to:', this.selectedWeek, 'Starting:', this.currentWeekStart);
+    
+    // Reload the weekly bookings data for the selected week
+    this.loadWeeklyBookingsForWeek(this.currentWeekStart);
+  }
+
+  private loadWeeklyBookingsForWeek(weekStart: Date): void {
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    this.reportingService.getWeeklyBookingsByDateRange(weekStart, weekEnd).subscribe({
+      next: (points) => {
+        console.log('Weekly bookings data for selected week:', points);
+        this.processWeeklyBookings(points);
+      },
+      error: (err) => {
+        console.error('Error loading weekly bookings for selected week:', err);
+        // Fallback to current week data
+        this.loadWeeklyBookings();
+      },
+    });
+  }
+
+  private processWeeklyBookings(points: WeeklyBookingPoint[]): void {
+    const dayMap: { [key: string]: string } = {
+      Monday: 'Mon',
+      Tuesday: 'Tue',
+      Wednesday: 'Wed',
+      Thursday: 'Thu',
+      Friday: 'Fri',
+      Saturday: 'Sat',
+      Sunday: 'Sun',
+      Mon: 'Mon',
+      Tue: 'Tue',
+      Wed: 'Wed',
+      Thu: 'Thu',
+      Fri: 'Fri',
+      Sat: 'Sat',
+      Sun: 'Sun',
+    };
+
+    const normalizeDay = (day: string): string => {
+      const normalized = day.trim();
+      if (dayMap[normalized]) {
+        return dayMap[normalized];
+      }
+      const lower = normalized.toLowerCase();
+      for (const [full, short] of Object.entries(dayMap)) {
+        if (
+          full.toLowerCase().startsWith(lower) ||
+          lower.startsWith(full.toLowerCase().substring(0, 3))
+        ) {
+          return short;
+        }
+      }
+      return normalized.substring(0, 3);
+    };
+
+    const orderedDays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    const bookingMap = new Map<string, number>();
+
+    points.forEach((p) => {
+      const normalizedDay = normalizeDay(p.day);
+      const count = Number(p.bookings_count) || 0;
+      const fullDay = orderedDays.find(
+        (d) =>
+          dayMap[d] === normalizedDay ||
+          d.toLowerCase().startsWith(normalizedDay.toLowerCase())
+      );
+      if (fullDay) {
+        bookingMap.set(fullDay, count);
+      } else {
+        bookingMap.set(p.day, count);
+      }
+    });
+
+    this.weeklyBookingLabels = orderedDays.map(
+      (day) => dayMap[day] || day.substring(0, 3)
+    );
+    this.weeklyBookingValues = orderedDays.map((day) => {
+      const value = bookingMap.get(day);
+      return value !== undefined ? value : 0;
+    });
+
+    console.log('Processed weekly bookings:', {
+      labels: this.weeklyBookingLabels,
+      values: this.weeklyBookingValues,
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.bookingsChart) {
+        this.updateBookingsChart();
+      } else {
+        setTimeout(() => this.initializeBookingsChart(), 100);
+      }
+    }
   }
 }

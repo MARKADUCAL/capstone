@@ -281,3 +281,71 @@ canvas {
   font-family: inherit !important;
   font-size: 13px !important;
 }
+
+/* Week Selector Styling */
+.week-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.week-selector label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.week-input {
+  padding: 10px 14px;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.week-input:hover {
+  border-color: #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+}
+
+.week-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.week-range {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #e0e6ed;
+  min-width: 200px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .week-selector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .week-input,
+  .week-range {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
