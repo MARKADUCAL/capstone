@@ -1343,6 +1343,344 @@
   }
 }
 
+@media (max-width: 320px) {
+  /* Container & Layout */
+  .appointment-container {
+    padding: 8px;
+    min-height: 100vh;
+  }
+
+  .appointment-header {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+  }
+
+  .form-container {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  /* Header & Title */
+  .page-title {
+    font-size: 1.2rem;
+    gap: 8px;
+  }
+
+  .page-title i {
+    font-size: 1rem;
+    display: none; /* Hide icon to save space */
+  }
+
+  .page-subtitle {
+    font-size: 0.8rem;
+    display: none; /* Hide subtitle on very small screens */
+  }
+
+  /* Form Layout */
+  .form-header {
+    margin-bottom: 15px;
+  }
+
+  .form-header h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .form-header p {
+    font-size: 0.75rem;
+  }
+
+  .form-section {
+    margin-bottom: 15px;
+  }
+
+  .section-title {
+    font-size: 0.85rem;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .section-title i {
+    font-size: 0.85rem;
+  }
+
+  /* Calendar Specific */
+  .calendar-panel,
+  .time-panel {
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .calendar-nav {
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+
+  .calendar-nav .month-label {
+    font-size: 0.9rem;
+    width: 100%;
+    order: 0;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .nav-button,
+  .today-button {
+    flex: 1 1 calc(50% - 2px);
+    min-width: auto;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border-radius: 8px;
+  }
+
+  .calendar-weekdays {
+    font-size: 0.7rem;
+    margin-bottom: 4px;
+  }
+
+  .calendar-weekdays .weekday {
+    padding: 2px 0;
+  }
+
+  .calendar-cell {
+    min-height: 60px;
+    padding: 4px;
+    border-radius: 8px;
+    gap: 2px;
+    font-size: 0.75rem;
+  }
+
+  .date-number {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .day-bookings {
+    gap: 2px;
+  }
+
+  .booking-pill {
+    font-size: 0.5rem;
+    padding: 1px 3px;
+    border-radius: 4px;
+  }
+
+  .more-badge {
+    font-size: 0.5rem;
+  }
+
+  /* Time Slots */
+  .time-panel-header h3 {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+
+  .time-slot-status {
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+  }
+
+  .time-slots {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .time-slot {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    border-radius: 20px;
+    min-width: 70px;
+    flex: 1 1 calc(50% - 3px);
+  }
+
+  .time-slot:hover {
+    border-color: #5c7cfa;
+  }
+
+  .time-slot.selected {
+    box-shadow: 0 3px 10px rgba(92, 124, 250, 0.3);
+  }
+
+  /* Vehicle Selection */
+  .selected-vehicle-highlight {
+    padding: 8px 10px;
+    margin: 3px 0 12px;
+    gap: 6px;
+    border-radius: 8px;
+  }
+
+  .selected-vehicle-primary {
+    gap: 4px;
+    flex-direction: column;
+  }
+
+  .selected-vehicle-name {
+    font-size: 0.8rem;
+  }
+
+  .selected-vehicle-plate {
+    font-size: 0.75rem;
+  }
+
+  .selected-vehicle-meta {
+    gap: 4px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .selected-vehicle-type {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .selected-vehicle-model {
+    font-size: 0.7rem;
+  }
+
+  /* Price Display */
+  .price-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .price-header {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+  }
+
+  .price-amount {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  /* Buttons & Interactive Elements */
+  .submit-button {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    min-width: 100px !important;
+    border-radius: 20px !important;
+    min-height: 40px !important;
+  }
+
+  .available-slots-card {
+    min-width: 100px;
+    padding: 8px;
+  }
+
+  .slots-count {
+    font-size: 1rem;
+  }
+
+  .slots-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+
+  /* Sidebar & Cards */
+  .sidebar-card {
+    border-radius: 12px;
+  }
+
+  .card-header {
+    padding: 10px;
+    gap: 10px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .card-header h3 {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .card-header i {
+    font-size: 1rem;
+  }
+
+  .card-content {
+    padding: 10px;
+  }
+
+  .tips-list li {
+    font-size: 0.8rem;
+    gap: 8px;
+    padding: 6px 0;
+  }
+
+  .tips-list i {
+    font-size: 0.75rem;
+  }
+
+  /* Message Styling */
+  .message {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .message i {
+    font-size: 1rem;
+  }
+
+  /* Material Form Fields */
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+    padding: 8px 0;
+    min-height: 35px;
+  }
+
+  ::ng-deep .mat-form-field-label {
+    font-size: 0.8rem;
+  }
+
+  ::ng-deep .mat-select-value {
+    font-size: 0.8rem;
+  }
+
+  ::ng-deep .mat-option {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-height: 35px;
+  }
+
+  .service-option .service-name {
+    font-size: 0.8rem;
+  }
+
+  .service-option .service-details {
+    font-size: 0.7rem;
+  }
+
+  /* Day labels in hours info */
+  .day,
+  .time {
+    font-size: 0.8rem;
+  }
+
+  /* Responsive adjustments */
+  .form-row {
+    gap: 12px;
+  }
+
+  .appointment-sidebar {
+    gap: 15px;
+  }
+
+  /* Hide less important UI elements */
+  .page-subtitle {
+    display: none;
+  }
+
+  /* Optimize calendar grid */
+  .calendar-row {
+    gap: 4px;
+  }
+}
+
 /* Landscape orientation adjustments for mobile */
 @media (max-height: 500px) and (orientation: landscape) {
   .appointment-container {
