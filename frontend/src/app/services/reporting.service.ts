@@ -136,5 +136,18 @@ export class ReportingService {
       )
       .pipe(map((res) => res?.payload?.daily_revenue ?? []));
   }
+
+  getWeeklyRevenueByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Observable<Array<{ week: number; startDate: string; endDate: string; revenue: number; bookings: number }>> {
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
+    return this.http
+      .get<any>(
+        `${this.baseUrl}/get_weekly_revenue_range?start_date=${start}&end_date=${end}`
+      )
+      .pipe(map((res) => res?.payload?.weekly_revenue ?? []));
+  }
 }
 
