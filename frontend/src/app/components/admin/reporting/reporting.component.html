@@ -89,10 +89,8 @@
             <mat-icon>check_circle</mat-icon>
           </div>
           <div class="stat-details">
-            <h3>Completion Rate</h3>
-            <p class="stat-value">
-              {{ getCompletionRate() | number : "1.0-1" }}%
-            </p>
+            <h3>Completed Bookings</h3>
+            <p class="stat-value">{{ serviceStats.completedBookings }}</p>
           </div>
         </div>
       </mat-card-content>
