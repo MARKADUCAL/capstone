@@ -382,6 +382,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_daily_revenue_range') !== false) {
+        $result = $get->get_daily_revenue_range();
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'get_weekly_bookings') !== false) {
         $result = $get->get_weekly_bookings();
         echo json_encode($result);

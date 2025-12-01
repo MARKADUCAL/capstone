@@ -69,6 +69,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   selectedRevenueMonth: string = '';
   specificMonthRevenue: number = 0;
   specificMonthBookings: number = 0;
+  dailyRevenueData: Array<{ day: number; revenue: number; bookings: number }> = [];
 
   serviceStats: ServiceStats = {
     totalBookings: 0,
@@ -1838,6 +1839,21 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           this.specificMonthBookings = 0;
         },
       });
+
+    // Load daily revenue breakdown
+    this.reportingService
+      .getDailyRevenueByDateRange(monthStart, monthEnd)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Daily revenue data received:', data);
+          this.dailyRevenueData = data || [];
+          console.log('Daily revenue data updated:', this.dailyRevenueData);
+        },
+        error: (err: any) => {
+          console.error('Error loading daily revenue:', err);
+          this.dailyRevenueData = [];
+        },
+      });
   }
 
   getRevenueMonthDateRange(): string {
@@ -1861,4 +1877,3 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return `${startStr} - ${endStr}`;
   }
 }
-

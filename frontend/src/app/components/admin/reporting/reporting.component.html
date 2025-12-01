@@ -88,11 +88,35 @@
           <div class="revenue-display">
             <div class="revenue-item">
               <div class="revenue-label">Total Revenue</div>
-              <div class="revenue-value">₱{{ specificMonthRevenue | number: '1.0-0' }}</div>
+              <div class="revenue-value">
+                ₱{{ specificMonthRevenue | number : "1.0-0" }}
+              </div>
             </div>
             <div class="revenue-item">
               <div class="revenue-label">Completed Bookings</div>
               <div class="revenue-value">{{ specificMonthBookings }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Revenue Breakdown Table -->
+        <div class="daily-revenue-breakdown" *ngIf="dailyRevenueData.length > 0">
+          <h4>Daily Breakdown</h4>
+          <div class="daily-revenue-table">
+            <div class="table-header">
+              <div class="table-cell header-cell">Day</div>
+              <div class="table-cell header-cell">Revenue</div>
+              <div class="table-cell header-cell">Bookings</div>
+            </div>
+            <div class="table-rows">
+              <div
+                class="table-row"
+                *ngFor="let dayData of dailyRevenueData"
+              >
+                <div class="table-cell">{{ dayData.day }}</div>
+                <div class="table-cell">₱{{ dayData.revenue | number : "1.0-0" }}</div>
+                <div class="table-cell">{{ dayData.bookings }}</div>
+              </div>
             </div>
           </div>
         </div>

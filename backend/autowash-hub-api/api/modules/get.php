@@ -1695,5 +1695,69 @@
                 );
             }
         }
+
+        public function get_daily_revenue_range() {
+            try {
+                // Get start_date and end_date from query parameters
+                $startDate = $_GET['start_date'] ?? null;
+                $endDate = $_GET['end_date'] ?? null;
+
+                if (!$startDate || !$endDate) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "start_date and end_date parameters are required",
+                        400
+                    );
+                }
+
+                // Validate date format (YYYY-MM-DD)
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "Invalid date format. Use YYYY-MM-DD",
+                        400
+                    );
+                }
+
+                $sql = "SELECT 
+                            DAY(wash_date) as day,
+                            COALESCE(SUM(price), 0) as revenue,
+                            COUNT(*) as bookings
+                        FROM 
+                            bookings
+                        WHERE 
+                            DATE(wash_date) >= ?
+                            AND DATE(wash_date) <= ?
+                            AND status IN ('Complete', 'Completed')
+                        GROUP BY 
+                            DAY(wash_date)
+                        ORDER BY 
+                            day ASC";
+
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$startDate, $endDate]);
+                $dailyRevenue = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (!$dailyRevenue) {
+                    $dailyRevenue = [];
+                }
+
+                return $this->sendPayload(
+                    ['daily_revenue' => $dailyRevenue],
+                    "success",
+                    "Daily revenue data retrieved successfully",
+                    200
+                );
+            } catch (\PDOException $e) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Failed to retrieve daily revenue data: " . $e->getMessage(),
+                    500
+                );
+            }
+        }
     }
     ?>

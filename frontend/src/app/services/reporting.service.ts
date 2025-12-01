@@ -119,10 +119,22 @@ export class ReportingService {
       )
       .pipe(
         map(
-          (res) =>
-            res?.payload || { total_revenue: 0, completed_bookings: 0 }
+          (res) => res?.payload || { total_revenue: 0, completed_bookings: 0 }
         )
       );
+  }
+
+  getDailyRevenueByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Observable<Array<{ day: number; revenue: number; bookings: number }>> {
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
+    return this.http
+      .get<any>(
+        `${this.baseUrl}/get_daily_revenue_range?start_date=${start}&end_date=${end}`
+      )
+      .pipe(map((res) => res?.payload?.daily_revenue ?? []));
   }
 }
 
