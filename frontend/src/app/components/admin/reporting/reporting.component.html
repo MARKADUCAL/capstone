@@ -128,6 +128,64 @@
         </div>
       </mat-card-content>
     </mat-card>
+
+    <!-- Week Revenue Selector Card -->
+    <mat-card class="revenue-selector-card">
+      <mat-card-header>
+        <mat-card-title>Select Week Revenue</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="month-revenue-selector">
+          <div class="selector-input">
+            <label for="revenueWeekPicker">Select Week:</label>
+            <input
+              id="revenueWeekPicker"
+              type="week"
+              [(ngModel)]="selectedRevenueWeek"
+              (change)="onRevenueWeekChange()"
+              class="month-input"
+            />
+            <span class="date-range">{{ getRevenueWeekDateRange() }}</span>
+          </div>
+          <div class="revenue-display">
+            <div class="revenue-item">
+              <div class="revenue-label">Total Revenue</div>
+              <div class="revenue-value">
+                ₱{{ specificWeekRevenue | number : "1.0-0" }}
+              </div>
+            </div>
+            <div class="revenue-item">
+              <div class="revenue-label">Completed Bookings</div>
+              <div class="revenue-value">{{ specificWeekBookings }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Revenue Breakdown for Selected Week -->
+        <div
+          class="weekly-revenue-breakdown"
+          *ngIf="weeklyRevenueData.length > 0"
+        >
+          <h4>Daily Breakdown for Week</h4>
+          <div class="weekly-revenue-table">
+            <div class="table-header">
+              <div class="table-cell header-cell">Date</div>
+              <div class="table-cell header-cell">Revenue</div>
+              <div class="table-cell header-cell">Bookings</div>
+            </div>
+            <div class="table-rows">
+              <div class="table-row" *ngFor="let dayData of weeklyRevenueData">
+                <div class="table-cell">{{ dayData.startDate }}</div>
+                <div class="table-cell">
+                  ₱{{ dayData.revenue | number : "1.0-0" }}
+                </div>
+                <div class="table-cell">{{ dayData.bookings }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- Service Statistics -->

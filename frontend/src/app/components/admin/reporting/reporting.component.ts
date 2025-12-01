@@ -69,6 +69,13 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   selectedRevenueMonth: string = '';
   specificMonthRevenue: number = 0;
   specificMonthBookings: number = 0;
+  revenueMonthDateRange: string = '';
+
+  // Specific week revenue selector
+  selectedRevenueWeek: string = '';
+  specificWeekRevenue: number = 0;
+  specificWeekBookings: number = 0;
+  revenueWeekDateRange: string = '';
   weeklyRevenueData: Array<{
     week: number;
     startDate: string;
@@ -122,6 +129,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.initializeWeekSelector();
     this.initializeMonthSelector();
     this.initializeRevenueMonthSelector();
+    this.initializeRevenueWeekSelector();
 
     // Fetch live data
     this.loadDashboardSummary();
@@ -130,6 +138,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.loadWeeklyBookings();
     this.loadMonthlyBookings();
     this.loadSpecificMonthRevenue();
+    this.loadSpecificWeekRevenue();
   }
 
   ngAfterViewInit(): void {
@@ -1882,4 +1891,108 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     return `${startStr} - ${endStr}`;
   }
+
+  private initializeRevenueWeekSelector(): void {
+    const today = new Date();
+    const year = today.getFullYear();
+    const weekNumber = this.getWeekNumber(today);
+    this.selectedRevenueWeek = `${year}-W${String(weekNumber).padStart(2, '0')}`;
+  }
+
+  private getWeekStartDate(year: number, week: number): Date {
+    const jan4 = new Date(year, 0, 4);
+    const weekStart = new Date(jan4);
+    weekStart.setDate(jan4.getDate() - jan4.getDay() + 1);
+    weekStart.setDate(weekStart.getDate() + (week - 1) * 7);
+    return weekStart;
+  }
+
+  onRevenueWeekChange(): void {
+    if (!this.selectedRevenueWeek) return;
+    console.log('Revenue week changed to:', this.selectedRevenueWeek);
+    this.loadSpecificWeekRevenue();
+  }
+
+  private loadSpecificWeekRevenue(): void {
+    if (!this.selectedRevenueWeek) return;
+
+    const [yearWeekStr, weekStr] = this.selectedRevenueWeek.split('-W');
+    const year = parseInt(yearWeekStr, 10);
+    const week = parseInt(weekStr, 10);
+
+    const weekStart = this.getWeekStartDate(year, week);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    console.log('Loading revenue for week:', {
+      start: weekStart.toISOString(),
+      end: weekEnd.toISOString(),
+    });
+
+    this.reportingService
+      .getRevenueByDateRange(weekStart, weekEnd)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Weekly revenue data received:', data);
+          this.specificWeekRevenue = data.total_revenue || 0;
+          this.specificWeekBookings = data.completed_bookings || 0;
+          this.revenueWeekDateRange = this.getRevenueWeekDateRange();
+          console.log('Specific week revenue updated:', {
+            revenue: this.specificWeekRevenue,
+            bookings: this.specificWeekBookings,
+          });
+        },
+        error: (err: any) => {
+          console.error('Error loading weekly revenue:', err);
+          this.specificWeekRevenue = 0;
+          this.specificWeekBookings = 0;
+        },
+      });
+
+    // Load daily revenue breakdown for the selected week
+    this.reportingService
+      .getDailyRevenueByDateRange(weekStart, weekEnd)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Daily revenue data for week received:', data);
+          this.weeklyRevenueData = (data || []).map((day: any) => ({
+            week: this.getWeekNumber(new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1)),
+            startDate: new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1).toISOString().split('T')[0],
+            endDate: new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1).toISOString().split('T')[0],
+            revenue: day.revenue,
+            bookings: day.bookings,
+          }));
+          console.log('Daily revenue data updated for week:', this.weeklyRevenueData);
+        },
+        error: (err: any) => {
+          console.error('Error loading daily revenue for week:', err);
+          this.weeklyRevenueData = [];
+        },
+      });
+  }
+
+  getRevenueWeekDateRange(): string {
+    if (!this.selectedRevenueWeek) return '';
+    const [yearWeekStr, weekStr] = this.selectedRevenueWeek.split('-W');
+    const year = parseInt(yearWeekStr, 10);
+    const week = parseInt(weekStr, 10);
+
+    const weekStart = this.getWeekStartDate(year, week);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = weekStart.toLocaleDateString('en-US', options);
+    const endStr = weekEnd.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
 }
+
