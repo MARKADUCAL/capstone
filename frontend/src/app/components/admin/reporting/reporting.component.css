@@ -419,3 +419,126 @@
     min-width: unset;
   }
 }
+
+/* Monthly Revenue Selector Section */
+.revenue-selector-section {
+  margin: 32px 0;
+}
+
+.revenue-selector-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  border: none;
+}
+
+.revenue-selector-card mat-card-header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
+  margin-bottom: 0;
+}
+
+.revenue-selector-card mat-card-title {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.revenue-selector-card mat-card-content {
+  padding: 24px;
+}
+
+.month-revenue-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.selector-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selector-input label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.month-input {
+  padding: 12px 14px;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.month-input:hover {
+  border-color: #1976d2;
+  background-color: #f8f9fa;
+}
+
+.month-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.date-range {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.revenue-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.revenue-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.02) 100%);
+  border-radius: 12px;
+  border-left: 4px solid #1976d2;
+}
+
+.revenue-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.revenue-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+@media (max-width: 768px) {
+  .month-revenue-selector {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .revenue-value {
+    font-size: 20px;
+  }
+}
+

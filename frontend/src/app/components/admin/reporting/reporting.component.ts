@@ -65,6 +65,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     monthly: 0,
   };
 
+  // Specific month revenue selector
+  selectedRevenueMonth: string = '';
+  specificMonthRevenue: number = 0;
+  specificMonthBookings: number = 0;
+
   serviceStats: ServiceStats = {
     totalBookings: 0,
     completedBookings: 0,
@@ -109,6 +114,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     // Initialize week and month selectors to current week/month
     this.initializeWeekSelector();
     this.initializeMonthSelector();
+    this.initializeRevenueMonthSelector();
 
     // Fetch live data
     this.loadDashboardSummary();
@@ -116,6 +122,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.loadServiceDistribution();
     this.loadWeeklyBookings();
     this.loadMonthlyBookings();
+    this.loadSpecificMonthRevenue();
   }
 
   ngAfterViewInit(): void {
@@ -1786,4 +1793,72 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
+  // Revenue Month Selector Methods
+  private initializeRevenueMonthSelector(): void {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    this.selectedRevenueMonth = `${year}-${month}`;
+  }
+
+  onRevenueMonthChange(): void {
+    if (!this.selectedRevenueMonth) return;
+    console.log('Revenue month changed to:', this.selectedRevenueMonth);
+    this.loadSpecificMonthRevenue();
+  }
+
+  private loadSpecificMonthRevenue(): void {
+    if (!this.selectedRevenueMonth) return;
+
+    const [year, month] = this.selectedRevenueMonth.split('-').map(Number);
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
+
+    console.log('Loading revenue for month:', {
+      start: monthStart.toISOString(),
+      end: monthEnd.toISOString(),
+    });
+
+    this.reportingService
+      .getRevenueByDateRange(monthStart, monthEnd)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Monthly revenue data received:', data);
+          this.specificMonthRevenue = data.total_revenue || 0;
+          this.specificMonthBookings = data.completed_bookings || 0;
+          console.log('Specific month revenue updated:', {
+            revenue: this.specificMonthRevenue,
+            bookings: this.specificMonthBookings,
+          });
+        },
+        error: (err: any) => {
+          console.error('Error loading monthly revenue:', err);
+          this.specificMonthRevenue = 0;
+          this.specificMonthBookings = 0;
+        },
+      });
+  }
+
+  getRevenueMonthDateRange(): string {
+    if (!this.selectedRevenueMonth) return '';
+    const [year, month] = this.selectedRevenueMonth.split('-').map(Number);
+
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = monthStart.toLocaleDateString('en-US', options);
+    const endStr = monthEnd.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
 }
+

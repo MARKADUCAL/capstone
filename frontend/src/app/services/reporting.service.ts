@@ -106,4 +106,23 @@ export class ReportingService {
       )
       .pipe(map((res) => res?.payload?.monthly_bookings ?? []));
   }
+
+  getRevenueByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Observable<{ total_revenue: number; completed_bookings: number }> {
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
+    return this.http
+      .get<any>(
+        `${this.baseUrl}/get_revenue_by_date_range?start_date=${start}&end_date=${end}`
+      )
+      .pipe(
+        map(
+          (res) =>
+            res?.payload || { total_revenue: 0, completed_bookings: 0 }
+        )
+      );
+  }
 }
+
