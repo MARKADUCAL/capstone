@@ -120,9 +120,10 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      // Delay chart initialization to allow time for data to load and DOM to be ready
       setTimeout(() => {
         this.initializeCharts();
-      }, 100);
+      }, 500);
     }
   }
 
@@ -172,16 +173,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   private initializeCharts(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Initialize only the first visible chart (Revenue Trend)
-      // Other charts will be initialized when their tabs are selected
-      setTimeout(() => {
-        this.initializeRevenueChart();
-      }, 200);
-      // Initialize others with a delay to ensure DOM is ready
-      setTimeout(() => {
-        this.initializeServiceChart();
-        this.initializeBookingsChart();
-      }, 500);
+      // Initialize the first visible chart (Revenue Trend)
+      // Wait to ensure canvas is rendered and has proper dimensions
+      this.initializeRevenueChart();
     }
   }
 
@@ -216,8 +210,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.reportingService.getRevenueAnalytics().subscribe({
       next: (points) => {
         console.log('Revenue analytics points received:', points);
-        this.revenueLabels = points.map((p) => p.month);
-        this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+        if (!points || points.length === 0) {
+          console.warn('No revenue data received from API');
+          // Use fallback data
+          this.revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+          this.revenueValues = [65000, 59000, 80000, 81000, 56000, 75000];
+        } else {
+          this.revenueLabels = points.map((p) => p.month);
+          this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+        }
         console.log('Processed revenue data:', {
           labels: this.revenueLabels,
           values: this.revenueValues,
@@ -234,6 +235,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error loading revenue analytics:', err);
         // Use fallback data if API fails
+        this.revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        this.revenueValues = [65000, 59000, 80000, 81000, 56000, 75000];
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeRevenueChart(), 100);
         }
@@ -493,6 +496,21 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Ensure parent container has proper height
+    const chartWrapper = revenueCtx.closest('.chart-wrapper') as HTMLElement;
+    if (chartWrapper) {
+      const wrapperHeight = chartWrapper.offsetHeight;
+      console.log('Chart wrapper dimensions:', {
+        height: wrapperHeight,
+        width: chartWrapper.offsetWidth,
+      });
+      if (wrapperHeight === 0) {
+        console.warn('Chart wrapper has no height, will retry');
+        setTimeout(() => this.initializeRevenueChart(), 300);
+        return;
+      }
+    }
+
     if (this.revenueChart) {
       this.revenueChart.destroy();
     }
@@ -504,7 +522,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       ? this.revenueValues
       : [65000, 59000, 80000, 81000, 56000, 75000];
 
-    console.log('Initializing revenue chart with:', { labels, data });
+    console.log('Initializing revenue chart with:', { labels, data, canvasHeight: revenueCtx.offsetHeight, canvasWidth: revenueCtx.offsetWidth });
 
     this.revenueChart = new Chart(revenueCtx, {
       type: 'line',
@@ -529,6 +547,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 750,
+        },
         plugins: {
           legend: {
             position: 'bottom',
@@ -609,6 +630,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     ) as HTMLCanvasElement;
     if (!serviceCtx) {
       console.warn('Service chart canvas element not found');
+      return;
+    }
+
+    // Ensure parent container has proper height
+    const chartWrapper = serviceCtx.closest('.chart-wrapper') as HTMLElement;
+    if (chartWrapper && chartWrapper.offsetHeight === 0) {
+      console.warn('Service chart wrapper has no height, will retry');
+      setTimeout(() => this.initializeServiceChart(), 300);
       return;
     }
 
