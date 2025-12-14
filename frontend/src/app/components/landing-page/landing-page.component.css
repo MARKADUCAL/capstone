@@ -2,13 +2,13 @@
 
 /* Color Variables */
 :root {
-  --primary: #AD2D7E;           /* Brand Pink */
-  --secondary: #7A1F62;         /* Secondary Dark Pink */
-  --text-dark: #010001;         /* Primary Text */
-  --background-light: #FFFFFF;  /* Main White Background */
-  --soft-borders: #EDE2EB;      /* Soft Lines / Borders */
-  --hover-glow: #B595AD;        /* Hover / Glow Subtle */
-  --accent: #AD2D7E;            /* Pink Accents */
+  --primary: #ad2d7e; /* Brand Pink */
+  --secondary: #7a1f62; /* Secondary Dark Pink */
+  --text-dark: #010001; /* Primary Text */
+  --background-light: #ffffff; /* Main White Background */
+  --soft-borders: #ede2eb; /* Soft Lines / Borders */
+  --hover-glow: #b595ad; /* Hover / Glow Subtle */
+  --accent: #ad2d7e; /* Pink Accents */
 }
 
 /* Smooth Scrolling */
@@ -18,7 +18,7 @@ html {
 
 /* Navbar Styles */
 .navbar {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   width: 100%;
   position: fixed;
   top: 0;
@@ -26,7 +26,7 @@ html {
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
-  border-bottom: 1px solid #EDE2EB;
+  border-bottom: 1px solid #ede2eb;
 }
 
 .navbar .container {
@@ -124,7 +124,7 @@ html {
 }
 
 .nav-links a:hover {
-  color: #AD2D7E;
+  color: #ad2d7e;
   background-color: rgba(173, 45, 126, 0.08);
 }
 
@@ -135,7 +135,7 @@ html {
   left: 50%;
   width: 0;
   height: 2px;
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   transition: all 0.3s ease;
   transform: translateX(-50%);
 }
@@ -146,7 +146,7 @@ html {
 
 /* Get Started Button */
 .get-started a {
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   color: white;
   padding: 12px 24px;
   text-decoration: none;
@@ -159,7 +159,7 @@ html {
 }
 
 .get-started a:hover {
-  background-color: #7A1F62;
+  background-color: #7a1f62;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(173, 45, 126, 0.4);
 }
@@ -196,7 +196,7 @@ html {
   min-height: 460px;
   box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
   text-align: center; /* Center text */
-  border: 3px solid #AD2D7E;
+  border: 3px solid #ad2d7e;
   position: relative;
   z-index: 2;
   -webkit-backdrop-filter: blur(10px);
@@ -236,7 +236,7 @@ html {
 /* Button */
 .book-now-btn {
   display: inline-block;
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   color: white;
   font-size: 20px;
   border-radius: 30px;
@@ -254,7 +254,7 @@ html {
 }
 
 .book-now-btn:hover {
-  background-color: #7A1F62;
+  background-color: #7a1f62;
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(173, 45, 126, 0.4);
 }
@@ -264,7 +264,7 @@ html {
   font-size: 36px;
   text-align: center;
   padding: 2rem 0;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   height: auto;
   min-height: 393px;
 }
@@ -312,7 +312,7 @@ html {
 
 .services-loading .loading-spinner {
   border: 4px solid rgba(0, 0, 0, 0.04);
-  border-top: 4px solid #AD2D7E;
+  border-top: 4px solid #ad2d7e;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -321,13 +321,13 @@ html {
 }
 
 .services-error .error-message {
-  color: #7A1F62;
+  color: #7a1f62;
   margin-bottom: 20px;
   font-size: 1.1rem;
 }
 
 .services-error .btn-primary {
-  background: #AD2D7E;
+  background: #ad2d7e;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -339,7 +339,7 @@ html {
 }
 
 .services-error .btn-primary:hover {
-  background: #7A1F62;
+  background: #7a1f62;
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
@@ -348,11 +348,7 @@ html {
 .pricing {
   margin: 40px 0;
   padding: 40px 20px;
-  background: linear-gradient(
-    to bottom,
-    #FFFFFF 0%,
-    #FFFFFF 100%
-  );
+  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%);
   border-radius: 0;
   box-shadow: none;
   height: auto; /* Adjust height to fit content */
@@ -387,7 +383,7 @@ html {
   transform: translateX(-50%);
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, #AD2D7E, #AD2D7E);
+  background: linear-gradient(90deg, #ad2d7e, #ad2d7e);
   border-radius: 2px;
 }
 
@@ -401,7 +397,7 @@ html {
 .packages-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background: #EDE2EB;
+  background: #ede2eb;
   border-radius: 12px;
 }
 
@@ -427,7 +423,7 @@ html {
 }
 
 .package-info h4 {
-  color: #AD2D7E;
+  color: #ad2d7e;
   margin-bottom: 10px;
   font-size: 1.2rem;
 }
@@ -442,12 +438,12 @@ html {
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 25px;
-  background-color: #EDE2EB;
+  background-color: #ede2eb;
   border-radius: 12px;
 }
 
 .vehicle-types-explanation h3 {
-  color: #AD2D7E;
+  color: #ad2d7e;
   margin-bottom: 20px;
   text-align: center;
   font-size: 1.5rem;
@@ -468,7 +464,7 @@ html {
 }
 
 .vehicle-info h4 {
-  color: #AD2D7E;
+  color: #ad2d7e;
   margin-bottom: 8px;
   font-size: 1.1rem;
 }
@@ -501,7 +497,7 @@ html {
 
 .loading-spinner {
   border: 4px solid rgba(0, 0, 0, 0.04);
-  border-top: 4px solid #AD2D7E;
+  border-top: 4px solid #ad2d7e;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -519,7 +515,7 @@ html {
 }
 
 .error-message {
-  color: #7A1F62;
+  color: #7a1f62;
   margin-bottom: 20px;
 }
 
@@ -544,7 +540,7 @@ html {
 }
 
 .pricing-table th {
-  background: linear-gradient(135deg, #AD2D7E 0%, #7A1F62 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   padding: 20px 15px;
   text-align: center;
@@ -580,7 +576,7 @@ html {
 
 .vehicle-cell {
   text-align: left;
-  background: #EDE2EB;
+  background: #ede2eb;
 }
 
 .vehicle-code {
@@ -603,12 +599,12 @@ html {
 .price-amount {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #AD2D7E;
+  color: #ad2d7e;
   margin-bottom: 15px;
 }
 
 .btn-book-service {
-  background: #AD2D7E;
+  background: #ad2d7e;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -622,7 +618,7 @@ html {
 }
 
 .btn-book-service:hover:not(.disabled) {
-  background: #7A1F62;
+  background: #7a1f62;
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
@@ -636,14 +632,14 @@ html {
 
 /* Booking Guide */
 .booking-guide {
-  background-color: #EDE2EB;
+  background-color: #ede2eb;
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
 }
 
 .booking-guide h4 {
-  color: #7A1F62;
+  color: #7a1f62;
   margin-bottom: 15px;
   font-size: 1.3rem;
 }
@@ -660,7 +656,7 @@ html {
 }
 
 .btn-primary {
-  background: #AD2D7E;
+  background: #ad2d7e;
   color: white;
   border: none;
   padding: 15px 30px;
@@ -674,7 +670,7 @@ html {
 }
 
 .btn-primary:hover {
-  background: #7A1F62;
+  background: #7a1f62;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
@@ -697,8 +693,8 @@ html {
 }
 
 .location-card {
-  background-color: #FFFFFF;
-  border: 1px solid #EDE2EB;
+  background-color: #ffffff;
+  border: 1px solid #ede2eb;
   border-radius: 8px; /* Rounded corners */
   padding: 20px; /* Padding inside the card */
   width: 250px; /* Fixed width for cards */
@@ -716,7 +712,7 @@ html {
 .gallery {
   text-align: center;
   margin: 40px 0;
-  background: linear-gradient(135deg, #AD2D7E 0%, #7A1F62 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   height: auto;
   min-height: 805px;
   padding: 50px 20px;
@@ -781,11 +777,7 @@ html {
   text-align: center;
   margin: 40px 0;
   padding: 60px 20px; /* Add padding */
-  background: linear-gradient(
-    to bottom,
-    #FFFFFF 0%,
-    #FFFFFF 100%
-  );
+  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%);
   position: relative;
 }
 
@@ -806,7 +798,7 @@ html {
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, #AD2D7E, #AD2D7E);
+  background: linear-gradient(90deg, #ad2d7e, #ad2d7e);
   border-radius: 2px;
 }
 
@@ -858,7 +850,7 @@ html {
 .contact-item i {
   margin-right: 10px; /* Space between icon and text */
   font-size: 28px; /* Increased icon size */
-  color: #AD2D7E;
+  color: #ad2d7e;
 }
 
 .contact-form {
@@ -879,21 +871,21 @@ html {
 .contact-form input,
 .contact-form textarea {
   padding: 15px; /* Increase padding for a more spacious feel */
-  border: 2px solid #EDE2EB;
+  border: 2px solid #ede2eb;
   border-radius: 8px; /* Slightly rounded corners */
   width: 100%;
   color: #010001;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   transition: all 0.3s; /* Smooth transition */
   font-size: 16px;
 }
 
 .contact-form input:focus,
 .contact-form textarea:focus {
-  border-color: #AD2D7E;
+  border-color: #ad2d7e;
   outline: none; /* Remove default outline */
   box-shadow: 0 0 0 3px rgba(173, 45, 126, 0.1);
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .contact-form button {
@@ -914,11 +906,7 @@ html {
 }
 
 .contact-form button:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    #AD2D7E 0%,
-    #AD2D7E 100%
-  );
+  background: linear-gradient(135deg, #ad2d7e 0%, #ad2d7e 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(173, 45, 126, 0.4);
 }
@@ -932,22 +920,22 @@ html {
 /* Success and Error Messages */
 .success-message {
   background-color: rgba(173, 45, 126, 0.1);
-  color: #7A1F62;
+  color: #7a1f62;
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid #EDE2EB;
+  border: 1px solid #ede2eb;
   text-align: center;
   font-weight: 500;
 }
 
 .error-message {
   background-color: rgba(173, 45, 126, 0.15);
-  color: #7A1F62;
+  color: #7a1f62;
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid #AD2D7E;
+  border: 1px solid #ad2d7e;
   text-align: center;
   font-weight: 500;
 }
@@ -975,14 +963,14 @@ html {
   padding: 15px;
   font-size: 18px;
   text-align: center;
-  border: 2px solid #AD2D7E;
+  border: 2px solid #ad2d7e;
   border-radius: 5px;
   letter-spacing: 2px;
 }
 
 .verification-code-input:focus {
   outline: none;
-  border-color: #7A1F62;
+  border-color: #7a1f62;
   box-shadow: 0 0 5px rgba(173, 45, 126, 0.3);
 }
 
@@ -1012,8 +1000,8 @@ html {
 
 .resend-btn {
   background-color: transparent;
-  color: #AD2D7E;
-  border: 1px solid #AD2D7E;
+  color: #ad2d7e;
+  border: 1px solid #ad2d7e;
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
@@ -1022,19 +1010,19 @@ html {
 }
 
 .resend-btn:hover {
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   color: white;
 }
 
 /* Contact Form Input Sizes */
 .input-large {
   padding: 15px; /* Increase padding for a spacious feel */
-  border: 2px solid #EDE2EB;
+  border: 2px solid #ede2eb;
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Font size */
   color: #010001;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   transition: all 0.3s; /* Smooth transition */
   min-height: 150px; /* Minimum height */
   resize: vertical; /* Allow vertical resizing only */
@@ -1043,12 +1031,12 @@ html {
 
 .input-medium {
   padding: 15px; /* Padding */
-  border: 2px solid #EDE2EB;
+  border: 2px solid #ede2eb;
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Reasonable font size */
   color: #010001;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   transition: all 0.3s; /* Smooth transition */
   height: auto; /* Auto height */
   min-height: 50px; /* Minimum height */
@@ -1056,12 +1044,12 @@ html {
 
 .input-small {
   padding: 15px; /* Padding */
-  border: 2px solid #EDE2EB;
+  border: 2px solid #ede2eb;
   border-radius: 8px; /* Rounded corners */
   width: 100%; /* Full width */
   font-size: 16px; /* Reasonable font size */
   color: #010001;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   transition: all 0.3s; /* Smooth transition */
   height: auto; /* Auto height */
   min-height: 50px; /* Minimum height */
@@ -1070,16 +1058,16 @@ html {
 .input-large:focus,
 .input-medium:focus,
 .input-small:focus {
-  border-color: #AD2D7E;
+  border-color: #ad2d7e;
   outline: none; /* Remove default outline */
   box-shadow: 0 0 0 3px rgba(173, 45, 126, 0.1);
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 /* Footer Section */
 .footer {
   background-color: #010001;
-  color: #FFFFFF;
+  color: #ffffff;
   padding: 50px 20px 20px; /* Add padding */
   height: auto; /* Auto height */
 }
@@ -1103,7 +1091,7 @@ html {
   margin-bottom: 20px;
   font-size: 1.3rem;
   font-weight: bold;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 /* Quick Links */
@@ -1143,7 +1131,7 @@ html {
 }
 
 .contact-footer-item i {
-  color: #AD2D7E;
+  color: #ad2d7e;
   font-size: 1.1rem;
   margin-top: 3px;
   min-width: 20px;
@@ -1157,7 +1145,7 @@ html {
 }
 
 .contact-footer-item strong {
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -1188,7 +1176,7 @@ html {
 
 .booknow-button {
   display: inline-block;
-  background-color: #7A1F62;
+  background-color: #7a1f62;
   color: white;
   padding: 12px 30px;
   border-radius: 25px; /* Rounded button */
@@ -1202,7 +1190,7 @@ html {
 }
 
 .booknow-button:hover {
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(173, 45, 126, 0.4);
 }
@@ -1247,7 +1235,7 @@ html {
     width: 80%;
     max-width: 300px;
     height: 100vh;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1279,7 +1267,7 @@ html {
   }
 
   .mobile-get-started a {
-    background-color: #AD2D7E;
+    background-color: #ad2d7e;
     color: white;
     padding: 12px 24px;
     border-radius: 20px;
@@ -1288,7 +1276,7 @@ html {
   }
 
   .mobile-get-started a:hover {
-    background-color: #7A1F62;
+    background-color: #7a1f62;
   }
 
   /* Add mobile menu overlay */
@@ -1467,7 +1455,7 @@ html {
 }
 
 .modal-header {
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   color: white;
   padding: 15px 20px;
   display: flex;
@@ -1504,16 +1492,16 @@ html {
 }
 
 .modal-btn-ok {
-  background-color: #AD2D7E;
+  background-color: #ad2d7e;
   color: white;
 }
 
 .modal-btn-ok:hover {
-  background-color: #7A1F62;
+  background-color: #7a1f62;
 }
 
 .modal-btn-cancel {
-  background-color: #EDE2EB;
+  background-color: #ede2eb;
   color: #010001;
 }
 
