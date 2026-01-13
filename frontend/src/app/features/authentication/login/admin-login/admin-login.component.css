@@ -212,7 +212,6 @@ html {
 .sign-in-btn:hover {
   background-color: #7A1F62;
   box-shadow: 0 4px 12px rgba(173, 45, 126, 0.3);
-} background-color: var(--secondary);
 }
 
 .sign-in-btn:disabled {
@@ -222,11 +221,10 @@ html {
 
 .sign-up-link {
   text-align: center;
+}
+
 .sign-up-link a {
   color: #AD2D7E;
-  text-decoration: none;
-  margin-left: 5px;
-} color: var(--accent);
   text-decoration: none;
   margin-left: 5px;
 }
@@ -295,9 +293,8 @@ html {
 .password-toggle svg {
   width: 18px;
   height: 18px;
-.password-toggle:hover {
-  color: #AD2D7E;
 }
+
 .password-toggle:hover {
   color: var(--accent);
 }

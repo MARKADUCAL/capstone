@@ -188,7 +188,6 @@ html {
 .terms-checkbox a {
   color: #AD2D7E;
   text-decoration: none;
-} text-decoration: none;
 }
 
 .terms-checkbox a:hover {
@@ -212,7 +211,6 @@ html {
 .sign-up-btn:hover {
   background-color: #7A1F62;
   box-shadow: 0 4px 12px rgba(173, 45, 126, 0.3);
-} background-color: var(--secondary);
 }
 
 .sign-up-btn:disabled {
