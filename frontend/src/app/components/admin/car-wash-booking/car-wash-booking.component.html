@@ -2,23 +2,21 @@
   <!-- Unified Header - Responsive for all devices -->
   <div class="header">
     <div class="header-left">
-      <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
-        <mat-icon>menu</mat-icon>
-      </button>
       <div class="header-title-section">
         <h2>Car Wash Bookings</h2>
         <p class="header-subtitle">Manage and oversee all car wash bookings</p>
       </div>
     </div>
     <div class="header-right">
-      <button mat-raised-button color="primary" class="create-btn" (click)="openCreateBooking()">
+      <button
+        mat-raised-button
+        color="primary"
+        class="create-btn"
+        (click)="openCreateBooking()"
+      >
         <mat-icon>add</mat-icon>
         <span class="create-btn-text">Create Booking</span>
       </button>
-      <div class="mobile-user-info">
-        <div class="mobile-user-avatar">{{ getUserInitials("Admin User") }}</div>
-        <mat-icon class="mobile-chevron">keyboard_arrow_down</mat-icon>
-      </div>
     </div>
   </div>
 
