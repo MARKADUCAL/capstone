@@ -24,7 +24,7 @@ $allowedOrigins = [
     'http://localhost:4200',
     'http://127.0.0.1:4200',
     'https://brown-octopus-872555.hostingersite.com',
-    'https://autowashhub.online'
+    'https://leydiboss.online'
 ];
 if (in_array($origin, $allowedOrigins) || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin)) {
     header("Access-Control-Allow-Origin: $origin");
@@ -51,7 +51,7 @@ require_once __DIR__ . '/../config/database.php';
 // Get your API key from: https://resend.com/api-keys
 $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
 $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev'; // Use your verified domain
-$resendFromName = getenv('RESEND_FROM_NAME') ?: 'AutoWash Hub';
+$resendFromName = getenv('RESEND_FROM_NAME') ?: 'leydiboss';
 $appEnv = getenv('APP_ENV') ?: 'development';
 
 // Verification code expiry in minutes
@@ -185,7 +185,7 @@ try {
     $payload = [
         'from' => $resendFromEmail,
         'to' => $email, // Email from registration form
-        'subject' => 'Verify your AutoWash Hub account',
+        'subject' => 'Verify your leydiboss account',
         'html' => '<p>Your verification code is: <strong style="font-size:24px;letter-spacing:4px">' . htmlspecialchars($verificationCode) . '</strong></p><p>This code expires in 10 minutes.</p>',
         'text' => 'Your verification code is: ' . $verificationCode . "\n\nThis code expires in 10 minutes."
     ];

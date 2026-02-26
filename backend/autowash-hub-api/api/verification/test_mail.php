@@ -52,7 +52,7 @@ if ($format !== 'html') {
 // Resend.com API configuration
 $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
 $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev';
-$resendFromName = getenv('RESEND_FROM_NAME') ?: 'AutoWash Hub';
+$resendFromName = getenv('RESEND_FROM_NAME') ?: 'Leydiboss';
 
 // Determine recipient
 $to = isset($_GET['to']) ? trim((string)$_GET['to']) : (isset($_POST['to']) ? trim((string)$_POST['to']) : '');
@@ -88,9 +88,9 @@ if (!function_exists('curl_init')) {
 $payload = [
     'from' => $resendFromEmail,
     'to' => $to,
-    'subject' => 'AutoWash Hub Email Test',
-    'html' => '<p>This is a test email from AutoWash Hub backend. If you receive this, <strong>Resend.com is working correctly!</strong></p>',
-    'text' => 'This is a test email from AutoWash Hub backend. If you receive this, Resend.com is working correctly!'
+    'subject' => 'leydiboss Email Test',
+    'html' => '<p>This is a test email from leydiboss backend. If you receive this, <strong>Resend.com is working correctly!</strong></p>',
+    'text' => 'This is a test email from leydiboss backend. If you receive this, Resend.com is working correctly!'
 ];
 
 ob_clean(); // Clear any output before sending response
