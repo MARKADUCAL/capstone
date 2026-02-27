@@ -60,12 +60,16 @@
 
 /* Form Container */
 .form-container {
-  grid-area: form;
   background: white;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   height: fit-content;
+}
+
+/* Primary form (left column in grid) */
+.primary-form {
+  grid-area: form;
 }
 
 .form-header {
