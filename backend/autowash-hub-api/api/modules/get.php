@@ -1136,6 +1136,29 @@
 
         public function get_service_categories() {
             try {
+                // Ensure table exists so this endpoint never 500s on a fresh database
+                $this->pdo->exec("CREATE TABLE IF NOT EXISTS service_categories (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    description TEXT NULL,
+                    is_active TINYINT(1) NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+                // Seed default categories if empty (aligned with p1–p4 pricing packages)
+                $countStmt = $this->pdo->query("SELECT COUNT(*) AS cnt FROM service_categories");
+                $count = (int)($countStmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0);
+
+                if ($count === 0) {
+                    $seedSql = "INSERT INTO service_categories (name, description, is_active) VALUES
+                        ('Body Wash', 'Exterior body wash only', 1),
+                        ('Body Wash + Tire Black', 'Body wash with tire black application', 1),
+                        ('Body Wash + Tire Black + Vacuum', 'Body wash, tire black, and interior vacuum', 1),
+                        ('Body Wash + Body Wax + Tire Black + Vacuum', 'Complete package with wash, wax, tire black, and interior vacuum', 1)";
+                    $this->pdo->exec($seedSql);
+                }
+
                 $sql = "SELECT id, name, description, is_active FROM service_categories WHERE is_active = 1 ORDER BY name";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
