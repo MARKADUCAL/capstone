@@ -172,10 +172,9 @@
           <thead>
             <tr>
               <th>Vehicle Type</th>
-              <th>P1</th>
-              <th>P2</th>
-              <th>P3</th>
-              <th>P4</th>
+              <th *ngFor="let service of servicePackages">
+                {{ service.code | uppercase }}
+              </th>
             </tr>
           </thead>
           <tbody>
