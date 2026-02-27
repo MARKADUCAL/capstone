@@ -24,6 +24,13 @@ interface ServicePackage {
   isActive: boolean;
 }
 
+interface ServiceCategoryApi {
+  id: number;
+  name: string;
+  description?: string;
+  is_active: number | boolean;
+}
+
 interface ApiResponse {
   status: {
     remarks: string;
@@ -44,6 +51,7 @@ export class ServiceManagementComponent implements OnInit {
   private isBrowser = isPlatformBrowser(this.platformId);
   private apiUrl = environment.apiUrl;
   public isLoading = false;
+  public isLoadingServices = false;
 
   // Vehicle Types from the image
   vehicleTypes: VehicleType[] = [
@@ -69,13 +77,13 @@ export class ServiceManagementComponent implements OnInit {
     },
   ];
 
-  // Service Packages from the image
-  servicePackages: ServicePackage[] = [
-    { code: 'p1', description: 'Wash only', isActive: true },
-    { code: 'p2', description: 'Wash / Vacuum', isActive: true },
-    { code: 'p3', description: 'Wash / Vacuum / Hand Wax', isActive: true },
-    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax', isActive: true },
-  ];
+  // Service Packages loaded from API (service_categories table)
+  servicePackages: ServicePackage[] = [];
+
+  // Simple form state for creating a new service package
+  newServiceName = '';
+  newServiceDescription = '';
+  newServiceIsActive = true;
 
   // Dynamic pricing matrix built from database data
   get pricingMatrix(): { [key: string]: { [key: string]: number } } {
@@ -123,7 +131,56 @@ export class ServiceManagementComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loadServicePackages();
     this.loadPricingEntries();
+  }
+
+  loadServicePackages(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      // Still allow pricing screen to work, just without dynamic services
+      return;
+    }
+
+    this.isLoadingServices = true;
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    this.http
+      .get<ApiResponse>(`${this.apiUrl}/get_service_categories`, { headers })
+      .subscribe({
+        next: (response) => {
+          this.isLoadingServices = false;
+          if (
+            response.status &&
+            response.status.remarks === 'success' &&
+            response.payload &&
+            Array.isArray(response.payload.service_categories)
+          ) {
+            const categories: ServiceCategoryApi[] =
+              response.payload.service_categories;
+
+            this.servicePackages = categories.map((c) => ({
+              // Use a stable code derived from id so existing pricing logic can still use a short code
+              code: `p${c.id}`,
+              description: c.name,
+              isActive: c.is_active === 1 || c.is_active === true,
+            }));
+
+            // If there are no pricing entries yet, create default ones using these dynamic services
+            if (!this.pricingEntries.length) {
+              this.createDefaultPricingEntries();
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error loading service categories:', error);
+          this.isLoadingServices = false;
+        },
+      });
   }
 
   onSearchChange(searchTerm: string): void {
@@ -228,12 +285,33 @@ export class ServiceManagementComponent implements OnInit {
 
   createDefaultPricingEntries(): void {
     this.pricingEntries = [];
+
+    if (!this.servicePackages.length) {
+      // Fallback to original four packages if services have not been loaded yet
+      const defaultServicePackages: ServicePackage[] = [
+        { code: 'p1', description: 'Wash only', isActive: true },
+        { code: 'p2', description: 'Wash / Vacuum', isActive: true },
+        {
+          code: 'p3',
+          description: 'Wash / Vacuum / Hand Wax',
+          isActive: true,
+        },
+        {
+          code: 'p4',
+          description: 'Wash / Vacuum / Buffing Wax',
+          isActive: true,
+        },
+      ];
+
+      this.servicePackages = defaultServicePackages;
+    }
+
     this.vehicleTypes.forEach((vehicle) => {
       this.servicePackages.forEach((service) => {
         this.pricingEntries.push({
           vehicleType: vehicle.code,
           servicePackage: service.code,
-          price: 0, // Default price, will be populated from database
+          price: 0,
           isActive: true,
         });
       });
@@ -604,6 +682,66 @@ export class ServiceManagementComponent implements OnInit {
   getServicePackageDescription(code: string): string {
     const service = this.servicePackages.find((s) => s.code === code);
     return service ? service.description : code;
+  }
+
+  addServiceCategory(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    const name = this.newServiceName.trim();
+    if (!name) {
+      this.showAlert('Please enter a service name.', 'error');
+      return;
+    }
+
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      this.showAlert('Authentication token not found', 'warning');
+      return;
+    }
+
+    this.isLoadingServices = true;
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    const payload = {
+      name,
+      description: this.newServiceDescription.trim(),
+      is_active: this.newServiceIsActive ? 1 : 0,
+    };
+
+    this.http
+      .post<ApiResponse>(`${this.apiUrl}/add_service_category`, payload, {
+        headers,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoadingServices = false;
+          if (response.status && response.status.remarks === 'success') {
+            this.showAlert('Service added successfully!', 'success');
+            this.newServiceName = '';
+            this.newServiceDescription = '';
+            this.newServiceIsActive = true;
+            this.loadServicePackages();
+          } else {
+            this.showAlert(
+              response.status?.message || 'Failed to add service',
+              'error'
+            );
+          }
+        },
+        error: (error) => {
+          console.error('Error adding service category:', error);
+          this.isLoadingServices = false;
+          this.showAlert(
+            'Error adding service to database. Please try again.',
+            'error'
+          );
+        },
+      });
   }
 
   showAlert(message: string, type: string): void {

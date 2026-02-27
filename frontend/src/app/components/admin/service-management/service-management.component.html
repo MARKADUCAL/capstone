@@ -97,6 +97,63 @@
       </div>
     </div>
 
+    <!-- Service Packages Management (Admin can add more services) -->
+    <div class="form-container">
+      <div class="form-header">
+        <h3>Service Packages</h3>
+        <p>Admins can add additional service types here.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="serviceName">Service Name*</label>
+        <input
+          id="serviceName"
+          type="text"
+          [(ngModel)]="newServiceName"
+          placeholder="e.g. Engine Detailing"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="serviceDescription">Description</label>
+        <textarea
+          id="serviceDescription"
+          rows="2"
+          [(ngModel)]="newServiceDescription"
+          placeholder="Short description of this service (optional)"
+        ></textarea>
+      </div>
+
+      <div class="form-group checkbox">
+        <input
+          type="checkbox"
+          id="serviceIsActive"
+          [(ngModel)]="newServiceIsActive"
+        />
+        <label for="serviceIsActive">Active (available for pricing)</label>
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="btn-primary"
+          (click)="addServiceCategory()"
+          [disabled]="isLoadingServices"
+        >
+          <span *ngIf="!isLoadingServices">Add Service</span>
+          <span *ngIf="isLoadingServices">Saving...</span>
+        </button>
+      </div>
+
+      <div class="form-note" *ngIf="servicePackages.length">
+        <p>
+          Current services:
+          <strong *ngFor="let s of servicePackages; let last = last">
+            {{ s.description }}<span *ngIf="!last">, </span>
+          </strong>
+        </p>
+      </div>
+    </div>
+
     <!-- Pricing Matrix Display -->
     <div class="pricing-matrix-container">
       <div class="matrix-header">
