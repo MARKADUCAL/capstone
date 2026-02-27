@@ -10,7 +10,13 @@
   <div class="content-container">
     <div class="form-container">
       <div class="form-header">
-        <h3>{{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}</h3>
+        <h3>
+          {{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}
+          <span *ngIf="editMode && newPricingEntry.vehicleType && newPricingEntry.servicePackage">
+            – {{ newPricingEntry.vehicleType }} /
+            {{ getServicePackageDescription(newPricingEntry.servicePackage) }}
+          </span>
+        </h3>
       </div>
 
       <div class="form-row">
@@ -21,7 +27,7 @@
             [(ngModel)]="newPricingEntry.vehicleType"
             required
           >
-            <option value="" disabled selected>Select vehicle type</option>
+            <option value="" disabled>Select vehicle type</option>
             <option *ngFor="let vehicle of vehicleTypes" [value]="vehicle.code">
               {{ vehicle.code }} - {{ vehicle.description }}
             </option>
@@ -35,7 +41,7 @@
             [(ngModel)]="newPricingEntry.servicePackage"
             required
           >
-            <option value="" disabled selected>Select service package</option>
+            <option value="" disabled>Select service package</option>
             <option
               *ngFor="let service of servicePackages"
               [value]="service.code"
