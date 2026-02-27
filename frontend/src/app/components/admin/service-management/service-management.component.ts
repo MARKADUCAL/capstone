@@ -19,6 +19,7 @@ interface VehicleType {
 }
 
 interface ServicePackage {
+  id?: number;
   code: string;
   description: string;
   isActive: boolean;
@@ -29,6 +30,14 @@ interface ServiceCategoryApi {
   name: string;
   description?: string;
   is_active: number | boolean;
+}
+
+interface ServiceCategory {
+  id: number;
+  name: string;
+  description: string;
+  isActive: boolean;
+  code: string;
 }
 
 interface ApiResponse {
@@ -80,10 +89,14 @@ export class ServiceManagementComponent implements OnInit {
   // Service Packages loaded from API (service_categories table)
   servicePackages: ServicePackage[] = [];
 
+  // Full service category records from the API (backed by service_categories table)
+  serviceCategories: ServiceCategory[] = [];
+
   // Simple form state for creating a new service package
   newServiceName = '';
   newServiceDescription = '';
   newServiceIsActive = true;
+  editingServiceId: number | null = null;
 
   // Dynamic pricing matrix built from database data
   get pricingMatrix(): { [key: string]: { [key: string]: number } } {
@@ -163,11 +176,20 @@ export class ServiceManagementComponent implements OnInit {
             const categories: ServiceCategoryApi[] =
               response.payload.service_categories;
 
-            this.servicePackages = categories.map((c) => ({
-              // Use a stable code derived from id so existing pricing logic can still use a short code
-              code: `p${c.id}`,
-              description: c.name,
+            this.serviceCategories = categories.map((c) => ({
+              id: c.id,
+              name: c.name,
+              description: c.description || '',
               isActive: c.is_active === 1 || c.is_active === true,
+              // Keep the canonical pricing code aligned with p1–p4 defaults
+              code: `p${c.id}`,
+            }));
+
+            this.servicePackages = this.serviceCategories.map((c) => ({
+              id: c.id,
+              code: c.code,
+              description: c.name,
+              isActive: c.isActive,
             }));
 
             // If there are no pricing entries yet, create default ones using these dynamic services
@@ -684,6 +706,83 @@ export class ServiceManagementComponent implements OnInit {
     return service ? service.description : code;
   }
 
+  startEditService(service: ServiceCategory): void {
+    this.editingServiceId = service.id;
+    this.newServiceName = service.name;
+    this.newServiceDescription = service.description;
+    this.newServiceIsActive = service.isActive;
+  }
+
+  cancelServiceEdit(): void {
+    this.editingServiceId = null;
+    this.newServiceName = '';
+    this.newServiceDescription = '';
+    this.newServiceIsActive = true;
+  }
+
+  deleteService(service: ServiceCategory): void {
+    // Soft-delete: mark as inactive using update_service_category
+    if (!this.isBrowser || !service.id) {
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the service "${service.name}"?`
+    );
+    if (!confirmDelete) {
+      return;
+    }
+
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      this.showAlert('Authentication token not found', 'warning');
+      return;
+    }
+
+    this.isLoadingServices = true;
+
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    const payload = {
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      is_active: 0,
+    };
+
+    this.http
+      .put<ApiResponse>(`${this.apiUrl}/update_service_category`, payload, {
+        headers,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoadingServices = false;
+          if (response.status && response.status.remarks === 'success') {
+            this.showAlert('Service deleted successfully!', 'success');
+            if (this.editingServiceId === service.id) {
+              this.cancelServiceEdit();
+            }
+            this.loadServicePackages();
+          } else {
+            this.showAlert(
+              response.status?.message || 'Failed to delete service',
+              'error'
+            );
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting service category:', error);
+          this.isLoadingServices = false;
+          this.showAlert(
+            'Error deleting service from database. Please try again.',
+            'error'
+          );
+        },
+      });
+  }
+
   addServiceCategory(): void {
     if (!this.isBrowser) {
       return;
@@ -708,40 +807,51 @@ export class ServiceManagementComponent implements OnInit {
       .set('Authorization', `Bearer ${token}`);
 
     const payload = {
+      id: this.editingServiceId ?? undefined,
       name,
       description: this.newServiceDescription.trim(),
       is_active: this.newServiceIsActive ? 1 : 0,
     };
 
-    this.http
-      .post<ApiResponse>(`${this.apiUrl}/add_service_category`, payload, {
-        headers,
-      })
-      .subscribe({
-        next: (response) => {
-          this.isLoadingServices = false;
-          if (response.status && response.status.remarks === 'success') {
-            this.showAlert('Service added successfully!', 'success');
-            this.newServiceName = '';
-            this.newServiceDescription = '';
-            this.newServiceIsActive = true;
-            this.loadServicePackages();
-          } else {
-            this.showAlert(
-              response.status?.message || 'Failed to add service',
-              'error'
-            );
-          }
-        },
-        error: (error) => {
-          console.error('Error adding service category:', error);
-          this.isLoadingServices = false;
+    // If we are editing an existing service, use the update endpoint; otherwise, add a new one
+    const request$ = this.editingServiceId
+      ? this.http.put<ApiResponse>(
+          `${this.apiUrl}/update_service_category`,
+          payload,
+          { headers }
+        )
+      : this.http.post<ApiResponse>(
+          `${this.apiUrl}/add_service_category`,
+          payload,
+          { headers }
+        );
+
+    request$.subscribe({
+      next: (response) => {
+        this.isLoadingServices = false;
+        if (response.status && response.status.remarks === 'success') {
+          this.showAlert('Service saved successfully!', 'success');
+          this.newServiceName = '';
+          this.newServiceDescription = '';
+          this.newServiceIsActive = true;
+          this.editingServiceId = null;
+          this.loadServicePackages();
+        } else {
           this.showAlert(
-            'Error adding service to database. Please try again.',
+            response.status?.message || 'Failed to save service',
             'error'
           );
-        },
-      });
+        }
+      },
+      error: (error) => {
+        console.error('Error saving service category:', error);
+        this.isLoadingServices = false;
+        this.showAlert(
+          'Error saving service to database. Please try again.',
+          'error'
+        );
+      },
+    });
   }
 
   showAlert(message: string, type: string): void {

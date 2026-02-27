@@ -100,8 +100,10 @@
     <!-- Service Packages Management (Admin can add more services) -->
     <div class="form-container">
       <div class="form-header">
-        <h3>Service Packages</h3>
-        <p>Admins can add additional service types here.</p>
+        <h3>
+          {{ editingServiceId ? "Edit Service" : "Service Packages" }}
+        </h3>
+        <p>Admins can add, edit, and delete service types here.</p>
       </div>
 
       <div class="form-group">
@@ -139,18 +141,68 @@
           (click)="addServiceCategory()"
           [disabled]="isLoadingServices"
         >
-          <span *ngIf="!isLoadingServices">Add Service</span>
+          <span *ngIf="!isLoadingServices">
+            {{ editingServiceId ? "Save Changes" : "Add Service" }}
+          </span>
           <span *ngIf="isLoadingServices">Saving...</span>
+        </button>
+        <button
+          *ngIf="editingServiceId"
+          class="btn-secondary"
+          type="button"
+          (click)="cancelServiceEdit()"
+          [disabled]="isLoadingServices"
+        >
+          Cancel
         </button>
       </div>
 
-      <div class="form-note" *ngIf="servicePackages.length">
-        <p>
-          Current services:
-          <strong *ngFor="let s of servicePackages; let last = last">
-            {{ s.description }}<span *ngIf="!last">, </span>
-          </strong>
-        </p>
+      <div class="table-container" *ngIf="serviceCategories.length">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of serviceCategories">
+              <td>{{ s.name }}</td>
+              <td>{{ s.description || "—" }}</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [class.active]="s.isActive"
+                  [class.inactive]="!s.isActive"
+                >
+                  {{ s.isActive ? "Active" : "Inactive" }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  class="btn-icon edit"
+                  type="button"
+                  (click)="startEditService(s)"
+                  [disabled]="isLoadingServices"
+                  title="Edit service"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn-icon delete"
+                  type="button"
+                  (click)="deleteService(s)"
+                  [disabled]="isLoadingServices"
+                  title="Delete service"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
