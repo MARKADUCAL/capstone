@@ -8,232 +8,24 @@
   </div>
 
   <div class="content-container">
-    <div class="form-container primary-form">
-      <div class="form-header">
-        <h3>
-          {{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}
-          <span *ngIf="editMode && newPricingEntry.vehicleType && newPricingEntry.servicePackage">
-            – {{ newPricingEntry.vehicleType }} /
-            {{ getServicePackageDescription(newPricingEntry.servicePackage) }}
-          </span>
-        </h3>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group half">
-          <label for="vehicleType">Vehicle Type*</label>
-          <select
-            id="vehicleType"
-            [(ngModel)]="newPricingEntry.vehicleType"
-            required
-          >
-            <option value="" disabled>Select vehicle type</option>
-            <option *ngFor="let vehicle of vehicleTypes" [value]="vehicle.code">
-              {{ vehicle.code }} - {{ vehicle.description }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group half">
-          <label for="servicePackage">Service Package*</label>
-          <select
-            id="servicePackage"
-            [(ngModel)]="newPricingEntry.servicePackage"
-            required
-          >
-            <option value="" disabled>Select service package</option>
-            <option
-              *ngFor="let service of servicePackages"
-              [value]="service.code"
-            >
-              {{ service.code }} - {{ service.description }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="price">Price (₱)*</label>
-        <input
-          type="number"
-          id="price"
-          [(ngModel)]="newPricingEntry.price"
-          min="0"
-          step="0.01"
-          required
-        />
-      </div>
-
-      <div class="form-group checkbox">
-        <input
-          type="checkbox"
-          id="isActive"
-          [(ngModel)]="newPricingEntry.isActive"
-        />
-        <label for="isActive">Active (available for booking)</label>
-      </div>
-
-      <div class="form-actions">
-        <button
-          *ngIf="!editMode"
-          class="btn-primary"
-          (click)="addPricingEntry()"
-          [disabled]="isLoading"
-        >
-          <span *ngIf="!isLoading">Add Pricing Entry</span>
-          <span *ngIf="isLoading">Adding...</span>
-        </button>
-        <button
-          *ngIf="editMode"
-          class="btn-primary"
-          (click)="updatePricingEntry()"
-          [disabled]="isLoading"
-        >
-          <span *ngIf="!isLoading">Update Pricing Entry</span>
-          <span *ngIf="isLoading">Updating...</span>
-        </button>
-        <button
-          *ngIf="editMode"
-          class="btn-secondary"
-          (click)="cancelEdit()"
-          [disabled]="isLoading"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-
-    <!-- Service Packages Management (Admin can add more services) -->
-    <div class="form-container">
-      <div class="form-header">
-        <h3>
-          {{ editingServiceId ? "Edit Service" : "Service Packages" }}
-        </h3>
-        <p>Admins can add, edit, and delete service types here.</p>
-      </div>
-
-      <div class="form-group">
-        <label for="serviceName">Service Name*</label>
-        <input
-          id="serviceName"
-          type="text"
-          [(ngModel)]="newServiceName"
-          placeholder="e.g. Engine Detailing"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="serviceDescription">Description</label>
-        <textarea
-          id="serviceDescription"
-          rows="2"
-          [(ngModel)]="newServiceDescription"
-          placeholder="Short description of this service (optional)"
-        ></textarea>
-      </div>
-
-      <div class="form-group checkbox">
-        <input
-          type="checkbox"
-          id="serviceIsActive"
-          [(ngModel)]="newServiceIsActive"
-        />
-        <label for="serviceIsActive">Active (available for pricing)</label>
-      </div>
-
-      <div class="form-actions">
-        <button
-          class="btn-primary"
-          (click)="addServiceCategory()"
-          [disabled]="isLoadingServices"
-        >
-          <span *ngIf="!isLoadingServices">
-            {{ editingServiceId ? "Save Changes" : "Add Service" }}
-          </span>
-          <span *ngIf="isLoadingServices">Saving...</span>
-        </button>
-        <button
-          *ngIf="editingServiceId"
-          class="btn-secondary"
-          type="button"
-          (click)="cancelServiceEdit()"
-          [disabled]="isLoadingServices"
-        >
-          Cancel
-        </button>
-      </div>
-
-      <div class="table-container" *ngIf="serviceCategories.length">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of serviceCategories">
-              <td>{{ s.name }}</td>
-              <td>{{ s.description || "—" }}</td>
-              <td>
-                <span
-                  class="status-badge"
-                  [class.active]="s.isActive"
-                  [class.inactive]="!s.isActive"
-                >
-                  {{ s.isActive ? "Active" : "Inactive" }}
-                </span>
-              </td>
-              <td class="actions-cell">
-                <button
-                  class="btn-icon edit"
-                  type="button"
-                  (click)="startEditService(s)"
-                  [disabled]="isLoadingServices"
-                  title="Edit service"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="btn-icon delete"
-                  type="button"
-                  (click)="deleteService(s)"
-                  [disabled]="isLoadingServices"
-                  title="Delete service"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Pricing Matrix Display -->
-    <div class="pricing-matrix-container">
-      <div class="matrix-header">
-        <h3>Pricing Matrix</h3>
-        <p>
-          Current pricing structure for all vehicle types and service packages
-        </p>
-      </div>
-
-      <!-- Quick Service Pricing Editor (card-style) -->
-      <div class="form-container">
+    <div class="left-column">
+      <div class="form-container primary-form">
         <div class="form-header">
-          <h3>Service Pricing</h3>
-          <p>Quickly set or update the price for a specific vehicle type and service.</p>
+          <h3>
+            {{ editMode ? "Edit Pricing Entry" : "Add New Pricing Entry" }}
+            <span *ngIf="editMode && newPricingEntry.vehicleType && newPricingEntry.servicePackage">
+              – {{ newPricingEntry.vehicleType }} /
+              {{ getServicePackageDescription(newPricingEntry.servicePackage) }}
+            </span>
+          </h3>
         </div>
 
         <div class="form-row">
           <div class="form-group half">
-            <label for="quickVehicleType">Vehicle Type*</label>
+            <label for="vehicleType">Vehicle Type*</label>
             <select
-              id="quickVehicleType"
-              [(ngModel)]="quickPriceVehicleType"
+              id="vehicleType"
+              [(ngModel)]="newPricingEntry.vehicleType"
               required
             >
               <option value="" disabled>Select vehicle type</option>
@@ -244,13 +36,13 @@
           </div>
 
           <div class="form-group half">
-            <label for="quickService">Service*</label>
+            <label for="servicePackage">Service Package*</label>
             <select
-              id="quickService"
-              [(ngModel)]="quickPriceServiceCode"
+              id="servicePackage"
+              [(ngModel)]="newPricingEntry.servicePackage"
               required
             >
-              <option value="" disabled>Select service</option>
+              <option value="" disabled>Select service package</option>
               <option
                 *ngFor="let service of servicePackages"
                 [value]="service.code"
@@ -262,36 +54,173 @@
         </div>
 
         <div class="form-group">
-          <label for="quickPrice">Price (₱)*</label>
+          <label for="price">Price (₱)*</label>
           <input
-            id="quickPrice"
             type="number"
+            id="price"
+            [(ngModel)]="newPricingEntry.price"
             min="0"
             step="0.01"
-            [(ngModel)]="quickPriceAmount"
+            required
           />
         </div>
 
         <div class="form-group checkbox">
           <input
             type="checkbox"
-            id="quickIsActive"
-            [(ngModel)]="quickPriceIsActive"
+            id="isActive"
+            [(ngModel)]="newPricingEntry.isActive"
           />
-          <label for="quickIsActive">Active (available for booking)</label>
+          <label for="isActive">Active (available for booking)</label>
+        </div>
+
+        <div class="form-actions">
+          <button
+            *ngIf="!editMode"
+            class="btn-primary"
+            (click)="addPricingEntry()"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="!isLoading">Add Pricing Entry</span>
+            <span *ngIf="isLoading">Adding...</span>
+          </button>
+          <button
+            *ngIf="editMode"
+            class="btn-primary"
+            (click)="updatePricingEntry()"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="!isLoading">Update Pricing Entry</span>
+            <span *ngIf="isLoading">Updating...</span>
+          </button>
+          <button
+            *ngIf="editMode"
+            class="btn-secondary"
+            (click)="cancelEdit()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Service Packages Management (Admin can add more services) -->
+      <div class="form-container service-packages-container">
+        <div class="form-header">
+          <h3>
+            {{ editingServiceId ? "Edit Service" : "Service Packages" }}
+          </h3>
+          <p>Admins can add, edit, and delete service types here.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="serviceName">Service Name*</label>
+          <input
+            id="serviceName"
+            type="text"
+            [(ngModel)]="newServiceName"
+            placeholder="e.g. Engine Detailing"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="serviceDescription">Description</label>
+          <textarea
+            id="serviceDescription"
+            rows="2"
+            [(ngModel)]="newServiceDescription"
+            placeholder="Short description of this service (optional)"
+          ></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <input
+            type="checkbox"
+            id="serviceIsActive"
+            [(ngModel)]="newServiceIsActive"
+          />
+          <label for="serviceIsActive">Active (available for pricing)</label>
         </div>
 
         <div class="form-actions">
           <button
             class="btn-primary"
-            type="button"
-            (click)="saveQuickPrice()"
-            [disabled]="isLoading"
+            (click)="addServiceCategory()"
+            [disabled]="isLoadingServices"
           >
-            <span *ngIf="!isLoading">Save Price</span>
-            <span *ngIf="isLoading">Saving...</span>
+            <span *ngIf="!isLoadingServices">
+              {{ editingServiceId ? "Save Changes" : "Add Service" }}
+            </span>
+            <span *ngIf="isLoadingServices">Saving...</span>
+          </button>
+          <button
+            *ngIf="editingServiceId"
+            class="btn-secondary"
+            type="button"
+            (click)="cancelServiceEdit()"
+            [disabled]="isLoadingServices"
+          >
+            Cancel
           </button>
         </div>
+
+        <div class="table-container" *ngIf="serviceCategories.length">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of serviceCategories">
+                <td>{{ s.name }}</td>
+                <td>{{ s.description || "—" }}</td>
+                <td>
+                  <span
+                    class="status-badge"
+                    [class.active]="s.isActive"
+                    [class.inactive]="!s.isActive"
+                  >
+                    {{ s.isActive ? "Active" : "Inactive" }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <button
+                    class="btn-icon edit"
+                    type="button"
+                    (click)="startEditService(s)"
+                    [disabled]="isLoadingServices"
+                    title="Edit service"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn-icon delete"
+                    type="button"
+                    (click)="deleteService(s)"
+                    [disabled]="isLoadingServices"
+                    title="Delete service"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Matrix Display -->
+    <div class="pricing-matrix-container">
+      <div class="matrix-header">
+        <h3>Pricing Matrix</h3>
+        <p>
+          Current pricing structure for all vehicle types and service packages
+        </p>
       </div>
 
       <div class="pricing-table">

@@ -41,6 +41,13 @@
   width: 100%;
 }
 
+.left-column {
+  grid-area: form;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 @media (min-width: 1440px) {
   .content-container {
     grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);

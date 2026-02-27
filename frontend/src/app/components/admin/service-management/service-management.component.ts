@@ -141,12 +141,6 @@ export class ServiceManagementComponent implements OnInit {
   searchTerm = '';
   filteredPricingEntries: PricingEntry[] = [];
 
-  // Quick pricing editor card state
-  quickPriceVehicleType = '';
-  quickPriceServiceCode = '';
-  quickPriceAmount: number | null = null;
-  quickPriceIsActive = true;
-
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -710,44 +704,6 @@ export class ServiceManagementComponent implements OnInit {
   getServicePackageDescription(code: string): string {
     const service = this.servicePackages.find((s) => s.code === code);
     return service ? service.description : code;
-  }
-
-  saveQuickPrice(): void {
-    if (
-      !this.quickPriceVehicleType ||
-      !this.quickPriceServiceCode ||
-      this.quickPriceAmount === null ||
-      this.quickPriceAmount <= 0
-    ) {
-      this.showAlert(
-        'Please select vehicle type, service, and enter a valid price.',
-        'error'
-      );
-      return;
-    }
-
-    // Find existing pricing entry for this combination, if any
-    const existing = this.pricingEntries.find(
-      (e) =>
-        e.vehicleType === this.quickPriceVehicleType &&
-        e.servicePackage === this.quickPriceServiceCode
-    );
-
-    this.newPricingEntry = {
-      id: existing?.id,
-      vehicleType: this.quickPriceVehicleType,
-      servicePackage: this.quickPriceServiceCode,
-      price: this.quickPriceAmount,
-      isActive: this.quickPriceIsActive,
-    };
-
-    if (existing?.id) {
-      this.editMode = true;
-      this.updatePricingEntry();
-    } else {
-      this.editMode = false;
-      this.addPricingEntry();
-    }
   }
 
   startEditService(service: ServiceCategory): void {
