@@ -917,6 +917,12 @@ if ($method === 'PUT') {
         exit();
     }
 
+    if (strpos($request, 'update_employee_password') !== false) {
+        $result = $put->update_employee_password($data);
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'update_employee') !== false) {
         $result = $put->update_employee($data);
         echo json_encode($result);

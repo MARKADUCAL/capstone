@@ -15,10 +15,6 @@
         {{ isGeneratingPDF ? "Generating..." : "Export PDF Report" }}
       </button>
       <mat-menu #reportMenu="matMenu">
-        <button mat-menu-item (click)="generatePDF('daily')">
-          <mat-icon>today</mat-icon>
-          <span>Daily Report</span>
-        </button>
         <button mat-menu-item (click)="generatePDF('weekly')">
           <mat-icon>date_range</mat-icon>
           <span>Weekly Report</span>
@@ -26,10 +22,6 @@
         <button mat-menu-item (click)="generatePDF('monthly')">
           <mat-icon>calendar_month</mat-icon>
           <span>Monthly Report</span>
-        </button>
-        <button mat-menu-item (click)="generatePDF('quantity')">
-          <mat-icon>inventory</mat-icon>
-          <span>Quantity Report</span>
         </button>
       </mat-menu>
     </div>

@@ -1078,4 +1078,40 @@ class Put {
             return $this->sendPayload(null, "failed", $e->getMessage(), 500);
         }
     }
+
+    public function update_employee_password($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Employee ID is required", 400);
+            }
+
+            if (!isset($data->password) || empty($data->password)) {
+                return $this->sendPayload(null, "failed", "Password is required", 400);
+            }
+
+            // Check if employee exists
+            $sqlCheck = "SELECT id FROM employees WHERE id = ?";
+            $stmtCheck = $this->pdo->prepare($sqlCheck);
+            $stmtCheck->execute([$data->id]);
+            $employee = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+            if (!$employee) {
+                return $this->sendPayload(null, "failed", "Employee not found", 404);
+            }
+
+            // Update password with hash
+            $hashedPassword = password_hash($data->password, PASSWORD_DEFAULT);
+            $sql = "UPDATE employees SET password = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$hashedPassword, $data->id]);
+
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Employee password updated successfully", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Failed to update employee password", 400);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
 } 
