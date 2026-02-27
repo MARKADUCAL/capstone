@@ -232,8 +232,8 @@
           <thead>
             <tr>
               <th>Vehicle Type</th>
-              <th *ngFor="let service of servicePackages">
-                {{ service.code | uppercase }}
+              <th *ngFor="let service of servicePackages; let i = index">
+                P{{ i + 1 }}
               </th>
             </tr>
           </thead>
