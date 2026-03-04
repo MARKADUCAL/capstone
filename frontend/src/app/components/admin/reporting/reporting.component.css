@@ -8,7 +8,7 @@
   margin-bottom: 32px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -38,6 +38,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .export-btn {
@@ -638,4 +639,65 @@
   .weekly-revenue-table {
     max-height: 300px;
   }
+
+  .report-selector-group {
+    flex-direction: column;
+    font-size: 14px;
+  }
+
+  .selector-item {
+    gap: 8px;
+  }
 }
+
+/* Report Selector Styles */
+.report-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+}
+
+.selector-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selector-item label {
+  font-weight: 500;
+  color: #2c3e50;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.selector-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.selector-input:hover {
+  border-color: #1976d2;
+}
+
+.selector-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.selected-range {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  white-space: nowrap;
+}
+

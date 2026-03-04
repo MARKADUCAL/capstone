@@ -2,28 +2,49 @@
   <div class="header">
     <h2>Reports & Analytics</h2>
     <div class="header-actions">
+      <!-- Report Type and Date Selector -->
+      <div class="report-selector-group">
+        <div class="selector-item">
+          <label>Report Type:</label>
+          <select [(ngModel)]="reportType" class="selector-input">
+            <option value="weekly">Weekly Report</option>
+            <option value="monthly">Monthly Report</option>
+          </select>
+        </div>
+
+        <div class="selector-item" *ngIf="reportType === 'weekly'">
+          <label>Select Week:</label>
+          <input
+            type="week"
+            [(ngModel)]="selectedReportWeek"
+            class="selector-input"
+          />
+          <span class="selected-range">{{ getReportWeekDateRange() }}</span>
+        </div>
+
+        <div class="selector-item" *ngIf="reportType === 'monthly'">
+          <label>Select Month:</label>
+          <input
+            type="month"
+            [(ngModel)]="selectedReportMonth"
+            class="selector-input"
+          />
+          <span class="selected-range">{{ getReportMonthDateRange() }}</span>
+        </div>
+      </div>
+
       <button
         mat-raised-button
         color="primary"
-        [matMenuTriggerFor]="reportMenu"
+        (click)="generatePDF(reportType)"
         class="export-btn"
-        [disabled]="isGeneratingPDF"
+        [disabled]="isGeneratingPDF || (reportType === 'weekly' && !selectedReportWeek) || (reportType === 'monthly' && !selectedReportMonth)"
       >
         <mat-icon>{{
           isGeneratingPDF ? "hourglass_empty" : "picture_as_pdf"
         }}</mat-icon>
         {{ isGeneratingPDF ? "Generating..." : "Export PDF Report" }}
       </button>
-      <mat-menu #reportMenu="matMenu">
-        <button mat-menu-item (click)="generatePDF('weekly')">
-          <mat-icon>date_range</mat-icon>
-          <span>Weekly Report</span>
-        </button>
-        <button mat-menu-item (click)="generatePDF('monthly')">
-          <mat-icon>calendar_month</mat-icon>
-          <span>Monthly Report</span>
-        </button>
-      </mat-menu>
     </div>
   </div>
 

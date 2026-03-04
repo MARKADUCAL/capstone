@@ -114,6 +114,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   selectedMonth: string = '';
   private currentMonthStart: Date = new Date();
 
+  // Report PDF selectors
+  selectedReportMonth: string = '';
+  selectedReportWeek: string = '';
+  reportType: 'weekly' | 'monthly' = 'weekly';
+
   // Track current bookings view type
   private currentBookingsType: 'weekly' | 'monthly' = 'weekly';
 
@@ -130,6 +135,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.initializeMonthSelector();
     this.initializeRevenueMonthSelector();
     this.initializeRevenueWeekSelector();
+    this.initializeReportSelectors();
 
     // Fetch live data
     this.loadDashboardSummary();
@@ -1974,6 +1980,81 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   getRevenueWeekDateRange(): string {
     if (!this.selectedRevenueWeek) return '';
     const [yearWeekStr, weekStr] = this.selectedRevenueWeek.split('-W');
+    const year = parseInt(yearWeekStr, 10);
+    const week = parseInt(weekStr, 10);
+
+    const weekStart = this.getWeekStartDate(year, week);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = weekStart.toLocaleDateString('en-US', options);
+    const endStr = weekEnd.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  private initializeReportSelectors(): void {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    this.selectedReportMonth = `${year}-${month}`;
+
+    // Get current week
+    const currentDate = new Date();
+    const weekStart = this.getWeekStart(currentDate);
+    const weekYear = weekStart.getFullYear();
+    const weekNumber = this.getWeekNumber(weekStart);
+    const weekStr = String(weekNumber).padStart(2, '0');
+    this.selectedReportWeek = `${weekYear}-W${weekStr}`;
+  }
+
+  private getWeekStart(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  }
+
+  private getWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  }
+
+  getReportMonthDateRange(): string {
+    if (!this.selectedReportMonth) return '';
+    const [year, month] = this.selectedReportMonth.split('-').map(Number);
+
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+    };
+    const startStr = monthStart.toLocaleDateString('en-US', options);
+    const endStr = monthEnd.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  getReportWeekDateRange(): string {
+    if (!this.selectedReportWeek) return '';
+    const [yearWeekStr, weekStr] = this.selectedReportWeek.split('-W');
     const year = parseInt(yearWeekStr, 10);
     const week = parseInt(weekStr, 10);
 

@@ -267,7 +267,7 @@
                 class="detail-value"
                 [ngClass]="{
                   'pending-assignment': !hasEmployeeAssigned(booking),
-                  'assigned-employee': hasEmployeeAssigned(booking)
+                  'assigned-employee': hasEmployeeAssigned(booking),
                 }"
               >
                 {{ getEmployeeInfo(booking) }}
@@ -314,7 +314,7 @@
             <span class="admin-title">Admin Reply</span>
             <span class="admin-time" *ngIf="$any(booking).adminCommentedAt">
               {{
-                $any(booking).adminCommentedAt | date : "MMM dd, yyyy, h:mm a"
+                $any(booking).adminCommentedAt | date: "MMM dd, yyyy, h:mm a"
               }}
             </span>
           </div>
@@ -483,7 +483,7 @@
                 class="value"
                 [ngClass]="{
                   'pending-assignment': !hasEmployeeAssigned(selectedBooking),
-                  'assigned-employee': hasEmployeeAssigned(selectedBooking)
+                  'assigned-employee': hasEmployeeAssigned(selectedBooking),
                 }"
               >
                 {{ getEmployeeInfo(selectedBooking) }}
@@ -599,7 +599,7 @@
               <span class="label">Submitted On:</span>
               <span class="value">{{
                 $any(selectedBooking).feedbackCreatedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
             <div
@@ -640,7 +640,7 @@
               <span class="label">Replied On:</span>
               <span class="value">{{
                 $any(selectedBooking).adminCommentedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
           </div>
@@ -655,7 +655,7 @@
             <div class="detail-row">
               <span class="label">Amount:</span>
               <span class="value price"
-                >₱{{ selectedBooking.price | number : "1.2-2" }}</span
+                >₱{{ selectedBooking.price | number: "1.2-2" }}</span
               >
             </div>
             <div class="detail-row">
@@ -734,28 +734,28 @@
               <span class="label">Booked:</span>
               <span class="value">{{
                 $any(selectedBooking).bookingCreatedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
             <div class="detail-row" *ngIf="$any(selectedBooking).approvedAt">
               <span class="label">Approved:</span>
               <span class="value">{{
                 $any(selectedBooking).approvedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
             <div class="detail-row" *ngIf="$any(selectedBooking).startedAt">
               <span class="label">Started:</span>
               <span class="value">{{
                 $any(selectedBooking).startedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
             <div class="detail-row" *ngIf="$any(selectedBooking).completedAt">
               <span class="label">Completed:</span>
               <span class="value">{{
                 $any(selectedBooking).completedAt
-                  | date : "MMM dd, yyyy 'at' h:mm a"
+                  | date: "MMM dd, yyyy 'at' h:mm a"
               }}</span>
             </div>
           </div>
@@ -990,8 +990,8 @@
               ? "Updating..."
               : "Submitting..."
             : isEditingFeedback
-            ? "Update Feedback"
-            : "Submit Feedback"
+              ? "Update Feedback"
+              : "Submit Feedback"
         }}
       </button>
     </div>

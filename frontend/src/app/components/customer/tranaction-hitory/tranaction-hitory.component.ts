@@ -67,7 +67,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookingService: BookingService,
     private feedbackService: FeedbackService,
-    private router: Router
+    private router: Router,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -79,7 +79,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       document.addEventListener(
         'visibilitychange',
-        this.handleVisibilityChange.bind(this)
+        this.handleVisibilityChange.bind(this),
       );
     }
   }
@@ -99,7 +99,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       document.removeEventListener(
         'visibilitychange',
-        this.handleVisibilityChange.bind(this)
+        this.handleVisibilityChange.bind(this),
       );
     }
   }
@@ -171,8 +171,15 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   }
 
   normalizeStatus(
-    status: string
-  ): 'pending' | 'approved' | 'completed' | 'cancelled' | 'rejected' | 'expired' | string {
+    status: string,
+  ):
+    | 'pending'
+    | 'approved'
+    | 'completed'
+    | 'cancelled'
+    | 'rejected'
+    | 'expired'
+    | string {
     const s = (status ?? '').toString().trim().toLowerCase();
     if (s === 'confirmed' || s === 'approved') return 'approved';
     if (s === 'cancelled' || s === 'canceled') return 'cancelled';
@@ -235,7 +242,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     const codeMatch = rawType.toString().match(/^([A-Z]+)\s*-\s*/);
     if (codeMatch) {
       const matchIndex = this.vehicleTypeCodes.indexOf(
-        codeMatch[1].toUpperCase()
+        codeMatch[1].toUpperCase(),
       );
       if (matchIndex >= 0) {
         return this.vehicleTypeLabels[matchIndex];
@@ -368,10 +375,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
                 // Sort bookings by washDate and washTime descending (newest first)
                 this.bookings = bookings.sort((a: any, b: any) => {
                   const dateA = new Date(
-                    a.washDate + 'T' + (a.washTime || '00:00:00')
+                    a.washDate + 'T' + (a.washTime || '00:00:00'),
                   );
                   const dateB = new Date(
-                    b.washDate + 'T' + (b.washTime || '00:00:00')
+                    b.washDate + 'T' + (b.washTime || '00:00:00'),
                   );
                   return dateB.getTime() - dateA.getTime();
                 });
@@ -383,7 +390,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
                 console.log(
                   'Bookings loaded successfully:',
-                  this.bookings.length
+                  this.bookings.length,
                 );
 
                 // Check for existing feedback for each completed booking
@@ -394,7 +401,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
                   console.log(
                     `Booking ${index + 1}: ID=${booking.id}, Status=${
                       booking.status
-                    }, Service=${this.getServiceName(booking)}`
+                    }, Service=${this.getServiceName(booking)}`,
                   );
                 });
               },
@@ -505,7 +512,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           this.feedbackIdMap.set(bookingId, feedbackForBooking.id!);
           console.log(
             'Loaded existing feedback for editing:',
-            feedbackForBooking
+            feedbackForBooking,
           );
         }
       },
@@ -565,7 +572,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           'Cancelled',
           this.cancelReason && this.cancelReason.trim().length > 0
             ? this.cancelReason.trim()
-            : undefined
+            : undefined,
         )
         .toPromise();
 
@@ -651,7 +658,10 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     this.bookings.forEach((booking) => {
       const normalizedStatus = this.normalizeStatus(booking.status);
       const washDate = booking.washDate || (booking as any).wash_date;
-      if (normalizedStatus === 'pending' && this.isBookingDatePassed(washDate)) {
+      if (
+        normalizedStatus === 'pending' &&
+        this.isBookingDatePassed(washDate)
+      ) {
         // Mark locally as expired
         (booking as any).status = 'Expired';
         expiredBookingIds.push(booking.id);
@@ -665,14 +675,17 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
           console.log(`Booking #${bookingId} marked as Expired`);
         },
         error: (err) => {
-          console.error(`Failed to mark booking #${bookingId} as Expired:`, err);
+          console.error(
+            `Failed to mark booking #${bookingId} as Expired:`,
+            err,
+          );
         },
       });
     });
 
     if (expiredBookingIds.length > 0) {
       console.log(
-        `${expiredBookingIds.length} pending booking(s) marked as expired`
+        `${expiredBookingIds.length} pending booking(s) marked as expired`,
       );
     }
   }
@@ -855,7 +868,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   // Check for existing feedback for all completed bookings
   private checkExistingFeedback(): void {
     const completedBookings = this.bookings.filter(
-      (booking) => this.normalizeStatus(booking.status) === 'completed'
+      (booking) => this.normalizeStatus(booking.status) === 'completed',
     );
 
     completedBookings.forEach((booking) => {
@@ -863,7 +876,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       this.feedbackService.getAllFeedback(200).subscribe({
         next: (list) => {
           const feedbackForBooking = list.find(
-            (f) => f.booking_id === bookingId
+            (f) => f.booking_id === bookingId,
           );
           const exists = !!feedbackForBooking;
           this.feedbackExistsMap.set(bookingId, exists);
@@ -916,7 +929,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error(
             `Error checking feedback for booking ${bookingId}:`,
-            error
+            error,
           );
           this.feedbackExistsMap.set(bookingId, false);
         },
@@ -977,7 +990,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error(
           `Error refreshing feedback for booking ${bookingId}:`,
-          error
+          error,
         );
       },
     });
