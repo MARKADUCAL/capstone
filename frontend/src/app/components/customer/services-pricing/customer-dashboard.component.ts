@@ -53,7 +53,7 @@ export class ServicesPricingComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -138,7 +138,7 @@ export class ServicesPricingComponent implements OnInit {
 
   navigateToAppointmentWithPackage(
     vehicleType: string,
-    servicePackage: string
+    servicePackage: string,
   ): void {
     this.router.navigate(['/customer-view/appointment'], {
       queryParams: {

@@ -89,8 +89,8 @@ export class AppointmentComponent implements OnInit {
   // Form options
   vehicleTypes = VEHICLE_TYPES;
   vehicleTypeCodes = VEHICLE_TYPE_CODES;
-  servicePackages = SERVICE_PACKAGES;
-  serviceCodes = SERVICE_CODES;
+  servicePackages: string[] = [];
+  serviceCodes: string[] = [];
   paymentTypes = PAYMENT_TYPES;
   onlinePaymentOptions = ONLINE_PAYMENT_OPTIONS;
 
@@ -158,6 +158,7 @@ export class AppointmentComponent implements OnInit {
     this.updateResponsiveState();
     if (this.isBrowser) {
       this.loadUserData();
+      this.loadServicePackages(); // Load service packages from database
       this.loadPricingData(); // Load pricing data from database
 
       // Check for query parameters from pricing page
@@ -447,6 +448,39 @@ export class AppointmentComponent implements OnInit {
       return `${hh}:${mm}:00`;
     } catch {
       return timeValue;
+    }
+  }
+
+  loadServicePackages(): void {
+    if (this.isBrowser) {
+      console.log('Loading service packages from:', `${environment.apiUrl}/get_packages`);
+      this.http.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
+        next: (response) => {
+          console.log('Service packages API response:', response);
+          if (response.status && response.status.remarks === 'success') {
+            const packages = response.payload.packages || [];
+            // Transform API response to format: "code - description"
+            this.servicePackages = packages.map((pkg: any) => 
+              `${pkg.code} - ${pkg.description}`
+            );
+            // Extract just the codes for the codes array
+            this.serviceCodes = packages.map((pkg: any) => pkg.code);
+            console.log('Loaded service packages:', this.servicePackages);
+            console.log('Service codes:', this.serviceCodes);
+          } else {
+            console.error('Failed to load service packages:', response);
+            // Fallback to defaults
+            this.servicePackages = SERVICE_PACKAGES;
+            this.serviceCodes = SERVICE_CODES;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading service packages:', error);
+          // Fallback to defaults
+          this.servicePackages = SERVICE_PACKAGES;
+          this.serviceCodes = SERVICE_CODES;
+        },
+      });
     }
   }
 
