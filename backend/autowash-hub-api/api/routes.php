@@ -469,6 +469,12 @@ if ($method === 'GET') {
         exit();
     }
 
+    if (strpos($request, 'get_packages') !== false) {
+        $result = $get->get_packages();
+        echo json_encode($result);
+        exit();
+    }
+
 
 
     if (strpos($request, 'get_service_categories') !== false) {

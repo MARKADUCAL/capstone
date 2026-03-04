@@ -9,6 +9,7 @@ import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -452,77 +453,68 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.pricingError = '';
 
-    // Load pricing from database
-    this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
-      next: (response) => {
-        if (response.status && response.status.remarks === 'success') {
-          this.pricingMatrix = response.payload.pricing_matrix || {};
-          console.log('Loaded pricing matrix:', this.pricingMatrix);
-          this.deriveVehicleTypesAndPackages();
-        } else {
-          console.error('Failed to load pricing matrix:', response);
-          this.pricingMatrix = {};
-          this.pricingError =
-            response?.status?.message || 'Failed to load pricing matrix.';
+    // Load packages and pricing matrix from database (packages list is source of truth)
+    forkJoin({
+      packages: this.http.get<any>(`${environment.apiUrl}/get_packages`),
+      pricing: this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`),
+    }).subscribe({
+      next: ({ packages: packagesRes, pricing: pricingRes }) => {
+        if (packagesRes?.status?.remarks === 'success' && packagesRes?.payload?.packages) {
+          this.servicePackages = packagesRes.payload.packages.map((p: { code: string; description: string }) => ({
+            code: p.code,
+            description: p.description,
+          }));
         }
+        if (pricingRes?.status?.remarks === 'success') {
+          this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
+          console.log('Loaded pricing matrix:', this.pricingMatrix);
+        } else {
+          console.error('Failed to load pricing matrix:', pricingRes);
+          this.pricingMatrix = {};
+          this.pricingError = pricingRes?.status?.message || 'Failed to load pricing matrix.';
+        }
+        // If packages API failed, derive packages from pricing matrix as fallback
+        if (this.servicePackages.length === 0) {
+          this.derivePackagesFromMatrix();
+        }
+        this.deriveVehicleTypes();
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading pricing matrix:', error);
+        console.error('Error loading pricing data:', error);
         this.pricingMatrix = {};
         this.pricingError = 'Unable to load pricing data. Please try again.';
+        this.deriveVehicleTypes();
         this.loading = false;
       },
     });
   }
 
-  private deriveVehicleTypesAndPackages(): void {
-    // Derive vehicle types from pricing matrix keys
+  private deriveVehicleTypes(): void {
     const vehicleCodes = Object.keys(this.pricingMatrix || {});
     this.vehicleTypes = vehicleCodes.map((code) => ({
       code,
       description: this.describeVehicleType(code),
     }));
+  }
 
-    // Derive union of service packages across vehicle types (use keys as-is)
+  /** Fallback: derive package list from pricing matrix when get_packages is unavailable */
+  private derivePackagesFromMatrix(): void {
     const pkgSet = new Set<string>();
-    for (const vehicleCode of vehicleCodes) {
+    for (const vehicleCode of Object.keys(this.pricingMatrix || {})) {
       const entries = this.pricingMatrix[vehicleCode] || {};
       Object.keys(entries).forEach((pkg) => pkgSet.add(pkg));
     }
-
-    // Provide a stable order: p1, p1_5, p2, p3, p4, then others, or if numeric: 1,1.5,2,3,4
-    const preferredOrder = [
-      'p1',
-      'p1_5',
-      'p2',
-      'p3',
-      'p4',
-      '1',
-      '1.5',
-      '2',
-      '3',
-      '4',
-    ];
+    const preferredOrder = ['p1', 'p1_5', 'p2', 'p3', 'p4', '1', '1.5', '2', '3', '4'];
     const presentPreferred = preferredOrder.filter((p) => pkgSet.has(p));
-    const remaining = Array.from(pkgSet).filter(
-      (p) => !presentPreferred.includes(p)
-    );
+    const remaining = Array.from(pkgSet).filter((p) => !presentPreferred.includes(p));
     const ordered = [...presentPreferred, ...remaining];
-
     const pkgDescriptions: { [key: string]: string } = {
-      p1: 'Wash only',
-      p1_5: 'Body Wash + Tire Black',
-      p2: 'Wash / Vacuum',
-      p3: 'Wash / Vacuum / Hand Wax',
-      p4: 'Wash / Vacuum / Buffing Wax',
-      '1': 'Wash only',
-      '1.5': 'Body Wash + Tire Black',
-      '2': 'Wash / Vacuum',
-      '3': 'Wash / Vacuum / Hand Wax',
-      '4': 'Wash / Vacuum / Buffing Wax',
+      p1: 'Wash only', p1_5: 'Body Wash + Tire Black', p2: 'Wash / Vacuum',
+      p3: 'Wash / Vacuum / Hand Wax', p4: 'Wash / Vacuum / Buffing Wax',
+      '1': 'Wash only', '1.5': 'Body Wash + Tire Black', '2': 'Wash / Vacuum',
+      '3': 'Wash / Vacuum / Hand Wax', '4': 'Wash / Vacuum / Buffing Wax',
     };
-
     this.servicePackages = ordered.map((code) => ({
       code,
       description: pkgDescriptions[code] || 'Car wash service',

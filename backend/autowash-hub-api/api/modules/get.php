@@ -1489,11 +1489,40 @@
         }
 
         /**
-         * Get pricing matrix in a structured format
+         * Get active packages from packages table (code, description)
+         */
+        public function get_packages() {
+            try {
+                $sql = "SELECT code, description FROM packages WHERE is_active = 1 ORDER BY id";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute();
+                $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $this->sendPayload(
+                    ['packages' => $packages],
+                    "success",
+                    "Packages retrieved successfully",
+                    200
+                );
+            } catch (\PDOException $e) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Failed to retrieve packages: " . $e->getMessage(),
+                    500
+                );
+            }
+        }
+
+        /**
+         * Get pricing matrix in a structured format (only for packages that exist in packages table)
          */
         public function get_pricing_matrix() {
             try {
-                $sql = "SELECT * FROM pricing WHERE is_active = 1 ORDER BY vehicle_type, service_package";
+                $sql = "SELECT p.vehicle_type, p.service_package, p.price
+                        FROM pricing p
+                        INNER JOIN packages pkg ON p.service_package = pkg.code AND pkg.is_active = 1
+                        WHERE p.is_active = 1
+                        ORDER BY p.vehicle_type, p.service_package";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
