@@ -1504,12 +1504,49 @@
                     200
                 );
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve packages: " . $e->getMessage(),
-                    500
-                );
+                // Fallback for environments where `packages` table is missing:
+                // derive package codes from pricing so the app can still function.
+                try {
+                    $sql = "SELECT DISTINCT service_package FROM pricing WHERE is_active = 1 ORDER BY service_package";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute();
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $descMap = [
+                        'p1' => 'Wash only',
+                        'p1_5' => 'Body Wash + Tire Black',
+                        'p2' => 'Wash / Vacuum',
+                        'p3' => 'Wash / Vacuum / Hand Wax',
+                        'p4' => 'Wash / Vacuum / Buffing Wax',
+                        '1' => 'Wash only',
+                        '1.5' => 'Body Wash + Tire Black',
+                        '2' => 'Wash / Vacuum',
+                        '3' => 'Wash / Vacuum / Hand Wax',
+                        '4' => 'Wash / Vacuum / Buffing Wax',
+                    ];
+
+                    $packages = array_map(function ($r) use ($descMap) {
+                        $code = $r['service_package'];
+                        return [
+                            'code' => $code,
+                            'description' => $descMap[$code] ?? 'Car wash service',
+                        ];
+                    }, $rows);
+
+                    return $this->sendPayload(
+                        ['packages' => $packages],
+                        "success",
+                        "Packages derived from pricing (fallback).",
+                        200
+                    );
+                } catch (\PDOException $e2) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "Failed to retrieve packages: " . $e->getMessage(),
+                        500
+                    );
+                }
             }
         }
 
@@ -1547,12 +1584,43 @@
                     200
                 );
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve pricing matrix: " . $e->getMessage(),
-                    500
-                );
+                // Fallback for environments where `packages` table is missing:
+                // return matrix derived from pricing alone.
+                try {
+                    $sql = "SELECT vehicle_type, service_package, price
+                            FROM pricing
+                            WHERE is_active = 1
+                            ORDER BY vehicle_type, service_package";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute();
+                    $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $matrix = [];
+                    foreach ($pricing as $entry) {
+                        $vehicleType = $entry['vehicle_type'];
+                        $servicePackage = $entry['service_package'];
+                        $price = $entry['price'];
+
+                        if (!isset($matrix[$vehicleType])) {
+                            $matrix[$vehicleType] = [];
+                        }
+                        $matrix[$vehicleType][$servicePackage] = $price;
+                    }
+
+                    return $this->sendPayload(
+                        ['pricing_matrix' => $matrix],
+                        "success",
+                        "Pricing matrix derived from pricing (fallback).",
+                        200
+                    );
+                } catch (\PDOException $e2) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "Failed to retrieve pricing matrix: " . $e->getMessage(),
+                        500
+                    );
+                }
             }
         }
 
