@@ -843,7 +843,25 @@ class Put {
                 return $this->sendPayload(null, "failed", "Package code is required", 400);
             }
 
-            $sql = "UPDATE packages
+            $code = trim($data->code);
+            if ($code === '') {
+                return $this->sendPayload(null, "failed", "Package code is required", 400);
+            }
+
+            // Prevent updating to a duplicate code
+            $check = $this->pdo->prepare("SELECT id FROM service_packages WHERE code = ? AND id != ? LIMIT 1");
+            $check->execute([$code, $data->id]);
+            $existing = $check->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Package code already exists. Please use a different code.",
+                    409
+                );
+            }
+
+            $sql = "UPDATE service_packages
                     SET code = ?, description = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?";
 
@@ -851,7 +869,7 @@ class Put {
             $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
 
             $stmt->execute([
-                $data->code,
+                $code,
                 $data->description ?? '',
                 $isActive,
                 $data->id

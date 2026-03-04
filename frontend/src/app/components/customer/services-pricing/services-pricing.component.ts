@@ -41,13 +41,8 @@ export class ServicesPricingComponent implements OnInit {
     },
   ];
 
-  // Service packages with descriptions
-  servicePackages = [
-    { code: 'p1', description: 'Wash only' },
-    { code: 'p2', description: 'Wash / Vacuum' },
-    { code: 'p3', description: 'Wash / Vacuum / Hand Wax' },
-    { code: 'p4', description: 'Wash / Vacuum / Buffing Wax' },
-  ];
+  // Service packages with descriptions - loaded from database
+  servicePackages: any[] = [];
 
   // Empty pricing matrix (will be populated from database)
   defaultPricingMatrix: PricingMatrix = {};
@@ -66,6 +61,7 @@ export class ServicesPricingComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadCustomerData();
+      this.loadServicePackages();
       this.loadPricingData();
     }
   }
@@ -92,6 +88,24 @@ export class ServicesPricingComponent implements OnInit {
       console.error('No customer data found in localStorage');
       this.error = 'Please log in to view pricing.';
     }
+  }
+
+  loadServicePackages(): void {
+    this.http.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
+      next: (response) => {
+        if (response.status && response.status.remarks === 'success') {
+          this.servicePackages = response.payload.packages || [];
+          console.log('Loaded service packages:', this.servicePackages);
+        } else {
+          console.error('Failed to load service packages:', response);
+          this.servicePackages = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error loading service packages:', error);
+        this.servicePackages = [];
+      },
+    });
   }
 
   loadPricingData(): void {

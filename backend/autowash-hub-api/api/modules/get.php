@@ -1489,11 +1489,13 @@
         }
 
         /**
-         * Get active packages from packages table (code, description)
+         * Get active packages from service_packages table (name/code, description)
          */
         public function get_packages() {
             try {
-                $sql = "SELECT code, description FROM packages WHERE is_active = 1 ORDER BY id";
+                // service_packages schema: id, code, description, is_active, created_at, updated_at
+                // We expose it as {id, code, description, is_active} to keep frontend stable.
+                $sql = "SELECT id, code, description, is_active FROM service_packages WHERE is_active = 1 ORDER BY id";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1504,8 +1506,7 @@
                     200
                 );
             } catch (\PDOException $e) {
-                // Fallback for environments where `packages` table is missing:
-                // derive package codes from pricing so the app can still function.
+                // Fallback: derive package codes from pricing so the app can still function.
                 try {
                     $sql = "SELECT DISTINCT service_package FROM pricing WHERE is_active = 1 ORDER BY service_package";
                     $stmt = $this->pdo->prepare($sql);
@@ -1530,6 +1531,7 @@
                         return [
                             'code' => $code,
                             'description' => $descMap[$code] ?? 'Car wash service',
+                            'is_active' => 1
                         ];
                     }, $rows);
 
@@ -1551,13 +1553,13 @@
         }
 
         /**
-         * Get pricing matrix in a structured format (only for packages that exist in packages table)
+         * Get pricing matrix in a structured format (only for packages that exist in service_packages table)
          */
         public function get_pricing_matrix() {
             try {
                 $sql = "SELECT p.vehicle_type, p.service_package, p.price
                         FROM pricing p
-                        INNER JOIN packages pkg ON p.service_package = pkg.code AND pkg.is_active = 1
+                        INNER JOIN service_packages sp ON p.service_package = sp.code AND sp.is_active = 1
                         WHERE p.is_active = 1
                         ORDER BY p.vehicle_type, p.service_package";
                 $stmt = $this->pdo->prepare($sql);

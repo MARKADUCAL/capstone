@@ -1958,19 +1958,37 @@ class Post extends GlobalMethods
         }
 
         try {
-            $sql = "INSERT INTO packages (code, description, is_active) VALUES (?, ?, ?)";
+            $code = trim($data->code);
+            if ($code === '') {
+                return $this->sendPayload(null, "failed", "Package code is required", 400);
+            }
+
+            // Prevent duplicate codes (common source of 500s in production)
+            $check = $this->pdo->prepare("SELECT id FROM service_packages WHERE code = ? LIMIT 1");
+            $check->execute([$code]);
+            $existing = $check->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Package code already exists. Please use a different code.",
+                    409
+                );
+            }
+
+            $sql = "INSERT INTO service_packages (code, description, is_active) VALUES (?, ?, ?)";
             $statement = $this->pdo->prepare($sql);
 
             $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
             $statement->execute([
-                $data->code,
+                $code,
                 $data->description ?? '',
                 $isActive
             ]);
 
             if ($statement->rowCount() > 0) {
                 $packageId = $this->pdo->lastInsertId();
-                $stmt = $this->pdo->prepare("SELECT id, code, description, is_active, created_at FROM packages WHERE id = ?");
+                $stmt = $this->pdo->prepare("SELECT id, code, description, is_active, created_at FROM service_packages WHERE id = ?");
                 $stmt->execute([$packageId]);
                 $pkg = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -1985,6 +2003,15 @@ class Post extends GlobalMethods
             return $this->sendPayload(null, "failed", "Failed to add package", 400);
         } catch (\PDOException $e) {
             error_log("Package creation error: " . $e->getMessage());
+            // Surface a friendlier message for common duplicate-key errors
+            if ($e->getCode() === '23000') {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Package code already exists. Please use a different code.",
+                    409
+                );
+            }
             return $this->sendPayload(
                 null,
                 "failed",
