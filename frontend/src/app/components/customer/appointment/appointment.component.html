@@ -175,7 +175,7 @@
                   <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="month-label">
-                  {{ currentCalendarMonth | date : "MMMM, yyyy" }}
+                  {{ currentCalendarMonth | date: "MMMM, yyyy" }}
                 </div>
                 <button
                   type="button"
@@ -215,7 +215,7 @@
                     <div class="day-bookings">
                       <div
                         class="booking-pill"
-                        *ngFor="let booking of day.bookings | slice : 0 : 3"
+                        *ngFor="let booking of day.bookings | slice: 0 : 3"
                         [ngClass]="getBookingBadgeClass(booking)"
                       >
                         {{ getBookingLabel(booking) }}
@@ -233,7 +233,7 @@
               <div class="time-panel-header">
                 <h3 *ngIf="selectedCalendarDate; else selectDatePrompt">
                   Available time on
-                  {{ selectedCalendarDate | date : "MMMM d, yyyy" }}
+                  {{ selectedCalendarDate | date: "MMMM d, yyyy" }}
                 </h3>
                 <ng-template #selectDatePrompt>
                   <h3>Select a date to view available time slots</h3>
@@ -426,21 +426,14 @@
           <div class="pricing-step">
             <h4>Step 2: Select Services</h4>
             <div class="service-packages-list">
-              <div class="service-package-item">
-                <span class="service-code">1:</span>
-                <span class="service-desc">Body Wash</span>
-              </div>
-              <div class="service-package-item">
-                <span class="service-code">2:</span>
-                <span class="service-desc">Wash / Vacuum</span>
-              </div>
-              <div class="service-package-item">
-                <span class="service-code">3:</span>
-                <span class="service-desc">Wash / Vacuum / Hand Wax</span>
-              </div>
-              <div class="service-package-item">
-                <span class="service-code">4:</span>
-                <span class="service-desc">Wash / Vacuum / Buffing Wax</span>
+              <div
+                *ngFor="let service of servicePackages; let i = index"
+                class="service-package-item"
+              >
+                <span class="service-code">{{ i + 1 }}:</span>
+                <span class="service-desc">{{
+                  extractServiceDescription(service)
+                }}</span>
               </div>
             </div>
           </div>

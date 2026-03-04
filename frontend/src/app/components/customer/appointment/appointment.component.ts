@@ -149,7 +149,7 @@ export class AppointmentComponent implements OnInit {
     private serviceService: ServiceService,
     private route: ActivatedRoute,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -211,7 +211,7 @@ export class AppointmentComponent implements OnInit {
           thirtyMinutesFromNow.getMinutes();
         const clampedMinutes = Math.max(
           this.BUSINESS_DAY_START_MINUTES,
-          minutesFromStartOfDay
+          minutesFromStartOfDay,
         );
         return this.minutesToTimeString(clampedMinutes);
       }
@@ -241,7 +241,7 @@ export class AppointmentComponent implements OnInit {
       if (!Array.isArray(this.customerBookings)) return false;
       return this.customerBookings.some(
         (b: any) =>
-          this.isActiveBookingStatus(b?.status) && !this.isBookingExpired(b)
+          this.isActiveBookingStatus(b?.status) && !this.isBookingExpired(b),
       );
     } catch {
       return false;
@@ -276,7 +276,7 @@ export class AppointmentComponent implements OnInit {
           return false;
         }
         const bookingPlate = this.normalizePlate(
-          booking?.plate_number ?? booking?.plateNumber
+          booking?.plate_number ?? booking?.plateNumber,
         );
         return bookingPlate && bookingPlate === normalizedTargetPlate;
       });
@@ -287,14 +287,14 @@ export class AppointmentComponent implements OnInit {
 
   // Find a saved vehicle by plate number (case/format insensitive)
   private findSavedVehicleByPlate(
-    plateNumber: string
+    plateNumber: string,
   ): Record<string, any> | null {
     const normalizedTargetPlate = this.normalizePlate(plateNumber);
     if (!normalizedTargetPlate) return null;
 
     const match = this.customerVehicles.find((vehicle: any) => {
       const normalizedVehiclePlate = this.normalizePlate(
-        vehicle?.plate_number ?? vehicle?.plateNumber
+        vehicle?.plate_number ?? vehicle?.plateNumber,
       );
       return normalizedVehiclePlate === normalizedTargetPlate;
     });
@@ -333,7 +333,7 @@ export class AppointmentComponent implements OnInit {
       booking?.washDate,
       booking?.wash_date_time,
       booking?.washDateTime,
-      booking?.date
+      booking?.date,
     );
 
     if (!rawDateValue) {
@@ -355,7 +355,7 @@ export class AppointmentComponent implements OnInit {
           isNaN(hours) ? 0 : hours,
           isNaN(minutes) ? 0 : minutes,
           0,
-          0
+          0,
         );
       } else if (
         typeof rawDateValue === 'string' &&
@@ -381,12 +381,12 @@ export class AppointmentComponent implements OnInit {
   // Extract a HH:MM time string for a booking, if any
   private extractBookingTimeString(
     booking: any,
-    rawDateValue: any
+    rawDateValue: any,
   ): string | null {
     const timeValue = this.getFirstNonEmptyValue(
       booking?.wash_time,
       booking?.washTime,
-      booking?.time
+      booking?.time,
     );
 
     if (typeof timeValue === 'string' && timeValue.trim()) {
@@ -453,15 +453,18 @@ export class AppointmentComponent implements OnInit {
 
   loadServicePackages(): void {
     if (this.isBrowser) {
-      console.log('Loading service packages from:', `${environment.apiUrl}/get_packages`);
+      console.log(
+        'Loading service packages from:',
+        `${environment.apiUrl}/get_packages`,
+      );
       this.http.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
         next: (response) => {
           console.log('Service packages API response:', response);
           if (response.status && response.status.remarks === 'success') {
             const packages = response.payload.packages || [];
             // Transform API response to format: "code - description"
-            this.servicePackages = packages.map((pkg: any) => 
-              `${pkg.code} - ${pkg.description}`
+            this.servicePackages = packages.map(
+              (pkg: any) => `${pkg.code} - ${pkg.description}`,
             );
             // Extract just the codes for the codes array
             this.serviceCodes = packages.map((pkg: any) => pkg.code);
@@ -489,7 +492,7 @@ export class AppointmentComponent implements OnInit {
     if (this.isBrowser) {
       console.log(
         'Loading pricing data from:',
-        `${environment.apiUrl}/get_pricing_matrix`
+        `${environment.apiUrl}/get_pricing_matrix`,
       );
       this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
         next: (response) => {
@@ -539,7 +542,7 @@ export class AppointmentComponent implements OnInit {
     console.log(
       'Calculating price for:',
       this.bookingForm.vehicleType,
-      this.bookingForm.services
+      this.bookingForm.services,
     );
     const vehicleCode = this.getVehicleTypeCode(this.bookingForm.vehicleType);
     const serviceCode = this.getServiceCode(this.bookingForm.services);
@@ -556,7 +559,7 @@ export class AppointmentComponent implements OnInit {
     ) {
       this.selectedPrice = this.pricingMatrix[vehicleCode][serviceCode];
       console.log(
-        `Price for ${vehicleCode} - ${serviceCode}: ${this.selectedPrice}`
+        `Price for ${vehicleCode} - ${serviceCode}: ${this.selectedPrice}`,
       );
     } else {
       this.selectedPrice = null;
@@ -571,7 +574,7 @@ export class AppointmentComponent implements OnInit {
           'Available service codes for',
           vehicleCode,
           ':',
-          Object.keys(this.pricingMatrix[vehicleCode])
+          Object.keys(this.pricingMatrix[vehicleCode]),
         );
       }
     }
@@ -584,7 +587,7 @@ export class AppointmentComponent implements OnInit {
     // Reset selected vehicle when type changes manually (if it doesn't match)
     if (this.selectedVehicleId) {
       const selectedVehicle = this.customerVehicles.find(
-        (v) => v.id === this.selectedVehicleId
+        (v) => v.id === this.selectedVehicleId,
       );
       if (
         selectedVehicle &&
@@ -599,6 +602,17 @@ export class AppointmentComponent implements OnInit {
   // Handle service change
   onServiceChange(): void {
     this.calculatePrice();
+  }
+
+  // Extract service description from "code - description" format
+  extractServiceDescription(service: string): string {
+    if (!service) return '';
+    // If format is "p1 - Body Wash", extract "Body Wash"
+    const parts = service.split(' - ');
+    if (parts.length > 1) {
+      return parts[1];
+    }
+    return service;
   }
 
   // Handle payment type change
@@ -661,7 +675,7 @@ export class AppointmentComponent implements OnInit {
         this.customerBookings = [];
         this.rebuildBookingsByDate();
         this.buildCalendar();
-      }
+      },
     );
   }
 
@@ -684,7 +698,7 @@ export class AppointmentComponent implements OnInit {
     this.http
       .get<any>(
         `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.userCustomerId}`,
-        { headers }
+        { headers },
       )
       .subscribe({
         next: (response: any) => {
@@ -714,12 +728,12 @@ export class AppointmentComponent implements OnInit {
 
     // Extract vehicle type code from the selected type (e.g., "M - SUVs..." -> "M")
     const vehicleTypeCode = this.getVehicleTypeCode(
-      this.bookingForm.vehicleType
+      this.bookingForm.vehicleType,
     );
 
     // Filter vehicles by the selected vehicle type
     this.filteredVehicles = this.customerVehicles.filter(
-      (vehicle) => vehicle.vehicle_type === vehicleTypeCode
+      (vehicle) => vehicle.vehicle_type === vehicleTypeCode,
     );
   }
 
@@ -731,10 +745,10 @@ export class AppointmentComponent implements OnInit {
     }
 
     const vehicleTypeCode = this.getVehicleTypeCode(
-      this.bookingForm.vehicleType
+      this.bookingForm.vehicleType,
     );
     this.filteredVehicles = this.customerVehicles.filter(
-      (vehicle) => vehicle.vehicle_type === vehicleTypeCode
+      (vehicle) => vehicle.vehicle_type === vehicleTypeCode,
     );
   }
 
@@ -777,7 +791,7 @@ export class AppointmentComponent implements OnInit {
         } else {
           // Try direct code match
           const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(
-            vehicle.vehicle_type
+            vehicle.vehicle_type,
           );
           if (
             vehicleTypeIndex >= 0 &&
@@ -916,7 +930,7 @@ export class AppointmentComponent implements OnInit {
 
     // Ensure the selected plate belongs to one of the user's saved vehicles
     const savedVehicle = this.findSavedVehicleByPlate(
-      this.bookingForm.plateNumber
+      this.bookingForm.plateNumber,
     );
     if (!savedVehicle) {
       const msg =
@@ -940,7 +954,7 @@ export class AppointmentComponent implements OnInit {
     if (
       this.isDateTimeInPast(
         this.bookingForm.washDate,
-        this.bookingForm.washTime
+        this.bookingForm.washTime,
       )
     ) {
       this.errorMessage = 'Please select a future date and time.';
@@ -1016,7 +1030,7 @@ export class AppointmentComponent implements OnInit {
       (error) => {
         this.isSubmitting = false;
         this.errorMessage = error.message;
-      }
+      },
     );
   }
 
@@ -1041,7 +1055,7 @@ export class AppointmentComponent implements OnInit {
 
     // Verify vehicle exists and set vehicle type if missing
     const vehicle = this.customerVehicles.find(
-      (v) => v.id == this.selectedVehicleId
+      (v) => v.id == this.selectedVehicleId,
     );
 
     if (!vehicle) {
@@ -1073,7 +1087,7 @@ export class AppointmentComponent implements OnInit {
         } else {
           // Try direct code match
           const vehicleTypeIndex = this.vehicleTypeCodes.indexOf(
-            vehicle.vehicle_type
+            vehicle.vehicle_type,
           );
           if (
             vehicleTypeIndex >= 0 &&
@@ -1218,8 +1232,8 @@ export class AppointmentComponent implements OnInit {
       isoMatch && isoMatch[1]
         ? isoMatch[1]
         : /^\d{4}-\d{2}-\d{2}$/.test(trimmed)
-        ? trimmed
-        : null;
+          ? trimmed
+          : null;
 
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -1288,7 +1302,7 @@ export class AppointmentComponent implements OnInit {
     if (confirm(`Are you sure you want to cancel this booking?`)) {
       const reason = prompt(
         'Please share a short reason for cancelling (optional):',
-        'Change of plans'
+        'Change of plans',
       );
 
       this.bookingService
@@ -1344,7 +1358,7 @@ export class AppointmentComponent implements OnInit {
       this.currentCalendarMonth = new Date(
         day.date.getFullYear(),
         day.date.getMonth(),
-        1
+        1,
       );
       this.buildCalendar();
     }
@@ -1352,11 +1366,11 @@ export class AppointmentComponent implements OnInit {
     this.selectedCalendarDate = new Date(
       day.date.getFullYear(),
       day.date.getMonth(),
-      day.date.getDate()
+      day.date.getDate(),
     );
 
     const normalizedDate = this.normalizeWashDateForApi(
-      this.selectedCalendarDate
+      this.selectedCalendarDate,
     );
     this.bookingForm.washDate = normalizedDate;
     this.bookingForm.washTime = '';
@@ -1569,7 +1583,7 @@ export class AppointmentComponent implements OnInit {
     const startOfMonth = new Date(
       this.currentCalendarMonth.getFullYear(),
       this.currentCalendarMonth.getMonth(),
-      1
+      1,
     );
     const firstDayIndex = (startOfMonth.getDay() + 6) % 7; // convert to Monday-first
     const calendarStart = new Date(startOfMonth);
@@ -1687,7 +1701,7 @@ export class AppointmentComponent implements OnInit {
   // Select pricing options from codes (used when navigating from pricing page)
   private selectPricingFromCodes(
     vehicleTypeCode: string,
-    servicePackageCode: string
+    servicePackageCode: string,
   ): void {
     const vehicleType = this.getVehicleTypeFromCode(vehicleTypeCode);
     const servicePackage = this.getServicePackageFromCode(servicePackageCode);
@@ -1718,7 +1732,7 @@ export class AppointmentComponent implements OnInit {
   // Save selected pricing to localStorage for persistence
   private saveSelectedPricing(
     vehicleTypeCode: string,
-    servicePackageCode: string
+    servicePackageCode: string,
   ): void {
     if (!this.isBrowser) return;
     try {
@@ -1729,7 +1743,7 @@ export class AppointmentComponent implements OnInit {
       };
       localStorage.setItem(
         'selected_pricing',
-        JSON.stringify(pricingSelection)
+        JSON.stringify(pricingSelection),
       );
     } catch (error) {
       console.error('Error saving pricing selection to localStorage:', error);
@@ -1748,7 +1762,7 @@ export class AppointmentComponent implements OnInit {
         if (Date.now() - pricingSelection.timestamp < oneHour) {
           this.selectPricingFromCodes(
             pricingSelection.vehicle_type,
-            pricingSelection.service_package
+            pricingSelection.service_package,
           );
         } else {
           // Clear stale data
@@ -1758,7 +1772,7 @@ export class AppointmentComponent implements OnInit {
     } catch (error) {
       console.error(
         'Error loading pricing selection from localStorage:',
-        error
+        error,
       );
     }
   }
@@ -1771,7 +1785,7 @@ export class AppointmentComponent implements OnInit {
     } catch (error) {
       console.error(
         'Error clearing pricing selection from localStorage:',
-        error
+        error,
       );
     }
   }
