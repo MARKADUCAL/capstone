@@ -25,16 +25,15 @@ interface ServicePackage {
   isActive: boolean;
 }
 
-interface ServiceCategoryApi {
+interface PackageApi {
   id: number;
-  name: string;
-  description?: string;
+  code: string;
+  description: string;
   is_active: number | boolean;
 }
 
-interface ServiceCategory {
+interface PackageRecord {
   id: number;
-  name: string;
   description: string;
   isActive: boolean;
   code: string;
@@ -86,11 +85,11 @@ export class ServiceManagementComponent implements OnInit {
     },
   ];
 
-  // Service Packages loaded from API (service_categories table)
+  // Service Packages loaded from API (packages table)
   servicePackages: ServicePackage[] = [];
 
-  // Full service category records from the API (backed by service_categories table)
-  serviceCategories: ServiceCategory[] = [];
+  // Full package records from the API (backed by packages table)
+  packages: PackageRecord[] = [];
 
   // Simple form state for creating a new service package
   newServiceName = '';
@@ -163,7 +162,7 @@ export class ServiceManagementComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
-      .get<ApiResponse>(`${this.apiUrl}/get_service_categories`, { headers })
+      .get<ApiResponse>(`${this.apiUrl}/get_packages`, { headers })
       .subscribe({
         next: (response) => {
           this.isLoadingServices = false;
@@ -171,25 +170,22 @@ export class ServiceManagementComponent implements OnInit {
             response.status &&
             response.status.remarks === 'success' &&
             response.payload &&
-            Array.isArray(response.payload.service_categories)
+            Array.isArray(response.payload.packages)
           ) {
-            const categories: ServiceCategoryApi[] =
-              response.payload.service_categories;
+            const packages: PackageApi[] = response.payload.packages;
 
-            this.serviceCategories = categories.map((c) => ({
-              id: c.id,
-              name: c.name,
-              description: c.description || '',
-              isActive: c.is_active === 1 || c.is_active === true,
-              // Keep the canonical pricing code aligned with p1–p4 defaults
-              code: `p${c.id}`,
+            this.packages = packages.map((p) => ({
+              id: p.id,
+              code: p.code,
+              description: p.description || '',
+              isActive: p.is_active === 1 || p.is_active === true,
             }));
 
-            this.servicePackages = this.serviceCategories.map((c) => ({
-              id: c.id,
-              code: c.code,
-              description: c.name,
-              isActive: c.isActive,
+            this.servicePackages = this.packages.map((p) => ({
+              id: p.id,
+              code: p.code,
+              description: p.description,
+              isActive: p.isActive,
             }));
 
             // If there are no pricing entries yet, create default ones using these dynamic services
@@ -199,7 +195,7 @@ export class ServiceManagementComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading service categories:', error);
+          console.error('Error loading packages:', error);
           this.isLoadingServices = false;
         },
       });
@@ -706,11 +702,11 @@ export class ServiceManagementComponent implements OnInit {
     return service ? service.description : code;
   }
 
-  startEditService(service: ServiceCategory): void {
-    this.editingServiceId = service.id;
-    this.newServiceName = service.name;
-    this.newServiceDescription = service.description;
-    this.newServiceIsActive = service.isActive;
+  startEditService(pkg: PackageRecord): void {
+    this.editingServiceId = pkg.id;
+    this.newServiceName = pkg.code;
+    this.newServiceDescription = pkg.description;
+    this.newServiceIsActive = pkg.isActive;
   }
 
   cancelServiceEdit(): void {
@@ -720,14 +716,14 @@ export class ServiceManagementComponent implements OnInit {
     this.newServiceIsActive = true;
   }
 
-  deleteService(service: ServiceCategory): void {
-    // Soft-delete: mark as inactive using update_service_category
-    if (!this.isBrowser || !service.id) {
+  deleteService(pkg: PackageRecord): void {
+    // Soft-delete: mark as inactive using update_package
+    if (!this.isBrowser || !pkg.id) {
       return;
     }
 
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete the service "${service.name}"?`
+      `Are you sure you want to delete the package "${pkg.code}"?`
     );
     if (!confirmDelete) {
       return;
@@ -746,51 +742,51 @@ export class ServiceManagementComponent implements OnInit {
       .set('Authorization', `Bearer ${token}`);
 
     const payload = {
-      id: service.id,
-      name: service.name,
-      description: service.description,
+      id: pkg.id,
+      code: pkg.code,
+      description: pkg.description,
       is_active: 0,
     };
 
     this.http
-      .put<ApiResponse>(`${this.apiUrl}/update_service_category`, payload, {
+      .put<ApiResponse>(`${this.apiUrl}/update_package`, payload, {
         headers,
       })
       .subscribe({
         next: (response) => {
           this.isLoadingServices = false;
           if (response.status && response.status.remarks === 'success') {
-            this.showAlert('Service deleted successfully!', 'success');
-            if (this.editingServiceId === service.id) {
+            this.showAlert('Package deleted successfully!', 'success');
+            if (this.editingServiceId === pkg.id) {
               this.cancelServiceEdit();
             }
             this.loadServicePackages();
           } else {
             this.showAlert(
-              response.status?.message || 'Failed to delete service',
+              response.status?.message || 'Failed to delete package',
               'error'
             );
           }
         },
         error: (error) => {
-          console.error('Error deleting service category:', error);
+          console.error('Error deleting package:', error);
           this.isLoadingServices = false;
           this.showAlert(
-            'Error deleting service from database. Please try again.',
+            'Error deleting package from database. Please try again.',
             'error'
           );
         },
       });
   }
 
-  addServiceCategory(): void {
+  savePackage(): void {
     if (!this.isBrowser) {
       return;
     }
 
-    const name = this.newServiceName.trim();
-    if (!name) {
-      this.showAlert('Please enter a service name.', 'error');
+    const code = this.newServiceName.trim();
+    if (!code) {
+      this.showAlert('Please enter a package code (e.g. p1).', 'error');
       return;
     }
 
@@ -808,20 +804,20 @@ export class ServiceManagementComponent implements OnInit {
 
     const payload = {
       id: this.editingServiceId ?? undefined,
-      name,
       description: this.newServiceDescription.trim(),
+      code,
       is_active: this.newServiceIsActive ? 1 : 0,
     };
 
     // If we are editing an existing service, use the update endpoint; otherwise, add a new one
     const request$ = this.editingServiceId
       ? this.http.put<ApiResponse>(
-          `${this.apiUrl}/update_service_category`,
+          `${this.apiUrl}/update_package`,
           payload,
           { headers }
         )
       : this.http.post<ApiResponse>(
-          `${this.apiUrl}/add_service_category`,
+          `${this.apiUrl}/add_package`,
           payload,
           { headers }
         );
@@ -830,7 +826,7 @@ export class ServiceManagementComponent implements OnInit {
       next: (response) => {
         this.isLoadingServices = false;
         if (response.status && response.status.remarks === 'success') {
-          this.showAlert('Service saved successfully!', 'success');
+          this.showAlert('Package saved successfully!', 'success');
           this.newServiceName = '';
           this.newServiceDescription = '';
           this.newServiceIsActive = true;
@@ -838,16 +834,16 @@ export class ServiceManagementComponent implements OnInit {
           this.loadServicePackages();
         } else {
           this.showAlert(
-            response.status?.message || 'Failed to save service',
+            response.status?.message || 'Failed to save package',
             'error'
           );
         }
       },
       error: (error) => {
-        console.error('Error saving service category:', error);
+        console.error('Error saving package:', error);
         this.isLoadingServices = false;
         this.showAlert(
-          'Error saving service to database. Please try again.',
+          'Error saving package to database. Please try again.',
           'error'
         );
       },

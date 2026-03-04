@@ -1952,6 +1952,48 @@ class Post extends GlobalMethods
 
     }
 
+    public function add_package($data) {
+        if (empty($data->code)) {
+            return $this->sendPayload(null, "failed", "Package code is required", 400);
+        }
+
+        try {
+            $sql = "INSERT INTO packages (code, description, is_active) VALUES (?, ?, ?)";
+            $statement = $this->pdo->prepare($sql);
+
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+            $statement->execute([
+                $data->code,
+                $data->description ?? '',
+                $isActive
+            ]);
+
+            if ($statement->rowCount() > 0) {
+                $packageId = $this->pdo->lastInsertId();
+                $stmt = $this->pdo->prepare("SELECT id, code, description, is_active, created_at FROM packages WHERE id = ?");
+                $stmt->execute([$packageId]);
+                $pkg = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $this->sendPayload(
+                    ['package' => $pkg],
+                    "success",
+                    "Package added successfully",
+                    200
+                );
+            }
+
+            return $this->sendPayload(null, "failed", "Failed to add package", 400);
+        } catch (\PDOException $e) {
+            error_log("Package creation error: " . $e->getMessage());
+            return $this->sendPayload(
+                null,
+                "failed",
+                "A database error occurred.",
+                500
+            );
+        }
+    }
+
 
 
     // Inventory CRUD

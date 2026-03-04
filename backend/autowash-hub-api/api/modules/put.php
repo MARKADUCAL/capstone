@@ -834,6 +834,38 @@ class Put {
         }
     }
 
+    public function update_package($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Package ID is required", 400);
+            }
+            if (!isset($data->code) || $data->code === '') {
+                return $this->sendPayload(null, "failed", "Package code is required", 400);
+            }
+
+            $sql = "UPDATE packages
+                    SET code = ?, description = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?";
+
+            $stmt = $this->pdo->prepare($sql);
+            $isActive = isset($data->is_active) ? ($data->is_active ? 1 : 0) : 1;
+
+            $stmt->execute([
+                $data->code,
+                $data->description ?? '',
+                $isActive,
+                $data->id
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                return $this->sendPayload(null, "success", "Package updated successfully", 200);
+            }
+            return $this->sendPayload(null, "failed", "Package not found or no changes made", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     public function update_employee_schedule($data) {
         try {
             if (!isset($data->id) || empty($data->id)) {

@@ -108,18 +108,18 @@
       <div class="form-container service-packages-container">
         <div class="form-header">
           <h3>
-            {{ editingServiceId ? "Edit Service" : "Service Packages" }}
+            {{ editingServiceId ? "Edit Package" : "Service Packages" }}
           </h3>
           <p>Admins can add, edit, and delete service types here.</p>
         </div>
 
         <div class="form-group">
-          <label for="serviceName">Service Name*</label>
+          <label for="serviceName">Package Code*</label>
           <input
             id="serviceName"
             type="text"
             [(ngModel)]="newServiceName"
-            placeholder="e.g. Engine Detailing"
+            placeholder="e.g. p1"
           />
         </div>
 
@@ -145,11 +145,11 @@
         <div class="form-actions">
           <button
             class="btn-primary"
-            (click)="addServiceCategory()"
+            (click)="savePackage()"
             [disabled]="isLoadingServices"
           >
             <span *ngIf="!isLoadingServices">
-              {{ editingServiceId ? "Save Changes" : "Add Service" }}
+              {{ editingServiceId ? "Save Changes" : "Add Package" }}
             </span>
             <span *ngIf="isLoadingServices">Saving...</span>
           </button>
@@ -164,34 +164,34 @@
           </button>
         </div>
 
-        <div class="table-container" *ngIf="serviceCategories.length">
+        <div class="table-container" *ngIf="packages.length">
           <table>
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Code</th>
                 <th>Description</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let s of serviceCategories">
-                <td>{{ s.name }}</td>
-                <td>{{ s.description || "—" }}</td>
+              <tr *ngFor="let p of packages">
+                <td>{{ p.code }}</td>
+                <td>{{ p.description || "—" }}</td>
                 <td>
                   <span
                     class="status-badge"
-                    [class.active]="s.isActive"
-                    [class.inactive]="!s.isActive"
+                    [class.active]="p.isActive"
+                    [class.inactive]="!p.isActive"
                   >
-                    {{ s.isActive ? "Active" : "Inactive" }}
+                    {{ p.isActive ? "Active" : "Inactive" }}
                   </span>
                 </td>
                 <td class="actions-cell">
                   <button
                     class="btn-icon edit"
                     type="button"
-                    (click)="startEditService(s)"
+                    (click)="startEditService(p)"
                     [disabled]="isLoadingServices"
                     title="Edit service"
                   >
@@ -200,7 +200,7 @@
                   <button
                     class="btn-icon delete"
                     type="button"
-                    (click)="deleteService(s)"
+                    (click)="deleteService(p)"
                     [disabled]="isLoadingServices"
                     title="Delete service"
                   >

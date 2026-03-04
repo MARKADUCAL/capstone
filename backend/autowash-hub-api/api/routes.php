@@ -783,6 +783,12 @@ if ($method === 'POST') {
         exit();
     }
 
+    if (strpos($request, 'add_package') !== false) {
+        $result = $post->add_package($data);
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'add_customer_feedback') !== false) {
         $result = $post->add_customer_feedback($data);
         echo json_encode($result);
@@ -1106,6 +1112,12 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'update_service_category') !== false) {
         $result = $put->update_service_category($data);
+        echo json_encode($result);
+        exit();
+    }
+
+    if (strpos($request, 'update_package') !== false) {
+        $result = $put->update_package($data);
         echo json_encode($result);
         exit();
     }
