@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingService } from '../../../services/booking.service';
 import {
   FeedbackService,
@@ -25,7 +26,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-tranaction-hitory',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatTooltipModule],
   templateUrl: './tranaction-hitory.component.html',
   styleUrl: './tranaction-hitory.component.css',
 })
@@ -146,6 +147,46 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         return 'Expired';
       default:
         return s || 'pending';
+    }
+  }
+
+  getStatusDefinition(status: string): string {
+    const normalized = this.normalizeStatus(status);
+    switch (normalized) {
+      case 'pending':
+        return 'Your booking is awaiting approval from the car wash facility';
+      case 'approved':
+        return 'Your booking has been confirmed and is currently being processed';
+      case 'completed':
+        return 'Your car wash service has been completed successfully';
+      case 'cancelled':
+        return 'Your booking has been cancelled';
+      case 'rejected':
+        return 'Your booking was declined by the car wash facility';
+      case 'expired':
+        return 'Your booking slot has expired and is no longer available';
+      default:
+        return 'Booking status information';
+    }
+  }
+
+  getStatusDefinition(status: string): string {
+    const normalized = this.normalizeStatus(status);
+    switch (normalized) {
+      case 'pending':
+        return 'Your booking is awaiting approval from the car wash facility';
+      case 'approved':
+        return 'Your booking has been confirmed and is currently being processed';
+      case 'completed':
+        return 'Your car wash service has been completed successfully';
+      case 'cancelled':
+        return 'Your booking has been cancelled';
+      case 'rejected':
+        return 'Your booking was declined by the car wash facility';
+      case 'expired':
+        return 'Your booking slot has expired and is no longer available';
+      default:
+        return 'Booking status information';
     }
   }
 

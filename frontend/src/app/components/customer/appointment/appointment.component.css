@@ -2876,7 +2876,9 @@
   border-radius: 12px;
   padding: 6px 12px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
   font-weight: 600;
   min-height: 44px; /* Touch-friendly minimum height */
   touch-action: manipulation; /* Prevent double-tap zoom on mobile */
@@ -2937,7 +2939,9 @@
   gap: 6px;
   background: #fbfcff;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   font-size: clamp(0.8rem, 2vw, 1rem);
   min-width: 0; /* Allow cell to shrink */
   touch-action: manipulation; /* Prevent double-tap zoom */

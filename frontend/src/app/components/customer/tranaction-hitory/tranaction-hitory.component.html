@@ -183,6 +183,8 @@
         <div
           class="status-badge"
           [ngClass]="'status-' + normalizeStatus(booking.status)"
+          [matTooltip]="getStatusDefinition(booking.status)"
+          matTooltipPosition="above"
         >
           <span class="status-icon">{{
             getStatusIcon(normalizeStatus(booking.status))
