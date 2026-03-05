@@ -134,7 +134,7 @@ export class AppointmentComponent implements OnInit {
   // Calendar view state
   currentCalendarMonth: Date = new Date();
   calendarWeeks: CalendarDay[][] = [];
-  weekDayLabels: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  weekDayLabels: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   selectedCalendarDate: Date | null = null;
   availableTimeSlots: string[] = [];
   isLoadingTimeSlots = false;
@@ -1585,7 +1585,7 @@ export class AppointmentComponent implements OnInit {
       this.currentCalendarMonth.getMonth(),
       1,
     );
-    const firstDayIndex = (startOfMonth.getDay() + 6) % 7; // convert to Monday-first
+    const firstDayIndex = startOfMonth.getDay(); // Sunday = 0
     const calendarStart = new Date(startOfMonth);
     calendarStart.setDate(startOfMonth.getDate() - firstDayIndex);
 
