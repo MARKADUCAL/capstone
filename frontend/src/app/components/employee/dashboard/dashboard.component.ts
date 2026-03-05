@@ -19,6 +19,7 @@ import { TaskDetailsDialog } from './task-details-dialog.component';
 import { DateTasksDialogComponent } from './date-tasks-dialog.component';
 import { BookingService } from '../../../services/booking.service';
 import { FeedbackService } from '../../../services/feedback.service';
+import Swal from 'sweetalert2';
 
 interface Task {
   id: number;
@@ -151,11 +152,65 @@ export class DashboardComponent implements OnInit {
     this.loadUpcomingTasks();
     this.loadCustomerRating();
     this.generateCalendar();
+    this.checkFirstTimeLogin();
   }
 
   @HostListener('window:resize')
   onWindowResize(): void {
     this.updateResponsiveState();
+  }
+
+  private checkFirstTimeLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const firstTimeLoginFlag = localStorage.getItem('employee_first_time_login');
+
+    if (!firstTimeLoginFlag) {
+      const employeeData = localStorage.getItem('employee_data');
+      const employeeName = employeeData ? JSON.parse(employeeData).first_name : 'Employee';
+
+      Swal.fire({
+        title: `Welcome ${employeeName}! 👋`,
+        html: `
+          <div style="text-align: left; margin: 20px 0;">
+            <p style="margin-bottom: 15px;">You're now part of our team! Here's what you should do on your first day:</p>
+            
+            <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
+              <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">🚀 Getting Started Checklist:</p>
+              <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 14px;">
+                <li style="margin-bottom: 8px;"><strong>Complete Your Profile</strong> - Add profile picture and contact information</li>
+                <li style="margin-bottom: 8px;"><strong>Review Your Dashboard</strong> - Check your stats and upcoming tasks</li>
+                <li style="margin-bottom: 8px;"><strong>Check Upcoming Bookings</strong> - See your scheduled services</li>
+                <li style="margin-bottom: 8px;"><strong>Review Service Details</strong> - Understand service types and pricing</li>
+                <li style="margin-bottom: 8px;"><strong>Set Your Availability</strong> - Inform when you're available to work</li>
+                <li style="margin-bottom: 8px;"><strong>Check Customer Feedback</strong> - Review ratings and comments</li>
+                <li style="margin-bottom: 0;"><strong>Contact Your Manager</strong> - Reach out if you have questions</li>
+              </ul>
+            </div>
+            
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 4px;">
+              <p style="font-weight: 600; color: #ff9800; margin-bottom: 8px;">💡 Pro Tips:</p>
+              <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 13px;">
+                <li>Always update your task status to keep managers informed</li>
+                <li>Provide excellent service to earn good customer ratings</li>
+                <li>Refer back to the dashboard to track your performance</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#2196F3',
+        confirmButtonText: 'Got it, Lets Get Started',
+        width: 550,
+        didClose: () => {
+          // Mark first-time login as complete
+          localStorage.setItem('employee_first_time_login', 'true');
+        },
+      }).then(() => {
+        // Mark first-time login as complete
+        localStorage.setItem('employee_first_time_login', 'true');
+      });
+    }
   }
 
   private loadBookingStats(): void {

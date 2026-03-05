@@ -186,10 +186,35 @@ export class AdminManagementComponent implements OnInit {
         this.isSubmitting = false;
         if (response?.status?.remarks === 'success') {
           Swal.fire({
-            title: 'Admin Created!',
-            text: 'The new admin account has been registered successfully.',
+            title: 'Admin Created Successfully! 👋',
+            html: `
+              <div style="text-align: left; margin: 20px 0;">
+                <p><strong>Welcome ${this.newAdmin.first_name}!</strong></p>
+                <p style="margin-top: 15px;">The new admin account has been registered.</p>
+                
+                <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
+                  <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">📋 First Login Recommendations:</p>
+                  <ul style="margin: 0; padding-left: 20px; text-align: left;">
+                    <li>Update your profile picture in the Profile section</li>
+                    <li>Review Dashboard to understand current business metrics</li>
+                    <li>Check Employee Management to view all staff</li>
+                    <li>Review Customer Management for all registered users</li>
+                    <li>Set up Service Management and pricing rates</li>
+                    <li>Configure your business settings and preferences</li>
+                    <li>Review the Landing Page Editor to customize your public page</li>
+                  </ul>
+                </div>
+                
+                <p style="margin-top: 15px; font-size: 13px; color: #666;">
+                  <strong>Admin ID:</strong> ${this.newAdmin.admin_id}<br>
+                  <strong>Email:</strong> ${this.newAdmin.email}
+                </p>
+              </div>
+            `,
             icon: 'success',
             confirmButtonColor: '#4CAF50',
+            confirmButtonText: 'Got it!',
+            width: 500,
           });
           this.closeAddAdminModal();
           this.loadAdmins();

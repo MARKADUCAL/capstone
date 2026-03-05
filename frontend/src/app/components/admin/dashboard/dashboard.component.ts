@@ -13,6 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
+import Swal from 'sweetalert2';
 
 interface BusinessStats {
   totalCustomers: number;
@@ -159,6 +160,60 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadDashboardData();
     this.generateCalendar();
+    this.checkFirstTimeLogin();
+  }
+
+  private checkFirstTimeLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const firstTimeLoginFlag = localStorage.getItem('admin_first_time_login');
+
+    if (!firstTimeLoginFlag) {
+      const adminData = localStorage.getItem('admin_data');
+      const adminName = adminData ? JSON.parse(adminData).first_name : 'Admin';
+
+      Swal.fire({
+        title: `Welcome ${adminName}! 👋`,
+        html: `
+          <div style="text-align: left; margin: 20px 0;">
+            <p style="margin-bottom: 15px;">You're logged in to the Admin Dashboard for the first time. Here are some important recommendations:</p>
+            
+            <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
+              <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">🚀 Getting Started Checklist:</p>
+              <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 14px;">
+                <li style="margin-bottom: 8px;"><strong>Update Your Profile</strong> - Add profile photo and contact information</li>
+                <li style="margin-bottom: 8px;"><strong>Review Dashboard Metrics</strong> - Understand your business statistics</li>
+                <li style="margin-bottom: 8px;"><strong>Manage Employees</strong> - Add and organize your team</li>
+                <li style="margin-bottom: 8px;"><strong>Configure Services</strong> - Set up service packages and pricing</li>
+                <li style="margin-bottom: 8px;"><strong>Edit Landing Page</strong> - Customize your public-facing website</li>
+                <li style="margin-bottom: 8px;"><strong>Review Bookings</strong> - Monitor and manage customer bookings</li>
+                <li style="margin-bottom: 0;"><strong>View Reports</strong> - Track revenue and analytics</li>
+              </ul>
+            </div>
+            
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 4px;">
+              <p style="font-weight: 600; color: #ff9800; margin-bottom: 8px;">💡 Pro Tips:</p>
+              <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 13px;">
+                <li>Check the admin profile regularly for important updates</li>
+                <li>Keep your employee information current for better management</li>
+                <li>Monitor customer feedback and ratings to improve service</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#2196F3',
+        confirmButtonText: 'Got it, Show me the Dashboard',
+        width: 550,
+        didClose: () => {
+          // Mark first-time login as complete
+          localStorage.setItem('admin_first_time_login', 'true');
+        },
+      }).then(() => {
+        // Mark first-time login as complete
+        localStorage.setItem('admin_first_time_login', 'true');
+      });
+    }
   }
 
   loadDashboardData(): void {
