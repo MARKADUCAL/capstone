@@ -3189,7 +3189,10 @@
   }
 
   .calendar-nav .month-label {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nav-button,
@@ -3253,6 +3256,9 @@
     width: 100%;
     order: 0;
     margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nav-button,
