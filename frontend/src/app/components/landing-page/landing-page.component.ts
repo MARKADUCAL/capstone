@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { sileo } from 'sileo';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -204,6 +203,10 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.toggleBodyScroll();
   }
 
+  onBookNowClick() {
+    this.router.navigate(['/customer/appointment']);
+  }
+
   private toggleBodyScroll() {
     if (isPlatformBrowser(this.platformId)) {
       if (this.mobileMenuOpen) {
@@ -219,18 +222,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
     }
-  }
-
-  onBookNowClick() {
-    // Show sileo notification
-    sileo.show({
-      message: 'Redirecting to booking page...',
-      type: 'info',
-      duration: 2000,
-    });
-    
-    // Show booking modal
-    this.showModal = true;
   }
 
   confirmBooking() {
