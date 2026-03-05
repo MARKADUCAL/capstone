@@ -503,7 +503,13 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   private deriveVehicleTypes(): void {
     const vehicleCodes = Object.keys(this.pricingMatrix || {});
-    this.vehicleTypes = vehicleCodes.map((code) => ({
+    // Sort vehicle codes in the desired order: S, M, L, XL, XXL, etc.
+    const preferredOrder = ['S', 'M', 'L', 'XL', 'XXL'];
+    const orderedCodes = preferredOrder.filter((code) => vehicleCodes.includes(code));
+    const remaining = vehicleCodes.filter((code) => !preferredOrder.includes(code));
+    const sortedCodes = [...orderedCodes, ...remaining];
+    
+    this.vehicleTypes = sortedCodes.map((code) => ({
       code,
       description: this.describeVehicleType(code),
     }));
