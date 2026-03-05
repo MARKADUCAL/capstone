@@ -181,7 +181,7 @@ export class DashboardComponent implements OnInit {
             <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
               <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">🚀 Getting Started Checklist:</p>
               <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 14px;">
-                <li style="margin-bottom: 8px;"><strong>Update Your Profile</strong> - Add profile photo and contact information</li>
+                <li style="margin-bottom: 8px;"><strong>Update Your Profile</strong> - Update your password and contact information</li>
                 <li style="margin-bottom: 8px;"><strong>Review Dashboard Metrics</strong> - Understand your business statistics</li>
                 <li style="margin-bottom: 8px;"><strong>Manage Employees</strong> - Add and organize your team</li>
                 <li style="margin-bottom: 8px;"><strong>Configure Services</strong> - Set up service packages and pricing</li>
