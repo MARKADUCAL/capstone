@@ -385,6 +385,7 @@
   transform: none !important;
   top: -1.5em !important;
   position: absolute !important;
+  transition: none !important;
 }
 
 ::ng-deep
@@ -403,6 +404,7 @@
   color: var(--accent);
   transform: none !important;
   top: -1.5em !important;
+  transition: none !important;
 }
 
 ::ng-deep .mat-select-value {
@@ -1881,6 +1883,7 @@
     transform: none !important;
     top: -1.2em !important;
     position: absolute !important;
+    transition: none !important;
   }
 
   ::ng-deep
@@ -2070,6 +2073,7 @@
     transform: none !important;
     top: -1.6em !important;
     position: absolute !important;
+    transition: none !important;
   }
 
   ::ng-deep
@@ -2119,6 +2123,7 @@
     transform: none !important;
     top: -1.5em !important;
     position: absolute !important;
+    transition: none !important;
   }
 
   ::ng-deep
@@ -2168,6 +2173,7 @@
     transform: none !important;
     top: -1.4em !important;
     position: absolute !important;
+    transition: none !important;
   }
 
   ::ng-deep
