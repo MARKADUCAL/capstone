@@ -191,12 +191,14 @@
   margin-bottom: 25px;
   box-sizing: border-box;
   max-width: 100%;
-  overflow: hidden;
+  /* Allow the floating label to render fully */
+  overflow: visible;
 }
 
 /* Make form fields bigger */
 .form-field ::ng-deep .mat-form-field-wrapper {
   padding-bottom: 0;
+  overflow: visible;
 }
 
 .form-field ::ng-deep .mat-form-field {
