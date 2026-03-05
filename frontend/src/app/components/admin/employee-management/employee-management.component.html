@@ -9,102 +9,102 @@
 
   <!-- Loading State -->
   @if (loading) {
-  <div class="loading-container">
-    <p>Loading employees...</p>
-  </div>
+    <div class="loading-container">
+      <p>Loading employees...</p>
+    </div>
   }
 
   <!-- Error State -->
   @if (error) {
-  <div class="error-container">
-    <p>{{ error }}</p>
-    <button mat-button color="primary" (click)="loadEmployees()">
-      Try Again
-    </button>
-  </div>
+    <div class="error-container">
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="loadEmployees()">
+        Try Again
+      </button>
+    </div>
   }
 
   <!-- Empty State -->
   @if (!loading && !error && employees.length === 0) {
-  <div class="empty-container">
-    <p>No employees found.</p>
-  </div>
+    <div class="empty-container">
+      <p>No employees found.</p>
+    </div>
   }
 
   <!-- Employees Table -->
   @if (!loading && !error && employees.length > 0) {
-  <div class="table-container">
-    <table class="employee-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Registration Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (employee of employees; track employee.id) {
-        <tr>
-          <td class="employee-id" data-label="ID">
-            {{ employee.employeeId || "N/A" }}
-          </td>
-          <td class="employee-name" data-label="Name">
-            <div class="name-cell">
-              <div class="user-avatar-small">
-                {{ getUserInitials(employee.name) }}
-              </div>
-              <span>{{ employee.name }}</span>
-            </div>
-          </td>
-          <td class="employee-email" data-label="Email">
-            {{ employee.email }}
-          </td>
-          <td class="employee-phone" data-label="Phone">
-            {{ employee.phone }}
-          </td>
-          <td class="employee-date" data-label="Registered">
-            {{ employee.registrationDate }}
-          </td>
-          <td class="employee-actions" data-label="Actions">
-            <div class="action-buttons">
-              <button
-                class="action-btn view-btn"
-                (click)="viewEmployee(employee)"
-                title="View Details"
-              >
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button
-                class="action-btn edit-btn"
-                (click)="editEmployee(employee)"
-                title="Edit Employee"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                class="action-btn password-btn"
-                (click)="changePassword(employee)"
-                title="Change Password"
-              >
-                <mat-icon>lock_reset</mat-icon>
-              </button>
-              <button
-                class="action-btn delete-btn"
-                (click)="deleteEmployee(employee)"
-                title="Delete Employee"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+    <div class="table-container">
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Registration Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of employees; track employee.id) {
+            <tr>
+              <td class="employee-id" data-label="ID">
+                {{ employee.employeeId || "N/A" }}
+              </td>
+              <td class="employee-name" data-label="Name">
+                <div class="name-cell">
+                  <div class="user-avatar-small">
+                    {{ getUserInitials(employee.name) }}
+                  </div>
+                  <span>{{ employee.name }}</span>
+                </div>
+              </td>
+              <td class="employee-email" data-label="Email">
+                {{ employee.email }}
+              </td>
+              <td class="employee-phone" data-label="Phone">
+                {{ employee.phone }}
+              </td>
+              <td class="employee-date" data-label="Registered">
+                {{ employee.registrationDate }}
+              </td>
+              <td class="employee-actions" data-label="Actions">
+                <div class="action-buttons">
+                  <button
+                    class="action-btn view-btn"
+                    (click)="viewEmployee(employee)"
+                    title="View Details"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn edit-btn"
+                    (click)="editEmployee(employee)"
+                    title="Edit Employee"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn password-btn"
+                    (click)="changePassword(employee)"
+                    title="Change Password"
+                  >
+                    <mat-icon>lock_reset</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn delete-btn"
+                    (click)="deleteEmployee(employee)"
+                    title="Delete Employee"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 
   <!-- Add Employee Modal -->
@@ -173,30 +173,58 @@
             />
           </div>
 
-          <div class="form-group">
+          <div class="form-group password-group">
             <label for="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              [(ngModel)]="newEmployee.password"
-              required
-              placeholder="Enter password (min 6 characters)"
-              minlength="6"
-            />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                [(ngModel)]="newEmployee.password"
+                required
+                placeholder="Enter password (min 6 characters)"
+                minlength="6"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="showPassword = !showPassword"
+                [attr.aria-label]="
+                  showPassword ? 'Hide password' : 'Show password'
+                "
+              >
+                <mat-icon>{{
+                  showPassword ? "visibility_off" : "visibility"
+                }}</mat-icon>
+              </button>
+            </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group password-group">
             <label for="confirm-password">Confirm Password *</label>
-            <input
-              type="password"
-              id="confirm-password"
-              name="confirm-password"
-              [(ngModel)]="newEmployee.confirm_password"
-              required
-              placeholder="Confirm password"
-              minlength="6"
-            />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="confirm-password"
+                name="confirm-password"
+                [(ngModel)]="newEmployee.confirm_password"
+                required
+                placeholder="Confirm password"
+                minlength="6"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="showConfirmPassword = !showConfirmPassword"
+                [attr.aria-label]="
+                  showConfirmPassword ? 'Hide password' : 'Show password'
+                "
+              >
+                <mat-icon>{{
+                  showConfirmPassword ? "visibility_off" : "visibility"
+                }}</mat-icon>
+              </button>
+            </div>
           </div>
 
           <div class="form-actions">
@@ -334,12 +362,12 @@
                 <tr *ngFor="let b of completedBookings">
                   <td>{{ b.service }}</td>
                   <td>{{ b.customerName }}</td>
-                  <td>{{ b.date | date : "mediumDate" }}</td>
+                  <td>{{ b.date | date: "mediumDate" }}</td>
                   <td>{{ b.time }}</td>
                   <td>
                     {{
                       b.totalAmount
-                        | currency : "PHP" : "symbol-narrow" : "1.2-2"
+                        | currency: "PHP" : "symbol-narrow" : "1.2-2"
                     }}
                   </td>
                   <td class="booking-actions">
@@ -469,7 +497,7 @@
             <div class="info-item">
               <span class="label">Total Amount</span>
               <span class="value price"
-                >₱{{ booking.totalAmount | number : "1.2-2" }}</span
+                >₱{{ booking.totalAmount | number: "1.2-2" }}</span
               >
             </div>
             <div class="info-item">
@@ -487,9 +515,7 @@
           <div class="info-grid">
             <div class="info-item">
               <span class="label">Date</span>
-              <span class="value">{{
-                booking.date | date : "mediumDate"
-              }}</span>
+              <span class="value">{{ booking.date | date: "mediumDate" }}</span>
             </div>
             <div class="info-item">
               <span class="label">Time</span>
@@ -552,19 +578,29 @@
                     *ngFor="let star of getStarArray()"
                     [class.filled]="star <= (booking.employeeRating || 0)"
                   >
-                    {{ star <= (booking.employeeRating || 0) ? 'star' : 'star_border' }}
+                    {{
+                      star <= (booking.employeeRating || 0)
+                        ? "star"
+                        : "star_border"
+                    }}
                   </mat-icon>
                 </span>
-                <span class="rating-number">({{ booking.employeeRating }}/5)</span>
+                <span class="rating-number"
+                  >({{ booking.employeeRating }}/5)</span
+                >
               </span>
             </div>
             <div class="info-item full-width" *ngIf="booking.employeeComment">
               <span class="label">Comment</span>
-              <span class="value comment-value">{{ booking.employeeComment }}</span>
+              <span class="value comment-value">{{
+                booking.employeeComment
+              }}</span>
             </div>
             <div class="info-item full-width" *ngIf="booking.feedbackCreatedAt">
               <span class="label">Feedback Date</span>
-              <span class="value">{{ booking.feedbackCreatedAt | date : "medium" }}</span>
+              <span class="value">{{
+                booking.feedbackCreatedAt | date: "medium"
+              }}</span>
             </div>
           </div>
         </div>

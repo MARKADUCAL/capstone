@@ -55,11 +55,13 @@ export class AdminManagementComponent implements OnInit {
   isAddModalOpen: boolean = false;
   newAdmin: NewAdmin = this.createEmptyAdmin();
   isSubmitting: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private snackBar: MatSnackBar,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit(): void {
@@ -84,13 +86,13 @@ export class AdminManagementComponent implements OnInit {
         ) {
           // Check if approval feature is enabled
           const hasApprovalFlag = response.payload.admins.some(
-            (a: any) => 'is_approved' in a && a.is_approved !== undefined
+            (a: any) => 'is_approved' in a && a.is_approved !== undefined,
           );
 
           // Filter to show only approved admins (is_approved === 1)
           const approvedAdmins = hasApprovalFlag
             ? response.payload.admins.filter(
-                (admin: any) => admin.is_approved === 1
+                (admin: any) => admin.is_approved === 1,
               )
             : response.payload.admins; // If no approval flag, show all (backward compatibility)
 

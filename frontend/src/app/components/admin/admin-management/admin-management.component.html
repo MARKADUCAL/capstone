@@ -14,85 +14,90 @@
 
   <!-- Loading State -->
   @if (loading) {
-  <div class="loading-container">
-    <p>Loading admins...</p>
-  </div>
+    <div class="loading-container">
+      <p>Loading admins...</p>
+    </div>
   }
 
   <!-- Error State -->
   @if (error) {
-  <div class="error-container">
-    <p>{{ error }}</p>
-    <button mat-button color="primary" (click)="loadAdmins()">Try Again</button>
-  </div>
+    <div class="error-container">
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="loadAdmins()">
+        Try Again
+      </button>
+    </div>
   }
 
   <!-- Empty State -->
   @if (!loading && !error && admins.length === 0) {
-  <div class="empty-container">
-    <p>No admins found.</p>
-  </div>
+    <div class="empty-container">
+      <p>No admins found.</p>
+    </div>
   }
 
   <!-- Admins Table -->
   @if (!loading && !error && admins.length > 0) {
-  <div class="table-container">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Status</th>
-          <th>Registration Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (admin of admins; track admin.id) {
-        <tr>
-          <td class="admin-id" data-label="ID">
-            {{ admin.adminId || "N/A" }}
-          </td>
-          <td class="admin-name" data-label="Name">
-            <div class="name-cell">
-              <div class="user-avatar-small">
-                {{ getUserInitials(admin.name) }}
-              </div>
-              <span>{{ admin.name }}</span>
-            </div>
-          </td>
-          <td class="admin-email" data-label="Email">
-            {{ admin.email }}
-          </td>
-          <td class="admin-phone" data-label="Phone">
-            {{ admin.phone }}
-          </td>
-          <td class="admin-status" data-label="Status">
-            <span class="status-badge" [ngClass]="admin.status.toLowerCase()">
-              {{ admin.status }}
-            </span>
-          </td>
-          <td class="admin-date" data-label="Registered">
-            {{ admin.registrationDate }}
-          </td>
-          <td class="admin-actions" data-label="Actions">
-            <div class="action-buttons">
-              <button
-                class="action-btn view-btn"
-                (click)="viewAdmin(admin)"
-                title="View Details"
-              >
-                <mat-icon>visibility</mat-icon>
-              </button>
-            </div>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Registration Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (admin of admins; track admin.id) {
+            <tr>
+              <td class="admin-id" data-label="ID">
+                {{ admin.adminId || "N/A" }}
+              </td>
+              <td class="admin-name" data-label="Name">
+                <div class="name-cell">
+                  <div class="user-avatar-small">
+                    {{ getUserInitials(admin.name) }}
+                  </div>
+                  <span>{{ admin.name }}</span>
+                </div>
+              </td>
+              <td class="admin-email" data-label="Email">
+                {{ admin.email }}
+              </td>
+              <td class="admin-phone" data-label="Phone">
+                {{ admin.phone }}
+              </td>
+              <td class="admin-status" data-label="Status">
+                <span
+                  class="status-badge"
+                  [ngClass]="admin.status.toLowerCase()"
+                >
+                  {{ admin.status }}
+                </span>
+              </td>
+              <td class="admin-date" data-label="Registered">
+                {{ admin.registrationDate }}
+              </td>
+              <td class="admin-actions" data-label="Actions">
+                <div class="action-buttons">
+                  <button
+                    class="action-btn view-btn"
+                    (click)="viewAdmin(admin)"
+                    title="View Details"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 
   <!-- View Admin Modal -->
@@ -196,30 +201,58 @@
           />
         </div>
 
-        <div class="form-group">
+        <div class="form-group password-group">
           <label for="password">Password *</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            [(ngModel)]="newAdmin.password"
-            required
-            minlength="6"
-            placeholder="Enter password (min 6 characters)"
-          />
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="newAdmin.password"
+              required
+              minlength="6"
+              placeholder="Enter password (min 6 characters)"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="
+                showPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <mat-icon>{{
+                showPassword ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group password-group">
           <label for="confirm-password">Confirm Password *</label>
-          <input
-            type="password"
-            id="confirm-password"
-            name="confirm-password"
-            [(ngModel)]="newAdmin.confirm_password"
-            required
-            minlength="6"
-            placeholder="Confirm password"
-          />
+          <div class="password-input-wrapper">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirm-password"
+              name="confirm-password"
+              [(ngModel)]="newAdmin.confirm_password"
+              required
+              minlength="6"
+              placeholder="Confirm password"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showConfirmPassword = !showConfirmPassword"
+              [attr.aria-label]="
+                showConfirmPassword ? 'Hide password' : 'Show password'
+              "
+            >
+              <mat-icon>{{
+                showConfirmPassword ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </div>
         </div>
 
         <div class="form-actions">

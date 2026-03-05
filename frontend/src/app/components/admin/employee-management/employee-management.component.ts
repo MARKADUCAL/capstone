@@ -9,7 +9,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { BookingService } from '../../../services/booking.service';
-import { FeedbackService, CustomerFeedback } from '../../../services/feedback.service';
+import {
+  FeedbackService,
+  CustomerFeedback,
+} from '../../../services/feedback.service';
 
 interface Employee {
   id: number;
@@ -76,6 +79,8 @@ export class EmployeeManagementComponent implements OnInit {
 
   // Add state for submission
   isSubmitting: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   // Completed bookings modal
   isCompletedBookingsModalOpen = false;
@@ -90,7 +95,7 @@ export class EmployeeManagementComponent implements OnInit {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookingService: BookingService,
-    private feedbackService: FeedbackService
+    private feedbackService: FeedbackService,
   ) {}
 
   ngOnInit(): void {
@@ -115,13 +120,13 @@ export class EmployeeManagementComponent implements OnInit {
         ) {
           // Check if approval feature is enabled
           const hasApprovalFlag = response.payload.employees.some(
-            (e: any) => 'is_approved' in e && e.is_approved !== undefined
+            (e: any) => 'is_approved' in e && e.is_approved !== undefined,
           );
 
           // Filter to show only approved employees (is_approved === 1)
           const approvedEmployees = hasApprovalFlag
             ? response.payload.employees.filter(
-                (employee: any) => employee.is_approved === 1
+                (employee: any) => employee.is_approved === 1,
               )
             : response.payload.employees; // If no approval flag, show all (backward compatibility)
 
@@ -159,7 +164,7 @@ export class EmployeeManagementComponent implements OnInit {
         this.error = 'Error loading employees. Please try again later.';
         console.error('Error loading employees:', error);
         this.showNotification(
-          'Error loading employees. Please try again later.'
+          'Error loading employees. Please try again later.',
         );
       },
     });
@@ -321,7 +326,7 @@ export class EmployeeManagementComponent implements OnInit {
 
   submitEditEmployeeForm(): void {
     const original = this.employees.find(
-      (e) => e.id === this.editEmployeeData.id
+      (e) => e.id === this.editEmployeeData.id,
     );
     const [first_name, ...rest] = (this.editEmployeeData.name || '').split(' ');
     const last_name = rest.join(' ').trim();
@@ -357,7 +362,7 @@ export class EmployeeManagementComponent implements OnInit {
           response.status.remarks === 'success'
         ) {
           const index = this.employees.findIndex(
-            (e) => e.id === this.editEmployeeData.id
+            (e) => e.id === this.editEmployeeData.id,
           );
           if (index > -1) {
             this.employees[index] = { ...this.editEmployeeData };
@@ -412,7 +417,7 @@ export class EmployeeManagementComponent implements OnInit {
               response.status.remarks === 'success'
             ) {
               const index = this.employees.findIndex(
-                (e) => e.id === employee.id
+                (e) => e.id === employee.id,
               );
               if (index > -1) {
                 this.employees.splice(index, 1);
@@ -583,7 +588,7 @@ export class EmployeeManagementComponent implements OnInit {
   openBookingDetailsModal(booking: CompletedBookingSummary): void {
     // Load feedback for this booking
     const bookingWithFeedback = { ...booking };
-    
+
     this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
       next: (feedbackList) => {
         if (feedbackList && feedbackList.length > 0) {
@@ -724,8 +729,12 @@ export class EmployeeManagementComponent implements OnInit {
       cancelButtonColor: '#6b7280',
       focusConfirm: false,
       preConfirm: () => {
-        const newPassword = (document.getElementById('swal-new-password') as HTMLInputElement).value;
-        const confirmPassword = (document.getElementById('swal-confirm-password') as HTMLInputElement).value;
+        const newPassword = (
+          document.getElementById('swal-new-password') as HTMLInputElement
+        ).value;
+        const confirmPassword = (
+          document.getElementById('swal-confirm-password') as HTMLInputElement
+        ).value;
 
         if (!newPassword || !confirmPassword) {
           Swal.showValidationMessage('Please fill in both password fields');
@@ -743,45 +752,50 @@ export class EmployeeManagementComponent implements OnInit {
         }
 
         return { newPassword };
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
         const payload = {
           id: employee.id,
-          password: result.value.newPassword
+          password: result.value.newPassword,
         };
 
-        this.http.put(`${this.apiUrl}/update_employee_password`, payload).subscribe({
-          next: (response: any) => {
-            if (response?.status?.remarks === 'success') {
-              Swal.fire({
-                title: 'Success!',
-                text: `Password for ${employee.name} has been updated successfully.`,
-                icon: 'success',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#16a34a',
-              });
-            } else {
+        this.http
+          .put(`${this.apiUrl}/update_employee_password`, payload)
+          .subscribe({
+            next: (response: any) => {
+              if (response?.status?.remarks === 'success') {
+                Swal.fire({
+                  title: 'Success!',
+                  text: `Password for ${employee.name} has been updated successfully.`,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#16a34a',
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text:
+                    response?.status?.message || 'Failed to update password',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#dc2626',
+                });
+              }
+            },
+            error: (error) => {
+              console.error('Error updating password:', error);
               Swal.fire({
                 title: 'Error!',
-                text: response?.status?.message || 'Failed to update password',
+                text:
+                  error?.error?.status?.message ||
+                  'Failed to update password. Please try again.',
                 icon: 'error',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#dc2626',
               });
-            }
-          },
-          error: (error) => {
-            console.error('Error updating password:', error);
-            Swal.fire({
-              title: 'Error!',
-              text: error?.error?.status?.message || 'Failed to update password. Please try again.',
-              icon: 'error',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#dc2626',
-            });
-          }
-        });
+            },
+          });
       }
     });
   }
