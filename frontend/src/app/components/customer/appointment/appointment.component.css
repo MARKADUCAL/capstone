@@ -889,6 +889,8 @@
     order: 0;
     margin-bottom: 8px;
     font-size: 1rem;
+    white-space: nowrap;
+    min-width: auto;
   }
 
   .nav-button,
@@ -996,6 +998,8 @@
     width: 100%;
     order: 0;
     margin-bottom: 8px;
+    white-space: nowrap;
+    min-width: auto;
   }
 
   .nav-button,
@@ -1285,6 +1289,8 @@
     width: 100%;
     order: 0;
     margin-bottom: 6px;
+    white-space: nowrap;
+    min-width: auto;
   }
 
   .nav-button,
@@ -1641,6 +1647,8 @@
     margin-bottom: 6px;
     font-weight: 700;
     padding: 0 4px;
+    white-space: nowrap;
+    min-width: auto;
   }
 
   .nav-button,
@@ -2973,7 +2981,8 @@
   font-size: 1.1rem;
   flex: 1;
   text-align: center;
-  min-width: 0; /* Allow text to shrink on mobile */
+  min-width: auto;
+  white-space: nowrap;
 }
 
 .nav-button,
@@ -3300,10 +3309,9 @@
     font-size: 1rem;
     font-weight: 600;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     text-align: center;
     padding: 6px 0;
+    min-width: auto;
   }
 
   .nav-button,
@@ -3368,8 +3376,7 @@
     order: 0;
     margin-bottom: 6px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-width: auto;
   }
 
   .nav-button,
