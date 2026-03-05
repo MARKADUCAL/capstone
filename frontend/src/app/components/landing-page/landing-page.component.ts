@@ -105,7 +105,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private contactService: ContactService,
     private landingPageService: LandingPageService,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   // Dynamic content loaded from database
@@ -155,7 +155,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             return url;
           };
           convertedContent.heroBackgroundUrl = normalize(
-            convertedContent.heroBackgroundUrl
+            convertedContent.heroBackgroundUrl,
           );
           convertedContent.galleryImages = (
             convertedContent.galleryImages || []
@@ -172,12 +172,12 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.clearLocalStorageCache();
           this.saveToLocalStorage();
           console.log(
-            'Landing page content loaded from API and cache updated.'
+            'Landing page content loaded from API and cache updated.',
           );
         } else {
           console.warn(
             'Failed to load landing page content from API:',
-            response?.status?.message || 'No response received'
+            response?.status?.message || 'No response received',
           );
           // Try localStorage as fallback
           this.loadFromLocalStorageFallback();
@@ -244,7 +244,10 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
 
     // Check if email is verified
-    if (!this.isEmailVerified || this.verificationEmail !== this.contactForm.email) {
+    if (
+      !this.isEmailVerified ||
+      this.verificationEmail !== this.contactForm.email
+    ) {
       // Email not verified or email changed - send verification code
       this.sendVerificationCode();
       return;
@@ -276,7 +279,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   sendVerificationCode() {
     this.contactErrorMessage = '';
-    
+
     // Validate email
     if (!this.contactForm.email.trim()) {
       this.contactErrorMessage = 'Please enter your email address';
@@ -289,21 +292,27 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
 
     // Send verification code
-    this.contactService.sendContactVerificationCode(this.contactForm.email).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.verificationEmail = this.contactForm.email;
-          this.showVerificationModal = true;
-          this.contactSuccessMessage = 'Verification code sent to your email. Please check your inbox.';
-          this.contactErrorMessage = '';
-        } else {
-          this.contactErrorMessage = response.message || 'Failed to send verification code';
-        }
-      },
-      error: (error) => {
-        this.contactErrorMessage = error.message || 'Failed to send verification code. Please try again.';
-      }
-    });
+    this.contactService
+      .sendContactVerificationCode(this.contactForm.email)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.verificationEmail = this.contactForm.email;
+            this.showVerificationModal = true;
+            this.contactSuccessMessage =
+              'Verification code sent to your email. Please check your inbox.';
+            this.contactErrorMessage = '';
+          } else {
+            this.contactErrorMessage =
+              response.message || 'Failed to send verification code';
+          }
+        },
+        error: (error) => {
+          this.contactErrorMessage =
+            error.message ||
+            'Failed to send verification code. Please try again.';
+        },
+      });
   }
 
   validateEmailFormat(email: string): boolean {
@@ -323,28 +332,34 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
 
     if (!this.verificationEmail) {
-      this.contactErrorMessage = 'Email not found. Please try sending the code again.';
+      this.contactErrorMessage =
+        'Email not found. Please try sending the code again.';
       return;
     }
 
     // Verify code with backend
-    this.contactService.verifyContactCode(this.verificationEmail, this.verificationCode).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.isEmailVerified = true;
-          this.showVerificationModal = false;
-          this.contactSuccessMessage = 'Email verified successfully!';
-          this.contactErrorMessage = '';
-          // Automatically submit the form after verification
-          this.submitContactForm();
-        } else {
-          this.contactErrorMessage = response.message || 'Invalid verification code. Please try again.';
-        }
-      },
-      error: (error) => {
-        this.contactErrorMessage = error.message || 'Invalid verification code. Please try again.';
-      }
-    });
+    this.contactService
+      .verifyContactCode(this.verificationEmail, this.verificationCode)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.isEmailVerified = true;
+            this.showVerificationModal = false;
+            this.contactSuccessMessage = 'Email verified successfully!';
+            this.contactErrorMessage = '';
+            // Automatically submit the form after verification
+            this.submitContactForm();
+          } else {
+            this.contactErrorMessage =
+              response.message ||
+              'Invalid verification code. Please try again.';
+          }
+        },
+        error: (error) => {
+          this.contactErrorMessage =
+            error.message || 'Invalid verification code. Please try again.';
+        },
+      });
   }
 
   submitContactForm() {
@@ -367,7 +382,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         this.isSubmitting = false;
         this.contactErrorMessage =
           error.message || 'Failed to send message. Please try again.';
-      }
+      },
     );
   }
 
@@ -434,7 +449,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
       console.log(
-        'Cleared localStorage cache to ensure fresh data from database.'
+        'Cleared localStorage cache to ensure fresh data from database.',
       );
     } catch (e) {
       console.warn('Failed to clear localStorage cache:', e);
@@ -472,7 +487,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             (p: { code: string; description: string }) => ({
               code: p.code,
               description: p.description,
-            })
+            }),
           );
         }
         if (pricingRes?.status?.remarks === 'success') {
@@ -505,10 +520,14 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     const vehicleCodes = Object.keys(this.pricingMatrix || {});
     // Sort vehicle codes in the desired order: S, M, L, XL, XXL, etc.
     const preferredOrder = ['S', 'M', 'L', 'XL', 'XXL'];
-    const orderedCodes = preferredOrder.filter((code) => vehicleCodes.includes(code));
-    const remaining = vehicleCodes.filter((code) => !preferredOrder.includes(code));
+    const orderedCodes = preferredOrder.filter((code) =>
+      vehicleCodes.includes(code),
+    );
+    const remaining = vehicleCodes.filter(
+      (code) => !preferredOrder.includes(code),
+    );
     const sortedCodes = [...orderedCodes, ...remaining];
-    
+
     this.vehicleTypes = sortedCodes.map((code) => ({
       code,
       description: this.describeVehicleType(code),
@@ -522,15 +541,34 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       const entries = this.pricingMatrix[vehicleCode] || {};
       Object.keys(entries).forEach((pkg) => pkgSet.add(pkg));
     }
-    const preferredOrder = ['p1', 'p1_5', 'p2', 'p3', 'p4', '1', '1.5', '2', '3', '4'];
+    const preferredOrder = [
+      'p1',
+      'p1_5',
+      'p2',
+      'p3',
+      'p4',
+      '1',
+      '1.5',
+      '2',
+      '3',
+      '4',
+    ];
     const presentPreferred = preferredOrder.filter((p) => pkgSet.has(p));
-    const remaining = Array.from(pkgSet).filter((p) => !presentPreferred.includes(p));
+    const remaining = Array.from(pkgSet).filter(
+      (p) => !presentPreferred.includes(p),
+    );
     const ordered = [...presentPreferred, ...remaining];
     const pkgDescriptions: { [key: string]: string } = {
-      p1: 'Wash only', p1_5: 'Body Wash + Tire Black', p2: 'Wash / Vacuum',
-      p3: 'Wash / Vacuum / Hand Wax', p4: 'Wash / Vacuum / Buffing Wax',
-      '1': 'Wash only', '1.5': 'Body Wash + Tire Black', '2': 'Wash / Vacuum',
-      '3': 'Wash / Vacuum / Hand Wax', '4': 'Wash / Vacuum / Buffing Wax',
+      p1: 'Wash only',
+      p1_5: 'Body Wash + Tire Black',
+      p2: 'Wash / Vacuum',
+      p3: 'Wash / Vacuum / Hand Wax',
+      p4: 'Wash / Vacuum / Buffing Wax',
+      '1': 'Wash only',
+      '1.5': 'Body Wash + Tire Black',
+      '2': 'Wash / Vacuum',
+      '3': 'Wash / Vacuum / Hand Wax',
+      '4': 'Wash / Vacuum / Buffing Wax',
     };
     this.servicePackages = ordered.map((code) => ({
       code,
@@ -593,7 +631,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   navigateToAppointmentWithPackage(
     vehicleType: string,
-    servicePackage: string
+    servicePackage: string,
   ): void {
     this.router.navigate(['/customer'], {
       queryParams: {

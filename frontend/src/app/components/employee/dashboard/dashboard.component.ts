@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit {
   // Calendar properties
   currentDate = new Date();
   today = new Date();
-  weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+  weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
   calendarDays: CalendarDay[] = [];
 
   private isBrowser: boolean;
@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit {
     private dialog: MatDialog,
     private bookingService: BookingService,
     private feedbackService: FeedbackService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -263,7 +263,7 @@ export class DashboardComponent implements OnInit {
           this.allBookings = bookings.map((b: any, idx: number) => {
             // Normalize status
             const normalizedStatus = this.normalizeStatus(
-              b.status ?? 'Pending'
+              b.status ?? 'Pending',
             );
 
             // Format time for display
@@ -279,7 +279,7 @@ export class DashboardComponent implements OnInit {
             // Resolve customer name
             const customerName = this.resolveCustomerName(
               b.customerName,
-              b.nickname
+              b.nickname,
             );
 
             return {
@@ -302,7 +302,7 @@ export class DashboardComponent implements OnInit {
           this.upcomingTasks = this.allBookings.filter(
             (task) =>
               task.status.toLowerCase() !== 'completed' &&
-              task.status.toLowerCase() !== 'cancelled'
+              task.status.toLowerCase() !== 'cancelled',
           );
 
           // Sort by time (earliest first)
@@ -420,7 +420,7 @@ export class DashboardComponent implements OnInit {
     }
 
     const amPmMatch = trimmed.match(
-      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i,
     );
     if (amPmMatch) {
       const hours = parseInt(amPmMatch[1], 10) % 12 || 12;
@@ -469,7 +469,7 @@ export class DashboardComponent implements OnInit {
 
   private computeScheduleSortValue(
     dateString?: string,
-    timeString?: string
+    timeString?: string,
   ): number {
     const [hours, minutes] = this.extractTimeParts(timeString);
 
@@ -489,7 +489,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private extractTimeParts(
-    timeString?: string
+    timeString?: string,
   ): [number | null, number | null] {
     if (!timeString) {
       return [null, null];
@@ -501,7 +501,7 @@ export class DashboardComponent implements OnInit {
     }
 
     const amPmMatch = trimmed.match(
-      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i,
     );
     if (amPmMatch) {
       let hours = parseInt(amPmMatch[1], 10) % 12;
@@ -598,9 +598,8 @@ export class DashboardComponent implements OnInit {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
 
-    // Get the day of week for the first day (0 = Sunday, we want Monday = 0)
-    let startDay = firstDay.getDay() - 1;
-    if (startDay < 0) startDay = 6; // Sunday becomes 6
+    // Get the day of week for the first day (0 = Sunday)
+    let startDay = firstDay.getDay();
 
     // Get days from previous month
     const prevMonthDate = new Date(year, month, 0);
@@ -696,7 +695,7 @@ export class DashboardComponent implements OnInit {
     this.currentDate = new Date(
       this.currentDate.getFullYear(),
       this.currentDate.getMonth() - 1,
-      1
+      1,
     );
     this.generateCalendar();
   }
@@ -705,7 +704,7 @@ export class DashboardComponent implements OnInit {
     this.currentDate = new Date(
       this.currentDate.getFullYear(),
       this.currentDate.getMonth() + 1,
-      1
+      1,
     );
     this.generateCalendar();
   }

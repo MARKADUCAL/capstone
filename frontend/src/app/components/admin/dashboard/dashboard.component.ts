@@ -126,7 +126,7 @@ export class DashboardComponent implements OnInit {
   // Calendar properties
   currentDate = new Date();
   today = new Date();
-  weekDays = ['MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT', 'SUN'];
+  weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
   calendarDays: CalendarDay[] = [];
 
   get currentMonthYear(): string {
@@ -153,7 +153,7 @@ export class DashboardComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -300,13 +300,13 @@ export class DashboardComponent implements OnInit {
             if (Array.isArray(employees)) {
               // Check if approval feature is enabled
               const hasApprovalFlag = employees.some(
-                (e: any) => 'is_approved' in e && e.is_approved !== undefined
+                (e: any) => 'is_approved' in e && e.is_approved !== undefined,
               );
 
               // Count only approved employees (is_approved === 1)
               if (hasApprovalFlag) {
                 const approvedEmployees = employees.filter(
-                  (employee: any) => employee.is_approved === 1
+                  (employee: any) => employee.is_approved === 1,
                 );
                 this.businessStats.totalEmployees = approvedEmployees.length;
               } else {
@@ -428,7 +428,7 @@ export class DashboardComponent implements OnInit {
               (total: number, booking: any) => {
                 return total + (booking.price || booking.amount || 0);
               },
-              0
+              0,
             );
 
             // Check for expired pending bookings and mark them
@@ -501,14 +501,17 @@ export class DashboardComponent implements OnInit {
             }
           },
           error: (err) => {
-            console.error(`Failed to mark booking #${bookingId} as Expired:`, err);
+            console.error(
+              `Failed to mark booking #${bookingId} as Expired:`,
+              err,
+            );
           },
         });
     });
 
     if (expiredBookingIds.length > 0) {
       this.showInfo(
-        `${expiredBookingIds.length} pending booking(s) marked as expired`
+        `${expiredBookingIds.length} pending booking(s) marked as expired`,
       );
       // Regenerate calendar to reflect changes
       this.generateCalendar();
@@ -694,9 +697,8 @@ export class DashboardComponent implements OnInit {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
 
-    // Get the day of week for the first day (0 = Sunday, we want Monday = 0)
-    let startDay = firstDay.getDay() - 1;
-    if (startDay < 0) startDay = 6; // Sunday becomes 6
+    // Get the day of week for the first day (0 = Sunday)
+    let startDay = firstDay.getDay();
 
     // Get days from previous month
     const prevMonthDate = new Date(year, month, 0);
@@ -833,7 +835,7 @@ export class DashboardComponent implements OnInit {
     this.currentDate = new Date(
       this.currentDate.getFullYear(),
       this.currentDate.getMonth() - 1,
-      1
+      1,
     );
     this.generateCalendar();
   }
@@ -842,7 +844,7 @@ export class DashboardComponent implements OnInit {
     this.currentDate = new Date(
       this.currentDate.getFullYear(),
       this.currentDate.getMonth() + 1,
-      1
+      1,
     );
     this.generateCalendar();
   }
