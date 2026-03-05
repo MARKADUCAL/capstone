@@ -42,6 +42,19 @@
                 required
                 (selectionChange)="onSavedVehicleSelect($event.value)"
               >
+                <mat-select-trigger>
+                  <ng-container *ngIf="selectedVehicle">
+                    {{
+                      selectedVehicle.nickname ||
+                        selectedVehicle.vehicle_model ||
+                        selectedVehicle.vehicleModel
+                    }}
+                    ({{ getVehicleTypeCode(
+                      selectedVehicle.vehicle_type ||
+                        selectedVehicle.vehicleType
+                    ) }})
+                  </ng-container>
+                </mat-select-trigger>
                 <mat-option
                   *ngFor="let vehicle of customerVehicles"
                   [value]="vehicle.id"

@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { sileo } from 'sileo';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -221,6 +222,14 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   onBookNowClick() {
+    // Show sileo notification
+    sileo.show({
+      message: 'Redirecting to booking page...',
+      type: 'info',
+      duration: 2000,
+    });
+    
+    // Show booking modal
     this.showModal = true;
   }
 
