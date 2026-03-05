@@ -163,11 +163,15 @@ export class DashboardComponent implements OnInit {
   private checkFirstTimeLogin(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const firstTimeLoginFlag = localStorage.getItem('employee_first_time_login');
+    const firstTimeLoginFlag = localStorage.getItem(
+      'employee_first_time_login',
+    );
 
     if (!firstTimeLoginFlag) {
       const employeeData = localStorage.getItem('employee_data');
-      const employeeName = employeeData ? JSON.parse(employeeData).first_name : 'Employee';
+      const employeeName = employeeData
+        ? JSON.parse(employeeData).first_name
+        : 'Employee';
 
       Swal.fire({
         title: `Welcome ${employeeName}! 👋`,
@@ -178,11 +182,10 @@ export class DashboardComponent implements OnInit {
             <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
               <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">🚀 Getting Started Checklist:</p>
               <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 14px;">
-                <li style="margin-bottom: 8px;"><strong>Complete Your Profile</strong> - Add profile picture and contact information</li>
+                <li style="margin-bottom: 8px;"><strong>Change Your Password</strong> - Update your login password for security</li>
                 <li style="margin-bottom: 8px;"><strong>Review Your Dashboard</strong> - Check your stats and upcoming tasks</li>
                 <li style="margin-bottom: 8px;"><strong>Check Upcoming Bookings</strong> - See your scheduled services</li>
                 <li style="margin-bottom: 8px;"><strong>Review Service Details</strong> - Understand service types and pricing</li>
-                <li style="margin-bottom: 8px;"><strong>Set Your Availability</strong> - Inform when you're available to work</li>
                 <li style="margin-bottom: 8px;"><strong>Check Customer Feedback</strong> - Review ratings and comments</li>
                 <li style="margin-bottom: 0;"><strong>Contact Your Manager</strong> - Reach out if you have questions</li>
               </ul>
