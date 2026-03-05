@@ -386,7 +386,9 @@
   top: 0 !important;
 }
 
-::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+::ng-deep
+  .mat-form-field-appearance-outline
+  .mat-form-field-label.mat-form-field-empty {
   transform: none !important;
   top: -1.5em !important;
 }
@@ -1878,7 +1880,9 @@
     top: 0 !important;
   }
 
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+  ::ng-deep
+    .mat-form-field-appearance-outline
+    .mat-form-field-label.mat-form-field-empty {
     transform: none !important;
     top: -1.2em !important;
   }
@@ -2064,7 +2068,9 @@
     top: 0 !important;
   }
 
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+  ::ng-deep
+    .mat-form-field-appearance-outline
+    .mat-form-field-label.mat-form-field-empty {
     transform: none !important;
     top: -1.6em !important;
   }
@@ -2110,7 +2116,9 @@
     top: 0 !important;
   }
 
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+  ::ng-deep
+    .mat-form-field-appearance-outline
+    .mat-form-field-label.mat-form-field-empty {
     transform: none !important;
     top: -1.5em !important;
   }
@@ -2156,7 +2164,9 @@
     top: 0 !important;
   }
 
-  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+  ::ng-deep
+    .mat-form-field-appearance-outline
+    .mat-form-field-label.mat-form-field-empty {
     transform: none !important;
     top: -1.4em !important;
   }
