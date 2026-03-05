@@ -244,10 +244,10 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         if (!points || points.length === 0) {
           console.warn('No revenue data received from API');
           // Use fallback data
-          this.revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+          this.revenueLabels = ['January', 'February', 'March', 'April', 'May', 'June'];
           this.revenueValues = [65000, 59000, 80000, 81000, 56000, 75000];
         } else {
-          this.revenueLabels = points.map((p) => p.month);
+          this.revenueLabels = points.map((p) => this.formatMonthLabel(p.month));
           this.revenueValues = points.map((p) => Number(p.revenue) || 0);
         }
         console.log('Processed revenue data:', {
@@ -266,13 +266,36 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error loading revenue analytics:', err);
         // Use fallback data if API fails
-        this.revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        this.revenueLabels = ['January', 'February', 'March', 'April', 'May', 'June'];
         this.revenueValues = [65000, 59000, 80000, 81000, 56000, 75000];
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeRevenueChart(), 100);
         }
       },
     });
+  }
+
+  private formatMonthLabel(dateString: string): string {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    // Handle YYYY-MM format (e.g., "2025-11")
+    if (dateString.includes('-')) {
+      const parts = dateString.split('-');
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      return months[monthIndex] || dateString;
+    }
+    
+    // Handle month number format (e.g., "11")
+    const monthIndex = parseInt(dateString, 10) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return months[monthIndex];
+    }
+    
+    // Return as-is if unable to parse
+    return dateString;
   }
 
   private mapServiceNameToPackageLabel(serviceName: string): string {
