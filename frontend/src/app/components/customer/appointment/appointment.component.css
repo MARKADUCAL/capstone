@@ -382,10 +382,23 @@
   color: rgba(0, 0, 0, 0.55);
   font-weight: 500;
   font-size: 1.1rem;
+  transform: none !important;
+  top: 0 !important;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+  transform: none !important;
+  top: -1.5em !important;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-float {
+  transform: none !important;
+  top: -1.5em !important;
 }
 
 ::ng-deep .mat-form-field.mat-focused .mat-form-field-label {
   color: var(--accent);
+  transform: none !important;
 }
 
 ::ng-deep .mat-select-value {
@@ -1861,6 +1874,18 @@
 
   ::ng-deep .mat-form-field-label {
     font-size: 0.8rem;
+    transform: none !important;
+    top: 0 !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+    transform: none !important;
+    top: -1.2em !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-float {
+    transform: none !important;
+    top: -1.2em !important;
   }
 
   ::ng-deep .mat-select-value {
@@ -2035,6 +2060,18 @@
 
   ::ng-deep .mat-form-field-label {
     font-size: 1rem;
+    transform: none !important;
+    top: 0 !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+    transform: none !important;
+    top: -1.6em !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-float {
+    transform: none !important;
+    top: -1.6em !important;
   }
 
   ::ng-deep .mat-select-value {
@@ -2069,6 +2106,18 @@
 
   ::ng-deep .mat-form-field-label {
     font-size: 0.95rem;
+    transform: none !important;
+    top: 0 !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+    transform: none !important;
+    top: -1.5em !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-float {
+    transform: none !important;
+    top: -1.5em !important;
   }
 
   ::ng-deep .mat-select-value {
@@ -2103,6 +2152,18 @@
 
   ::ng-deep .mat-form-field-label {
     font-size: 0.9rem;
+    transform: none !important;
+    top: 0 !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-form-field-empty {
+    transform: none !important;
+    top: -1.4em !important;
+  }
+
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-label.mat-float {
+    transform: none !important;
+    top: -1.4em !important;
   }
 
   ::ng-deep .mat-select-value {
