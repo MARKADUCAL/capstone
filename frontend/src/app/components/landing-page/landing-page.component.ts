@@ -204,7 +204,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   onBookNowClick() {
-    this.router.navigate(['/customer/appointment']);
+    this.router.navigate(['/customer']);
   }
 
   private toggleBodyScroll() {
