@@ -657,7 +657,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             },
             grid: {
               color: 'rgba(0, 0, 0, 0.08)',
-              drawBorder: false,
+            },
+            border: {
+              display: false,
             },
           },
           x: {
@@ -670,7 +672,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             grid: {
               display: true,
               color: 'rgba(0, 0, 0, 0.05)',
-              drawBorder: false,
+            },
+            border: {
+              display: false,
             },
           },
         },
