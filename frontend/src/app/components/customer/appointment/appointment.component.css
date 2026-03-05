@@ -3013,6 +3013,17 @@
   background: #cfe0ff;
 }
 
+/* Smaller icon-only arrow buttons for calendar navigation */
+.nav-arrow-button {
+  padding: 2px 8px !important;
+  min-height: 32px !important;
+  border-radius: 999px !important;
+}
+
+.nav-arrow-button i {
+  font-size: 0.85rem;
+}
+
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
