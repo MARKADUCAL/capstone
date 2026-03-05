@@ -126,7 +126,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private reportingService: ReportingService
+    private reportingService: ReportingService,
   ) {}
 
   ngOnInit(): void {
@@ -189,7 +189,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             console.log('Switching to Monthly Bookings tab');
             this.currentBookingsType = 'monthly';
             const monthlyCanvas = document.getElementById(
-              'monthlyBookingsChart'
+              'monthlyBookingsChart',
             );
             if (monthlyCanvas) {
               this.initializeMonthlyBookingsChart();
@@ -329,7 +329,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         console.log('Service distribution data received:', items);
         // Map service names to package labels
         this.serviceLabels = items.map((i) =>
-          this.mapServiceNameToPackageLabel(i.service_name)
+          this.mapServiceNameToPackageLabel(i.service_name),
         );
         this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
         console.log('Processed service distribution:', {
@@ -403,7 +403,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           });
 
           this.weeklyBookingLabels = orderedDays.map(
-            (day) => dayMap[day] || day.substring(0, 3)
+            (day) => dayMap[day] || day.substring(0, 3),
           );
           this.weeklyBookingValues = orderedDays.map((day) => {
             const value = bookingMap.get(day);
@@ -493,7 +493,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private processMonthlyBookings(
     points: any[],
     monthStart: Date,
-    monthEnd: Date
+    monthEnd: Date,
   ): void {
     console.log('Starting to process monthly bookings with points:', points);
 
@@ -540,7 +540,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     // Revenue Trend Chart
     const revenueCtx = document.getElementById(
-      'revenueChart'
+      'revenueChart',
     ) as HTMLCanvasElement;
     if (!revenueCtx) {
       console.warn('Revenue chart canvas element not found');
@@ -586,17 +586,18 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         labels: labels,
         datasets: [
           {
-            label: 'Monthly Revenue',
+            label: 'My First Dataset',
             data: data,
             fill: true,
             tension: 0.4,
-            borderColor: '#1976d2',
-            backgroundColor: 'rgba(25, 118, 210, 0.1)',
-            pointBackgroundColor: '#1976d2',
+            borderColor: '#17a2b8',
+            backgroundColor: 'rgba(23, 162, 184, 0.15)',
+            pointBackgroundColor: '#17a2b8',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 2,
           },
         ],
       },
@@ -608,27 +609,29 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         },
         plugins: {
           legend: {
-            position: 'bottom',
+            position: 'top',
             labels: {
               padding: 20,
               font: {
                 size: 12,
+                weight: 500,
               },
+              usePointStyle: true,
+              pointStyle: 'circle',
             },
           },
           title: {
-            display: true,
-            text: 'Revenue Trend',
-            font: {
-              size: 16,
-              weight: 'bold',
-            },
-            padding: {
-              top: 20,
-              bottom: 20,
-            },
+            display: false,
           },
           tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleFont: {
+              size: 13,
+            },
+            bodyFont: {
+              size: 12,
+            },
             callbacks: {
               label: (context) => {
                 const value = context.parsed.y || 0;
@@ -643,18 +646,31 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             ticks: {
               callback: (value) => {
                 if (typeof value === 'number') {
-                  return '₱' + value.toLocaleString();
+                  return value.toLocaleString();
                 }
-                return '₱' + value;
+                return value;
               },
+              font: {
+                size: 11,
+              },
+              color: '#666',
             },
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)',
+              color: 'rgba(0, 0, 0, 0.08)',
+              drawBorder: false,
             },
           },
           x: {
+            ticks: {
+              font: {
+                size: 11,
+              },
+              color: '#666',
+            },
             grid: {
-              display: false,
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false,
             },
           },
         },
@@ -682,7 +698,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     // Service Distribution Chart
     const serviceCtx = document.getElementById(
-      'serviceChart'
+      'serviceChart',
     ) as HTMLCanvasElement;
     if (!serviceCtx) {
       console.warn('Service chart canvas element not found');
@@ -774,7 +790,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
                 const value = context.parsed || 0;
                 const total = context.dataset.data.reduce(
                   (a: number, b: number) => a + b,
-                  0
+                  0,
                 );
                 const percentage =
                   total > 0 ? ((value / total) * 100).toFixed(1) : '0';
@@ -818,7 +834,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.serviceChart.data.datasets[0].data = data;
     this.serviceChart.data.datasets[0].backgroundColor = colors.slice(
       0,
-      labels.length
+      labels.length,
     );
     this.serviceChart.update('active');
   }
@@ -828,7 +844,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     // Weekly Bookings Chart
     const bookingsCtx = document.getElementById(
-      'weeklyBookingsChart'
+      'weeklyBookingsChart',
     ) as HTMLCanvasElement;
     if (!bookingsCtx) {
       console.warn('Weekly bookings chart canvas element not found');
@@ -926,7 +942,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     // Monthly Bookings Chart
     const bookingsCtx = document.getElementById(
-      'monthlyBookingsChart'
+      'monthlyBookingsChart',
     ) as HTMLCanvasElement;
     if (!bookingsCtx) {
       console.warn('Monthly bookings chart canvas element not found');
@@ -1149,7 +1165,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   // PDF Generation Methods
   async generatePDF(
-    reportType: 'daily' | 'weekly' | 'monthly' | 'quantity'
+    reportType: 'daily' | 'weekly' | 'monthly' | 'quantity',
   ): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
       console.error('PDF generation is only available in browser');
@@ -1190,7 +1206,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         `Generated on: ${new Date().toLocaleString()}`,
         pageWidth / 2,
         yPosition,
-        { align: 'center' }
+        { align: 'center' },
       );
       yPosition += 15;
 
@@ -1213,13 +1229,13 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       pdf.text(
         `Weekly Revenue: ₱${this.revenueData.weekly.toLocaleString()}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Monthly Revenue: ₱${this.revenueData.monthly.toLocaleString()}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 8;
 
@@ -1233,37 +1249,37 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       pdf.text(
         `Total Bookings: ${this.serviceStats.totalBookings}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Completed: ${this.serviceStats.completedBookings}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Pending: ${this.serviceStats.pendingBookings}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Cancelled: ${this.serviceStats.cancelledBookings}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Declined: ${this.serviceStats.declinedBookings}`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 5;
       pdf.text(
         `Completion Rate: ${this.getCompletionRate().toFixed(1)}%`,
         margin + 5,
-        yPosition
+        yPosition,
       );
       yPosition += 10;
 
@@ -1274,7 +1290,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           yPosition,
           pageWidth,
           margin,
-          pageHeight
+          pageHeight,
         );
       } else if (reportType === 'daily') {
         yPosition = this.addDailyReportData(
@@ -1282,7 +1298,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           yPosition,
           pageWidth,
           margin,
-          pageHeight
+          pageHeight,
         );
       } else if (reportType === 'weekly') {
         yPosition = this.addWeeklyReportData(
@@ -1290,7 +1306,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           yPosition,
           pageWidth,
           margin,
-          pageHeight
+          pageHeight,
         );
       } else if (reportType === 'monthly') {
         yPosition = this.addMonthlyReportData(
@@ -1298,7 +1314,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           yPosition,
           pageWidth,
           margin,
-          pageHeight
+          pageHeight,
         );
       }
 
@@ -1308,7 +1324,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         yPosition,
         pageWidth,
         margin,
-        pageHeight
+        pageHeight,
       );
 
       // Save PDF
@@ -1325,7 +1341,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   private getReportTypeLabel(
-    type: 'daily' | 'weekly' | 'monthly' | 'quantity'
+    type: 'daily' | 'weekly' | 'monthly' | 'quantity',
   ): string {
     const labels: { [key: string]: string } = {
       daily: 'Daily',
@@ -1341,7 +1357,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     yPosition: number,
     pageWidth: number,
     margin: number,
-    pageHeight: number
+    pageHeight: number,
   ): number {
     if (yPosition > pageHeight - 40) {
       pdf.addPage();
@@ -1385,7 +1401,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         this.serviceCounts[i].toString(),
         pageWidth - margin - 30,
         yPosition,
-        { align: 'right' }
+        { align: 'right' },
       );
       yPosition += 6;
     }
@@ -1398,7 +1414,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     yPosition: number,
     pageWidth: number,
     margin: number,
-    pageHeight: number
+    pageHeight: number,
   ): number {
     if (yPosition > pageHeight - 40) {
       pdf.addPage();
@@ -1462,7 +1478,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     yPosition: number,
     pageWidth: number,
     margin: number,
-    pageHeight: number
+    pageHeight: number,
   ): number {
     if (yPosition > pageHeight - 40) {
       pdf.addPage();
@@ -1479,16 +1495,16 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     pdf.text(
       `This week's revenue: ₱${this.revenueData.weekly.toLocaleString()}`,
       margin,
-      yPosition
+      yPosition,
     );
     yPosition += 6;
     pdf.text(
       `Total bookings this week: ${this.weeklyBookingValues.reduce(
         (a, b) => a + b,
-        0
+        0,
       )}`,
       margin,
-      yPosition
+      yPosition,
     );
     yPosition += 6;
     pdf.text(
@@ -1496,7 +1512,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         this.weeklyBookingValues.reduce((a, b) => a + b, 0) / 7
       ).toFixed(1)}`,
       margin,
-      yPosition
+      yPosition,
     );
 
     return yPosition + 10;
@@ -1507,7 +1523,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     yPosition: number,
     pageWidth: number,
     margin: number,
-    pageHeight: number
+    pageHeight: number,
   ): number {
     if (yPosition > pageHeight - 40) {
       pdf.addPage();
@@ -1547,7 +1563,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         `₱${this.revenueValues[i].toLocaleString()}`,
         pageWidth - margin - 30,
         yPosition,
-        { align: 'right' }
+        { align: 'right' },
       );
       yPosition += 6;
     }
@@ -1560,7 +1576,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     yPosition: number,
     pageWidth: number,
     margin: number,
-    pageHeight: number
+    pageHeight: number,
   ): Promise<number> {
     if (!isPlatformBrowser(this.platformId)) return yPosition;
 
@@ -1568,7 +1584,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       // Capture Revenue Chart
       if (this.revenueChart) {
         const revenueCanvas = document.getElementById(
-          'revenueChart'
+          'revenueChart',
         ) as HTMLCanvasElement;
         if (revenueCanvas) {
           if (yPosition > pageHeight - 80) {
@@ -1591,7 +1607,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             margin,
             yPosition,
             imgWidth,
-            Math.min(imgHeight, 60)
+            Math.min(imgHeight, 60),
           );
           yPosition += Math.min(imgHeight, 60) + 10;
         }
@@ -1600,7 +1616,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       // Capture Service Distribution Chart
       if (this.serviceChart) {
         const serviceCanvas = document.getElementById(
-          'serviceChart'
+          'serviceChart',
         ) as HTMLCanvasElement;
         if (serviceCanvas) {
           if (yPosition > pageHeight - 80) {
@@ -1623,7 +1639,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             margin,
             yPosition,
             imgWidth,
-            Math.min(imgHeight, 60)
+            Math.min(imgHeight, 60),
           );
           yPosition += Math.min(imgHeight, 60) + 10;
         }
@@ -1632,7 +1648,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       // Capture Weekly Bookings Chart
       if (this.bookingsChart) {
         const bookingsCanvas = document.getElementById(
-          'bookingsChart'
+          'bookingsChart',
         ) as HTMLCanvasElement;
         if (bookingsCanvas) {
           if (yPosition > pageHeight - 80) {
@@ -1655,7 +1671,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             margin,
             yPosition,
             imgWidth,
-            Math.min(imgHeight, 60)
+            Math.min(imgHeight, 60),
           );
           yPosition += Math.min(imgHeight, 60) + 10;
         }
@@ -1690,7 +1706,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   private getWeekNumber(date: Date): number {
     const d = new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
     );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
@@ -1741,14 +1757,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
     this.currentWeekStart = new Date(weekStart);
     this.currentWeekStart.setDate(
-      this.currentWeekStart.getDate() + (week - 1) * 7
+      this.currentWeekStart.getDate() + (week - 1) * 7,
     );
 
     console.log(
       'Week changed to:',
       this.selectedWeek,
       'Starting:',
-      this.currentWeekStart
+      this.currentWeekStart,
     );
 
     // Load bookings for selected week
@@ -1802,7 +1818,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'Month changed to:',
       this.selectedMonth,
       'Starting:',
-      this.currentMonthStart
+      this.currentMonthStart,
     );
 
     // Reload the monthly bookings data for the selected month
@@ -1935,25 +1951,23 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       end: weekEnd.toISOString(),
     });
 
-    this.reportingService
-      .getRevenueByDateRange(weekStart, weekEnd)
-      .subscribe({
-        next: (data: any) => {
-          console.log('Weekly revenue data received:', data);
-          this.specificWeekRevenue = data.total_revenue || 0;
-          this.specificWeekBookings = data.completed_bookings || 0;
-          this.revenueWeekDateRange = this.getRevenueWeekDateRange();
-          console.log('Specific week revenue updated:', {
-            revenue: this.specificWeekRevenue,
-            bookings: this.specificWeekBookings,
-          });
-        },
-        error: (err: any) => {
-          console.error('Error loading weekly revenue:', err);
-          this.specificWeekRevenue = 0;
-          this.specificWeekBookings = 0;
-        },
-      });
+    this.reportingService.getRevenueByDateRange(weekStart, weekEnd).subscribe({
+      next: (data: any) => {
+        console.log('Weekly revenue data received:', data);
+        this.specificWeekRevenue = data.total_revenue || 0;
+        this.specificWeekBookings = data.completed_bookings || 0;
+        this.revenueWeekDateRange = this.getRevenueWeekDateRange();
+        console.log('Specific week revenue updated:', {
+          revenue: this.specificWeekRevenue,
+          bookings: this.specificWeekBookings,
+        });
+      },
+      error: (err: any) => {
+        console.error('Error loading weekly revenue:', err);
+        this.specificWeekRevenue = 0;
+        this.specificWeekBookings = 0;
+      },
+    });
 
     // Load daily revenue breakdown for the selected week
     this.reportingService
@@ -1962,13 +1976,34 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         next: (data: any) => {
           console.log('Daily revenue data for week received:', data);
           this.weeklyRevenueData = (data || []).map((day: any) => ({
-            week: this.getWeekNumber(new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1)),
-            startDate: new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1).toISOString().split('T')[0],
-            endDate: new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + parseInt(day.day, 10) - 1).toISOString().split('T')[0],
+            week: this.getWeekNumber(
+              new Date(
+                weekStart.getFullYear(),
+                weekStart.getMonth(),
+                weekStart.getDate() + parseInt(day.day, 10) - 1,
+              ),
+            ),
+            startDate: new Date(
+              weekStart.getFullYear(),
+              weekStart.getMonth(),
+              weekStart.getDate() + parseInt(day.day, 10) - 1,
+            )
+              .toISOString()
+              .split('T')[0],
+            endDate: new Date(
+              weekStart.getFullYear(),
+              weekStart.getMonth(),
+              weekStart.getDate() + parseInt(day.day, 10) - 1,
+            )
+              .toISOString()
+              .split('T')[0],
             revenue: day.revenue,
             bookings: day.bookings,
           }));
-          console.log('Daily revenue data updated for week:', this.weeklyRevenueData);
+          console.log(
+            'Daily revenue data updated for week:',
+            this.weeklyRevenueData,
+          );
         },
         error: (err: any) => {
           console.error('Error loading daily revenue for week:', err);
@@ -2068,4 +2103,3 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return `${startStr} - ${endStr}`;
   }
 }
-

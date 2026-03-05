@@ -38,7 +38,11 @@
         color="primary"
         (click)="generatePDF(reportType)"
         class="export-btn"
-        [disabled]="isGeneratingPDF || (reportType === 'weekly' && !selectedReportWeek) || (reportType === 'monthly' && !selectedReportMonth)"
+        [disabled]="
+          isGeneratingPDF ||
+          (reportType === 'weekly' && !selectedReportWeek) ||
+          (reportType === 'monthly' && !selectedReportMonth)
+        "
       >
         <mat-icon>{{
           isGeneratingPDF ? "hourglass_empty" : "picture_as_pdf"
@@ -102,7 +106,7 @@
             <div class="revenue-item">
               <div class="revenue-label">Total Revenue</div>
               <div class="revenue-value">
-                ₱{{ specificMonthRevenue | number : "1.0-0" }}
+                ₱{{ specificMonthRevenue | number: "1.0-0" }}
               </div>
             </div>
             <div class="revenue-item">
@@ -132,7 +136,7 @@
                 <div class="table-cell">{{ weekData.startDate }}</div>
                 <div class="table-cell">{{ weekData.endDate }}</div>
                 <div class="table-cell">
-                  ₱{{ weekData.revenue | number : "1.0-0" }}
+                  ₱{{ weekData.revenue | number: "1.0-0" }}
                 </div>
                 <div class="table-cell">{{ weekData.bookings }}</div>
               </div>
@@ -164,7 +168,7 @@
             <div class="revenue-item">
               <div class="revenue-label">Total Revenue</div>
               <div class="revenue-value">
-                ₱{{ specificWeekRevenue | number : "1.0-0" }}
+                ₱{{ specificWeekRevenue | number: "1.0-0" }}
               </div>
             </div>
             <div class="revenue-item">
@@ -190,7 +194,7 @@
               <div class="table-row" *ngFor="let dayData of weeklyRevenueData">
                 <div class="table-cell">{{ dayData.startDate }}</div>
                 <div class="table-cell">
-                  ₱{{ dayData.revenue | number : "1.0-0" }}
+                  ₱{{ dayData.revenue | number: "1.0-0" }}
                 </div>
                 <div class="table-cell">{{ dayData.bookings }}</div>
               </div>
