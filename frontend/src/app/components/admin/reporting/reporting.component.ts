@@ -241,33 +241,67 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.reportingService.getRevenueAnalytics().subscribe({
       next: (points) => {
         console.log('Revenue analytics points received:', points);
+        const months = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ];
+
+        // Always render a full Jan–Dec x-axis. Any missing months become 0.
+        const monthRevenue = Array<number>(12).fill(0);
+
+        const getMonthIndex = (raw: string): number | null => {
+          if (!raw) return null;
+          const value = String(raw).trim();
+
+          // Formats supported: "YYYY-MM", "MM", "M", "January", "Jan"
+          if (value.includes('-')) {
+            const parts = value.split('-');
+            const maybeMonth = parts[parts.length - 1];
+            const monthIndex = parseInt(maybeMonth, 10) - 1;
+            return monthIndex >= 0 && monthIndex < 12 ? monthIndex : null;
+          }
+
+          const numeric = parseInt(value, 10);
+          if (!Number.isNaN(numeric)) {
+            const monthIndex = numeric - 1;
+            return monthIndex >= 0 && monthIndex < 12 ? monthIndex : null;
+          }
+
+          const fullIdx = months.findIndex(
+            (m) => m.toLowerCase() === value.toLowerCase(),
+          );
+          if (fullIdx >= 0) return fullIdx;
+
+          const shortIdx = months.findIndex(
+            (m) => m.substring(0, 3).toLowerCase() === value.substring(0, 3).toLowerCase(),
+          );
+          return shortIdx >= 0 ? shortIdx : null;
+        };
+
         if (!points || points.length === 0) {
           console.warn('No revenue data received from API');
-          // Use fallback data - all 12 months
-          this.revenueLabels = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-          ];
-          this.revenueValues = [
-            65000, 59000, 80000, 81000, 56000, 75000, 68000, 72000, 78000,
-            82000, 76000, 85000,
-          ];
+          // Keep 12 labels visible with 0s (no fake data).
         } else {
-          this.revenueLabels = points.map((p) =>
-            this.formatMonthLabel(p.month),
-          );
-          this.revenueValues = points.map((p) => Number(p.revenue) || 0);
+          points.forEach((p) => {
+            const idx = getMonthIndex(p.month);
+            if (idx === null) return;
+            monthRevenue[idx] += Number(p.revenue) || 0;
+          });
         }
+
+        this.revenueLabels = months;
+        this.revenueValues = monthRevenue;
+
         console.log('Processed revenue data:', {
           labels: this.revenueLabels,
           values: this.revenueValues,
@@ -283,7 +317,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading revenue analytics:', err);
-        // Use fallback data if API fails - all 12 months
+        // Keep 12 labels visible even if API fails.
         this.revenueLabels = [
           'January',
           'February',
@@ -298,10 +332,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           'November',
           'December',
         ];
-        this.revenueValues = [
-          65000, 59000, 80000, 81000, 56000, 75000, 68000, 72000, 78000, 82000,
-          76000, 85000,
-        ];
+        this.revenueValues = Array(12).fill(0);
         if (isPlatformBrowser(this.platformId)) {
           setTimeout(() => this.initializeRevenueChart(), 100);
         }
@@ -633,12 +664,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.revenueChart.destroy();
     }
 
-    const labels = this.revenueLabels.length
-      ? this.revenueLabels
-      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const data = this.revenueValues.length
-      ? this.revenueValues
-      : [65000, 59000, 80000, 81000, 56000, 75000];
+    const defaultLabels = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const labels = this.revenueLabels.length ? this.revenueLabels : defaultLabels;
+    const data = this.revenueValues.length ? this.revenueValues : Array(12).fill(0);
 
     console.log('Initializing revenue chart with:', {
       labels,
@@ -731,8 +772,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           },
           x: {
             ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 0,
               font: {
-                size: 11,
+                size: 10,
               },
               color: '#666',
             },
@@ -752,12 +796,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private updateRevenueChart(): void {
     if (!this.revenueChart || !isPlatformBrowser(this.platformId)) return;
 
-    const labels = this.revenueLabels.length
-      ? this.revenueLabels
-      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const data = this.revenueValues.length
-      ? this.revenueValues
-      : [65000, 59000, 80000, 81000, 56000, 75000];
+    const defaultLabels = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const labels = this.revenueLabels.length ? this.revenueLabels : defaultLabels;
+    const data = this.revenueValues.length ? this.revenueValues : Array(12).fill(0);
 
     this.revenueChart.data.labels = labels;
     this.revenueChart.data.datasets[0].data = data;
