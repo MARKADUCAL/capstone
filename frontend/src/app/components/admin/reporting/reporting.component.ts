@@ -244,7 +244,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   private loadRevenueAnalytics(): void {
-    this.reportingService.getRevenueAnalytics().subscribe({
+    this.reportingService.getRevenueAnalytics(this.selectedYear).subscribe({
       next: (points) => {
         console.log('Revenue analytics points received:', points);
         const months = [
@@ -1822,6 +1822,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   }
 
   onYearChange(): void {
+    // Reload revenue chart for selected year
+    this.loadRevenueAnalytics();
+
     // Reset week to first week of selected year
     this.selectedWeek = `${this.selectedYear}-W01`;
     const [year, week] = this.selectedWeek.split('-W').map(Number);

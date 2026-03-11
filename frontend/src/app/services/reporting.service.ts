@@ -57,9 +57,13 @@ export class ReportingService {
 
   constructor(private http: HttpClient) {}
 
-  getRevenueAnalytics(): Observable<RevenuePoint[]> {
+  getRevenueAnalytics(year?: number): Observable<RevenuePoint[]> {
+    const url =
+      year != null
+        ? `${this.baseUrl}/get_revenue_analytics?year=${year}`
+        : `${this.baseUrl}/get_revenue_analytics`;
     return this.http
-      .get<any>(`${this.baseUrl}/get_revenue_analytics`)
+      .get<any>(url)
       .pipe(map((res) => res?.payload?.revenue_data ?? []));
   }
 

@@ -532,23 +532,48 @@
 
         public function get_revenue_analytics() {
             try {
-                // Get monthly revenue for the last 6 months
-                $sql = "SELECT 
-                            DATE_FORMAT(wash_date, '%Y-%m') as month,
-                            SUM(price) as revenue,
-                            COUNT(*) as bookings_count
-                        FROM 
-                            bookings 
-                        WHERE 
-                            wash_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-                            AND status = 'Completed'
-                        GROUP BY 
-                            DATE_FORMAT(wash_date, '%Y-%m')
-                        ORDER BY 
-                            month ASC";
+                $year = isset($_GET['year']) ? (int)$_GET['year'] : null;
+
+                if ($year !== null && $year >= 2000 && $year <= 2100) {
+                    // Get monthly revenue for the specified year (Jan–Dec)
+                    $sql = "SELECT 
+                                DATE_FORMAT(wash_date, '%Y-%m') as month,
+                                SUM(price) as revenue,
+                                COUNT(*) as bookings_count
+                            FROM 
+                                bookings 
+                            WHERE 
+                                wash_date >= :year_start
+                                AND wash_date <= :year_end
+                                AND status = 'Completed'
+                            GROUP BY 
+                                DATE_FORMAT(wash_date, '%Y-%m')
+                            ORDER BY 
+                                month ASC";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute([
+                        ':year_start' => $year . '-01-01',
+                        ':year_end' => $year . '-12-31'
+                    ]);
+                } else {
+                    // Default: last 6 months (no year param or invalid year)
+                    $sql = "SELECT 
+                                DATE_FORMAT(wash_date, '%Y-%m') as month,
+                                SUM(price) as revenue,
+                                COUNT(*) as bookings_count
+                            FROM 
+                                bookings 
+                            WHERE 
+                                wash_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                                AND status = 'Completed'
+                            GROUP BY 
+                                DATE_FORMAT(wash_date, '%Y-%m')
+                            ORDER BY 
+                                month ASC";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute();
+                }
                 
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute();
                 $revenueData = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 return $this->sendPayload(
