@@ -106,6 +106,10 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private monthlyBookingLabels: string[] = [];
   private monthlyBookingValues: number[] = [];
 
+  // Year selector (for Weekly and Monthly booking charts)
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = [];
+
   // Week selector
   selectedWeek: string = '';
   private currentWeekStart: Date = new Date();
@@ -130,6 +134,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    // Initialize year selector first (used by week/month)
+    this.initializeYearSelector();
     // Initialize week and month selectors to current week/month
     this.initializeWeekSelector();
     this.initializeMonthSelector();
@@ -1808,6 +1814,45 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return yPosition;
   }
 
+  // Year selector methods
+  private initializeYearSelector(): void {
+    const currentYear = new Date().getFullYear();
+    this.selectedYear = currentYear;
+    this.availableYears = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  }
+
+  onYearChange(): void {
+    // Reset week to first week of selected year
+    this.selectedWeek = `${this.selectedYear}-W01`;
+    const [year, week] = this.selectedWeek.split('-W').map(Number);
+    const jan4 = new Date(year, 0, 4);
+    const weekStart = new Date(jan4);
+    const day = weekStart.getDay();
+    const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+    weekStart.setDate(diff);
+    this.currentWeekStart = new Date(weekStart);
+    this.currentWeekStart.setDate(
+      this.currentWeekStart.getDate() + (week - 1) * 7,
+    );
+
+    // Reset month to January of selected year
+    this.selectedMonth = `${this.selectedYear}-01`;
+    this.currentMonthStart = new Date(this.selectedYear, 0, 1);
+
+    this.loadWeeklyBookings();
+    this.loadMonthlyBookings();
+
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.bookingsChart) {
+        if (this.currentBookingsType === 'weekly') {
+          this.updateWeeklyBookingsChart();
+        } else {
+          this.updateMonthlyBookingsChart();
+        }
+      }
+    }
+  }
+
   // Week selector methods
   private initializeWeekSelector(): void {
     const today = new Date();
@@ -1873,6 +1918,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     if (!this.selectedWeek) return;
 
     const [year, week] = this.selectedWeek.split('-W').map(Number);
+    this.selectedYear = year;
 
     const jan4 = new Date(year, 0, 4);
     const weekStart = new Date(jan4);
@@ -1937,6 +1983,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     if (!this.selectedMonth) return;
 
     const [year, month] = this.selectedMonth.split('-').map(Number);
+    this.selectedYear = year;
     this.currentMonthStart = new Date(year, month - 1, 1);
 
     console.log(
