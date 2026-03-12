@@ -139,6 +139,39 @@ export class ServiceManagementComponent implements OnInit {
   deleteId = 0;
   searchTerm = '';
   filteredPricingEntries: PricingEntry[] = [];
+  pricingPageSize = 7;
+  pricingCurrentPage = 1;
+
+  get paginatedPricingEntries(): PricingEntry[] {
+    const start = (this.pricingCurrentPage - 1) * this.pricingPageSize;
+    return this.filteredPricingEntries.slice(start, start + this.pricingPageSize);
+  }
+
+  get totalPricingPages(): number {
+    return Math.max(
+      1,
+      Math.ceil(this.filteredPricingEntries.length / this.pricingPageSize)
+    );
+  }
+
+  get pricingPageRange(): { start: number; end: number; total: number } {
+    const total = this.filteredPricingEntries.length;
+    if (total === 0) {
+      return { start: 0, end: 0, total: 0 };
+    }
+    const start = (this.pricingCurrentPage - 1) * this.pricingPageSize + 1;
+    const end = Math.min(
+      this.pricingCurrentPage * this.pricingPageSize,
+      total
+    );
+    return { start, end, total };
+  }
+
+  goToPricingPage(page: number): void {
+    if (page >= 1 && page <= this.totalPricingPages) {
+      this.pricingCurrentPage = page;
+    }
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -207,6 +240,7 @@ export class ServiceManagementComponent implements OnInit {
   }
 
   filterPricingEntries(): void {
+    this.pricingCurrentPage = 1;
     if (!this.searchTerm.trim()) {
       this.filteredPricingEntries = [...this.pricingEntries].sort((a, b) => {
         // Sort by ID number in ascending order

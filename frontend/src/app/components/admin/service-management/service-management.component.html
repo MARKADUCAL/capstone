@@ -305,7 +305,7 @@
           </thead>
           <tbody>
             <tr
-              *ngFor="let entry of filteredPricingEntries"
+              *ngFor="let entry of paginatedPricingEntries"
               [class.inactive]="!entry.isActive"
             >
               <td>{{ entry.id || "N/A" }}</td>
@@ -401,6 +401,38 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination -->
+      <div
+        class="pagination-controls"
+        *ngIf="!isLoading && filteredPricingEntries.length > pricingPageSize"
+      >
+        <span class="pagination-info">
+          Showing {{ pricingPageRange.start }}–{{ pricingPageRange.end }} of
+          {{ pricingPageRange.total }} entries
+        </span>
+        <div class="pagination-buttons">
+          <button
+            class="btn-pagination"
+            (click)="goToPricingPage(pricingCurrentPage - 1)"
+            [disabled]="pricingCurrentPage <= 1"
+            title="Previous page"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="page-indicator">
+            Page {{ pricingCurrentPage }} of {{ totalPricingPages }}
+          </span>
+          <button
+            class="btn-pagination"
+            (click)="goToPricingPage(pricingCurrentPage + 1)"
+            [disabled]="pricingCurrentPage >= totalPricingPages"
+            title="Next page"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
