@@ -176,6 +176,9 @@ body {
   padding: 15px 25px;
   background-color: var(--mat-sys-surface-container-high);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 200;
 }
 
 .menu-icon {
