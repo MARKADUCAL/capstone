@@ -1985,5 +1985,186 @@
                 );
             }
         }
+
+        /**
+         * Get comprehensive report summary for PDF export (weekly or monthly).
+         * Returns booking stats, revenue, customers, service breakdown, and activity data.
+         */
+        public function get_report_summary() {
+            try {
+                $startDate = $_GET['start_date'] ?? null;
+                $endDate = $_GET['end_date'] ?? null;
+
+                if (!$startDate || !$endDate) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "start_date and end_date parameters are required",
+                        400
+                    );
+                }
+
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+                    return $this->sendPayload(
+                        null,
+                        "failed",
+                        "Invalid date format. Use YYYY-MM-DD",
+                        400
+                    );
+                }
+
+                // Booking counts by status
+                $sql = "SELECT 
+                            COUNT(*) as total_bookings,
+                            SUM(CASE WHEN status IN ('Complete', 'Completed') THEN 1 ELSE 0 END) as completed_bookings,
+                            SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) as cancelled_bookings,
+                            SUM(CASE WHEN status IN ('Rejected', 'Expired') THEN 1 ELSE 0 END) as no_show_bookings,
+                            COALESCE(SUM(CASE WHEN status IN ('Complete', 'Completed') THEN price ELSE 0 END), 0) as total_revenue
+                        FROM bookings
+                        WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ?";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([$startDate, $endDate]);
+                $summary = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $totalRevenue = (float)($summary['total_revenue'] ?? 0);
+                $completedBookings = (int)($summary['completed_bookings'] ?? 0);
+                $avgPerWash = $completedBookings > 0 ? round($totalRevenue / $completedBookings, 0) : 0;
+
+                // New vs returning customers (distinct customers)
+                $newCustomersSql = "SELECT COUNT(DISTINCT b.customer_id) as count
+                    FROM bookings b
+                    WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
+                    AND b.status IN ('Complete', 'Completed')
+                    AND NOT EXISTS (
+                        SELECT 1 FROM bookings b2
+                        WHERE b2.customer_id = b.customer_id
+                        AND b2.status IN ('Complete', 'Completed')
+                        AND DATE(b2.wash_date) < ?)";
+                $stmt = $this->pdo->prepare($newCustomersSql);
+                $stmt->execute([$startDate, $endDate, $startDate]);
+                $newCustomers = (int)($stmt->fetchColumn() ?? 0);
+
+                $returningSql = "SELECT COUNT(DISTINCT b.customer_id) as count
+                    FROM bookings b
+                    WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
+                    AND b.status IN ('Complete', 'Completed')
+                    AND EXISTS (
+                        SELECT 1 FROM bookings b2
+                        WHERE b2.customer_id = b.customer_id
+                        AND b2.status IN ('Complete', 'Completed')
+                        AND DATE(b2.wash_date) < ?)";
+                $stmt = $this->pdo->prepare($returningSql);
+                $stmt->execute([$startDate, $endDate, $startDate]);
+                $returningCustomers = (int)($stmt->fetchColumn() ?? 0);
+
+                // Service breakdown for date range
+                $serviceSql = "SELECT 
+                    CASE 
+                        WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p1', '1') OR LOWER(b.service_package) LIKE 'p1%' OR LOWER(b.service_package) LIKE '1%' THEN 'Basic Wash'
+                        WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p2', '2') OR LOWER(b.service_package) LIKE 'p2%' OR LOWER(b.service_package) LIKE '2%' THEN 'Standard Wash'
+                        WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p3', '3') OR LOWER(b.service_package) LIKE 'p3%' OR LOWER(b.service_package) LIKE '3%' THEN 'Premium Wash'
+                        WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p4', '4') OR LOWER(b.service_package) LIKE 'p4%' OR LOWER(b.service_package) LIKE '4%' THEN 'Full Detail'
+                        ELSE CONCAT('Other: ', TRIM(SUBSTRING_INDEX(b.service_package, ' ', 1)))
+                    END as service_name,
+                    COUNT(*) as washes,
+                    COALESCE(SUM(b.price), 0) as revenue
+                FROM bookings b
+                WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
+                AND b.service_package IS NOT NULL AND b.service_package != ''
+                AND b.status IN ('Complete', 'Completed')
+                GROUP BY service_name
+                ORDER BY washes DESC";
+                $stmt = $this->pdo->prepare($serviceSql);
+                $stmt->execute([$startDate, $endDate]);
+                $serviceRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $serviceBreakdown = [];
+                foreach ($serviceRows as $row) {
+                    $rev = (float)($row['revenue'] ?? 0);
+                    $pct = $totalRevenue > 0 ? round(($rev / $totalRevenue) * 100, 0) : 0;
+                    $serviceBreakdown[] = [
+                        'service_name' => $row['service_name'],
+                        'washes' => (int)($row['washes'] ?? 0),
+                        'revenue' => $rev,
+                        'percentage' => $pct
+                    ];
+                }
+
+                // Daily bookings (Mon-Sun) for weekly report
+                $dailySql = "SELECT 
+                    WEEKDAY(wash_date) as weekday_index,
+                    DATE_FORMAT(wash_date, '%W') as day_name,
+                    COUNT(*) as bookings_count
+                FROM bookings
+                WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ?
+                AND status IN ('Complete', 'Completed')
+                GROUP BY weekday_index, day_name
+                ORDER BY weekday_index";
+                $stmt = $this->pdo->prepare($dailySql);
+                $stmt->execute([$startDate, $endDate]);
+                $dailyRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $orderedDays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+                $dailyCounts = array_fill_keys($orderedDays, 0);
+                foreach ($dailyRows as $r) {
+                    $dn = $r['day_name'] ?? null;
+                    if ($dn && isset($dailyCounts[$dn])) {
+                        $dailyCounts[$dn] = (int)($r['bookings_count'] ?? 0);
+                    }
+                }
+                $dailyBookings = [];
+                foreach ($orderedDays as $d) {
+                    $dailyBookings[] = ['day' => substr($d, 0, 3), 'bookings_count' => $dailyCounts[$d]];
+                }
+
+                // Weekly bookings (Week 1-4) for monthly report
+                $weeklySql = "SELECT 
+                    FLOOR((DAY(wash_date) - 1) / 7) + 1 as week_num,
+                    COALESCE(SUM(price), 0) as revenue,
+                    COUNT(*) as bookings
+                FROM bookings
+                WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ?
+                AND status IN ('Complete', 'Completed')
+                GROUP BY week_num
+                ORDER BY week_num";
+                $stmt = $this->pdo->prepare($weeklySql);
+                $stmt->execute([$startDate, $endDate]);
+                $weeklyRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $weeklyBookings = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
+                foreach ($weeklyRows as $r) {
+                    $wn = (int)($r['week_num'] ?? 1);
+                    if ($wn >= 1 && $wn <= 4) {
+                        $weeklyBookings[$wn] = (int)($r['bookings'] ?? 0);
+                    }
+                }
+
+                $payload = [
+                    'total_bookings' => (int)($summary['total_bookings'] ?? 0),
+                    'completed_bookings' => $completedBookings,
+                    'cancelled_bookings' => (int)($summary['cancelled_bookings'] ?? 0),
+                    'no_show_bookings' => (int)($summary['no_show_bookings'] ?? 0),
+                    'total_revenue' => $totalRevenue,
+                    'avg_per_wash' => $avgPerWash,
+                    'new_customers' => $newCustomers,
+                    'returning_customers' => $returningCustomers,
+                    'service_breakdown' => $serviceBreakdown,
+                    'daily_bookings' => $dailyBookings,
+                    'weekly_bookings' => array_values($weeklyBookings)
+                ];
+
+                return $this->sendPayload(
+                    $payload,
+                    "success",
+                    "Report summary retrieved successfully",
+                    200
+                );
+            } catch (\PDOException $e) {
+                return $this->sendPayload(
+                    null,
+                    "failed",
+                    "Failed to retrieve report summary: " . $e->getMessage(),
+                    500
+                );
+            }
+        }
     }
     ?>

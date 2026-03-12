@@ -13,7 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import {
   Chart,
   ChartConfiguration,
@@ -21,8 +20,10 @@ import {
   registerables,
 } from 'chart.js';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { firstValueFrom } from 'rxjs';
 import {
   ReportingService,
+  ReportSummary,
   RevenuePoint,
   ServiceDistributionItem,
   WeeklyBookingPoint,
@@ -1294,174 +1295,236 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     );
   }
 
-  // PDF Generation Methods
+  // PDF Generation Methods - LeydiBoss Car Wash style
   async generatePDF(
-    reportType: 'daily' | 'weekly' | 'monthly' | 'quantity',
+    reportType: 'weekly' | 'monthly',
   ): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
       console.error('PDF generation is only available in browser');
       return;
     }
 
-    if (this.isGeneratingPDF) {
-      return; // Prevent multiple simultaneous PDF generations
+    if (this.isGeneratingPDF) return;
+
+    const isWeekly = reportType === 'weekly';
+    const dateStr = isWeekly ? this.selectedReportWeek : this.selectedReportMonth;
+    if (!dateStr) {
+      alert('Please select a ' + (isWeekly ? 'week' : 'month') + ' for the report.');
+      return;
     }
 
     this.isGeneratingPDF = true;
 
     try {
+      let startDate: Date;
+      let endDate: Date;
+      let periodLabel: string;
+
+      if (isWeekly) {
+        const [year, weekStr] = dateStr.split('-W').map(Number);
+        const weekStart = this.getWeekStartDate(year, weekStr);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        startDate = weekStart;
+        endDate = weekEnd;
+        periodLabel = this.getReportWeekDateRange();
+      } else {
+        const [year, month] = dateStr.split('-').map(Number);
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 0);
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        periodLabel = `${months[month - 1]} ${year}`;
+      }
+
+      const report = await firstValueFrom(
+        this.reportingService.getReportSummary(startDate, endDate),
+      );
+
+      const generatedDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
-      let yPosition = margin;
+      const contentWidth = pageWidth - 2 * margin;
+      let y = margin;
 
-      // Add header
-      pdf.setFontSize(20);
-      pdf.setTextColor(44, 62, 80);
-      pdf.text('Leydi Boss - Reports & Analytics', pageWidth / 2, yPosition, {
-        align: 'center',
-      });
-      yPosition += 10;
+      const DARK_BLUE: [number, number, number] = [25, 47, 74]; // #192F4A
+      const LIGHT_BLUE_FILL: [number, number, number] = [220, 235, 255];
+      const GRAY: [number, number, number] = [100, 100, 100];
+      const LIGHT_GRAY: [number, number, number] = [180, 180, 180];
 
-      // Add report type and date
-      pdf.setFontSize(14);
-      pdf.setTextColor(100, 100, 100);
-      const reportTypeLabel = this.getReportTypeLabel(reportType);
-      pdf.text(`${reportTypeLabel} Report`, pageWidth / 2, yPosition, {
-        align: 'center',
-      });
-      yPosition += 5;
-      pdf.setFontSize(10);
-      pdf.text(
-        `Generated on: ${new Date().toLocaleString()}`,
-        pageWidth / 2,
-        yPosition,
-        { align: 'center' },
-      );
-      yPosition += 15;
-
-      // Add summary statistics
-      pdf.setFontSize(16);
-      pdf.setTextColor(44, 62, 80);
-      pdf.text('Summary Statistics', margin, yPosition);
-      yPosition += 8;
-
+      // Header (dark blue)
+      pdf.setFillColor(...DARK_BLUE);
+      pdf.rect(0, 0, pageWidth, 42, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(8);
+      pdf.text('LEYDIBOSS CAR WASH BOOKING SYSTEM', margin, 10);
+      pdf.setFontSize(22);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(isWeekly ? 'Weekly Report' : 'Monthly Report', margin, 22);
+      pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(11);
-      pdf.setTextColor(0, 0, 0);
+      pdf.text(periodLabel, margin, 32);
+      // OFFICIAL badge and Generated (top right)
+      pdf.setDrawColor(255, 255, 255);
+      pdf.setLineWidth(0.5);
+      pdf.rect(pageWidth - margin - 32, 8, 32, 10, 'S');
+      pdf.setFontSize(9);
+      pdf.text('OFFICIAL', pageWidth - margin - 16, 14.5, { align: 'center' });
+      pdf.text('Generated: ' + generatedDate, pageWidth - margin - 16, 26, { align: 'center' });
+      y = 52;
 
-      // Revenue section
-      pdf.setFontSize(12);
-      pdf.setTextColor(25, 118, 210);
-      pdf.text('Revenue', margin, yPosition);
-      yPosition += 6;
+      // Section: — BOOKING SUMMARY
+      pdf.setTextColor(...GRAY);
       pdf.setFontSize(10);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(
-        `Weekly Revenue: ₱${this.revenueData.weekly.toLocaleString()}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Monthly Revenue: ₱${this.revenueData.monthly.toLocaleString()}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 8;
+      pdf.text('— BOOKING SUMMARY', margin, y);
+      y += 8;
 
-      // Booking statistics section
-      pdf.setFontSize(12);
-      pdf.setTextColor(25, 118, 210);
-      pdf.text('Booking Statistics', margin, yPosition);
-      yPosition += 6;
-      pdf.setFontSize(10);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(
-        `Total Bookings: ${this.serviceStats.totalBookings}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Completed: ${this.serviceStats.completedBookings}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Pending: ${this.serviceStats.pendingBookings}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Cancelled: ${this.serviceStats.cancelledBookings}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Declined: ${this.serviceStats.declinedBookings}`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 5;
-      pdf.text(
-        `Completion Rate: ${this.getCompletionRate().toFixed(1)}%`,
-        margin + 5,
-        yPosition,
-      );
-      yPosition += 10;
-
-      // Add report-specific data
-      if (reportType === 'quantity') {
-        yPosition = this.addQuantityReportData(
-          pdf,
-          yPosition,
-          pageWidth,
-          margin,
-          pageHeight,
-        );
-      } else if (reportType === 'daily') {
-        yPosition = this.addDailyReportData(
-          pdf,
-          yPosition,
-          pageWidth,
-          margin,
-          pageHeight,
-        );
-      } else if (reportType === 'weekly') {
-        yPosition = this.addWeeklyReportData(
-          pdf,
-          yPosition,
-          pageWidth,
-          margin,
-          pageHeight,
-        );
-      } else if (reportType === 'monthly') {
-        yPosition = this.addMonthlyReportData(
-          pdf,
-          yPosition,
-          pageWidth,
-          margin,
-          pageHeight,
-        );
+      const cardH = 22;
+      const cardW = (contentWidth - 12) / 4;
+      const cards = [
+        { val: report.total_bookings, label: 'TOTAL BOOKINGS', highlight: true, dark: true },
+        { val: report.completed_bookings, label: 'COMPLETED WASHES', highlight: false },
+        { val: report.cancelled_bookings, label: 'CANCELLED', highlight: false },
+        { val: report.no_show_bookings, label: 'NO-SHOW', highlight: false },
+      ];
+      for (let i = 0; i < cards.length; i++) {
+        const c = cards[i];
+        const x = margin + i * (cardW + 4);
+        if (c.dark) {
+          pdf.setFillColor(...DARK_BLUE);
+          pdf.rect(x, y, cardW, cardH, 'F');
+          pdf.setTextColor(255, 255, 255);
+        } else {
+          pdf.setFillColor(255, 255, 255);
+          pdf.setDrawColor(220, 220, 220);
+          pdf.rect(x, y, cardW, cardH, 'FD');
+          pdf.setTextColor(50, 50, 50);
+        }
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(String(c.val), x + cardW / 2, y + 11, { align: 'center' });
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.text(c.label, x + cardW / 2, y + 18, { align: 'center' });
       }
+      y += cardH + 12;
 
-      // Capture and add charts
-      yPosition = await this.addChartsToPDF(
-        pdf,
-        yPosition,
-        pageWidth,
-        margin,
-        pageHeight,
-      );
+      // Section: — REVENUE & CUSTOMERS
+      pdf.setTextColor(...GRAY);
+      pdf.setFontSize(10);
+      pdf.text('— REVENUE & CUSTOMERS', margin, y);
+      y += 8;
 
-      // Save PDF
-      const fileName = `LeydiBoss_${reportTypeLabel}_Report_${
-        new Date().toISOString().split('T')[0]
-      }.pdf`;
+      const revCards = [
+        { val: '₱' + report.total_revenue.toLocaleString(), label: 'TOTAL REVENUE', highlight: true },
+        { val: '₱' + report.avg_per_wash.toLocaleString(), label: 'AVG. PER WASH', highlight: false },
+        { val: String(report.new_customers), label: 'NEW CUSTOMERS', highlight: false },
+        { val: String(report.returning_customers), label: 'RETURNING CUSTOMERS', highlight: false },
+      ];
+      for (let i = 0; i < revCards.length; i++) {
+        const c = revCards[i];
+        const x = margin + i * (cardW + 4);
+        if (c.highlight) {
+          pdf.setFillColor(...LIGHT_BLUE_FILL);
+          pdf.setDrawColor(150, 180, 220);
+          pdf.rect(x, y, cardW, cardH, 'FD');
+          pdf.setTextColor(25, 47, 74);
+        } else {
+          pdf.setFillColor(255, 255, 255);
+          pdf.setDrawColor(220, 220, 220);
+          pdf.rect(x, y, cardW, cardH, 'FD');
+          pdf.setTextColor(50, 50, 50);
+        }
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(c.val, x + cardW / 2, y + 11, { align: 'center' });
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.text(c.label, x + cardW / 2, y + 18, { align: 'center' });
+      }
+      y += cardH + 14;
+
+      // Section: — SERVICES BREAKDOWN
+      pdf.setTextColor(...GRAY);
+      pdf.setFontSize(10);
+      pdf.text('— SERVICES BREAKDOWN', margin, y);
+      y += 10;
+
+      const maxWashes = Math.max(1, ...report.service_breakdown.map((s) => s.washes));
+      for (const svc of report.service_breakdown) {
+        const pct = maxWashes > 0 ? (svc.washes / maxWashes) * 100 : 0;
+        pdf.setTextColor(50, 50, 50);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(svc.service_name, margin, y + 4);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(...LIGHT_GRAY);
+        pdf.text(`${svc.washes} washes`, margin + 2, y + 9);
+        const barW = 60;
+        const barH = 4;
+        pdf.setFillColor(230, 230, 230);
+        pdf.rect(margin + 55, y, barW, barH, 'F');
+        pdf.setFillColor(...DARK_BLUE);
+        pdf.rect(margin + 55, y, (barW * pct) / 100, barH, 'F');
+        pdf.setTextColor(50, 50, 50);
+        pdf.setFontSize(9);
+        pdf.text(
+          `₱${svc.revenue.toLocaleString()} (${svc.percentage}%)`,
+          margin + 55 + barW + 6,
+          y + 3.5,
+        );
+        y += 14;
+      }
+      y += 8;
+
+      // Section: — BOOKING ACTIVITY
+      const activityLabel = isWeekly ? '— BOOKING ACTIVITY (BY DAY)' : '— BOOKING ACTIVITY (BY WEEK)';
+      pdf.setTextColor(...GRAY);
+      pdf.setFontSize(10);
+      pdf.text(activityLabel, margin, y);
+      y += 10;
+
+      const barLabels = isWeekly
+        ? report.daily_bookings.map((d) => d.day)
+        : ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+      const barValues = isWeekly
+        ? report.daily_bookings.map((d) => d.bookings_count)
+        : report.weekly_bookings;
+      const maxBar = Math.max(1, ...barValues);
+      const barChartW = contentWidth;
+      const barChartH = 35;
+      const barCount = barLabels.length;
+      const barItemW = barChartW / barCount;
+      const barMaxH = barChartH - 8;
+
+      for (let i = 0; i < barCount; i++) {
+        const v = barValues[i] ?? 0;
+        const h = maxBar > 0 ? (v / maxBar) * barMaxH : 0;
+        const x = margin + i * barItemW + barItemW * 0.15;
+        const w = barItemW * 0.7;
+        const barY = y + barMaxH - h;
+        pdf.setFillColor(...DARK_BLUE);
+        pdf.rect(x, barY, w, Math.max(h, 1), 'F');
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(8);
+        pdf.text(barLabels[i], x + w / 2, y + barChartH - 2, { align: 'center' });
+      }
+      y += barChartH + 16;
+
+      // Footer
+      pdf.setTextColor(...LIGHT_GRAY);
+      pdf.setFontSize(8);
+      pdf.text('LeydiBoss Car Wash Booking System', margin, pageHeight - 10);
+      pdf.text('This report is system-generated and for internal use only.', pageWidth - margin, pageHeight - 10, { align: 'right' });
+
+      const fileName = `LeydiBoss_${reportType}_Report_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(fileName);
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -1469,349 +1532,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     } finally {
       this.isGeneratingPDF = false;
     }
-  }
-
-  private getReportTypeLabel(
-    type: 'daily' | 'weekly' | 'monthly' | 'quantity',
-  ): string {
-    const labels: { [key: string]: string } = {
-      daily: 'Daily',
-      weekly: 'Weekly',
-      monthly: 'Monthly',
-      quantity: 'Quantity',
-    };
-    return labels[type] || 'Report';
-  }
-
-  private addQuantityReportData(
-    pdf: jsPDF,
-    yPosition: number,
-    pageWidth: number,
-    margin: number,
-    pageHeight: number,
-  ): number {
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = margin;
-    }
-
-    pdf.setFontSize(16);
-    pdf.setTextColor(44, 62, 80);
-    pdf.text('Service Distribution by Quantity', margin, yPosition);
-    yPosition += 8;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0, 0, 0);
-
-    // Add service distribution table
-    const tableStartY = yPosition;
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.1);
-
-    // Table header
-    pdf.setFillColor(25, 118, 210);
-    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(10);
-    pdf.text('Service Type', margin + 2, yPosition);
-    pdf.text('Quantity', pageWidth - margin - 30, yPosition, {
-      align: 'right',
-    });
-    yPosition += 8;
-    pdf.setTextColor(0, 0, 0);
-
-    // Table rows
-    for (let i = 0; i < this.serviceLabels.length; i++) {
-      if (yPosition > pageHeight - 20) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
-      pdf.text(this.serviceLabels[i], margin + 2, yPosition);
-      pdf.text(
-        this.serviceCounts[i].toString(),
-        pageWidth - margin - 30,
-        yPosition,
-        { align: 'right' },
-      );
-      yPosition += 6;
-    }
-
-    return yPosition + 5;
-  }
-
-  private addDailyReportData(
-    pdf: jsPDF,
-    yPosition: number,
-    pageWidth: number,
-    margin: number,
-    pageHeight: number,
-  ): number {
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = margin;
-    }
-
-    pdf.setFontSize(16);
-    pdf.setTextColor(44, 62, 80);
-    pdf.text('Daily Booking Distribution', margin, yPosition);
-    yPosition += 8;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0, 0, 0);
-
-    // Add daily bookings table
-    const days = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.1);
-
-    // Table header
-    pdf.setFillColor(25, 118, 210);
-    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.text('Day', margin + 2, yPosition);
-    pdf.text('Bookings', pageWidth - margin - 30, yPosition, {
-      align: 'right',
-    });
-    yPosition += 8;
-    pdf.setTextColor(0, 0, 0);
-
-    // Table rows
-    for (let i = 0; i < days.length; i++) {
-      if (yPosition > pageHeight - 20) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-      const dayShort = days[i].substring(0, 3);
-      const index = this.weeklyBookingLabels.indexOf(dayShort);
-      const count = index >= 0 ? this.weeklyBookingValues[index] : 0;
-      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
-      pdf.text(days[i], margin + 2, yPosition);
-      pdf.text(count.toString(), pageWidth - margin - 30, yPosition, {
-        align: 'right',
-      });
-      yPosition += 6;
-    }
-
-    return yPosition + 5;
-  }
-
-  private addWeeklyReportData(
-    pdf: jsPDF,
-    yPosition: number,
-    pageWidth: number,
-    margin: number,
-    pageHeight: number,
-  ): number {
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = margin;
-    }
-
-    pdf.setFontSize(16);
-    pdf.setTextColor(44, 62, 80);
-    pdf.text('Weekly Summary', margin, yPosition);
-    yPosition += 8;
-
-    pdf.setFontSize(11);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text(
-      `This week's revenue: ₱${this.revenueData.weekly.toLocaleString()}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 6;
-    pdf.text(
-      `Total bookings this week: ${this.weeklyBookingValues.reduce(
-        (a, b) => a + b,
-        0,
-      )}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 6;
-    pdf.text(
-      `Average daily bookings: ${(
-        this.weeklyBookingValues.reduce((a, b) => a + b, 0) / 7
-      ).toFixed(1)}`,
-      margin,
-      yPosition,
-    );
-
-    return yPosition + 10;
-  }
-
-  private addMonthlyReportData(
-    pdf: jsPDF,
-    yPosition: number,
-    pageWidth: number,
-    margin: number,
-    pageHeight: number,
-  ): number {
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = margin;
-    }
-
-    pdf.setFontSize(16);
-    pdf.setTextColor(44, 62, 80);
-    pdf.text('Monthly Revenue Trend', margin, yPosition);
-    yPosition += 8;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0, 0, 0);
-
-    // Add monthly revenue table
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.1);
-
-    // Table header
-    pdf.setFillColor(25, 118, 210);
-    pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.text('Month', margin + 2, yPosition);
-    pdf.text('Revenue', pageWidth - margin - 30, yPosition, { align: 'right' });
-    yPosition += 8;
-    pdf.setTextColor(0, 0, 0);
-
-    // Table rows
-    for (let i = 0; i < this.revenueLabels.length; i++) {
-      if (yPosition > pageHeight - 20) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 6, 'S');
-      pdf.text(this.revenueLabels[i], margin + 2, yPosition);
-      pdf.text(
-        `₱${this.revenueValues[i].toLocaleString()}`,
-        pageWidth - margin - 30,
-        yPosition,
-        { align: 'right' },
-      );
-      yPosition += 6;
-    }
-
-    return yPosition + 5;
-  }
-
-  private async addChartsToPDF(
-    pdf: jsPDF,
-    yPosition: number,
-    pageWidth: number,
-    margin: number,
-    pageHeight: number,
-  ): Promise<number> {
-    if (!isPlatformBrowser(this.platformId)) return yPosition;
-
-    try {
-      // Capture Revenue Chart
-      if (this.revenueChart) {
-        const revenueCanvas = document.getElementById(
-          'revenueChart',
-        ) as HTMLCanvasElement;
-        if (revenueCanvas) {
-          if (yPosition > pageHeight - 80) {
-            pdf.addPage();
-            yPosition = margin;
-          }
-          const imgData = await html2canvas(revenueCanvas, {
-            backgroundColor: '#ffffff',
-          }).then((canvas) => canvas.toDataURL('image/png'));
-          const imgWidth = pageWidth - 2 * margin;
-          const imgHeight =
-            (revenueCanvas.height * imgWidth) / revenueCanvas.width;
-          pdf.setFontSize(12);
-          pdf.setTextColor(44, 62, 80);
-          pdf.text('Revenue Trend Chart', margin, yPosition);
-          yPosition += 5;
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            yPosition,
-            imgWidth,
-            Math.min(imgHeight, 60),
-          );
-          yPosition += Math.min(imgHeight, 60) + 10;
-        }
-      }
-
-      // Capture Service Distribution Chart
-      if (this.serviceChart) {
-        const serviceCanvas = document.getElementById(
-          'serviceChart',
-        ) as HTMLCanvasElement;
-        if (serviceCanvas) {
-          if (yPosition > pageHeight - 80) {
-            pdf.addPage();
-            yPosition = margin;
-          }
-          const imgData = await html2canvas(serviceCanvas, {
-            backgroundColor: '#ffffff',
-          }).then((canvas) => canvas.toDataURL('image/png'));
-          const imgWidth = pageWidth - 2 * margin;
-          const imgHeight =
-            (serviceCanvas.height * imgWidth) / serviceCanvas.width;
-          pdf.setFontSize(12);
-          pdf.setTextColor(44, 62, 80);
-          pdf.text('Service Distribution Chart', margin, yPosition);
-          yPosition += 5;
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            yPosition,
-            imgWidth,
-            Math.min(imgHeight, 60),
-          );
-          yPosition += Math.min(imgHeight, 60) + 10;
-        }
-      }
-
-      // Capture Weekly Bookings Chart
-      if (this.bookingsChart) {
-        const bookingsCanvas = document.getElementById(
-          'bookingsChart',
-        ) as HTMLCanvasElement;
-        if (bookingsCanvas) {
-          if (yPosition > pageHeight - 80) {
-            pdf.addPage();
-            yPosition = margin;
-          }
-          const imgData = await html2canvas(bookingsCanvas, {
-            backgroundColor: '#ffffff',
-          }).then((canvas) => canvas.toDataURL('image/png'));
-          const imgWidth = pageWidth - 2 * margin;
-          const imgHeight =
-            (bookingsCanvas.height * imgWidth) / bookingsCanvas.width;
-          pdf.setFontSize(12);
-          pdf.setTextColor(44, 62, 80);
-          pdf.text('Weekly Booking Distribution Chart', margin, yPosition);
-          yPosition += 5;
-          pdf.addImage(
-            imgData,
-            'PNG',
-            margin,
-            yPosition,
-            imgWidth,
-            Math.min(imgHeight, 60),
-          );
-          yPosition += Math.min(imgHeight, 60) + 10;
-        }
-      }
-    } catch (error) {
-      console.error('Error capturing charts:', error);
-    }
-
-    return yPosition;
   }
 
   // Year selector methods

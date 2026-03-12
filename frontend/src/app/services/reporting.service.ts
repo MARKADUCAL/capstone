@@ -51,6 +51,27 @@ export interface WeeklyBookingsResponse {
   weekly_bookings: WeeklyBookingPoint[];
 }
 
+export interface ReportSummaryServiceBreakdown {
+  service_name: string;
+  washes: number;
+  revenue: number;
+  percentage: number;
+}
+
+export interface ReportSummary {
+  total_bookings: number;
+  completed_bookings: number;
+  cancelled_bookings: number;
+  no_show_bookings: number;
+  total_revenue: number;
+  avg_per_wash: number;
+  new_customers: number;
+  returning_customers: number;
+  service_breakdown: ReportSummaryServiceBreakdown[];
+  daily_bookings: Array<{ day: string; bookings_count: number }>;
+  weekly_bookings: number[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReportingService {
   private baseUrl = environment.apiUrl;
@@ -160,5 +181,35 @@ export class ReportingService {
         `${this.baseUrl}/get_weekly_revenue_range?start_date=${start}&end_date=${end}`
       )
       .pipe(map((res) => res?.payload?.weekly_revenue ?? []));
+  }
+
+  getReportSummary(
+    startDate: Date,
+    endDate: Date
+  ): Observable<ReportSummary> {
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
+    return this.http
+      .get<any>(
+        `${this.baseUrl}/get_report_summary?start_date=${start}&end_date=${end}`
+      )
+      .pipe(
+        map(
+          (res) =>
+            res?.payload ?? {
+              total_bookings: 0,
+              completed_bookings: 0,
+              cancelled_bookings: 0,
+              no_show_bookings: 0,
+              total_revenue: 0,
+              avg_per_wash: 0,
+              new_customers: 0,
+              returning_customers: 0,
+              service_breakdown: [],
+              daily_bookings: [],
+              weekly_bookings: [0, 0, 0, 0],
+            }
+        )
+      );
   }
 }
