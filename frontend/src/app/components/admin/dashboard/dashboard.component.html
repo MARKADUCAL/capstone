@@ -146,6 +146,27 @@
   <mat-card class="bookings-card" *ngIf="!isLoading">
     <mat-card-header>
       <mat-card-title>Recent Bookings</mat-card-title>
+      <div class="bookings-search" *ngIf="!isLoadingBookings">
+        <mat-form-field appearance="outline" class="bookings-search-field">
+          <mat-label>Search bookings</mat-label>
+          <input
+            matInput
+            [(ngModel)]="bookingsSearchTerm"
+            (ngModelChange)="onBookingsSearchTermChange($event)"
+            placeholder="Customer, service, status, date, amount..."
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear search"
+            *ngIf="bookingsSearchTerm"
+            (click)="clearBookingsSearch()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
       <mat-spinner
         diameter="20"
         *ngIf="isLoadingBookings"
@@ -263,7 +284,7 @@
         <!-- Pagination -->
         <div
           class="pagination-controls"
-          *ngIf="!isLoadingBookings && recentBookings.length > bookingsPageSize"
+          *ngIf="!isLoadingBookings && filteredBookings.length > bookingsPageSize"
         >
           <span class="pagination-info">
             Showing {{ bookingsPageRange.start }}–{{ bookingsPageRange.end }} of
@@ -293,10 +314,21 @@
         </div>
 
         <!-- Empty state -->
-        <div class="empty-state" *ngIf="recentBookings.length === 0">
+        <div class="empty-state" *ngIf="!bookingsSearchTerm && recentBookings.length === 0">
           <mat-icon>event_busy</mat-icon>
           <h3>No bookings found</h3>
           <p>There are no recent bookings to display.</p>
+        </div>
+
+        <div class="empty-state" *ngIf="bookingsSearchTerm && filteredBookings.length === 0">
+          <mat-icon>search_off</mat-icon>
+          <h3>No matches</h3>
+          <p>
+            No bookings match "<strong>{{ bookingsSearchTerm }}</strong>".
+          </p>
+          <button mat-stroked-button type="button" (click)="clearBookingsSearch()">
+            Clear search
+          </button>
         </div>
       </div>
 

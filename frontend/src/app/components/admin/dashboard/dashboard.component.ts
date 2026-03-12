@@ -1,8 +1,11 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
@@ -83,9 +86,12 @@ interface CalendarDay {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatTabsModule,
     MatTableModule,
     MatMenuModule,
@@ -109,21 +115,57 @@ export class DashboardComponent implements OnInit {
   recentBookings: RecentBooking[] = [];
   bookingsPageSize = 7;
   bookingsCurrentPage = 1;
+  bookingsSearchTerm = '';
+
+  private bookingSearchHaystack(booking: RecentBooking): string {
+    const parts = [
+      booking.id,
+      booking.customerName,
+      booking.service,
+      booking.status,
+      this.displayStatus(booking.status),
+      booking.amount,
+      booking.date,
+      this.formatDate(booking.date),
+      booking.assignedEmployeeName,
+      booking.assigned_employee_name,
+      booking.employee_first_name,
+      booking.employee_last_name,
+      booking.assignedBy,
+      booking.assigned_by,
+      booking.admin_name,
+    ];
+
+    return parts
+      .filter((p) => p !== undefined && p !== null)
+      .map((p) => String(p).trim())
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+  }
+
+  get filteredBookings(): RecentBooking[] {
+    const term = (this.bookingsSearchTerm || '').trim().toLowerCase();
+    if (!term) return this.recentBookings;
+    return this.recentBookings.filter((b) =>
+      this.bookingSearchHaystack(b).includes(term),
+    );
+  }
 
   get paginatedBookings(): RecentBooking[] {
     const start = (this.bookingsCurrentPage - 1) * this.bookingsPageSize;
-    return this.recentBookings.slice(start, start + this.bookingsPageSize);
+    return this.filteredBookings.slice(start, start + this.bookingsPageSize);
   }
 
   get totalBookingsPages(): number {
     return Math.max(
       1,
-      Math.ceil(this.recentBookings.length / this.bookingsPageSize)
+      Math.ceil(this.filteredBookings.length / this.bookingsPageSize)
     );
   }
 
   get bookingsPageRange(): { start: number; end: number; total: number } {
-    const total = this.recentBookings.length;
+    const total = this.filteredBookings.length;
     if (total === 0) {
       return { start: 0, end: 0, total: 0 };
     }
@@ -139,6 +181,16 @@ export class DashboardComponent implements OnInit {
     if (page >= 1 && page <= this.totalBookingsPages) {
       this.bookingsCurrentPage = page;
     }
+  }
+
+  onBookingsSearchTermChange(value: string): void {
+    this.bookingsSearchTerm = value;
+    this.bookingsCurrentPage = 1;
+  }
+
+  clearBookingsSearch(): void {
+    this.bookingsSearchTerm = '';
+    this.bookingsCurrentPage = 1;
   }
 
   displayedColumns: string[] = [
