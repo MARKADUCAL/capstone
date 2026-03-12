@@ -1,4 +1,4 @@
-﻿<div class="container">
+<div class="container" [class.sidebar-collapsed]="!sidebarOpen">
   <div class="sidebar" [class.sidebar-active]="sidebarActive">
     <div class="sidebar-close" (click)="toggleSidebar()">
       <i class="fas fa-times"></i>
@@ -50,7 +50,13 @@
       <div class="user-info" (clickOutside)="hideDropdown()">
         <div class="user-avatar-placeholder">{{ userInitials }}</div>
         <span class="user-name">{{ fullName }}</span>
-        <button class="dropdown-btn" (click)="toggleDropdown()">
+        <button
+          class="dropdown-btn"
+          type="button"
+          (click)="toggleDropdown()"
+          aria-label="Toggle user menu"
+          title="Toggle user menu"
+        >
           <i class="fas fa-chevron-down"></i>
         </button>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">

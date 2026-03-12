@@ -26,6 +26,7 @@ import { Subscription, filter, map } from 'rxjs';
 export class CustomerLayoutComponent implements OnInit, OnDestroy {
   showDropdown = false;
   sidebarActive = false;
+  sidebarOpen = true;
 
   // User data properties
   firstName = '';
@@ -140,29 +141,32 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
-    this.sidebarActive = !this.sidebarActive;
+    if (!isPlatformBrowser(this.platformId)) return;
 
-    // Prevent scrolling of the body when sidebar is open on mobile
     if (window.innerWidth < 768) {
+      this.sidebarActive = !this.sidebarActive;
       document.body.style.overflow = this.sidebarActive ? 'hidden' : 'auto';
+      return;
     }
+
+    this.sidebarOpen = !this.sidebarOpen;
+    document.body.style.overflow = 'auto';
   }
 
   closeSidebarOnMobile() {
-    if (window.innerWidth < 768) {
+    if (isPlatformBrowser(this.platformId) && window.innerWidth < 768) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize() {
-    if (window.innerWidth > 768) {
-      // Close sidebar if it was opened on mobile
-      if (this.sidebarActive) {
-        this.sidebarActive = false;
-        document.body.style.overflow = 'auto';
-      }
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (window.innerWidth >= 768 && this.sidebarActive) {
+      this.sidebarActive = false;
+      document.body.style.overflow = 'auto';
     }
   }
 

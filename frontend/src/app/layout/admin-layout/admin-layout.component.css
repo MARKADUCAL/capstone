@@ -26,6 +26,21 @@ body {
   overflow-y: auto;
 }
 
+.container.sidebar-collapsed .sidebar {
+  width: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+}
+
+.container.sidebar-collapsed .sidebar * {
+  display: none;
+}
+
+.container.sidebar-collapsed .content {
+  width: 100%;
+}
+
 .sidebar-close {
   display: none;
   position: absolute;
@@ -123,7 +138,17 @@ body {
 .menu-icon {
   font-size: 24px;
   cursor: pointer;
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-icon:hover {
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 .user-info {

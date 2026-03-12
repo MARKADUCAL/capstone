@@ -37,6 +37,7 @@ import { Subscription, filter, map } from 'rxjs';
 export class AdminLayoutComponent implements OnInit, OnDestroy {
   showDropdown = false;
   sidebarActive = false;
+  sidebarOpen = true;
 
   // User data properties
   firstName = '';
@@ -163,16 +164,17 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
-    this.sidebarActive = !this.sidebarActive;
+    if (!isPlatformBrowser(this.platformId)) return;
 
-    // Prevent scrolling of the body when sidebar is open on mobile
-    if (isPlatformBrowser(this.platformId)) {
-      if (this.sidebarActive) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'auto';
-      }
+    if (window.innerWidth < 768) {
+      this.sidebarActive = !this.sidebarActive;
+      document.body.style.overflow = this.sidebarActive ? 'hidden' : 'auto';
+      return;
     }
+
+    // Desktop/tablet: collapse sidebar (no overlay)
+    this.sidebarOpen = !this.sidebarOpen;
+    document.body.style.overflow = 'auto';
   }
 
   closeSidebarOnMobile() {
@@ -182,13 +184,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize() {
-    if (
-      isPlatformBrowser(this.platformId) &&
-      window.innerWidth > 768 &&
-      this.sidebarActive
-    ) {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // If we leave mobile, always close the mobile overlay state
+    if (window.innerWidth >= 768 && this.sidebarActive) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
