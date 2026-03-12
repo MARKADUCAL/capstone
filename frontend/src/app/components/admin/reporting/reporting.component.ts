@@ -1366,31 +1366,56 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       const contentWidth = pageWidth - 2 * margin;
       let y = margin;
 
+      const PESO = 'Php '; // Philippine Peso (₱ may not render in jsPDF default fonts)
       const DARK_BLUE: [number, number, number] = [25, 47, 74]; // #192F4A
       const LIGHT_BLUE_FILL: [number, number, number] = [220, 235, 255];
       const GRAY: [number, number, number] = [100, 100, 100];
       const LIGHT_GRAY: [number, number, number] = [180, 180, 180];
 
+      // Load logo
+      let logoData: string | null = null;
+      try {
+        const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+        const logoUrl = `${window.location.origin}${baseHref.replace(/\/$/, '')}/assets/logo3.png`;
+        const res = await fetch(logoUrl);
+        if (res.ok) {
+          const blob = await res.blob();
+          logoData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        }
+      } catch {
+        /* logo optional */
+      }
+
       // Header (dark blue)
       pdf.setFillColor(...DARK_BLUE);
-      pdf.rect(0, 0, pageWidth, 42, 'F');
+      pdf.rect(0, 0, pageWidth, 50, 'F');
       pdf.setTextColor(255, 255, 255);
+      if (logoData) {
+        const logoW = 28;
+        const logoH = 28;
+        pdf.addImage(logoData, 'PNG', margin, 6, logoW, logoH);
+      }
       pdf.setFontSize(8);
-      pdf.text('LEYDIBOSS CAR WASH BOOKING SYSTEM', margin, 10);
+      pdf.text('LEYDIBOSS CAR WASH BOOKING SYSTEM', logoData ? margin + 32 : margin, 12);
       pdf.setFontSize(22);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(isWeekly ? 'Weekly Report' : 'Monthly Report', margin, 22);
+      pdf.text(isWeekly ? 'Weekly Report' : 'Monthly Report', logoData ? margin + 32 : margin, 26);
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(11);
-      pdf.text(periodLabel, margin, 32);
+      pdf.text(periodLabel, logoData ? margin + 32 : margin, 36);
       // OFFICIAL badge and Generated (top right)
       pdf.setDrawColor(255, 255, 255);
       pdf.setLineWidth(0.5);
-      pdf.rect(pageWidth - margin - 32, 8, 32, 10, 'S');
+      pdf.rect(pageWidth - margin - 32, 10, 32, 10, 'S');
       pdf.setFontSize(9);
-      pdf.text('OFFICIAL', pageWidth - margin - 16, 14.5, { align: 'center' });
-      pdf.text('Generated: ' + generatedDate, pageWidth - margin - 16, 26, { align: 'center' });
-      y = 52;
+      pdf.text('OFFICIAL', pageWidth - margin - 16, 16.5, { align: 'center' });
+      pdf.text('Generated: ' + generatedDate, pageWidth - margin - 16, 30, { align: 'center' });
+      y = 60;
 
       // Section: — BOOKING SUMMARY
       pdf.setTextColor(...GRAY);
@@ -1404,7 +1429,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         { val: report.total_bookings, label: 'TOTAL BOOKINGS', highlight: true, dark: true },
         { val: report.completed_bookings, label: 'COMPLETED WASHES', highlight: false },
         { val: report.cancelled_bookings, label: 'CANCELLED', highlight: false },
-        { val: report.no_show_bookings, label: 'NO-SHOW', highlight: false },
+        { val: report.no_show_bookings, label: 'DECLINED', highlight: false },
       ];
       for (let i = 0; i < cards.length; i++) {
         const c = cards[i];
@@ -1434,32 +1459,32 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       pdf.text('— REVENUE & CUSTOMERS', margin, y);
       y += 8;
 
+      const revCardW = (contentWidth - 8) / 3;
       const revCards = [
-        { val: '₱' + report.total_revenue.toLocaleString(), label: 'TOTAL REVENUE', highlight: true },
-        { val: '₱' + report.avg_per_wash.toLocaleString(), label: 'AVG. PER WASH', highlight: false },
+        { val: PESO + report.total_revenue.toLocaleString(), label: 'TOTAL REVENUE', highlight: true },
+        { val: PESO + report.avg_per_wash.toLocaleString(), label: 'AVG. PER WASH', highlight: false },
         { val: String(report.new_customers), label: 'NEW CUSTOMERS', highlight: false },
-        { val: String(report.returning_customers), label: 'RETURNING CUSTOMERS', highlight: false },
       ];
       for (let i = 0; i < revCards.length; i++) {
         const c = revCards[i];
-        const x = margin + i * (cardW + 4);
+        const x = margin + i * (revCardW + 4);
         if (c.highlight) {
           pdf.setFillColor(...LIGHT_BLUE_FILL);
           pdf.setDrawColor(150, 180, 220);
-          pdf.rect(x, y, cardW, cardH, 'FD');
+          pdf.rect(x, y, revCardW, cardH, 'FD');
           pdf.setTextColor(25, 47, 74);
         } else {
           pdf.setFillColor(255, 255, 255);
           pdf.setDrawColor(220, 220, 220);
-          pdf.rect(x, y, cardW, cardH, 'FD');
+          pdf.rect(x, y, revCardW, cardH, 'FD');
           pdf.setTextColor(50, 50, 50);
         }
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(c.val, x + cardW / 2, y + 11, { align: 'center' });
+        pdf.text(c.val, x + revCardW / 2, y + 11, { align: 'center' });
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(8);
-        pdf.text(c.label, x + cardW / 2, y + 18, { align: 'center' });
+        pdf.text(c.label, x + revCardW / 2, y + 18, { align: 'center' });
       }
       y += cardH + 14;
 
@@ -1489,7 +1514,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         pdf.setTextColor(50, 50, 50);
         pdf.setFontSize(9);
         pdf.text(
-          `₱${svc.revenue.toLocaleString()} (${svc.percentage}%)`,
+          `${PESO}${svc.revenue.toLocaleString()} (${svc.percentage}%)`,
           margin + 55 + barW + 6,
           y + 3.5,
         );
