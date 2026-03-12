@@ -1336,9 +1336,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         periodLabel = `${months[month - 1]} ${year}`;
       }
 
-      const report = await firstValueFrom(
-        this.reportingService.getReportSummary(startDate, endDate),
-      );
+      let report: ReportSummary;
+      try {
+        report = await firstValueFrom(
+          this.reportingService.getReportSummary(startDate, endDate),
+        );
+      } catch (err: unknown) {
+        const msg =
+          err && typeof err === 'object' && 'status' in err
+            ? `Report API error (status ${(err as { status?: number }).status}). Ensure the backend is deployed with get_report_summary.`
+            : err && typeof err === 'object' && 'message' in err
+              ? String((err as { message?: string }).message)
+              : 'Failed to load report data.';
+        console.error('Report fetch error:', err);
+        alert(msg);
+        return;
+      }
 
       const generatedDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric',

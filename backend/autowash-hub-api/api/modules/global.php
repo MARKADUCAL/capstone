@@ -8,7 +8,7 @@ class GlobalMethods{
             "status"=>$status,
             "payload"=>$data,
             "prepared_by"=>" Mark",
-            "timestamp"=>date_create()
+            "timestamp"=>date('c')
         );
     }
 

@@ -19,14 +19,18 @@ $allowedOrigins = [
     // Hostinger site domain(s)
     'https://brown-octopus-872555.hostingersite.com',
     // Production domain
-    'https://autowashhub.online'
+    'https://autowashhub.online',
+    // LeydiBoss production
+    'https://www.leydiboss.online',
+    'https://leydiboss.online'
 ];
 
 // Check if origin is allowed (exact match or Vercel domain pattern)
 $isAllowed = in_array($origin, $allowedOrigins)
     || preg_match('/^https:\/\/.*\.vercel\.app$/', $origin)
     || preg_match('/^https:\/\/.*\.hostingersite\.com$/', $origin)
-    || preg_match('/^https:\/\/.*autowashhub\.online$/', $origin);
+    || preg_match('/^https:\/\/.*autowashhub\.online$/', $origin)
+    || preg_match('/^https:\/\/.*leydiboss\.online$/', $origin);
 
 // Set CORS headers
 if ($isAllowed) {
