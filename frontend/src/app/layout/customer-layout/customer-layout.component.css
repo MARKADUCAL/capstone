@@ -161,6 +161,7 @@ body {
   transition: margin-left 0.3s ease;
   width: calc(100% - 250px);
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .container.sidebar-collapsed .content {
