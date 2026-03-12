@@ -156,7 +156,7 @@
       <div class="table-container" *ngIf="!isLoadingBookings">
         <!-- Desktop Table View -->
         <div class="desktop-table">
-          <table mat-table [dataSource]="recentBookings" class="bookings-table">
+          <table mat-table [dataSource]="paginatedBookings" class="bookings-table">
             <!-- Customer Name Column -->
             <ng-container matColumnDef="customerName">
               <th mat-header-cell *matHeaderCellDef>Customer</th>
@@ -223,7 +223,7 @@
 
         <!-- Mobile Card View -->
         <div class="mobile-cards">
-          <div class="booking-card" *ngFor="let booking of recentBookings">
+          <div class="booking-card" *ngFor="let booking of paginatedBookings">
             <div class="booking-card-header">
               <div class="customer-info">
                 <h4>{{ booking.customerName }}</h4>
@@ -257,6 +257,38 @@
                 View Details
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div
+          class="pagination-controls"
+          *ngIf="!isLoadingBookings && recentBookings.length > bookingsPageSize"
+        >
+          <span class="pagination-info">
+            Showing {{ bookingsPageRange.start }}–{{ bookingsPageRange.end }} of
+            {{ bookingsPageRange.total }} bookings
+          </span>
+          <div class="pagination-buttons">
+            <button
+              class="btn-pagination"
+              (click)="goToBookingsPage(bookingsCurrentPage - 1)"
+              [disabled]="bookingsCurrentPage <= 1"
+              title="Previous page"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span class="page-indicator">
+              Page {{ bookingsCurrentPage }} of {{ totalBookingsPages }}
+            </span>
+            <button
+              class="btn-pagination"
+              (click)="goToBookingsPage(bookingsCurrentPage + 1)"
+              [disabled]="bookingsCurrentPage >= totalBookingsPages"
+              title="Next page"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
           </div>
         </div>
 

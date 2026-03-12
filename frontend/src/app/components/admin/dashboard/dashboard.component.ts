@@ -107,6 +107,39 @@ export class DashboardComponent implements OnInit {
   };
 
   recentBookings: RecentBooking[] = [];
+  bookingsPageSize = 7;
+  bookingsCurrentPage = 1;
+
+  get paginatedBookings(): RecentBooking[] {
+    const start = (this.bookingsCurrentPage - 1) * this.bookingsPageSize;
+    return this.recentBookings.slice(start, start + this.bookingsPageSize);
+  }
+
+  get totalBookingsPages(): number {
+    return Math.max(
+      1,
+      Math.ceil(this.recentBookings.length / this.bookingsPageSize)
+    );
+  }
+
+  get bookingsPageRange(): { start: number; end: number; total: number } {
+    const total = this.recentBookings.length;
+    if (total === 0) {
+      return { start: 0, end: 0, total: 0 };
+    }
+    const start = (this.bookingsCurrentPage - 1) * this.bookingsPageSize + 1;
+    const end = Math.min(
+      this.bookingsCurrentPage * this.bookingsPageSize,
+      total
+    );
+    return { start, end, total };
+  }
+
+  goToBookingsPage(page: number): void {
+    if (page >= 1 && page <= this.totalBookingsPages) {
+      this.bookingsCurrentPage = page;
+    }
+  }
 
   displayedColumns: string[] = [
     'customerName',
@@ -477,6 +510,8 @@ export class DashboardComponent implements OnInit {
                   booking.admin_name,
               };
             });
+
+            this.bookingsCurrentPage = 1;
 
             // Calculate total revenue
             this.businessStats.totalRevenue = bookings.reduce(
