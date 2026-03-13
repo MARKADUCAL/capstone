@@ -66,6 +66,15 @@
     @let pagedBookings = getBookingsPageByStatus(section.value);
     @let pageIndex = getPageIndex(section.value);
     @let totalPages = getTotalPages(sectionBookings.length);
+    @let totalItems = sectionBookings.length;
+    @let startIndex =
+      totalItems === 0 ? 0 : pageIndex * pageSize + 1;
+    @let endIndex =
+      totalItems === 0
+        ? 0
+        : pageIndex + 1 === totalPages
+        ? totalItems
+        : (pageIndex + 1) * pageSize;
     <section class="status-section">
       <div class="status-header">
         <div>
@@ -201,26 +210,6 @@
         </div>
       </div>
 
-      @if (sectionBookings.length > 10) {
-      <div class="pagination desktop-only">
-        <button
-          class="page-btn"
-          [disabled]="pageIndex === 0"
-          (click)="prevPage(section.value)"
-        >
-          Prev
-        </button>
-        <span class="page-meta">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
-        <button
-          class="page-btn"
-          [disabled]="pageIndex + 1 >= totalPages"
-          (click)="nextPage(section.value)"
-        >
-          Next
-        </button>
-      </div>
-      }
-
       <!-- Mobile Card View -->
       <div class="mobile-bookings-cards mobile-only">
         <div class="mobile-card-column-headers">
@@ -297,23 +286,32 @@
         }
       </div>
 
-      @if (sectionBookings.length > 10) {
-      <div class="pagination mobile-only">
-        <button
-          class="page-btn"
-          [disabled]="pageIndex === 0"
-          (click)="prevPage(section.value)"
-        >
-          Prev
-        </button>
-        <span class="page-meta">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
-        <button
-          class="page-btn"
-          [disabled]="pageIndex + 1 >= totalPages"
-          (click)="nextPage(section.value)"
-        >
-          Next
-        </button>
+      @if (totalItems > pageSize) {
+      <div class="pagination-controls">
+        <span class="pagination-info">
+          Showing {{ startIndex }}–{{ endIndex }} of {{ totalItems }} bookings
+        </span>
+        <div class="pagination-buttons">
+          <button
+            class="btn-pagination"
+            (click)="prevPage(section.value)"
+            [disabled]="pageIndex === 0"
+            title="Previous page"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="page-indicator">
+            Page {{ pageIndex + 1 }} of {{ totalPages }}
+          </span>
+          <button
+            class="btn-pagination"
+            (click)="nextPage(section.value)"
+            [disabled]="pageIndex + 1 >= totalPages"
+            title="Next page"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
       </div>
       }
       } @else {

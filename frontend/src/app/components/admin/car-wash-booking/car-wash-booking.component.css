@@ -484,40 +484,56 @@
   color: rgba(0, 0, 0, 0.55);
 }
 
-.pagination {
+.pagination-controls {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 12px 14px;
-  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.pagination-info {
+  font-size: 0.95rem;
   color: rgba(0, 0, 0, 0.65);
 }
 
-.page-btn {
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-pagination {
+  background: rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  color: rgba(0, 0, 0, 0.75);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-weight: 600;
+  color: rgba(0, 0, 0, 0.87);
+  padding: 8px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.page-btn:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.03);
+.btn-pagination:hover:not(:disabled) {
+  border-color: var(--primary, #2196f3);
+  color: var(--primary, #2196f3);
+  background: rgba(33, 150, 243, 0.08);
 }
 
-.page-btn:disabled {
-  opacity: 0.45;
+.btn-pagination:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.page-meta {
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
+.page-indicator {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
 }
 
 .table-scroll {
