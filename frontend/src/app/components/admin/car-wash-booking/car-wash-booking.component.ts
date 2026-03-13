@@ -600,11 +600,6 @@ export class CarWashBookingComponent implements OnInit {
       });
     });
 
-    if (expiredBookingIds.length > 0) {
-      this.showNotification(
-        `${expiredBookingIds.length} pending booking(s) marked as expired`
-      );
-    }
   }
 
   getUserInitials(name: string): string {

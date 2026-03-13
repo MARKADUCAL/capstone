@@ -652,10 +652,7 @@ export class DashboardComponent implements OnInit {
     });
 
     if (expiredBookingIds.length > 0) {
-      this.showInfo(
-        `${expiredBookingIds.length} pending booking(s) marked as expired`,
-      );
-      // Regenerate calendar to reflect changes
+      // Regenerate calendar to reflect changes without showing a snackbar
       this.generateCalendar();
     }
   }
