@@ -246,6 +246,10 @@ export class RejectionDialogComponent {
 })
 export class CarWashBookingComponent implements OnInit {
   bookings: CarWashBooking[] = [];
+  readonly pageSize = 10;
+  private readonly pageIndexByStatus: Partial<
+    Record<CarWashBooking['status'], number>
+  > = {};
   statusSections: {
     label: string;
     value: CarWashBooking['status'];
@@ -303,6 +307,39 @@ export class CarWashBookingComponent implements OnInit {
   ngOnInit(): void {
     this.loadBookings();
     this.loadEmployees();
+  }
+
+  getPageIndex(status: CarWashBooking['status']): number {
+    return this.pageIndexByStatus[status] ?? 0;
+  }
+
+  setPageIndex(status: CarWashBooking['status'], pageIndex: number): void {
+    const totalPages = this.getTotalPagesForStatus(status);
+    const clamped = Math.max(0, Math.min(pageIndex, Math.max(totalPages - 1, 0)));
+    this.pageIndexByStatus[status] = clamped;
+  }
+
+  prevPage(status: CarWashBooking['status']): void {
+    this.setPageIndex(status, this.getPageIndex(status) - 1);
+  }
+
+  nextPage(status: CarWashBooking['status']): void {
+    this.setPageIndex(status, this.getPageIndex(status) + 1);
+  }
+
+  getTotalPages(totalItems: number): number {
+    return Math.max(1, Math.ceil((totalItems || 0) / this.pageSize));
+  }
+
+  getTotalPagesForStatus(status: CarWashBooking['status']): number {
+    return this.getTotalPages(this.getBookingsByStatus(status).length);
+  }
+
+  getBookingsPageByStatus(status: CarWashBooking['status']): CarWashBooking[] {
+    const all = this.getBookingsByStatus(status);
+    const pageIndex = this.getPageIndex(status);
+    const start = pageIndex * this.pageSize;
+    return all.slice(start, start + this.pageSize);
   }
 
   openCreateBooking(): void {

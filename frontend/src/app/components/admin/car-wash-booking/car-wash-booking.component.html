@@ -63,6 +63,9 @@
   >
     @for (section of statusSections; track section.value) { @let sectionBookings
     = getBookingsByStatus(section.value);
+    @let pagedBookings = getBookingsPageByStatus(section.value);
+    @let pageIndex = getPageIndex(section.value);
+    @let totalPages = getTotalPages(sectionBookings.length);
     <section class="status-section">
       <div class="status-header">
         <div>
@@ -89,7 +92,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (booking of sectionBookings; track booking.id) {
+              @for (booking of pagedBookings; track booking.id) {
               <tr>
                 <td>
                   <div class="customer-cell">
@@ -198,13 +201,33 @@
         </div>
       </div>
 
+      @if (sectionBookings.length > 10) {
+      <div class="pagination desktop-only">
+        <button
+          class="page-btn"
+          [disabled]="pageIndex === 0"
+          (click)="prevPage(section.value)"
+        >
+          Prev
+        </button>
+        <span class="page-meta">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
+        <button
+          class="page-btn"
+          [disabled]="pageIndex + 1 >= totalPages"
+          (click)="nextPage(section.value)"
+        >
+          Next
+        </button>
+      </div>
+      }
+
       <!-- Mobile Card View -->
       <div class="mobile-bookings-cards mobile-only">
         <div class="mobile-card-column-headers">
           <div class="mobile-header-label">CUSTOMER</div>
           <div class="mobile-header-label">DATE</div>
         </div>
-        @for (booking of sectionBookings; track booking.id) {
+        @for (booking of pagedBookings; track booking.id) {
         <div class="mobile-booking-card">
           <div class="mobile-card-content">
             <div class="mobile-card-customer">
@@ -273,6 +296,26 @@
         </div>
         }
       </div>
+
+      @if (sectionBookings.length > 10) {
+      <div class="pagination mobile-only">
+        <button
+          class="page-btn"
+          [disabled]="pageIndex === 0"
+          (click)="prevPage(section.value)"
+        >
+          Prev
+        </button>
+        <span class="page-meta">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
+        <button
+          class="page-btn"
+          [disabled]="pageIndex + 1 >= totalPages"
+          (click)="nextPage(section.value)"
+        >
+          Next
+        </button>
+      </div>
+      }
       } @else {
       <div class="status-empty">
         <mat-icon>inventory_2</mat-icon>
