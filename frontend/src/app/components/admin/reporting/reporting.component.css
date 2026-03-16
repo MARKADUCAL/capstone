@@ -178,6 +178,10 @@
   width: 180px;
 }
 
+.year-select {
+  width: 180px;
+}
+
 ::ng-deep .dark-picker-field .mat-mdc-text-field-wrapper {
   background: #0f141b;
   border-radius: 10px;

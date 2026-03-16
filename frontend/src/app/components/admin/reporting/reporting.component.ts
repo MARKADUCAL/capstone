@@ -12,10 +12,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import jsPDF from 'jspdf';
 import {
   Chart,
@@ -60,10 +56,6 @@ interface ServiceStats {
     MatIconModule,
     MatTabsModule,
     MatMenuModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatFormFieldModule,
-    MatInputModule,
   ],
   templateUrl: './reporting.component.html',
   styleUrl: './reporting.component.css',

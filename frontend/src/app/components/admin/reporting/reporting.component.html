@@ -97,22 +97,13 @@
         <div class="month-revenue-selector">
           <div class="selector-input">
             <label>Select Month:</label>
-            <mat-form-field appearance="outline" class="dark-picker-field">
-              <input
-                matInput
-                [matDatepicker]="revenueMonthPicker"
-                [(ngModel)]="selectedRevenueMonthDate"
-                placeholder="Select month"
-                readonly
-              />
-              <mat-datepicker-toggle matSuffix [for]="revenueMonthPicker"></mat-datepicker-toggle>
-              <mat-datepicker
-                #revenueMonthPicker
-                startView="multi-year"
-                (monthSelected)="onRevenueMonthPicked($event, revenueMonthPicker)"
-                panelClass="reporting-date-panel"
-              ></mat-datepicker>
-            </mat-form-field>
+            <input
+              type="month"
+              [(ngModel)]="selectedRevenueMonth"
+              (change)="onRevenueMonthChange()"
+              class="selector-input"
+              title="Select month"
+            />
             <span class="date-range">{{ getRevenueMonthDateRange() }}</span>
           </div>
           <div class="revenue-display">
@@ -168,21 +159,13 @@
         <div class="month-revenue-selector">
           <div class="selector-input">
             <label>Select Week:</label>
-            <mat-form-field appearance="outline" class="dark-picker-field">
-              <input
-                matInput
-                [matDatepicker]="revenueWeekPicker"
-                [(ngModel)]="selectedRevenueWeekDate"
-                placeholder="Select week"
-                readonly
-              />
-              <mat-datepicker-toggle matSuffix [for]="revenueWeekPicker"></mat-datepicker-toggle>
-              <mat-datepicker
-                #revenueWeekPicker
-                panelClass="reporting-date-panel"
-                (closed)="onRevenueWeekPicked(selectedRevenueWeekDate)"
-              ></mat-datepicker>
-            </mat-form-field>
+            <input
+              type="week"
+              [(ngModel)]="selectedRevenueWeek"
+              (change)="onRevenueWeekChange()"
+              class="selector-input"
+              title="Select week"
+            />
             <span class="date-range">{{ getRevenueWeekDateRange() }}</span>
           </div>
           <div class="revenue-display">
@@ -302,22 +285,15 @@
   <!-- Charts Section -->
   <div class="charts-header-row">
     <label for="yearPicker">Year:</label>
-    <mat-form-field appearance="outline" class="dark-picker-field year-field">
-      <input
-        matInput
-        [matDatepicker]="yearPicker"
-        [(ngModel)]="selectedYearDate"
-        placeholder="Select year"
-        readonly
-      />
-      <mat-datepicker-toggle matSuffix [for]="yearPicker"></mat-datepicker-toggle>
-      <mat-datepicker
-        #yearPicker
-        startView="multi-year"
-        (yearSelected)="onYearPicked($event)"
-        panelClass="reporting-date-panel"
-      ></mat-datepicker>
-    </mat-form-field>
+    <select
+      id="yearPicker"
+      [(ngModel)]="selectedYear"
+      (change)="onYearChange()"
+      class="selector-input year-select"
+      title="Select year"
+    >
+      <option *ngFor="let y of availableYears" [ngValue]="y">{{ y }}</option>
+    </select>
   </div>
   <mat-tab-group
     class="charts-container"
