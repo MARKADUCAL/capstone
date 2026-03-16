@@ -582,6 +582,21 @@
   align-items: start;
 }
 
+.revenue-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .revenue-controls {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 .selector-input {
   display: flex;
   flex-direction: column;

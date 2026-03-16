@@ -87,6 +87,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     bookings: number;
   }> = [];
 
+  // Simplified revenue view (avoid mixing weekly/monthly sections)
+  revenueView: 'monthly' | 'weekly' = 'monthly';
+
   serviceStats: ServiceStats = {
     totalBookings: 0,
     completedBookings: 0,
@@ -155,8 +158,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.loadServiceDistribution();
     this.loadWeeklyBookings();
     this.loadMonthlyBookings();
-    this.loadSpecificMonthRevenue();
-    this.loadSpecificWeekRevenue();
+    this.onRevenueViewChange();
   }
 
   ngAfterViewInit(): void {
@@ -1888,6 +1890,18 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   onRevenueWeekChange(): void {
     if (!this.selectedRevenueWeek) return;
     console.log('Revenue week changed to:', this.selectedRevenueWeek);
+    this.loadSpecificWeekRevenue();
+  }
+
+  onRevenueViewChange(): void {
+    // Clear the shared breakdown table data to prevent confusion while switching
+    this.weeklyRevenueData = [];
+
+    if (this.revenueView === 'monthly') {
+      this.loadSpecificMonthRevenue();
+      return;
+    }
+
     this.loadSpecificWeekRevenue();
   }
 
