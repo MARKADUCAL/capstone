@@ -161,7 +161,8 @@ body {
   transition: margin-left 0.3s ease;
   width: calc(100% - 250px);
   overflow-x: hidden;
-  overflow-y: auto;
+  /* Let the page (or main content) handle scrolling so sticky header works */
+  overflow-y: visible;
 }
 
 .container.sidebar-collapsed .content {
@@ -310,6 +311,8 @@ body {
   padding: 20px;
   background-color: var(--background-light);
   min-height: calc(100vh - 60px);
+  overflow-y: auto;
+  height: calc(100vh - 60px);
 }
 
 /* Media queries for responsive design */
