@@ -127,6 +127,12 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Add sequential display index (1..N) independent of database id
+                foreach ($customers as $index => &$customer) {
+                    $customer['display_id'] = $index + 1;
+                }
+                unset($customer);
                 
                 return $this->sendPayload(
                     ['customers' => $customers],
@@ -171,6 +177,12 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Add sequential display index (1..N) independent of database id
+                foreach ($employees as $index => &$employee) {
+                    $employee['display_id'] = $index + 1;
+                }
+                unset($employee);
                 
                 return $this->sendPayload(
                     ['employees' => $employees],
@@ -210,6 +222,12 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Add sequential display index (1..N) independent of database id
+                foreach ($admins as $index => &$admin) {
+                    $admin['display_id'] = $index + 1;
+                }
+                unset($admin);
                 
                 return $this->sendPayload(
                     ['admins' => $admins],
