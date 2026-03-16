@@ -14,42 +14,25 @@
 
         <div class="selector-item" *ngIf="reportType === 'weekly'">
           <label>Select Week:</label>
-            <mat-form-field appearance="outline" class="dark-picker-field compact">
-              <input
-                matInput
-                [matDatepicker]="reportWeekPicker"
-                [(ngModel)]="selectedReportWeekDate"
-                placeholder="Select week"
-                readonly
-              />
-              <mat-datepicker-toggle matSuffix [for]="reportWeekPicker"></mat-datepicker-toggle>
-              <mat-datepicker
-                #reportWeekPicker
-                panelClass="reporting-date-panel"
-                (closed)="onReportWeekPicked(selectedReportWeekDate)"
-              ></mat-datepicker>
-            </mat-form-field>
+          <input
+            type="week"
+            [(ngModel)]="selectedReportWeek"
+            (change)="onSelectedReportWeekChange()"
+            class="selector-input"
+            title="Select week"
+          />
           <span class="selected-range">{{ getReportWeekDateRange() }}</span>
         </div>
 
         <div class="selector-item" *ngIf="reportType === 'monthly'">
           <label>Select Month:</label>
-            <mat-form-field appearance="outline" class="dark-picker-field compact">
-              <input
-                matInput
-                [matDatepicker]="reportMonthPicker"
-                [(ngModel)]="selectedReportMonthDate"
-                placeholder="Select month"
-                readonly
-              />
-              <mat-datepicker-toggle matSuffix [for]="reportMonthPicker"></mat-datepicker-toggle>
-              <mat-datepicker
-                #reportMonthPicker
-                startView="multi-year"
-                (monthSelected)="onReportMonthPicked($event, reportMonthPicker)"
-                panelClass="reporting-date-panel"
-              ></mat-datepicker>
-            </mat-form-field>
+          <input
+            type="month"
+            [(ngModel)]="selectedReportMonth"
+            (change)="onSelectedReportMonthChange()"
+            class="selector-input"
+            title="Select month"
+          />
           <span class="selected-range">{{ getReportMonthDateRange() }}</span>
         </div>
       </div>

@@ -2051,6 +2051,24 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.selectedReportWeekDate = date;
   }
 
+  onSelectedReportWeekChange(): void {
+    if (!this.selectedReportWeek) return;
+    const [yearWeekStr, weekStr] = this.selectedReportWeek.split('-W');
+    const year = parseInt(yearWeekStr, 10);
+    const week = parseInt(weekStr, 10);
+    if (Number.isNaN(year) || Number.isNaN(week)) return;
+    this.selectedReportWeekDate = this.getWeekStartDate(year, week);
+  }
+
+  onSelectedReportMonthChange(): void {
+    if (!this.selectedReportMonth) return;
+    const [yearStr, monthStr] = this.selectedReportMonth.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    if (Number.isNaN(year) || Number.isNaN(month)) return;
+    this.selectedReportMonthDate = new Date(year, month - 1, 1);
+  }
+
   private getWeekStart(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
