@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +17,7 @@ import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 import Swal from 'sweetalert2';
+import { Subscription, interval } from 'rxjs';
 
 interface BusinessStats {
   totalCustomers: number;
@@ -242,10 +243,31 @@ export class DashboardComponent implements OnInit {
     private dialog: MatDialog,
   ) {}
 
+  private autoRefreshSub: Subscription | null = null;
+  private readonly autoRefreshMs = 30_000;
+
   ngOnInit(): void {
     this.loadDashboardData();
     this.generateCalendar();
     this.checkFirstTimeLogin();
+
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy(): void {
+    this.autoRefreshSub?.unsubscribe();
+    this.autoRefreshSub = null;
+  }
+
+  private startAutoRefresh(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.autoRefreshSub) return;
+
+    this.autoRefreshSub = interval(this.autoRefreshMs).subscribe(() => {
+      // Avoid stacking refresh calls if a load is already in progress.
+      if (this.isLoading) return;
+      this.loadDashboardData();
+    });
   }
 
   private checkFirstTimeLogin(): void {

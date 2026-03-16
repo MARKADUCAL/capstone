@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   Inject,
   PLATFORM_ID,
   HostListener,
@@ -20,6 +21,7 @@ import { DateTasksDialogComponent } from './date-tasks-dialog.component';
 import { BookingService } from '../../../services/booking.service';
 import { FeedbackService } from '../../../services/feedback.service';
 import Swal from 'sweetalert2';
+import { Subscription, interval } from 'rxjs';
 
 interface Task {
   id: number;
@@ -113,6 +115,8 @@ export class DashboardComponent implements OnInit {
 
   private isBrowser: boolean;
   private shouldUseCompactCalendarLabels = false;
+  private autoRefreshSub: Subscription | null = null;
+  private readonly autoRefreshMs = 30_000;
 
   get currentMonthYear(): string {
     const monthNames = [
@@ -153,6 +157,26 @@ export class DashboardComponent implements OnInit {
     this.loadCustomerRating();
     this.generateCalendar();
     this.checkFirstTimeLogin();
+
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy(): void {
+    this.autoRefreshSub?.unsubscribe();
+    this.autoRefreshSub = null;
+  }
+
+  private startAutoRefresh(): void {
+    if (!this.isBrowser) return;
+    if (this.autoRefreshSub) return;
+
+    this.autoRefreshSub = interval(this.autoRefreshMs).subscribe(() => {
+      // Avoid stacking refresh calls if a load is already in progress.
+      if (this.loading) return;
+      this.loadBookingStats();
+      this.loadUpcomingTasks();
+      this.loadCustomerRating();
+    });
   }
 
   @HostListener('window:resize')
