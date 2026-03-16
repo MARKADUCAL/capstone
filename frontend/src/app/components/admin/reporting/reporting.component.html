@@ -6,29 +6,50 @@
       <div class="report-selector-group">
         <div class="selector-item">
           <label>Report Type:</label>
-          <select [(ngModel)]="reportType" class="selector-input">
-            <option value="weekly">Weekly Report</option>
-            <option value="monthly">Monthly Report</option>
-          </select>
+            <select [(ngModel)]="reportType" class="selector-input" title="Report type">
+              <option value="weekly">Weekly Report</option>
+              <option value="monthly">Monthly Report</option>
+            </select>
         </div>
 
         <div class="selector-item" *ngIf="reportType === 'weekly'">
           <label>Select Week:</label>
-          <input
-            type="week"
-            [(ngModel)]="selectedReportWeek"
-            class="selector-input"
-          />
+            <mat-form-field appearance="outline" class="dark-picker-field compact">
+              <input
+                matInput
+                [matDatepicker]="reportWeekPicker"
+                [(ngModel)]="selectedReportWeekDate"
+                placeholder="Select week"
+                readonly
+              />
+              <mat-datepicker-toggle matSuffix [for]="reportWeekPicker"></mat-datepicker-toggle>
+              <mat-datepicker
+                #reportWeekPicker
+                panelClass="reporting-date-panel"
+                (closed)="onReportWeekPicked(selectedReportWeekDate)"
+              ></mat-datepicker>
+            </mat-form-field>
           <span class="selected-range">{{ getReportWeekDateRange() }}</span>
         </div>
 
         <div class="selector-item" *ngIf="reportType === 'monthly'">
           <label>Select Month:</label>
-          <input
-            type="month"
-            [(ngModel)]="selectedReportMonth"
-            class="selector-input"
-          />
+            <mat-form-field appearance="outline" class="dark-picker-field compact">
+              <input
+                matInput
+                [matDatepicker]="reportMonthPicker"
+                [(ngModel)]="selectedReportMonthDate"
+                placeholder="Select month"
+                readonly
+              />
+              <mat-datepicker-toggle matSuffix [for]="reportMonthPicker"></mat-datepicker-toggle>
+              <mat-datepicker
+                #reportMonthPicker
+                startView="multi-year"
+                (monthSelected)="onReportMonthPicked($event, reportMonthPicker)"
+                panelClass="reporting-date-panel"
+              ></mat-datepicker>
+            </mat-form-field>
           <span class="selected-range">{{ getReportMonthDateRange() }}</span>
         </div>
       </div>
@@ -92,14 +113,23 @@
       <mat-card-content>
         <div class="month-revenue-selector">
           <div class="selector-input">
-            <label for="revenueMonthPicker">Select Month:</label>
-            <input
-              id="revenueMonthPicker"
-              type="month"
-              [(ngModel)]="selectedRevenueMonth"
-              (change)="onRevenueMonthChange()"
-              class="month-input"
-            />
+            <label>Select Month:</label>
+            <mat-form-field appearance="outline" class="dark-picker-field">
+              <input
+                matInput
+                [matDatepicker]="revenueMonthPicker"
+                [(ngModel)]="selectedRevenueMonthDate"
+                placeholder="Select month"
+                readonly
+              />
+              <mat-datepicker-toggle matSuffix [for]="revenueMonthPicker"></mat-datepicker-toggle>
+              <mat-datepicker
+                #revenueMonthPicker
+                startView="multi-year"
+                (monthSelected)="onRevenueMonthPicked($event, revenueMonthPicker)"
+                panelClass="reporting-date-panel"
+              ></mat-datepicker>
+            </mat-form-field>
             <span class="date-range">{{ getRevenueMonthDateRange() }}</span>
           </div>
           <div class="revenue-display">
@@ -154,14 +184,22 @@
       <mat-card-content>
         <div class="month-revenue-selector">
           <div class="selector-input">
-            <label for="revenueWeekPicker">Select Week:</label>
-            <input
-              id="revenueWeekPicker"
-              type="week"
-              [(ngModel)]="selectedRevenueWeek"
-              (change)="onRevenueWeekChange()"
-              class="month-input"
-            />
+            <label>Select Week:</label>
+            <mat-form-field appearance="outline" class="dark-picker-field">
+              <input
+                matInput
+                [matDatepicker]="revenueWeekPicker"
+                [(ngModel)]="selectedRevenueWeekDate"
+                placeholder="Select week"
+                readonly
+              />
+              <mat-datepicker-toggle matSuffix [for]="revenueWeekPicker"></mat-datepicker-toggle>
+              <mat-datepicker
+                #revenueWeekPicker
+                panelClass="reporting-date-panel"
+                (closed)="onRevenueWeekPicked(selectedRevenueWeekDate)"
+              ></mat-datepicker>
+            </mat-form-field>
             <span class="date-range">{{ getRevenueWeekDateRange() }}</span>
           </div>
           <div class="revenue-display">
@@ -281,14 +319,22 @@
   <!-- Charts Section -->
   <div class="charts-header-row">
     <label for="yearPicker">Year:</label>
-    <select
-      id="yearPicker"
-      [(ngModel)]="selectedYear"
-      (change)="onYearChange()"
-      class="year-select"
-    >
-      <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
-    </select>
+    <mat-form-field appearance="outline" class="dark-picker-field year-field">
+      <input
+        matInput
+        [matDatepicker]="yearPicker"
+        [(ngModel)]="selectedYearDate"
+        placeholder="Select year"
+        readonly
+      />
+      <mat-datepicker-toggle matSuffix [for]="yearPicker"></mat-datepicker-toggle>
+      <mat-datepicker
+        #yearPicker
+        startView="multi-year"
+        (yearSelected)="onYearPicked($event)"
+        panelClass="reporting-date-panel"
+      ></mat-datepicker>
+    </mat-form-field>
   </div>
   <mat-tab-group
     class="charts-container"

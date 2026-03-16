@@ -12,6 +12,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import jsPDF from 'jspdf';
 import {
   Chart,
@@ -56,6 +60,10 @@ interface ServiceStats {
     MatIconModule,
     MatTabsModule,
     MatMenuModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   templateUrl: './reporting.component.html',
   styleUrl: './reporting.component.css',
@@ -68,12 +76,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   // Specific month revenue selector
   selectedRevenueMonth: string = '';
+  selectedRevenueMonthDate: Date | null = null;
   specificMonthRevenue: number = 0;
   specificMonthBookings: number = 0;
   revenueMonthDateRange: string = '';
 
   // Specific week revenue selector
   selectedRevenueWeek: string = '';
+  selectedRevenueWeekDate: Date | null = null;
   specificWeekRevenue: number = 0;
   specificWeekBookings: number = 0;
   revenueWeekDateRange: string = '';
@@ -109,6 +119,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   // Year selector (for Weekly and Monthly booking charts)
   selectedYear: number = new Date().getFullYear();
+  selectedYearDate: Date = new Date(new Date().getFullYear(), 0, 1);
   availableYears: number[] = [];
 
   // Week selector
@@ -123,6 +134,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   selectedReportMonth: string = '';
   selectedReportWeek: string = '';
   reportType: 'weekly' | 'monthly' = 'weekly';
+  selectedReportMonthDate: Date | null = null;
+  selectedReportWeekDate: Date | null = null;
 
   // Track current bookings view type
   private currentBookingsType: 'weekly' | 'monthly' = 'weekly';
@@ -1576,6 +1589,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private initializeYearSelector(): void {
     const currentYear = new Date().getFullYear();
     this.selectedYear = currentYear;
+    this.selectedYearDate = new Date(currentYear, 0, 1);
     this.availableYears = Array.from({ length: 6 }, (_, i) => currentYear - i);
   }
 
@@ -1612,6 +1626,13 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         }
       }
     }
+  }
+
+  onYearPicked(normalizedYear: Date): void {
+    const year = normalizedYear.getFullYear();
+    this.selectedYear = year;
+    this.selectedYearDate = new Date(year, 0, 1);
+    this.onYearChange();
   }
 
   // Week selector methods
@@ -1771,12 +1792,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     this.selectedRevenueMonth = `${year}-${month}`;
+    this.selectedRevenueMonthDate = new Date(year, today.getMonth(), 1);
   }
 
   onRevenueMonthChange(): void {
     if (!this.selectedRevenueMonth) return;
     console.log('Revenue month changed to:', this.selectedRevenueMonth);
     this.loadSpecificMonthRevenue();
+  }
+
+  onRevenueMonthPicked(normalizedMonth: Date, datepicker: { close: () => void }) {
+    const year = normalizedMonth.getFullYear();
+    const month = normalizedMonth.getMonth() + 1;
+    this.selectedRevenueMonth = `${year}-${String(month).padStart(2, '0')}`;
+    this.selectedRevenueMonthDate = new Date(year, month - 1, 1);
+    datepicker.close();
+    this.onRevenueMonthChange();
   }
 
   private loadSpecificMonthRevenue(): void {
@@ -1849,9 +1880,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   private initializeRevenueWeekSelector(): void {
     const today = new Date();
-    const year = today.getFullYear();
-    const weekNumber = this.getWeekNumber(today);
-    this.selectedRevenueWeek = `${year}-W${String(weekNumber).padStart(2, '0')}`;
+    const iso = this.getISOWeekYearAndNumber(today);
+    this.selectedRevenueWeek = `${iso.year}-W${String(iso.week).padStart(2, '0')}`;
+    this.selectedRevenueWeekDate = today;
   }
 
   private getWeekStartDate(year: number, week: number): Date {
@@ -1866,6 +1897,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     if (!this.selectedRevenueWeek) return;
     console.log('Revenue week changed to:', this.selectedRevenueWeek);
     this.loadSpecificWeekRevenue();
+  }
+
+  onRevenueWeekPicked(date: Date | null): void {
+    if (!date) return;
+    const iso = this.getISOWeekYearAndNumber(date);
+    this.selectedRevenueWeek = `${iso.year}-W${String(iso.week).padStart(2, '0')}`;
+    this.selectedRevenueWeekDate = date;
+    this.onRevenueWeekChange();
   }
 
   private loadSpecificWeekRevenue(): void {
@@ -1969,11 +2008,23 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     return `${startStr} - ${endStr}`;
   }
 
+  private getISOWeekYearAndNumber(date: Date): { year: number; week: number } {
+    // ISO week: week starts Monday, week 1 contains Jan 4.
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const year = d.getUTCFullYear();
+    const yearStart = new Date(Date.UTC(year, 0, 1));
+    const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+    return { year, week };
+  }
+
   private initializeReportSelectors(): void {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     this.selectedReportMonth = `${year}-${month}`;
+    this.selectedReportMonthDate = new Date(year, today.getMonth(), 1);
 
     // Get current week
     const currentDate = new Date();
@@ -1982,6 +2033,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const weekNumber = this.getWeekNumber(weekStart);
     const weekStr = String(weekNumber).padStart(2, '0');
     this.selectedReportWeek = `${weekYear}-W${weekStr}`;
+    this.selectedReportWeekDate = currentDate;
+  }
+
+  onReportMonthPicked(normalizedMonth: Date, datepicker: { close: () => void }) {
+    const year = normalizedMonth.getFullYear();
+    const month = normalizedMonth.getMonth() + 1;
+    this.selectedReportMonth = `${year}-${String(month).padStart(2, '0')}`;
+    this.selectedReportMonthDate = new Date(year, month - 1, 1);
+    datepicker.close();
+  }
+
+  onReportWeekPicked(date: Date | null): void {
+    if (!date) return;
+    const iso = this.getISOWeekYearAndNumber(date);
+    this.selectedReportWeek = `${iso.year}-W${String(iso.week).padStart(2, '0')}`;
+    this.selectedReportWeekDate = date;
   }
 
   private getWeekStart(date: Date): Date {
