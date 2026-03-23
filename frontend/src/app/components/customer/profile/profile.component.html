@@ -166,18 +166,9 @@
         <button
           type="button"
           class="add-vehicle-button"
-          *ngIf="!isAddingVehicle"
           (click)="startAddVehicle()"
         >
           + Add Vehicle
-        </button>
-        <button
-          type="button"
-          class="cancel-vehicle-button"
-          *ngIf="isAddingVehicle"
-          (click)="cancelAddVehicle()"
-        >
-          Close Form
         </button>
       </div>
     </div>
@@ -231,85 +222,98 @@
       <small>Add your car to speed up booking forms later.</small>
     </div>
 
-    <form
-      class="vehicle-form"
-      *ngIf="isAddingVehicle"
-      (ngSubmit)="addVehicle()"
-    >
-      <div class="vehicle-form-grid">
-        <div class="form-group">
-          <label for="vehicleType">Vehicle Type</label>
-          <select
-            id="vehicleType"
-            name="vehicleType"
-            [(ngModel)]="newVehicle.vehicleType"
-            required
-          >
-            <option value="" disabled>Select vehicle type</option>
-            <option *ngFor="let type of vehicleTypes" [value]="type">
-              {{ type }}
-            </option>
-          </select>
-        </div>
+  </div>
+</div>
 
-        <div class="form-group">
-          <label for="vehicleModel">Vehicle Model</label>
-          <input
-            type="text"
-            id="vehicleModel"
-            name="vehicleModel"
-            [(ngModel)]="newVehicle.vehicleModel"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="plateNumber">Plate Number</label>
-          <input
-            type="text"
-            id="plateNumber"
-            name="plateNumber"
-            [(ngModel)]="newVehicle.plateNumber"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="vehicleColor"
-            >Vehicle Color <span class="optional">(Optional)</span></label
-          >
-          <input
-            type="text"
-            id="vehicleColor"
-            name="vehicleColor"
-            [(ngModel)]="newVehicle.vehicleColor"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="nickname"
-            >Nickname <span class="optional">(Optional)</span></label
-          >
-          <input
-            type="text"
-            id="nickname"
-            name="nickname"
-            [(ngModel)]="newVehicle.nickname"
-            placeholder="e.g. Family SUV"
-          />
-        </div>
+<!-- Add Vehicle Modal -->
+<div class="vehicle-modal-overlay" *ngIf="isAddingVehicle" (click)="cancelAddVehicle()">
+  <div class="vehicle-modal" (click)="$event.stopPropagation()">
+    <div class="vehicle-modal-header">
+      <h3>Add New Vehicle</h3>
+      <button type="button" class="vehicle-modal-close" (click)="cancelAddVehicle()">
+        &times;
+      </button>
+    </div>
+    <div class="vehicle-modal-body">
+      <div class="alert error" *ngIf="vehicleErrorMessage">
+        {{ vehicleErrorMessage }}
       </div>
+      <form (ngSubmit)="addVehicle()">
+        <div class="vehicle-form-grid">
+          <div class="form-group">
+            <label for="vehicleType">Vehicle Type</label>
+            <select
+              id="vehicleType"
+              name="vehicleType"
+              [(ngModel)]="newVehicle.vehicleType"
+              required
+            >
+              <option value="" disabled>Select vehicle type</option>
+              <option *ngFor="let type of vehicleTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
 
-      <div class="vehicle-form-actions">
-        <button
-          type="button"
-          class="cancel-button ghost"
-          (click)="cancelAddVehicle()"
-        >
-          Cancel
-        </button>
-        <button type="submit" class="save-button">Save Vehicle</button>
-      </div>
-    </form>
+          <div class="form-group">
+            <label for="vehicleModel">Vehicle Model</label>
+            <input
+              type="text"
+              id="vehicleModel"
+              name="vehicleModel"
+              [(ngModel)]="newVehicle.vehicleModel"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="plateNumber">Plate Number</label>
+            <input
+              type="text"
+              id="plateNumber"
+              name="plateNumber"
+              [(ngModel)]="newVehicle.plateNumber"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="vehicleColor"
+              >Vehicle Color <span class="optional">(Optional)</span></label
+            >
+            <input
+              type="text"
+              id="vehicleColor"
+              name="vehicleColor"
+              [(ngModel)]="newVehicle.vehicleColor"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="nickname"
+              >Nickname <span class="optional">(Optional)</span></label
+            >
+            <input
+              type="text"
+              id="nickname"
+              name="nickname"
+              [(ngModel)]="newVehicle.nickname"
+              placeholder="e.g. Family SUV"
+            />
+          </div>
+        </div>
+
+        <div class="vehicle-form-actions">
+          <button
+            type="button"
+            class="cancel-button ghost"
+            (click)="cancelAddVehicle()"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="save-button">Save Vehicle</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
