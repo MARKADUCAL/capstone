@@ -187,15 +187,15 @@ export class DashboardComponent implements OnInit {
   private checkFirstTimeLogin(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const firstTimeLoginFlag = localStorage.getItem(
-      'employee_first_time_login',
-    );
+    const employeeData = localStorage.getItem('employee_data');
+    const parsedEmployee = employeeData ? JSON.parse(employeeData) : null;
+    const employeeId = parsedEmployee?.id ?? 'unknown';
+    const employeeName = parsedEmployee?.first_name ?? 'Employee';
+    const flagKey = `employee_first_time_login_${employeeId}`;
+
+    const firstTimeLoginFlag = localStorage.getItem(flagKey);
 
     if (!firstTimeLoginFlag) {
-      const employeeData = localStorage.getItem('employee_data');
-      const employeeName = employeeData
-        ? JSON.parse(employeeData).first_name
-        : 'Employee';
 
       Swal.fire({
         title: `Welcome ${employeeName}! 👋`,
@@ -235,10 +235,10 @@ export class DashboardComponent implements OnInit {
         confirmButtonText: 'Got it, Lets Get Started',
         width: 560,
         didClose: () => {
-          localStorage.setItem('employee_first_time_login', 'true');
+          localStorage.setItem(flagKey, 'true');
         },
       }).then(() => {
-        localStorage.setItem('employee_first_time_login', 'true');
+        localStorage.setItem(flagKey, 'true');
       });
     }
   }
