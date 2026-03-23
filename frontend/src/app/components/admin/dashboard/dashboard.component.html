@@ -1,14 +1,10 @@
 <div class="dashboard-container">
   <!-- Header with refresh button -->
 
-  <!-- Loading overlay -->
-  <div class="loading-overlay" *ngIf="isLoading">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading dashboard data...</p>
-  </div>
+
 
   <!-- Stats Cards -->
-  <div class="stats-container" *ngIf="!isLoading">
+  <div class="stats-container">
     <mat-card class="stats-card">
       <mat-card-content>
         <div class="stats-icon customers">
@@ -83,7 +79,7 @@
   </div>
 
   <!-- Calendar Section -->
-  <mat-card class="calendar-card" *ngIf="!isLoading">
+  <mat-card class="calendar-card">
     <div class="calendar-container">
       <!-- Calendar Header -->
       <div class="calendar-header">
@@ -143,7 +139,7 @@
   </mat-card>
 
   <!-- Recent Bookings Table -->
-  <mat-card class="bookings-card" *ngIf="!isLoading">
+  <mat-card class="bookings-card">
     <mat-card-header>
       <mat-card-title>Recent Bookings</mat-card-title>
       <div class="bookings-search" *ngIf="!isLoadingBookings">
