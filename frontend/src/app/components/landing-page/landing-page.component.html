@@ -1,4 +1,4 @@
-﻿<!-- Navbar -->
+<!-- Navbar -->
 <nav class="navbar">
   <div class="container">
     <div class="logo">
@@ -28,7 +28,7 @@
       <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
     </ul>
     <div class="get-started">
-      <a href="/customer" class="btn">Get Started</a>
+      <a class="btn" (click)="showModal = true" style="cursor: pointer;">Get Started</a>
     </div>
   </div>
 </nav>
@@ -58,7 +58,7 @@
     <p>
       {{ content.heroDescription }}
     </p>
-    <a (click)="onBookNowClick()" class="book-now-btn">Book Now</a>
+    <a (click)="showModal = true" class="book-now-btn">Book Now</a>
   </div>
 </header>
 
@@ -309,7 +309,7 @@
       <div class="social-links">
         <a [href]="content.footer.facebook" target="_blank">Facebook</a>
       </div>
-      <a routerLink="/customer" class="booknow-button">Book Now</a>
+      <a class="booknow-button" (click)="showModal = true" style="cursor: pointer;">Book Now</a>
     </div>
   </div>
   <div class="footer-divider"></div>
