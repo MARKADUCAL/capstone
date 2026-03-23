@@ -322,16 +322,7 @@ button:disabled {
   box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
 }
 
-.cancel-vehicle-button {
-  background-color: #f5f5f5;
-  color: #333;
-  border: 1.5px solid #ddd;
-}
 
-.cancel-vehicle-button:hover {
-  background-color: #efefef;
-  border-color: #bbb;
-}
 
 .vehicle-grid {
   display: grid;
@@ -461,11 +452,68 @@ button:disabled {
   color: #666;
 }
 
-.vehicle-form {
-  margin-top: 20px;
-  background-color: #fff9f8;
-  padding: 20px;
-  border-radius: 8px;
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: 90%;
+  max-width: 560px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
 }
 
 .vehicle-form-grid {
@@ -474,7 +522,7 @@ button:disabled {
   gap: 15px;
 }
 
-.vehicle-form .form-group select {
+.modal-container .form-group select {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
@@ -486,7 +534,7 @@ button:disabled {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .ghost {
