@@ -180,63 +180,69 @@
 
           <div class="schedule-grid">
             <div class="calendar-panel">
-              <div class="calendar-nav">
-              <button
-              type="button"
-              class="nav-button nav-arrow-button"
-              aria-label="Previous month"
-              (click)="goToPreviousMonth()"
-              >
-              <i class="fas fa-chevron-left"></i>
-              </button>
-                <div class="month-label">
-                  {{ currentCalendarMonth | date: "MMMM yyyy" }}
-                </div>
-              <button
-              type="button"
-              class="nav-button nav-arrow-button"
-              aria-label="Next month"
-              (click)="goToNextMonth()"
-              >
-              <i class="fas fa-chevron-right"></i>
-              </button>
+              <!-- Calendar Header (Employee Dashboard Style) -->
+              <div class="calendar-header">
                 <button
                   type="button"
-                  class="today-button"
-                  (click)="goToToday()"
+                  class="calendar-nav-btn"
+                  aria-label="Previous month"
+                  (click)="goToPreviousMonth()"
                 >
-                  Today
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="calendar-header-content">
+                  <div class="calendar-month-year">
+                    {{ currentCalendarMonth | date: "MMM, yyyy" }}
+                  </div>
+                  <button
+                    type="button"
+                    class="calendar-today-btn"
+                    (click)="goToToday()"
+                  >
+                    Today
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="calendar-nav-btn"
+                  aria-label="Next month"
+                  (click)="goToNextMonth()"
+                >
+                  <i class="fas fa-chevron-right"></i>
                 </button>
               </div>
 
-              <div class="calendar-weekdays">
-                <div class="weekday" *ngFor="let weekday of weekDayLabels">
-                  {{ weekday }}
+              <!-- Calendar Grid (Employee Dashboard Style) -->
+              <div class="calendar-grid">
+                <div class="calendar-weekdays">
+                  <div class="weekday" *ngFor="let weekday of weekDayLabels">
+                    {{ weekday }}
+                  </div>
                 </div>
-              </div>
 
-              <div class="calendar-weeks">
-                <div class="calendar-row" *ngFor="let week of calendarWeeks">
-                  <div
-                    class="calendar-cell"
-                    *ngFor="let day of week"
-                    [class.other-month]="!day.isCurrentMonth"
-                    [class.today]="day.isToday"
-                    [class.selected]="isSelectedDate(day.date)"
-                    [class.disabled]="day.isDisabled"
-                    (click)="selectCalendarDate(day)"
-                  >
-                    <div class="date-number">{{ day.date.getDate() }}</div>
-                    <div class="day-bookings">
-                      <div
-                        class="booking-pill"
-                        *ngFor="let booking of day.bookings | slice: 0 : 3"
-                        [ngClass]="getBookingBadgeClass(booking)"
-                      >
-                        {{ getBookingLabel(booking) }}
-                      </div>
-                      <div class="more-badge" *ngIf="day.bookings.length > 3">
-                        +{{ day.bookings.length - 3 }}
+                <div class="calendar-days">
+                  <div class="calendar-row" *ngFor="let week of calendarWeeks">
+                    <div
+                      class="calendar-cell"
+                      *ngFor="let day of week"
+                      [class.other-month]="!day.isCurrentMonth"
+                      [class.today]="day.isToday"
+                      [class.selected]="isSelectedDate(day.date)"
+                      [class.disabled]="day.isDisabled"
+                      (click)="selectCalendarDate(day)"
+                    >
+                      <div class="date-number">{{ day.date.getDate() }}</div>
+                      <div class="day-bookings">
+                        <div
+                          class="booking-pill"
+                          *ngFor="let booking of day.bookings | slice: 0 : 3"
+                          [ngClass]="getBookingBadgeClass(booking)"
+                        >
+                          {{ getBookingLabel(booking) }}
+                        </div>
+                        <div class="more-badge" *ngIf="day.bookings.length > 3">
+                          +{{ day.bookings.length - 3 }}
+                        </div>
                       </div>
                     </div>
                   </div>
