@@ -453,19 +453,24 @@ button:disabled {
 }
 
 .vehicle-card-dark {
-  background-color: #2c2c2c;
-  border: 1px solid #444;
+  background-color: #fff;
+  border: 1px solid #dadce0;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: #202124;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+
+.vehicle-card-dark:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
 .vcard-header {
   padding: 16px 20px 0;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #f1f3f4;
 }
 
 .vcard-title-row {
@@ -498,13 +503,13 @@ button:disabled {
   font-size: 18px;
   font-weight: 700;
   flex: 1;
-  color: #fff;
+  color: #202124;
 }
 
 .vcard-remove-btn {
   background: transparent;
-  border: 1px solid #666;
-  color: #fff;
+  border: 1px solid #dadce0;
+  color: #5f6368;
   border-radius: 6px;
   padding: 6px 14px;
   font-size: 13px;
@@ -514,8 +519,8 @@ button:disabled {
 }
 
 .vcard-remove-btn:hover {
-  background-color: #444;
-  border-color: #888;
+  background-color: #f1f3f4;
+  color: #202124;
 }
 
 .vcard-type-pill {
@@ -545,7 +550,7 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #f1f3f4;
 }
 
 .vcard-info-row:last-child {
@@ -556,27 +561,27 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #aaa;
+  color: #5f6368;
   font-size: 14px;
 }
 
 .vcard-info-val {
   font-weight: 600;
-  color: #fff;
+  color: #202124;
   font-size: 14px;
 }
 
 .vcard-info-val.not-set {
-  color: #888;
+  color: #80868b;
   font-style: italic;
   font-weight: normal;
 }
 
 .vcard-footer {
-  background-color: #222;
+  background-color: #f8f9fa;
   padding: 12px 20px;
   font-size: 12px;
-  color: #aaa;
+  color: #5f6368;
   display: flex;
   align-items: center;
 }
