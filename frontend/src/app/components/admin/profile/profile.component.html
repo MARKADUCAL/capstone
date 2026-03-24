@@ -17,41 +17,43 @@
   <div class="profile-content">
     <!-- View Mode -->
     <div class="profile-info" *ngIf="!isEditing">
-      <div class="avatar-container">
-        <div class="avatar-placeholder">
-          {{ profile.first_name.charAt(0) }}{{ profile.last_name.charAt(0) }}
+      <div class="profile-header-card">
+        <div class="avatar-container">
+          <div class="avatar-placeholder">
+            {{ profile.first_name.charAt(0) }}{{ profile.last_name.charAt(0) }}
+          </div>
+        </div>
+        <div class="header-details">
+          <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
+          <p>{{ profile.admin_id }} &middot; Administrator</p>
         </div>
       </div>
 
-      <div class="profile-details">
-        <div class="info-group">
-          <label>Admin ID:</label>
-          <span>{{ profile.admin_id }}</span>
+      <hr class="profile-divider">
+
+      <div class="profile-details-list">
+        <div class="info-item">
+          <div class="icon-box email-icon"><i class="material-icons">email</i></div>
+          <div class="info-text">
+            <span>Email</span>
+            <strong>{{ profile.email }}</strong>
+          </div>
         </div>
 
-        <div class="info-group">
-          <label>First Name:</label>
-          <span>{{ profile.first_name }}</span>
+        <div class="info-item">
+          <div class="icon-box phone-icon"><i class="material-icons">phone</i></div>
+          <div class="info-text">
+            <span>Phone</span>
+            <strong>{{ profile.phone || "Not provided" }}</strong>
+          </div>
         </div>
 
-        <div class="info-group">
-          <label>Last Name:</label>
-          <span>{{ profile.last_name }}</span>
-        </div>
-
-        <div class="info-group">
-          <label>Email:</label>
-          <span>{{ profile.email }}</span>
-        </div>
-
-        <div class="info-group">
-          <label>Phone:</label>
-          <span>{{ profile.phone || "Not provided" }}</span>
-        </div>
-
-        <div class="info-group">
-          <label>Account Type:</label>
-          <span>Administrator</span>
+        <div class="info-item">
+          <div class="icon-box role-icon"><i class="material-icons">person</i></div>
+          <div class="info-text">
+            <span>Account Type</span>
+            <strong>Administrator</strong>
+          </div>
         </div>
       </div>
     </div>
