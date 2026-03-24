@@ -144,7 +144,9 @@
       </div>
     </form>
   </div>
+</div>
 
+<div class="vehicles-container">
   <div class="vehicle-section">
     <div class="vehicle-section-header">
       <div>
@@ -171,37 +173,49 @@
     </div>
 
     <div class="vehicle-grid" *ngIf="customerVehicles.length > 0">
-      <div class="vehicle-card" *ngFor="let vehicle of customerVehicles">
-        <div class="vehicle-card-header">
-          <div>
-            <h4>{{ vehicle.nickname || vehicle.vehicle_model }}</h4>
-            <span class="vehicle-type-label">{{ vehicle.vehicle_type }}</span>
+      <div class="vehicle-card-dark" *ngFor="let vehicle of customerVehicles">
+        <div class="vcard-header">
+          <div class="vcard-title-row">
+            <div class="vcard-icon-box blue-icon">
+              <i class="material-icons">directions_car</i>
+            </div>
+            <h4 class="vcard-title">{{ vehicle.nickname || vehicle.vehicle_model }}</h4>
+            <button class="vcard-remove-btn" (click)="removeVehicle(vehicle.id)">Remove</button>
           </div>
-          <button
-            type="button"
-            class="remove-vehicle-button"
-            (click)="removeVehicle(vehicle.id)"
-          >
-            Remove
-          </button>
+          <div class="vcard-type-pill green-pill">
+            <i class="material-icons" style="font-size: 14px; margin-right: 4px;">local_shipping</i>
+            <span>{{ vehicle.vehicle_type }}</span>
+          </div>
         </div>
-        <div class="vehicle-card-body">
-          <div class="vehicle-info-row">
-            <span>Model</span>
-            <strong>{{ vehicle.vehicle_model }}</strong>
+
+        <div class="vcard-body">
+          <div class="vcard-info-row">
+            <div class="vcard-info-label">
+              <div class="vcard-icon-box blue-icon"><i class="material-icons">badge</i></div>
+              <span>Model</span>
+            </div>
+            <span class="vcard-info-val">{{ vehicle.vehicle_model }}</span>
           </div>
-          <div class="vehicle-info-row">
-            <span>Plate Number</span>
-            <strong>{{ vehicle.plate_number }}</strong>
+
+          <div class="vcard-info-row">
+            <div class="vcard-info-label">
+              <div class="vcard-icon-box green-icon"><i class="material-icons">credit_card</i></div>
+              <span>Plate Number</span>
+            </div>
+            <span class="vcard-info-val">{{ vehicle.plate_number }}</span>
           </div>
-          <div class="vehicle-info-row">
-            <span>Color</span>
-            <strong>{{ vehicle.vehicle_color || "Not set" }}</strong>
+
+          <div class="vcard-info-row">
+            <div class="vcard-info-label">
+              <div class="vcard-icon-box orange-icon"><i class="material-icons">palette</i></div>
+              <span>Color</span>
+            </div>
+            <span class="vcard-info-val" [class.not-set]="!vehicle.vehicle_color">{{ vehicle.vehicle_color || "Not set" }}</span>
           </div>
-          <div class="vehicle-info-row">
-            <span>Added</span>
-            <strong>{{ vehicle.created_at | date : "mediumDate" }}</strong>
-          </div>
+        </div>
+
+        <div class="vcard-footer">
+          <span class="vcard-date"><i class="material-icons dot-icon" style="font-size: 10px; color: #1e8e3e; margin-right: 6px;">fiber_manual_record</i> Added {{ vehicle.created_at | date : "mediumDate" }}</span>
         </div>
       </div>
     </div>

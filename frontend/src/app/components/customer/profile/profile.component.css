@@ -8,6 +8,16 @@
   border-top: 4px solid #ff6347;
 }
 
+.vehicles-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border-top: 4px solid #1a73e8;
+}
+
 .profile-header {
   display: flex;
   justify-content: space-between;
@@ -437,105 +447,143 @@ button:disabled {
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
   margin-bottom: 30px;
 }
 
-.vehicle-card {
-  border: none;
+.vehicle-card-dark {
+  background-color: #2c2c2c;
+  border: 1px solid #444;
   border-radius: 12px;
-  padding: 0;
-  background: white;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.vehicle-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+.vcard-header {
+  padding: 16px 20px 0;
+  border-bottom: 1px solid #444;
 }
 
-.vehicle-card-header {
+.vcard-title-row {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #fff9f8 0%, #fffaf9 100%);
-  border-bottom: 1px solid #f0ede8;
+  align-items: center;
   gap: 12px;
+  margin-bottom: 12px;
 }
 
-.vehicle-card-header > div {
-  flex: 1;
+.vcard-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.vehicle-card-header h4 {
-  margin: 0 0 6px 0;
+.vcard-icon-box i {
+  font-size: 20px;
+}
+
+.blue-icon { background-color: #e8f0fe !important; color: #1a73e8 !important; }
+.green-icon { background-color: #e6f4ea !important; color: #1e8e3e !important; }
+.orange-icon { background-color: #fef7e0 !important; color: #f9ab00 !important; }
+
+.vcard-title {
+  margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a1a;
+  flex: 1;
+  color: #fff;
 }
 
-.vehicle-type-label {
-  display: inline-flex;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background-color: #ffe5df;
-  color: #d84c35;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 4px;
-  border: 1px solid #ffc3b9;
-}
-
-.remove-vehicle-button {
+.vcard-remove-btn {
   background: transparent;
-  border: none;
-  color: #ff6347;
+  border: 1px solid #666;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  transition: all 0.2s;
 }
 
-.remove-vehicle-button:hover {
-  background-color: #ffe5df;
-  color: #c62828;
+.vcard-remove-btn:hover {
+  background-color: #444;
+  border-color: #888;
 }
 
-.vehicle-card-body {
+.vcard-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.green-pill {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.vcard-body {
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 16px 20px;
-  flex: 1;
 }
 
-.vehicle-info-row {
+.vcard-info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  color: #666;
-  padding: 8px 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 10px 0;
+  border-bottom: 1px solid #444;
 }
 
-.vehicle-info-row:last-child {
+.vcard-info-row:last-child {
   border-bottom: none;
 }
 
-.vehicle-info-row strong {
-  color: #1a1a1a;
+.vcard-info-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.vcard-info-val {
   font-weight: 600;
-  text-align: right;
+  color: #fff;
+  font-size: 14px;
+}
+
+.vcard-info-val.not-set {
+  color: #888;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.vcard-footer {
+  background-color: #222;
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+}
+
+.vcard-date {
+  display: flex;
+  align-items: center;
 }
 
 .vehicle-empty-state {
