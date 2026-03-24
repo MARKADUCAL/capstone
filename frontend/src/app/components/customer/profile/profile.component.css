@@ -594,58 +594,67 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: #202124;
+  display: flex;
+  align-items: center;
 }
 
 .modal-close-btn {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #999;
+  background-color: transparent;
+  border: 1px solid #dadce0;
+  color: #5f6368;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
 .modal-close-btn:hover {
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: #f1f3f4;
+  color: #202124;
 }
 
-.vehicle-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
+.modal-section-header {
+  margin-bottom: 15px;
 }
 
-.modal-container .form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+.modal-section-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a73e8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.vehicle-form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+.input-wrapper select {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #202124;
+  transition: all 0.2s;
+  background-color: #fff;
+  min-width: 0;
+  appearance: none;
 }
 
-.ghost {
-  background-color: transparent;
-  color: #333;
-  border: 1px solid #ddd;
+.input-wrapper select:focus {
+  outline: none;
+  border-color: #ff6347;
+  box-shadow: 0 0 0 2px rgba(255, 99, 71, 0.2);
 }
 
 /* Responsive adjustments */

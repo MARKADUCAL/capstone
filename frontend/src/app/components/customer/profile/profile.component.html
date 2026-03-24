@@ -215,83 +215,109 @@
     <div class="modal-overlay" *ngIf="isAddingVehicle" (click)="cancelAddVehicle()">
       <div class="modal-container" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>🚗 Add Vehicle</h3>
-          <button type="button" class="modal-close-btn" (click)="cancelAddVehicle()">✕</button>
+          <h3><i class="material-icons" style="vertical-align: middle; color: #1a73e8; margin-right: 8px;">directions_car</i> Add Vehicle</h3>
+          <button type="button" class="modal-close-btn" (click)="cancelAddVehicle()">
+            <i class="material-icons" style="font-size: 18px;">close</i>
+          </button>
         </div>
         <form (ngSubmit)="addVehicle()">
-          <div class="vehicle-form-grid">
-            <div class="form-group">
+          <div class="modal-section-header">
+            <h4>VEHICLE INFO</h4>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group-with-icon">
               <label for="vehicleType">Vehicle Type</label>
-              <select
-                id="vehicleType"
-                name="vehicleType"
-                [(ngModel)]="newVehicle.vehicleType"
-                required
-              >
-                <option value="" disabled>Select vehicle type</option>
-                <option *ngFor="let type of vehicleTypes" [value]="type">
-                  {{ type }}
-                </option>
-              </select>
+              <div class="input-wrapper">
+                <div class="input-icon-box" style="background-color: #e8f0fe; color: #1a73e8;"><i class="material-icons">local_shipping</i></div>
+                <select
+                  id="vehicleType"
+                  name="vehicleType"
+                  [(ngModel)]="newVehicle.vehicleType"
+                  required
+                >
+                  <option value="" disabled>Select type</option>
+                  <option *ngFor="let type of vehicleTypes" [value]="type">
+                    {{ type }}
+                  </option>
+                </select>
+              </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group-with-icon">
               <label for="vehicleModel">Vehicle Model</label>
-              <input
-                type="text"
-                id="vehicleModel"
-                name="vehicleModel"
-                [(ngModel)]="newVehicle.vehicleModel"
-                required
-              />
+              <div class="input-wrapper">
+                <div class="input-icon-box" style="background-color: #e8f0fe; color: #1a73e8;"><i class="material-icons">badge</i></div>
+                <input
+                  type="text"
+                  id="vehicleModel"
+                  name="vehicleModel"
+                  [(ngModel)]="newVehicle.vehicleModel"
+                  placeholder="e.g. Toyota"
+                  required
+                />
+              </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group-with-icon">
               <label for="plateNumber">Plate Number</label>
-              <input
-                type="text"
-                id="plateNumber"
-                name="plateNumber"
-                [(ngModel)]="newVehicle.plateNumber"
-                required
-              />
+              <div class="input-wrapper">
+                <div class="input-icon-box" style="background-color: #e6f4ea; color: #1e8e3e;"><i class="material-icons">credit_card</i></div>
+                <input
+                  type="text"
+                  id="plateNumber"
+                  name="plateNumber"
+                  [(ngModel)]="newVehicle.plateNumber"
+                  placeholder="ABC-1234"
+                  required
+                />
+              </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group-with-icon">
               <label for="vehicleColor"
-                >Vehicle Color <span class="optional">(Optional)</span></label
+                >Vehicle Color <span class="optional" style="font-size: 11px; padding: 2px 6px; background-color: #f1f3f4; border-radius: 4px; margin-left: 4px;">Optional</span></label
               >
-              <input
-                type="text"
-                id="vehicleColor"
-                name="vehicleColor"
-                [(ngModel)]="newVehicle.vehicleColor"
-              />
+              <div class="input-wrapper">
+                <div class="input-icon-box" style="background-color: #fef7e0; color: #f9ab00;"><i class="material-icons">palette</i></div>
+                <input
+                  type="text"
+                  id="vehicleColor"
+                  name="vehicleColor"
+                  [(ngModel)]="newVehicle.vehicleColor"
+                  placeholder="e.g. White"
+                />
+              </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group-with-icon full-width">
               <label for="nickname"
-                >Nickname <span class="optional">(Optional)</span></label
+                >Nickname <span class="optional" style="font-size: 11px; padding: 2px 6px; background-color: #f1f3f4; border-radius: 4px; margin-left: 4px;">Optional</span></label
               >
-              <input
-                type="text"
-                id="nickname"
-                name="nickname"
-                [(ngModel)]="newVehicle.nickname"
-                placeholder="e.g. Family SUV"
-              />
+              <div class="input-wrapper">
+                <div class="input-icon-box" style="background-color: #f3e8fd; color: #9333ea;"><i class="material-icons">dashboard</i></div>
+                <input
+                  type="text"
+                  id="nickname"
+                  name="nickname"
+                  [(ngModel)]="newVehicle.nickname"
+                  placeholder="e.g. Family SUV"
+                />
+              </div>
             </div>
           </div>
 
-          <div class="vehicle-form-actions">
+          <div class="form-divider"></div>
+
+          <div class="form-actions">
             <button
               type="button"
-              class="cancel-button ghost"
+              class="cancel-button ghost-btn"
               (click)="cancelAddVehicle()"
             >
               Cancel
             </button>
-            <button type="submit" class="save-button">Save Vehicle</button>
+            <button type="submit" class="save-button"><i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 4px; margin-bottom: 2px;">save</i> Save Vehicle</button>
           </div>
         </form>
       </div>
