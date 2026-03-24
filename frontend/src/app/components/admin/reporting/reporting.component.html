@@ -6,7 +6,7 @@
       <div class="report-selector-group">
         <div class="selector-item">
           <label>Report Type:</label>
-            <select [(ngModel)]="reportType" class="selector-input" title="Report type">
+            <select [(ngModel)]="reportType" (change)="syncRevenueDetailsFromReportType()" class="selector-input" title="Report type">
               <option value="weekly">Weekly Report</option>
               <option value="monthly">Monthly Report</option>
             </select>
@@ -94,61 +94,22 @@
         <mat-card-title>Revenue Details</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="revenue-controls">
-          <div class="selector-input">
-            <label>View:</label>
-            <select
-              [(ngModel)]="revenueView"
-              (change)="onRevenueViewChange()"
-              class="selector-input"
-              title="Revenue view"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
-            </select>
-          </div>
-
-          <div class="selector-input" *ngIf="revenueView === 'monthly'">
-            <label>Select Month:</label>
-            <input
-              type="month"
-              [(ngModel)]="selectedRevenueMonth"
-              (change)="onRevenueMonthChange()"
-              class="selector-input"
-              title="Select month"
-            />
-            <span class="date-range">{{ getRevenueMonthDateRange() }}</span>
-          </div>
-
-          <div class="selector-input" *ngIf="revenueView === 'weekly'">
-            <label>Select Week:</label>
-            <input
-              type="week"
-              [(ngModel)]="selectedRevenueWeek"
-              (change)="onRevenueWeekChange()"
-              class="selector-input"
-              title="Select week"
-            />
-            <span class="date-range">{{ getRevenueWeekDateRange() }}</span>
-          </div>
-        </div>
-
         <div class="revenue-display">
           <div class="revenue-item">
             <div class="revenue-label">Total Revenue</div>
-            <div class="revenue-value" *ngIf="revenueView === 'monthly'">
+            <div class="revenue-value" *ngIf="reportType === 'monthly'">
               ₱{{ specificMonthRevenue | number: "1.0-0" }}
             </div>
-            <div class="revenue-value" *ngIf="revenueView === 'weekly'">
+            <div class="revenue-value" *ngIf="reportType === 'weekly'">
               ₱{{ specificWeekRevenue | number: "1.0-0" }}
             </div>
           </div>
           <div class="revenue-item">
             <div class="revenue-label">Completed Bookings</div>
-            <div class="revenue-value" *ngIf="revenueView === 'monthly'">
+            <div class="revenue-value" *ngIf="reportType === 'monthly'">
               {{ specificMonthBookings }}
             </div>
-            <div class="revenue-value" *ngIf="revenueView === 'weekly'">
+            <div class="revenue-value" *ngIf="reportType === 'weekly'">
               {{ specificWeekBookings }}
             </div>
           </div>
@@ -157,7 +118,7 @@
         <!-- Breakdown -->
         <div
           class="weekly-revenue-breakdown"
-          *ngIf="weeklyRevenueData.length > 0 && revenueView === 'monthly'"
+          *ngIf="weeklyRevenueData.length > 0 && reportType === 'monthly'"
         >
           <h4>Weekly Breakdown (for the month)</h4>
           <div class="weekly-revenue-table">
@@ -184,7 +145,7 @@
 
         <div
           class="weekly-revenue-breakdown"
-          *ngIf="weeklyRevenueData.length > 0 && revenueView === 'weekly'"
+          *ngIf="weeklyRevenueData.length > 0 && reportType === 'weekly'"
         >
           <h4>Daily Breakdown (for the week)</h4>
           <div class="weekly-revenue-table">

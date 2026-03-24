@@ -158,7 +158,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.loadServiceDistribution();
     this.loadWeeklyBookings();
     this.loadMonthlyBookings();
-    this.onRevenueViewChange();
+    // Load initial Revenue Details based on top-level reportType
+    this.syncRevenueDetailsFromReportType();
   }
 
   ngAfterViewInit(): void {
@@ -2064,6 +2065,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const week = parseInt(weekStr, 10);
     if (Number.isNaN(year) || Number.isNaN(week)) return;
     this.selectedReportWeekDate = this.getWeekStartDate(year, week);
+    // Sync Revenue Details with the newly selected week
+    this.selectedRevenueWeek = this.selectedReportWeek;
+    this.loadSpecificWeekRevenue();
   }
 
   onSelectedReportMonthChange(): void {
@@ -2073,6 +2077,22 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const month = parseInt(monthStr, 10);
     if (Number.isNaN(year) || Number.isNaN(month)) return;
     this.selectedReportMonthDate = new Date(year, month - 1, 1);
+    // Sync Revenue Details with the newly selected month
+    this.selectedRevenueMonth = this.selectedReportMonth;
+    this.loadSpecificMonthRevenue();
+  }
+
+  /** Loads Revenue Details data matching the current top-level reportType. */
+  syncRevenueDetailsFromReportType(): void {
+    this.revenueView = this.reportType;
+    this.weeklyRevenueData = [];
+    if (this.reportType === 'monthly') {
+      this.selectedRevenueMonth = this.selectedReportMonth;
+      this.loadSpecificMonthRevenue();
+    } else {
+      this.selectedRevenueWeek = this.selectedReportWeek;
+      this.loadSpecificWeekRevenue();
+    }
   }
 
   private getWeekStart(date: Date): Date {
