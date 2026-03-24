@@ -243,11 +243,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  box-sizing: border-box;
 }
 
 .form-group-with-icon {
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .form-group-with-icon.full-width {
@@ -265,6 +267,8 @@
   display: flex;
   align-items: stretch;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-icon-box {
@@ -294,6 +298,8 @@
   transition: all 0.2s;
   background-color: #fff;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-wrapper input:focus {
@@ -582,6 +588,7 @@ button:disabled {
   max-width: 560px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.25s ease;
+  box-sizing: border-box;
 }
 
 @keyframes slideUp {
@@ -648,6 +655,8 @@ button:disabled {
   transition: all 0.2s;
   background-color: #fff;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   appearance: none;
 }
 
