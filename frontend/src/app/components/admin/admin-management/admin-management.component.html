@@ -1,15 +1,26 @@
 <div class="admin-container">
   <div class="header">
     <h2>Admin Management</h2>
-    <button
-      mat-raised-button
-      color="primary"
-      class="add-admin-btn"
-      (click)="openAddAdminModal()"
-    >
-      <mat-icon>person_add</mat-icon>
-      Add New Admin
-    </button>
+    <div class="header-actions">
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Search admins..."
+        />
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        class="add-admin-btn"
+        (click)="openAddAdminModal()"
+      >
+        <mat-icon>person_add</mat-icon>
+        Add New Admin
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -30,14 +41,14 @@
   }
 
   <!-- Empty State -->
-  @if (!loading && !error && admins.length === 0) {
+  @if (!loading && !error && filteredAdmins.length === 0) {
     <div class="empty-container">
-      <p>No admins found.</p>
+      <p>No admins found matching your search.</p>
     </div>
   }
 
   <!-- Admins Table -->
-  @if (!loading && !error && admins.length > 0) {
+  @if (!loading && !error && filteredAdmins.length > 0) {
     <div class="table-container">
       <table class="admin-table">
         <thead>
@@ -52,7 +63,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (admin of admins; track admin.id) {
+          @for (admin of paginatedAdmins; track admin.id) {
             <tr>
               <td class="admin-id" data-label="ID">
                 {{ admin.adminId || "N/A" }}
@@ -97,6 +108,13 @@
           }
         </tbody>
       </table>
+      
+      <!-- Pagination Controls -->
+      <div class="pagination-controls">
+        <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button mat-button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+      </div>
     </div>
   }
 

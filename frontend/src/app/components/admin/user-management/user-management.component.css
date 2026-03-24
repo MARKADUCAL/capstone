@@ -21,6 +21,61 @@
   font-weight: 600;
 }
 
+/* Search and Header actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  width: 250px;
+  transition: border-color 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: #667eea;
+}
+
+.search-bar mat-icon {
+  color: #666;
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  gap: 15px;
+}
+
+.pagination-controls span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
 /* Table Styles */
 .table-container {
   background: white;

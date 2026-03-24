@@ -69,6 +69,11 @@ export class EmployeeManagementComponent implements OnInit {
   error: string | null = null;
   private apiUrl = environment.apiUrl;
 
+  // Pagination & Search
+  searchTerm: string = '';
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+
   // Add state for view modal
   selectedEmployee: Employee | null = null;
   isViewModalOpen: boolean = false;
@@ -680,6 +685,45 @@ export class EmployeeManagementComponent implements OnInit {
       email: '',
       avatarUrl: null,
     };
+  }
+
+  get filteredEmployees(): Employee[] {
+    if (!this.searchTerm) return this.employees;
+    const term = this.searchTerm.toLowerCase();
+    return this.employees.filter(
+      (e) =>
+        e.name.toLowerCase().includes(term) ||
+        (e.email && e.email.toLowerCase().includes(term)) ||
+        (e.employeeId && e.employeeId.toLowerCase().includes(term))
+    );
+  }
+
+  get paginatedEmployees(): Employee[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredEmployees.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredEmployees.length / this.itemsPerPage));
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
   }
 
   private showNotification(message: string): void {

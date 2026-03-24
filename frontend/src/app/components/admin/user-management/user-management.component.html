@@ -1,10 +1,21 @@
 <div class="users-container">
   <div class="header">
     <h2>Customer Management</h2>
-    <button mat-raised-button color="primary" (click)="addUser()">
-      <mat-icon>add</mat-icon>
-      Add New Customer
-    </button>
+    <div class="header-actions">
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Search customers..."
+        />
+      </div>
+      <button mat-raised-button color="primary" (click)="addUser()">
+        <mat-icon>add</mat-icon>
+        Add New Customer
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -25,14 +36,14 @@
   }
 
   <!-- Empty State -->
-  @if (!loading && !error && users.length === 0) {
+  @if (!loading && !error && filteredUsers.length === 0) {
   <div class="empty-container">
-    <p>No customers found.</p>
+    <p>No customers found matching your search.</p>
   </div>
   }
 
   <!-- Customers Table -->
-  @if (!loading && !error && users.length > 0) {
+  @if (!loading && !error && filteredUsers.length > 0) {
   <div class="table-container">
     <table class="customer-table">
       <thead>
@@ -46,7 +57,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of users; track user.id) {
+        @for (user of paginatedUsers; track user.id) {
         <tr>
           <td class="customer-id" data-label="ID">{{ user.id }}</td>
           <td class="customer-name" data-label="Name">
@@ -98,6 +109,13 @@
         }
       </tbody>
     </table>
+    
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button mat-button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+    </div>
   </div>
   }
 

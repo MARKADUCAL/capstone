@@ -70,6 +70,11 @@ export class UserManagementComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
 
+  // Pagination & Search
+  searchTerm: string = '';
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+
   // State for view and edit modals
   selectedUser: User | null = null;
   isViewModalOpen: boolean = false;
@@ -465,6 +470,46 @@ export class UserManagementComponent implements OnInit {
     }
 
     return `${hours}:${minutes} ${ampm}`;
+  }
+
+  get filteredUsers(): User[] {
+    if (!this.searchTerm) return this.users;
+    const term = this.searchTerm.toLowerCase();
+    return this.users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(term) ||
+        (u.email && u.email.toLowerCase().includes(term)) ||
+        (u.phone && u.phone.includes(term)) ||
+        (u.id && u.id.toString().includes(term))
+    );
+  }
+
+  get paginatedUsers(): User[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredUsers.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.itemsPerPage));
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
   }
 
   private showNotification(message: string): void {

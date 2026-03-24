@@ -48,6 +48,11 @@ export class AdminManagementComponent implements OnInit {
   error: string | null = null;
   private apiUrl = environment.apiUrl;
 
+  // Pagination & Search
+  searchTerm: string = '';
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+
   // Add state for view modal
   selectedAdmin: Admin | null = null;
   isViewModalOpen: boolean = false;
@@ -238,6 +243,45 @@ export class AdminManagementComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  get filteredAdmins(): Admin[] {
+    if (!this.searchTerm) return this.admins;
+    const term = this.searchTerm.toLowerCase();
+    return this.admins.filter(
+      (a) =>
+        a.name.toLowerCase().includes(term) ||
+        a.email.toLowerCase().includes(term) ||
+        (a.adminId && a.adminId.toLowerCase().includes(term))
+    );
+  }
+
+  get paginatedAdmins(): Admin[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredAdmins.slice(
+      startIndex,
+      startIndex + this.itemsPerPage
+    );
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredAdmins.length / this.itemsPerPage));
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
   }
 
   private showNotification(message: string): void {
