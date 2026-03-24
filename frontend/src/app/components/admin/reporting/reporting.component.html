@@ -66,7 +66,7 @@
           </div>
           <div class="stat-details">
             <h3>Weekly Revenue</h3>
-            <p class="stat-value">₱{{ revenueData.weekly }}</p>
+            <p class="stat-value"> ₱{{ specificWeekRevenue | number: "1.0-0" }}</p>
           </div>
         </div>
       </mat-card-content>
@@ -80,7 +80,7 @@
           </div>
           <div class="stat-details">
             <h3>Monthly Revenue</h3>
-            <p class="stat-value">₱{{ revenueData.monthly }}</p>
+            <p class="stat-value">  ₱{{ specificMonthRevenue | number: "1.0-0" }}</p>
           </div>
         </div>
       </mat-card-content>
@@ -130,7 +130,7 @@
               <div class="table-cell header-cell">Bookings</div>
             </div>
             <div class="table-rows">
-              <div class="table-row" *ngFor="let weekData of weeklyRevenueData">
+              <div class="table-row" *ngFor="let weekData of weeklyRevenueData | slice:0:10">
                 <div class="table-cell">Week {{ weekData.week }}</div>
                 <div class="table-cell">{{ weekData.startDate }}</div>
                 <div class="table-cell">{{ weekData.endDate }}</div>
@@ -155,7 +155,7 @@
               <div class="table-cell header-cell">Bookings</div>
             </div>
             <div class="table-rows">
-              <div class="table-row" *ngFor="let dayData of weeklyRevenueData">
+              <div class="table-row" *ngFor="let dayData of weeklyRevenueData | slice:0:10">
                 <div class="table-cell">{{ dayData.startDate }}</div>
                 <div class="table-cell">
                   ₱{{ dayData.revenue | number: "1.0-0" }}
