@@ -56,36 +56,6 @@
     </div>
   </div>
 
-  <!-- Revenue Cards -->
-  <div class="stats-grid">
-    <mat-card class="stats-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon">
-            <mat-icon>calendar_today</mat-icon>
-          </div>
-          <div class="stat-details">
-            <h3>Weekly Revenue</h3>
-            <p class="stat-value"> ₱{{ specificWeekRevenue | number: "1.0-0" }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stats-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon">
-            <mat-icon>date_range</mat-icon>
-          </div>
-          <div class="stat-details">
-            <h3>Monthly Revenue</h3>
-            <p class="stat-value">  ₱{{ specificMonthRevenue | number: "1.0-0" }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
 
   <!-- Revenue Details (simplified: choose Weekly or Monthly) -->
   <div class="revenue-selector-section">
@@ -94,25 +64,36 @@
         <mat-card-title>Revenue Details</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="revenue-display">
-          <div class="revenue-item">
-            <div class="revenue-label">Total Revenue</div>
-            <div class="revenue-value" *ngIf="reportType === 'monthly'">
-              ₱{{ specificMonthRevenue | number: "1.0-0" }}
-            </div>
-            <div class="revenue-value" *ngIf="reportType === 'weekly'">
-              ₱{{ specificWeekRevenue | number: "1.0-0" }}
-            </div>
-          </div>
-          <div class="revenue-item">
-            <div class="revenue-label">Completed Bookings</div>
-            <div class="revenue-value" *ngIf="reportType === 'monthly'">
-              {{ specificMonthBookings }}
-            </div>
-            <div class="revenue-value" *ngIf="reportType === 'weekly'">
-              {{ specificWeekBookings }}
-            </div>
-          </div>
+        <div class="stats-grid" style="margin-bottom: 24px;">
+          <mat-card class="stats-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon">
+                  <mat-icon>payments</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <h3>Total Revenue</h3>
+                  <p class="stat-value" *ngIf="reportType === 'monthly'">₱{{ specificMonthRevenue | number: "1.0-0" }}</p>
+                  <p class="stat-value" *ngIf="reportType === 'weekly'">₱{{ specificWeekRevenue | number: "1.0-0" }}</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stats-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon">
+                  <mat-icon>check_circle</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <h3>Completed Bookings</h3>
+                  <p class="stat-value" *ngIf="reportType === 'monthly'">{{ specificMonthBookings }}</p>
+                  <p class="stat-value" *ngIf="reportType === 'weekly'">{{ specificWeekBookings }}</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </div>
 
         <!-- Breakdown -->
