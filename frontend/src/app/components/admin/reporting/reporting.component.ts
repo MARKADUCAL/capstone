@@ -1502,31 +1502,39 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       pdf.text('— SERVICES BREAKDOWN', margin, y);
       y += 10;
 
-      const maxWashes = Math.max(1, ...report.service_breakdown.map((s) => s.washes));
-      for (const svc of report.service_breakdown) {
-        const pct = maxWashes > 0 ? (svc.washes / maxWashes) * 100 : 0;
-        pdf.setTextColor(50, 50, 50);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(svc.service_name, margin, y + 4);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(9);
-        pdf.setTextColor(...LIGHT_GRAY);
-        pdf.text(`${svc.washes} washes`, margin + 2, y + 9);
-        const barW = 60;
-        const barH = 4;
-        pdf.setFillColor(230, 230, 230);
-        pdf.rect(margin + 55, y, barW, barH, 'F');
-        pdf.setFillColor(...DARK_BLUE);
-        pdf.rect(margin + 55, y, (barW * pct) / 100, barH, 'F');
-        pdf.setTextColor(50, 50, 50);
-        pdf.setFontSize(9);
-        pdf.text(
-          `${PESO}${svc.revenue.toLocaleString()} (${svc.percentage}%)`,
-          margin + 55 + barW + 6,
-          y + 3.5,
-        );
+      if (report.completed_bookings === 0 || !report.service_breakdown || report.service_breakdown.length === 0) {
+        pdf.setTextColor(150, 150, 150);
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'italic');
+        pdf.text('No services completed for this period.', margin, y + 4);
         y += 14;
+      } else {
+        const maxWashes = Math.max(1, ...report.service_breakdown.map((s) => s.washes));
+        for (const svc of report.service_breakdown) {
+          const pct = maxWashes > 0 ? (svc.washes / maxWashes) * 100 : 0;
+          pdf.setTextColor(50, 50, 50);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(svc.service_name, margin, y + 4);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(9);
+          pdf.setTextColor(...LIGHT_GRAY);
+          pdf.text(`${svc.washes} washes`, margin + 2, y + 9);
+          const barW = 60;
+          const barH = 4;
+          pdf.setFillColor(230, 230, 230);
+          pdf.rect(margin + 55, y, barW, barH, 'F');
+          pdf.setFillColor(...DARK_BLUE);
+          pdf.rect(margin + 55, y, (barW * pct) / 100, barH, 'F');
+          pdf.setTextColor(50, 50, 50);
+          pdf.setFontSize(9);
+          pdf.text(
+            `${PESO}${svc.revenue.toLocaleString()} (${svc.percentage}%)`,
+            margin + 55 + barW + 6,
+            y + 3.5,
+          );
+          y += 14;
+        }
       }
       y += 8;
 
