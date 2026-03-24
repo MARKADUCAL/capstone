@@ -61,94 +61,81 @@
     <!-- Edit Mode -->
     <form *ngIf="isEditing" (ngSubmit)="saveProfile()">
       <div class="form-section">
-        <h3>Personal Information</h3>
-
-        <div class="form-group">
-          <label for="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            [(ngModel)]="profile.first_name"
-            required
-          />
+        <div class="section-header">
+          <h3>Personal Information</h3>
         </div>
 
-        <div class="form-group">
-          <label for="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            name="lastName"
-            [(ngModel)]="profile.last_name"
-            required
-          />
-        </div>
+        <div class="form-grid">
+          <div class="form-group-with-icon">
+            <label for="firstName">First Name</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box user-icon"><i class="material-icons">person</i></div>
+              <input type="text" id="firstName" name="firstName" [(ngModel)]="profile.first_name" required />
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="profile.email"
-            required
-            disabled
-          />
-        </div>
+          <div class="form-group-with-icon">
+            <label for="lastName">Last Name</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box user-icon"><i class="material-icons">person</i></div>
+              <input type="text" id="lastName" name="lastName" [(ngModel)]="profile.last_name" required />
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label for="phone">Phone</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            [(ngModel)]="profile.phone"
-          />
+          <div class="form-group-with-icon full-width">
+            <label for="email">Email</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box email-icon"><i class="material-icons">email</i></div>
+              <input type="email" id="email" name="email" [(ngModel)]="profile.email" required disabled />
+            </div>
+          </div>
+
+          <div class="form-group-with-icon full-width">
+            <label for="phone">Phone</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box phone-icon"><i class="material-icons">phone</i></div>
+              <input type="tel" id="phone" name="phone" [(ngModel)]="profile.phone" />
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="form-section">
-        <h3>Change Password <span class="optional">(Optional)</span></h3>
-
-        <div class="form-group">
-          <label for="currentPassword">Current Password</label>
-          <input
-            type="password"
-            id="currentPassword"
-            name="currentPassword"
-            [(ngModel)]="currentPassword"
-          />
+        <div class="section-header">
+          <h3>Change Password <span class="optional">(Optional)</span></h3>
         </div>
 
-        <div class="form-group">
-          <label for="newPassword">New Password</label>
-          <input
-            type="password"
-            id="newPassword"
-            name="newPassword"
-            [(ngModel)]="newPassword"
-          />
-        </div>
+        <div class="form-grid">
+          <div class="form-group-with-icon full-width">
+            <label for="currentPassword">Current Password</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
+              <input type="password" id="currentPassword" name="currentPassword" [(ngModel)]="currentPassword" placeholder="Enter current password" />
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label for="confirmPassword">Confirm New Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            [(ngModel)]="confirmPassword"
-          />
+          <div class="form-group-with-icon">
+            <label for="newPassword">New Password</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
+              <input type="password" id="newPassword" name="newPassword" [(ngModel)]="newPassword" placeholder="New password" />
+            </div>
+          </div>
+
+          <div class="form-group-with-icon">
+            <label for="confirmPassword">Confirm New Password</label>
+            <div class="input-wrapper">
+              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
+              <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirm password" />
+            </div>
+          </div>
         </div>
       </div>
+      
+      <div class="form-divider"></div>
 
       <div class="form-actions">
-        <button
-          type="button"
-          class="cancel-button"
-          (click)="cancelEdit()"
-          [disabled]="isSaving"
-        >
+        <button type="button" class="cancel-button ghost-btn" (click)="cancelEdit()" [disabled]="isSaving">
           Cancel
         </button>
         <button type="submit" class="save-button" [disabled]="isSaving">
