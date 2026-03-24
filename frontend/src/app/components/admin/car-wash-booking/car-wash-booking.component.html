@@ -8,6 +8,15 @@
       </div>
     </div>
     <div class="header-right">
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Search bookings..."
+        />
+      </div>
       <button
         mat-raised-button
         color="primary"

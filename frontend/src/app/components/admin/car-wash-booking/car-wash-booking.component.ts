@@ -296,6 +296,8 @@ export class CarWashBookingComponent implements OnInit {
   error: string | null = null;
   private apiUrl = environment.apiUrl;
 
+  searchTerm: string = '';
+
   constructor(
     private bookingService: BookingService,
     private feedbackService: FeedbackService,
@@ -1014,9 +1016,31 @@ export class CarWashBookingComponent implements OnInit {
 
   getBookingsByStatus(status: CarWashBooking['status']): CarWashBooking[] {
     const normalized = (status || '').toLowerCase();
-    return this.bookings.filter(
+    let filtered = this.bookings.filter(
       (booking) => (booking.status || '').toLowerCase() === normalized
     );
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (b) =>
+          (b.customerName && b.customerName.toLowerCase().includes(term)) ||
+          (b.id && b.id.toString().includes(term)) ||
+          (b.vehicleType && b.vehicleType.toLowerCase().includes(term)) ||
+          (b.plateNumber && b.plateNumber.toLowerCase().includes(term)) ||
+          (b.phone && b.phone.includes(term)) ||
+          (b.serviceType && b.serviceType.toLowerCase().includes(term))
+      );
+    }
+
+    return filtered;
+  }
+
+  onSearchChange(): void {
+    // Reset pagination when search changes
+    this.statusSections.forEach(section => {
+      this.pageIndexByStatus[section.value] = 0;
+    });
   }
 
   toggleMobileMenu(): void {
