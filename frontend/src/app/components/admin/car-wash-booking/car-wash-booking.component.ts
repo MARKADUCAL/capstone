@@ -1029,7 +1029,10 @@ export class CarWashBookingComponent implements OnInit {
           (b.vehicleType && b.vehicleType.toLowerCase().includes(term)) ||
           (b.plateNumber && b.plateNumber.toLowerCase().includes(term)) ||
           (b.phone && b.phone.includes(term)) ||
-          (b.serviceType && b.serviceType.toLowerCase().includes(term))
+          (b.serviceType && b.serviceType.toLowerCase().includes(term)) ||
+          (b.status && b.status.toLowerCase().includes(term)) ||
+          (b.price !== undefined && b.price !== null && b.price.toString().includes(term)) ||
+          (b.serviceName && b.serviceName.toLowerCase().includes(term))
       );
     }
 
