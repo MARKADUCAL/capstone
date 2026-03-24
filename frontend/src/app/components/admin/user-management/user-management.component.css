@@ -34,14 +34,16 @@
   align-items: center;
   background: white;
   border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 24px;
+  padding: 8px 16px;
   width: 250px;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .search-bar:focus-within {
   border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
 }
 
 .search-bar mat-icon {
