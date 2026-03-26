@@ -853,4 +853,71 @@ export class EmployeeManagementComponent implements OnInit {
       }
     });
   }
+
+  resendPassword(employee: Employee): void {
+    Swal.fire({
+      title: 'Resend Password?',
+      html: `
+        <div style="text-align: left; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #475569;">
+            You are about to generate a new password for <br><strong>${employee.name}</strong> and send it to <strong>${employee.email}</strong>.
+          </p>
+          <p style="margin: 0; color: #d97706; font-size: 14px; font-weight: bold;">
+            Their current password will become invalid.
+          </p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Send Email',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Sending...',
+          text: 'Please wait while the password is being generated and sent.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        this.http
+          .post(`${this.apiUrl}/resend_employee_password`, { id: employee.id })
+          .subscribe({
+            next: (response: any) => {
+              if (response?.status?.remarks === 'success') {
+                Swal.fire({
+                  title: 'Success!',
+                  text: 'A new password has been successfully sent to the employee.',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#16a34a',
+                });
+              } else {
+                Swal.fire({
+                  title: 'Error!',
+                  text: response?.status?.message || 'Failed to resend password',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#dc2626',
+                });
+              }
+            },
+            error: (error) => {
+              console.error('Error resending password:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.status?.message || 'Failed to resend password. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            },
+          });
+      }
+    });
+  }
 }

@@ -876,6 +876,9 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
+                // Send email
+                $this->send_employee_credentials_email($data->email, $data->first_name, $data->password, $employeeIdToUse);
+                
                 return $this->sendPayload(null, "success", "Employee successfully registered", 200);
 
             } else {
@@ -906,7 +909,110 @@ class Post extends GlobalMethods
 
     }
 
+    public function resend_employee_password($data) {
+        if (empty($data->id)) {
+            return $this->sendPayload(null, "failed", "Employee ID is required", 400);
+        }
 
+        try {
+            // Check if employee exists
+            $sql = "SELECT * FROM employees WHERE id = ?";
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute([$data->id]);
+            $employee = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$employee) {
+                return $this->sendPayload(null, "failed", "Employee not found", 404);
+            }
+
+            // Generate new 8-character password
+            $newPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'), 0, 8);
+            $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+
+            // Update in DB
+            $updateSql = "UPDATE employees SET password = ? WHERE id = ?";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([$hashedPassword, $data->id]);
+
+            if ($updateStmt->rowCount() > 0 || $updateStmt->errorCode() === '00000') {
+                // Send email
+                $emailSent = $this->send_employee_credentials_email($employee['email'], $employee['first_name'], $newPassword, $employee['employee_id']);
+                
+                if ($emailSent) {
+                    return $this->sendPayload(null, "success", "New password generated and sent successfully", 200);
+                } else {
+                    return $this->sendPayload(null, "failed", "Password updated but failed to send email", 500);
+                }
+            } else {
+                return $this->sendPayload(null, "failed", "Failed to update password", 500);
+            }
+
+        } catch (\PDOException $e) {
+            error_log("Resend employee password error: " . $e->getMessage());
+            return $this->sendPayload(null, "failed", "Database error occurred.", 500);
+        }
+    }
+
+    private function send_employee_credentials_email($email, $firstName, $password, $employeeId) {
+        $resendApiKey = getenv('RESEND_API_KEY') ?: 're_7Jar2b4P_7TeShgpVfkHDwP1d8Dhoir5T';
+        $resendFromEmail = getenv('RESEND_FROM_EMAIL') ?: 'onboarding@resend.dev';
+        $resendFromName = getenv('RESEND_FROM_NAME') ?: 'Leydi Boss';
+        
+        $htmlContent = "
+            <h2>Welcome to Leydi Boss!</h2>
+            <p>Hi " . htmlspecialchars($firstName) . ",</p>
+            <p>Your employee account has been created or your password has been reset. Here are your credentials:</p>
+            <ul>
+                <li><strong>Employee ID:</strong> " . htmlspecialchars($employeeId) . "</li>
+                <li><strong>Email:</strong> " . htmlspecialchars($email) . "</li>
+                <li><strong>Password:</strong> " . htmlspecialchars($password) . "</li>
+            </ul>
+            <p>Please log in and change your password as soon as possible.</p>
+            <p>Best regards,<br>Leydi Boss Team</p>
+        ";
+        
+        $payload = [
+            'from' => $resendFromName . ' <' . $resendFromEmail . '>',
+            'to' => $email,
+            'subject' => 'Your Employee Account Credentials',
+            'html' => $htmlContent
+        ];
+        
+        if (!function_exists('curl_init')) {
+            error_log('cURL is not available');
+            return false;
+        }
+        
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $resendApiKey,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        if ($curlError) {
+            error_log('Resend API cURL error for ' . $email . ': ' . $curlError);
+            return false;
+        }
+        
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        } else {
+            error_log('Resend API error for ' . $email . ' (HTTP ' . $httpCode . '): ' . $response);
+            return false;
+        }
+    }
 
     /**
 

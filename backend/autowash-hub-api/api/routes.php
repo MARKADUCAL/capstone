@@ -686,6 +686,12 @@ if ($method === 'POST') {
         exit();
     }
     
+    if (strpos($request, 'resend_employee_password') !== false) {
+        $result = $post->resend_employee_password($data);
+        echo json_encode($result);
+        exit();
+    }
+    
     if (strpos($request, 'login_employee') !== false) {
         $result = $post->login_employee($data);
         echo json_encode($result);

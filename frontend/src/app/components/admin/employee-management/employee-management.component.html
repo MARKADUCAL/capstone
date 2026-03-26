@@ -103,6 +103,14 @@
                     <mat-icon>lock_reset</mat-icon>
                   </button>
                   <button
+                    class="action-btn resend-btn"
+                    style="color: #6366f1;"
+                    (click)="resendPassword(employee)"
+                    title="Resend Password Email"
+                  >
+                    <mat-icon>mail</mat-icon>
+                  </button>
+                  <button
                     class="action-btn delete-btn"
                     (click)="deleteEmployee(employee)"
                     title="Delete Employee"
