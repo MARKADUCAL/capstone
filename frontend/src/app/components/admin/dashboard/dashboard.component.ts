@@ -289,15 +289,15 @@ export class DashboardComponent implements OnInit {
           <div style="text-align: left; margin: 20px 0;">
             <p style="margin-bottom: 15px;">You're logged in to the Admin Dashboard for the first time. Here are some important recommendations:</p>
 
-            <div style="background-color: #fff3cd; border-left: 4px solid #f44336; padding: 15px; margin-top: 15px; border-radius: 4px;">
-              <p style="font-weight: 700; color: #c62828; margin-bottom: 8px;">🔐 Important: Change Your Password!</p>
-              <p style="margin: 0; font-size: 14px; color: #555;">For your account security, please <strong>change your password</strong> immediately. Do not use the default password assigned to you. Go to <strong>Profile &gt; Change Password</strong> now.</p>
+            <div style="background-color: #f0f7ff; border-left: 4px solid #42a5f5; padding: 15px; margin-top: 15px; border-radius: 4px;">
+              <p style="font-weight: 600; color: #1565c0; margin-bottom: 8px;">🔑 Set Up Your Account</p>
+              <p style="margin: 0; font-size: 14px; color: #555;">As a first step, we recommend updating your password to something personal and memorable. You can do this anytime by going to <strong>Profile &gt; Change Password</strong>.</p>
             </div>
 
             <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
               <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">🚀 Getting Started Checklist:</p>
               <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 14px;">
-                <li style="margin-bottom: 8px;"><strong>Change Your Password</strong> - Go to Profile &gt; Change Password</li>
+                <li style="margin-bottom: 8px;"><strong>Set Your Password</strong> - Go to Profile &gt; Change Password</li>
                 <li style="margin-bottom: 8px;"><strong>Update Your Profile</strong> - Update your contact information</li>
                 <li style="margin-bottom: 8px;"><strong>Review Dashboard Metrics</strong> - Understand your business statistics</li>
                 <li style="margin-bottom: 8px;"><strong>Manage Employees</strong> - Add and organize your team</li>
