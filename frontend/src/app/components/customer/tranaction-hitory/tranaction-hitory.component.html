@@ -169,6 +169,7 @@
       *ngFor="let booking of filteredBookings; trackBy: trackByBooking"
       [matTooltip]="getStatusDefinition(booking.status)"
       matTooltipPosition="above"
+      matTooltipTouchGestures="on"
     >
       <div class="card-header">
         <div class="booking-id">
