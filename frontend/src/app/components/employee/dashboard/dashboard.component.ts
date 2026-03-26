@@ -201,11 +201,11 @@ export class DashboardComponent implements OnInit {
         title: `Welcome ${employeeName}! 👋`,
         html: `
           <div style="text-align: left; margin: 20px 0;">
-            <p style="margin-bottom: 15px;">You're now part of our team! Here's what you should do on your first day:</p>
+            <p style="margin-bottom: 15px;">You're now part of our team! Here's what we recommend doing on your first day:</p>
 
             <div style="background-color: #f0f7ff; border-left: 4px solid #42a5f5; padding: 15px; margin-top: 15px; border-radius: 4px;">
               <p style="font-weight: 600; color: #1565c0; margin-bottom: 8px;">🔑 Set Up Your Account</p>
-              <p style="margin: 0; font-size: 14px; color: #555;">As a first step, we recommend updating your password to something personal and memorable. You can do this anytime by going to <strong>Profile &gt; Change Password</strong>.</p>
+              <p style="margin: 0; font-size: 14px; color: #555;">We recommend updating your password to something personal and memorable. You can do this anytime by going to <strong>Profile &gt; Change Password</strong>.</p>
             </div>
 
             <div style="background-color: #f0f7ff; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 4px;">
