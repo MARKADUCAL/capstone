@@ -278,6 +278,36 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+.auto-refresh-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.refresh-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  opacity: 0.9;
+  animation: spin 4s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .calendar-grid {
   background: white;
   border-left: 4px solid #2563eb;

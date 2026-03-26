@@ -244,7 +244,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   private autoRefreshSub: Subscription | null = null;
-  private readonly autoRefreshMs = 30_000;
+  private readonly autoRefreshMs = 60_000; // 1 minute
 
   ngOnInit(): void {
     this.loadDashboardData();
