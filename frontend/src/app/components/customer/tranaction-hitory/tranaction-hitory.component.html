@@ -167,6 +167,8 @@
     <div
       class="transaction-card"
       *ngFor="let booking of filteredBookings; trackBy: trackByBooking"
+      [matTooltip]="getStatusDefinition(booking.status)"
+      matTooltipPosition="above"
     >
       <div class="card-header">
         <div class="booking-id">
@@ -183,15 +185,11 @@
         <div
           class="status-badge"
           [ngClass]="'status-' + normalizeStatus(booking.status)"
-          [matTooltip]="getStatusDefinition(booking.status)"
-          matTooltipPosition="above"
-          matTooltipTouchGestures="on"
         >
           <span class="status-icon">{{
             getStatusIcon(normalizeStatus(booking.status))
           }}</span>
           {{ displayStatus(booking.status) }}
-          <span class="info-badge-icon">ℹ️</span>
         </div>
       </div>
 

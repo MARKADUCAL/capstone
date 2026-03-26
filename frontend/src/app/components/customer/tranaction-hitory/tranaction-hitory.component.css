@@ -416,6 +416,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #f1f5f9;
+  cursor: help;
 }
 
 .transaction-card:hover {
@@ -452,13 +453,6 @@
   gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  cursor: help;
-}
-
-.info-badge-icon {
-  font-size: 10px;
-  opacity: 0.7;
-  margin-left: 2px;
 }
 
 .status-badge.status-completed {
