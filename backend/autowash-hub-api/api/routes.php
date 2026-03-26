@@ -674,6 +674,12 @@ if ($method === 'POST') {
         exit();
     }
     
+    if (strpos($request, 'resend_admin_password') !== false) {
+        $result = $post->resend_admin_password($data);
+        echo json_encode($result);
+        exit();
+    }
+    
     if (strpos($request, 'login_admin') !== false) {
         $result = $post->login_admin($data);
         echo json_encode($result);
