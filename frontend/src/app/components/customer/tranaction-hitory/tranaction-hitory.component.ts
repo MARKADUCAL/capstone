@@ -165,6 +165,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
         return 'Your booking was declined by the car wash facility';
       case 'expired':
         return 'Your booking slot has expired and is no longer available';
+      case 'all':
+        return 'View all your car wash bookings';
       default:
         return 'Booking status information';
     }

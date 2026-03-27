@@ -28,63 +28,84 @@
   <div class="filter-section">
     <div class="filter-tabs">
       <button
+        #tAll="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'all'"
-        (click)="setFilter('all')"
+        (click)="setFilter('all'); tAll.show()"
+        [matTooltip]="getStatusDefinition('all')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">📋</span>
         <span class="tab-text">All</span>
         <span class="tab-count">{{ bookings.length }}</span>
       </button>
       <button
+        #tPending="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'pending'"
-        (click)="setFilter('pending')"
+        (click)="setFilter('pending'); tPending.show()"
+        [matTooltip]="getStatusDefinition('pending')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">⏳</span>
         <span class="tab-text">Pending</span>
         <span class="tab-count">{{ getFilterCount("pending") }}</span>
       </button>
       <button
+        #tApproved="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'approved'"
-        (click)="setFilter('approved')"
+        (click)="setFilter('approved'); tApproved.show()"
+        [matTooltip]="getStatusDefinition('approved')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">✅</span>
         <span class="tab-text">Ongoing</span>
         <span class="tab-count">{{ getFilterCount("approved") }}</span>
       </button>
       <button
+        #tCompleted="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'completed'"
-        (click)="setFilter('completed')"
+        (click)="setFilter('completed'); tCompleted.show()"
+        [matTooltip]="getStatusDefinition('completed')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">🎉</span>
         <span class="tab-text">Completed</span>
         <span class="tab-count">{{ getFilterCount("completed") }}</span>
       </button>
       <button
+        #tCancelled="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'cancelled'"
-        (click)="setFilter('cancelled')"
+        (click)="setFilter('cancelled'); tCancelled.show()"
+        [matTooltip]="getStatusDefinition('cancelled')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">❌</span>
         <span class="tab-text">Cancelled</span>
         <span class="tab-count">{{ getFilterCount("cancelled") }}</span>
       </button>
       <button
+        #tRejected="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'rejected'"
-        (click)="setFilter('rejected')"
+        (click)="setFilter('rejected'); tRejected.show()"
+        [matTooltip]="getStatusDefinition('rejected')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">🚫</span>
         <span class="tab-text">Declined</span>
         <span class="tab-count">{{ getFilterCount("rejected") }}</span>
       </button>
       <button
+        #tExpired="matTooltip"
         class="filter-tab"
         [class.active]="currentFilter === 'expired'"
-        (click)="setFilter('expired')"
+        (click)="setFilter('expired'); tExpired.show()"
+        [matTooltip]="getStatusDefinition('expired')"
+        matTooltipPosition="below"
       >
         <span class="tab-icon">⌛</span>
         <span class="tab-text">Expired</span>
@@ -167,8 +188,6 @@
     <div
       class="transaction-card"
       *ngFor="let booking of filteredBookings; trackBy: trackByBooking"
-      [matTooltip]="getStatusDefinition(booking.status)"
-      matTooltipPosition="above"
     >
       <div class="card-header">
         <div class="booking-id">
