@@ -88,6 +88,35 @@ export class LandingEditorComponent implements OnInit {
 
   // Gallery upload properties
   isUploadingGallery: boolean[] = [];
+  editingGalleryIndex: number | null = null;
+  hoveredGalleryIndex: number | null = null;
+
+  toggleEditGallery(index: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.editingGalleryIndex === index) {
+      this.editingGalleryIndex = null;
+    } else {
+      this.editingGalleryIndex = index;
+    }
+  }
+
+  cancelEditGallery(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.editingGalleryIndex = null;
+  }
+
+  getImageTitle(url: string | undefined): string {
+    if (!url) return 'New Image';
+    // Remove query params if any
+    const cleanUrl = url.split('?')[0];
+    const parts = cleanUrl.split('/');
+    const filename = parts[parts.length - 1];
+    return filename ? decodeURIComponent(filename) : 'Image';
+  }
 
   content: FrontendLandingPageContent = {
     heroTitle: '',
@@ -218,12 +247,22 @@ export class LandingEditorComponent implements OnInit {
     }
     this.content.galleryImages.push({ url: '', alt: '' });
     this.isUploadingGallery.push(false);
+    this.editingGalleryIndex = this.content.galleryImages.length - 1;
     this.updateValidation();
   }
 
-  removeGalleryImage(index: number): void {
+  removeGalleryImage(index: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.content.galleryImages.splice(index, 1);
     this.isUploadingGallery.splice(index, 1);
+    
+    if (this.editingGalleryIndex === index) {
+      this.editingGalleryIndex = null;
+    } else if (this.editingGalleryIndex !== null && this.editingGalleryIndex > index) {
+      this.editingGalleryIndex--;
+    }
     this.updateValidation();
   }
 
