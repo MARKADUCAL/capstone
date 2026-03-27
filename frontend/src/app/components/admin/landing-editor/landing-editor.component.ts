@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -110,8 +111,51 @@ export class LandingEditorComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private landingPageService: LandingPageService,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  // Navigation properties
+  activeSection: string = 'hero';
+  navSections: string[] = ['hero', 'gallery', 'contact', 'footer'];
+
+  scrollToSection(sectionId: string): void {
+    this.activeSection = sectionId;
+    if (isPlatformBrowser(this.platformId)) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Calculate offset to account for sticky navbar
+        const yOffset = -140; 
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    let current = this.activeSection;
+    for (const section of this.navSections) {
+      const element = document.getElementById(section);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= 160 && rect.bottom >= 160) {
+          current = section;
+        }
+      }
+    }
+    
+    // Special check for bottom of page to highlight footer
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+      current = 'footer';
+    }
+
+    if (this.activeSection !== current) {
+      this.activeSection = current;
+    }
+  }
 
   ngOnInit(): void {
     this.loadLandingPageContent();

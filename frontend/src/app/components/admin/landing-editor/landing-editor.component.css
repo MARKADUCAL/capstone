@@ -26,6 +26,56 @@
   font-size: 14px;
 }
 
+/* Section Navbar Styles */
+.section-navbar-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #F8F5FB;
+  padding-top: 16px;
+  margin-bottom: 32px;
+  border-bottom: 2px solid #EBE5F0;
+}
+
+.section-navbar {
+  display: flex;
+  gap: 40px;
+  padding-left: 8px;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8c889f;
+  padding: 8px 8px 16px 8px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  margin-bottom: -2px; /* Pull down to overlap the container's border */
+}
+
+.nav-item:hover {
+  color: #5d5970;
+}
+
+.nav-item.active {
+  color: #9C2780;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #9C2780;
+  border-radius: 3px 3px 0 0;
+}
+
 .editor-sections {
   display: flex;
   flex-direction: column;
