@@ -366,8 +366,10 @@
 
   <div class="save-bar">
     <div class="last-saved-text">
-      <span class="muted-text">Last saved: </span>
-      <span class="saved-time">✔ Today at 2:34 PM</span>
+      <span class="muted-text" *ngIf="lastSavedTime">Last saved: </span>
+      <span class="saved-time" [ngClass]="{'has-saved': lastSavedTime}">
+        {{ lastSavedTime ? formatLastSaved() : 'Unsaved changes' }}
+      </span>
     </div>
     <div class="save-button-wrapper">
       <button

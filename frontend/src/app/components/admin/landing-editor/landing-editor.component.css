@@ -473,8 +473,12 @@
   color: #8c889f;
 }
 .saved-time {
+  color: #8c889f;
+  font-weight: 500;
+}
+.saved-time.has-saved {
   color: #25a15c;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .main-save-btn {

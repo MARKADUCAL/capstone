@@ -118,6 +118,36 @@ export class LandingEditorComponent implements OnInit {
     return filename ? decodeURIComponent(filename) : 'Image';
   }
 
+  // Save properties
+  lastSavedTime: Date | null = null;
+
+  formatLastSaved(): string {
+    if (!this.lastSavedTime) return 'Unsaved changes';
+    
+    const d = new Date(this.lastSavedTime);
+    const now = new Date();
+    
+    const isToday = d.getDate() === now.getDate() &&
+                    d.getMonth() === now.getMonth() &&
+                    d.getFullYear() === now.getFullYear();
+                    
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = d.getDate() === yesterday.getDate() &&
+                        d.getMonth() === yesterday.getMonth() &&
+                        d.getFullYear() === yesterday.getFullYear();
+
+    let timeString = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (isToday) {
+      return `✔ Today at ${timeString}`;
+    } else if (isYesterday) {
+      return `✔ Yesterday at ${timeString}`;
+    } else {
+      const dateString = d.toLocaleDateString();
+      return `✔ ${dateString} at ${timeString}`;
+    }
+  }
+
   content: FrontendLandingPageContent = {
     heroTitle: '',
     heroDescription: '',
@@ -460,6 +490,7 @@ export class LandingEditorComponent implements OnInit {
       .subscribe((bulkRes) => {
         if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
           this.isSaving = false;
+          this.lastSavedTime = new Date();
           this.clearLandingPageCache();
           this.reloadContent();
           this.snackBar.open(
@@ -561,9 +592,10 @@ export class LandingEditorComponent implements OnInit {
             })
           )
           .subscribe({
-            next: ({ total, ok }) => {
+            next: ({ total, ok }: any) => {
               this.isSaving = false;
               if (ok === total) {
+                this.lastSavedTime = new Date();
                 this.clearLandingPageCache();
                 this.reloadContent();
                 this.snackBar.open(
