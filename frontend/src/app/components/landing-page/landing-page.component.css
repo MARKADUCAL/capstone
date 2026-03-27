@@ -851,10 +851,9 @@ html {
 }
 
 .gallery-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
   padding: 0 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -862,12 +861,10 @@ html {
 
 .gallery-item {
   width: 100%;
-  max-width: 393px;
-  height: auto;
-  min-height: 262px;
+  height: 100%;
+  aspect-ratio: 4/3;
   overflow: hidden;
   position: relative;
-  margin-bottom: 20px;
   border-radius: 12px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
@@ -889,6 +886,41 @@ html {
 
 .gallery-item:hover img {
   transform: scale(1.1);
+}
+
+.gallery-caption {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background-color: rgba(0, 0, 0, 0.65);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* On laptop/desktop: switch to a 3-column masonry-like grid */
+@media (min-width: 960px) {
+  .gallery-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+  }
+  
+  .gallery-item {
+    aspect-ratio: unset;
+    min-height: 262px;
+  }
+
+  /* Specific column spans based on the mockup */
+  .gallery-item:nth-child(6n + 1),
+  .gallery-item:nth-child(6n + 4),
+  .gallery-item:nth-child(6n + 6) {
+    grid-column: span 2;
+  }
 }
 
 /* Contact Section */

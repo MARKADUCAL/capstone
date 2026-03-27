@@ -195,14 +195,14 @@
 <section class="gallery" id="gallery">
   <h2>GALLERY</h2>
   <div class="gallery-container" *ngIf="content">
-    <div class="gallery-item" *ngFor="let g of content.galleryImages">
+    <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index">
       <img
         [src]="g.url"
         [alt]="g.alt || 'Gallery image'"
         [title]="g.alt || 'Gallery image'"
-        title="Gallery image"
         loading="lazy"
       />
+      <div class="gallery-caption">{{ g.alt || 'Photo ' + (i + 1) }}</div>
     </div>
   </div>
 </section>
