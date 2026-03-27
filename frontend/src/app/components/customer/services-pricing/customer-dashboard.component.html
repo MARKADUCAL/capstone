@@ -79,7 +79,7 @@
         </button>
       </div>
 
-      <!-- Pricing Table -->
+      <!-- Pricing Table (Tablet / Desktop) -->
       <div *ngIf="!loading && !error" class="pricing-table-container">
         <div class="pricing-table">
           <table>
@@ -105,33 +105,51 @@
                   <div class="price-amount">
                     {{
                       formatPrice(
-                        pricingMatrix[vehicle.code][package.code] || 0
+                        pricingMatrix[vehicle.code] && pricingMatrix[vehicle.code][package.code] !== undefined ? pricingMatrix[vehicle.code][package.code] : 0
                       )
                     }}
                   </div>
-                  <!-- <button
-                    class="btn-book-service"
-                    (click)="
-                      navigateToAppointmentWithPackage(
-                        vehicle.code,
-                        package.code
-                      )
-                    "
-                    [disabled]="!isPriceAvailable(vehicle.code, package.code)"
-                    [ngClass]="{
-                      disabled: !isPriceAvailable(vehicle.code, package.code)
-                    }"
-                  >
-                    {{
-                      isPriceAvailable(vehicle.code, package.code)
-                        ? "Book Now"
-                        : "Unavailable"
-                    }}
-                  </button> -->
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Pricing Cards (Mobile) -->
+      <div *ngIf="!loading && !error" class="pricing-cards">
+        <div *ngFor="let vehicle of vehicleTypes" class="pricing-card">
+          <!-- Vehicle header -->
+          <div class="pricing-card-header">
+            <span class="pricing-card-code">{{ vehicle.code }}</span>
+            <div class="pricing-card-info">
+              <div class="pricing-card-name">
+                {{
+                  vehicle.code === 'S' ? 'Sedan' :
+                  vehicle.code === 'M' ? 'SUV' :
+                  vehicle.code === 'L' ? 'VAN' :
+                  vehicle.code === 'XL' ? 'Oversized' :
+                  vehicle.code === 'XXL' ? 'Extra Oversized' :
+                  vehicle.code
+                }}
+              </div>
+              <div class="pricing-card-desc">{{ vehicle.description }}</div>
+            </div>
+          </div>
+          <!-- Package rows -->
+          <div *ngFor="let package of servicePackages" class="pricing-card-row">
+            <div class="pricing-card-pkg">
+              <span class="pkg-name">Package {{ package.code }}</span>
+              <span class="pkg-desc">{{ package.description }}</span>
+            </div>
+            <div class="pricing-card-price">
+              {{
+                formatPrice(
+                  pricingMatrix[vehicle.code] && pricingMatrix[vehicle.code][package.code] !== undefined ? pricingMatrix[vehicle.code][package.code] : 0
+                )
+              }}
+            </div>
+          </div>
         </div>
       </div>
 
