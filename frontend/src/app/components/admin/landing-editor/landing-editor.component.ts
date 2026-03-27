@@ -197,6 +197,12 @@ export class LandingEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedTimeStr = localStorage.getItem('landingEditorLastSaved');
+      if (savedTimeStr) {
+        this.lastSavedTime = new Date(savedTimeStr);
+      }
+    }
     this.loadLandingPageContent();
   }
 
@@ -522,6 +528,9 @@ export class LandingEditorComponent implements OnInit {
         if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
           this.isSaving = false;
           this.lastSavedTime = new Date();
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('landingEditorLastSaved', this.lastSavedTime.toISOString());
+          }
           this.clearLandingPageCache();
           this.reloadContent();
           Swal.fire({
@@ -630,6 +639,9 @@ export class LandingEditorComponent implements OnInit {
               this.isSaving = false;
               if (ok === total) {
                 this.lastSavedTime = new Date();
+                if (isPlatformBrowser(this.platformId)) {
+                  localStorage.setItem('landingEditorLastSaved', this.lastSavedTime.toISOString());
+                }
                 this.clearLandingPageCache();
                 this.reloadContent();
                 Swal.fire({
