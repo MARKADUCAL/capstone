@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -108,7 +109,12 @@ export class LandingEditorComponent implements OnInit {
     }
     const img = this.content.galleryImages[index];
     if (!img.url && !img.preview && !img.selectedFile) {
-      this.snackBar.open('Please upload an image or provide a URL first, or delete this item.', 'Close', { duration: 4500 });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Empty Image',
+        text: 'Please upload an image or provide a URL first, or delete this item.',
+        confirmButtonColor: '#9C2780'
+      });
       return;
     }
     this.editingGalleryIndex = null;
@@ -290,18 +296,35 @@ export class LandingEditorComponent implements OnInit {
     if (event) {
       event.stopPropagation();
     }
-    const confirmed = confirm('Are you sure you want to delete this image?');
-    if (!confirmed) return;
-
-    this.content.galleryImages.splice(index, 1);
-    this.isUploadingGallery.splice(index, 1);
-    
-    if (this.editingGalleryIndex === index) {
-      this.editingGalleryIndex = null;
-    } else if (this.editingGalleryIndex !== null && this.editingGalleryIndex > index) {
-      this.editingGalleryIndex--;
-    }
-    this.updateValidation();
+    Swal.fire({
+      title: 'Delete Image?',
+      text: "Are you sure you want to delete this image? You cannot undo this.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f44336',
+      cancelButtonColor: '#8c889f',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.content.galleryImages.splice(index, 1);
+        this.isUploadingGallery.splice(index, 1);
+        
+        if (this.editingGalleryIndex === index) {
+          this.editingGalleryIndex = null;
+        } else if (this.editingGalleryIndex !== null && this.editingGalleryIndex > index) {
+          this.editingGalleryIndex--;
+        }
+        this.updateValidation();
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'The image has been removed.',
+          icon: 'success',
+          confirmButtonColor: '#9C2780',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
   }
 
   onContentChange(): void {
@@ -501,11 +524,14 @@ export class LandingEditorComponent implements OnInit {
           this.lastSavedTime = new Date();
           this.clearLandingPageCache();
           this.reloadContent();
-          this.snackBar.open(
-            'All changes saved successfully to database!',
-            'Close',
-            { duration: 3000 }
-          );
+          Swal.fire({
+            title: 'Saved!',
+            text: 'All changes saved successfully to the database.',
+            icon: 'success',
+            confirmButtonColor: '#9C2780',
+            timer: 2000,
+            showConfirmButton: false
+          });
           return;
         }
 
@@ -606,11 +632,14 @@ export class LandingEditorComponent implements OnInit {
                 this.lastSavedTime = new Date();
                 this.clearLandingPageCache();
                 this.reloadContent();
-                this.snackBar.open(
-                  'All changes saved successfully to database!',
-                  'Close',
-                  { duration: 3000 }
-                );
+                Swal.fire({
+                  title: 'Saved!',
+                  text: 'All changes saved successfully to the database.',
+                  icon: 'success',
+                  confirmButtonColor: '#9C2780',
+                  timer: 2000,
+                  showConfirmButton: false
+                });
               } else if (ok > 0) {
                 this.snackBar.open(
                   `${ok}/${total} sections saved. Some failed — please retry.`,
@@ -666,6 +695,9 @@ export class LandingEditorComponent implements OnInit {
         this.content.galleryImages[index].preview = e.target.result;
       };
       reader.readAsDataURL(file);
+      
+      // Auto-upload
+      this.uploadGalleryImage(index);
     }
   }
 

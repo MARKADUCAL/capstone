@@ -198,23 +198,23 @@
                 </div>
 
                 <div class="upload-controls-sm">
-                  <div class="btn-group-upload-sm">
+                  <div class="sweet-btn-group">
                     <input type="file" [id]="'galleryGridUpload' + i" accept="image/*" (change)="onGalleryFileSelected($event, i)" class="file-input-hidden" />
-                    <label *ngIf="!image.selectedFile" [for]="'galleryGridUpload' + i" class="btn-choose-file-xs">
-                      <mat-icon>upload</mat-icon>
+                    
+                    <!-- Purple Upload -->
+                    <label [for]="'galleryGridUpload' + i" class="sweet-btn btn-sw-upload" title="Upload Image" *ngIf="!isUploadingGallery[i]">
+                      <mat-icon>file_upload</mat-icon>
                     </label>
+                    <button class="sweet-btn btn-sw-upload" disabled *ngIf="isUploadingGallery[i]">
+                      <mat-icon class="spinning">refresh</mat-icon>
+                    </button>
 
-                    <button *ngIf="image.selectedFile" class="btn-upload btn-xs" (click)="uploadGalleryImage(i)" [disabled]="isUploadingGallery[i]" title="Upload">
-                      <mat-icon *ngIf="!isUploadingGallery[i]">check</mat-icon>
-                      <mat-icon *ngIf="isUploadingGallery[i]" class="spinning">refresh</mat-icon>
+                    <!-- Red Delete -->
+                    <button class="sweet-btn btn-sw-delete" (click)="removeGalleryImage(i, $event)" title="Delete image">
                     </button>
-                    <button *ngIf="image.selectedFile" class="btn-cancel btn-xs" (click)="clearGalleryUpload(i)" [disabled]="isUploadingGallery[i]" title="Cancel">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                    <button class="btn-cancel btn-xs" (click)="removeGalleryImage(i, $event)" title="Delete image">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                    <button class="btn-done btn-xs" (click)="cancelEditGallery(i, $event)" title="Done editing">
+
+                    <!-- Pill Done -->
+                    <button class="sweet-btn btn-sw-done" (click)="cancelEditGallery(i, $event)" title="Done editing">
                       Done
                     </button>
                   </div>

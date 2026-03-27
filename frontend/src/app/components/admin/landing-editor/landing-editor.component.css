@@ -776,3 +776,53 @@
 .gallery-grid-card.add-card:hover .add-icon-circle { background-color: #f3d7ea; }
 
 .gallery-footer-info { margin-top: 16px; text-align: center; }
+
+/* Sweet Buttons */
+.sweet-btn-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.sweet-btn {
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+  padding: 0;
+}
+.sweet-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.btn-sw-upload {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #9c2780;
+  color: white;
+  box-shadow: 0 2px 8px rgba(156, 39, 128, 0.3);
+}
+
+.btn-sw-delete {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #f44336;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.btn-sw-done {
+  height: 44px;
+  border-radius: 22px;
+  background-color: #eae5f0;
+  color: #3b3a5c;
+  font-weight: 700;
+  padding: 0 28px;
+  font-size: 15px;
+}
