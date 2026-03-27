@@ -1,52 +1,87 @@
 <div class="admin-landing-editor-container">
-  <h1>Edit Landing Page</h1>
+  <div class="page-header">
+    <h1>Edit Landing Page</h1>
+    <p class="subtitle">Changes reflect live after saving.</p>
+  </div>
 
-  <mat-tab-group>
-    <mat-tab label="Hero">
-      <mat-card class="content-card">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hero Title *</mat-label>
-            <input
-              matInput
-              [(ngModel)]="content.heroTitle"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter hero title"
+  <div class="editor-sections">
+    <!-- HERO CONTENT -->
+    <div class="editor-card">
+      <div class="section-badge">
+        <div class="badge-pipe"></div>
+        <span class="badge-text">HERO CONTENT</span>
+      </div>
+      <div class="card-body">
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>HERO TITLE *</mat-label>
+          <input
+            matInput
+            [(ngModel)]="content.heroTitle"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter hero title"
+          />
+          <mat-hint>Max 60 characters</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>HERO DESCRIPTION *</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="content.heroDescription"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter hero description"
+          ></textarea>
+          <mat-hint>Max 160 characters</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- HERO BACKGROUND IMAGE -->
+    <div class="editor-card">
+      <div class="section-badge">
+        <div class="badge-pipe"></div>
+        <span class="badge-text">HERO BACKGROUND IMAGE</span>
+      </div>
+      <div class="card-body">
+        <div class="image-upload-box">
+          <!-- Thumbnail Preview -->
+          <div class="image-preview-area" *ngIf="content.heroBackgroundUrl && !imagePreview">
+            <img
+              class="preview-thumbnail"
+              [src]="content.heroBackgroundUrl"
+              alt="Current hero background"
+              (error)="handleImageError($event)"
             />
-          </mat-form-field>
+          </div>
+          
+          <div class="image-preview-area" *ngIf="imagePreview">
+            <div class="preview-wrapper">
+              <img class="preview-thumbnail" [src]="imagePreview" alt="Preview" />
+              <button
+                type="button"
+                class="remove-preview-btn"
+                (click)="removeImagePreview()"
+                title="Remove preview"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Hero Description *</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              [(ngModel)]="content.heroDescription"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter hero description"
-            ></textarea>
-          </mat-form-field>
-
-          <!-- Image Upload Section -->
-          <div class="image-upload-section">
-            <h4>Hero Background Image *</h4>
-
-            <!-- Current Image Display -->
-            <div
-              *ngIf="content.heroBackgroundUrl"
-              class="current-image-container"
-            >
-              <h5>Current Image:</h5>
-              <div class="current-image">
-                <img
-                  [src]="content.heroBackgroundUrl"
-                  alt="Current hero background"
-                  (error)="handleImageError($event)"
-                />
-              </div>
+          <!-- Upload Controls -->
+          <div class="upload-controls">
+            <div class="file-info" *ngIf="selectedFile">
+              <span class="file-name">{{ selectedFile.name }}</span>
+              <span class="file-size">· {{ (selectedFile.size / 1024 / 1024).toFixed(1) }} MB</span>
+            </div>
+            <div class="file-info text-muted" *ngIf="!selectedFile">
+              <span class="file-name">{{ content.heroBackgroundUrl ? (content.heroBackgroundUrl.split('/').pop() || 'hero-bg.jpg') : 'No image selected' }}</span>
+              <span class="file-size text-muted-extra" *ngIf="content.heroBackgroundUrl">· 1.2 MB<br/>1920×1080px recommended</span>
+              <span class="file-size text-muted-extra" *ngIf="!content.heroBackgroundUrl">· 1920×1080px recommended</span>
             </div>
 
-            <!-- File Input -->
-            <div class="file-input-container">
+            <div class="btn-group-upload">
               <input
                 type="file"
                 id="heroImageUpload"
@@ -54,44 +89,23 @@
                 (change)="onFileSelected($event)"
                 class="file-input-hidden"
               />
-              <label for="heroImageUpload" class="file-input-label">
-                <mat-icon>cloud_upload</mat-icon>
-                Choose Image File
+              <label *ngIf="!selectedFile" for="heroImageUpload" class="btn-choose-file">
+                <mat-icon>cloud_upload</mat-icon> Choose Image File
               </label>
-            </div>
 
-            <!-- Image Preview -->
-            <div *ngIf="imagePreview" class="image-preview-container">
-              <h5>Preview:</h5>
-              <div class="image-preview">
-                <img [src]="imagePreview" alt="Preview" />
-                <button
-                  type="button"
-                  class="remove-preview-btn"
-                  (click)="removeImagePreview()"
-                  title="Remove preview"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <!-- Upload Button -->
-            <div *ngIf="selectedFile" class="upload-actions">
               <button
-                mat-raised-button
-                color="primary"
+                *ngIf="selectedFile"
+                class="btn-upload"
                 (click)="uploadImage()"
                 [disabled]="isUploading"
               >
                 <mat-icon *ngIf="!isUploading">upload</mat-icon>
-                <mat-icon *ngIf="isUploading" class="spinning"
-                  >refresh</mat-icon
-                >
+                <mat-icon *ngIf="isUploading" class="spinning">refresh</mat-icon>
                 {{ isUploading ? "Uploading..." : "Upload Image" }}
               </button>
               <button
-                mat-button
+                *ngIf="selectedFile"
+                class="btn-cancel"
                 (click)="clearUploadForm()"
                 [disabled]="isUploading"
               >
@@ -100,301 +114,267 @@
             </div>
 
             <!-- Messages -->
-            <div *ngIf="uploadError" class="upload-error">
-              <mat-icon>error</mat-icon>
-              {{ uploadError }}
+            <div *ngIf="uploadError" class="upload-status error">
+              <mat-icon>error</mat-icon> {{ uploadError }}
             </div>
-            <div *ngIf="uploadSuccess" class="upload-success">
-              <mat-icon>check_circle</mat-icon>
-              {{ uploadSuccess }}
+            <div *ngIf="uploadSuccess" class="upload-status success">
+              <mat-icon>check_circle</mat-icon> {{ uploadSuccess }}
               <div class="refresh-note">
-                <small
-                  >The landing page will automatically show the new image. If
-                  not visible, refresh the landing page.</small
-                >
+                <small>The landing page will automatically show the new image.</small>
               </div>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
+        </div>
+      </div>
+    </div>
 
-    <mat-tab label="Gallery">
-      <mat-card class="content-card">
-        <mat-card-content>
-          <div class="gallery-list">
-            <div
-              class="gallery-item"
-              *ngFor="let image of content.galleryImages; let i = index"
-            >
-              <!-- Image Display Section -->
-              <div class="gallery-image-section">
+    <!-- GALLERY -->
+    <div class="editor-card">
+      <div class="section-badge">
+        <div class="badge-pipe"></div>
+        <span class="badge-text">GALLERY</span>
+      </div>
+      <div class="card-body">
+        <div class="gallery-list">
+          <div
+            class="gallery-item"
+            *ngFor="let image of content.galleryImages; let i = index"
+          >
+            <!-- Image Display Section -->
+            <div class="gallery-image-section">
+              <div class="image-upload-box gallery-box">
                 <!-- Current Image Display -->
-                <div *ngIf="image.url" class="current-gallery-image">
-                  <h5>Current Image:</h5>
-                  <div class="gallery-image-preview">
-                    <img
-                      [src]="image.url"
-                      [alt]="image.alt || 'Gallery image'"
-                      title="Current gallery image"
-                      (error)="handleImageError($event)"
-                    />
-                  </div>
+                <div *ngIf="image.url && !image.preview" class="image-preview-area">
+                  <img
+                    class="preview-thumbnail"
+                    [src]="image.url"
+                    [alt]="image.alt || 'Gallery image'"
+                    title="Current gallery image"
+                    (error)="handleImageError($event)"
+                  />
                 </div>
 
                 <!-- Image Preview for Upload -->
-                <div *ngIf="image.preview" class="gallery-upload-preview">
-                  <h5>Upload Preview:</h5>
-                  <div class="gallery-image-preview">
-                    <img
-                      [src]="image.preview"
-                      alt="Upload preview"
-                      title="Upload preview"
-                    />
+                <div *ngIf="image.preview" class="image-preview-area">
+                  <div class="preview-wrapper">
+                    <img class="preview-thumbnail" [src]="image.preview" alt="Upload preview" />
                     <button
                       type="button"
                       class="remove-preview-btn"
                       (click)="removeGalleryPreview(i)"
                       title="Remove preview"
-                      aria-label="Remove preview"
                     >
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <!-- Input Fields Section -->
-              <div class="gallery-inputs">
-                <!-- URL Input -->
-                <mat-form-field appearance="outline" class="gallery-url-field">
-                  <mat-label>Image URL</mat-label>
-                  <input
-                    matInput
-                    [(ngModel)]="image.url"
-                    (ngModelChange)="onContentChange()"
-                    placeholder="Enter image URL or upload a file below"
-                  />
-                </mat-form-field>
+                <div class="upload-controls">
+                  <div class="btn-group-upload">
+                    <input
+                      type="file"
+                      [id]="'galleryImageUpload' + i"
+                      accept="image/*"
+                      (change)="onGalleryFileSelected($event, i)"
+                      class="file-input-hidden"
+                    />
+                    <label *ngIf="!image.selectedFile" [for]="'galleryImageUpload' + i" class="btn-choose-file-sm">
+                      <mat-icon>cloud_upload</mat-icon> Choose Image
+                    </label>
 
-                <!-- File Upload -->
-                <div class="gallery-file-upload">
-                  <input
-                    type="file"
-                    [id]="'galleryImageUpload' + i"
-                    accept="image/*"
-                    (change)="onGalleryFileSelected($event, i)"
-                    class="file-input-hidden"
-                    title="Choose image file from your device"
-                    aria-label="Choose image file for gallery"
-                  />
-                  <label
-                    [for]="'galleryImageUpload' + i"
-                    class="gallery-file-label"
-                    title="Choose image file from your device"
-                  >
-                    <mat-icon>cloud_upload</mat-icon>
-                    Choose Image File
-                  </label>
-                </div>
-
-                <!-- Alt Text -->
-                <mat-form-field appearance="outline" class="gallery-alt-field">
-                  <mat-label>Alt Text</mat-label>
-                  <input
-                    matInput
-                    [(ngModel)]="image.alt"
-                    (ngModelChange)="onContentChange()"
-                    placeholder="Alt text for accessibility"
-                  />
-                </mat-form-field>
-
-                <!-- Upload Actions -->
-                <div *ngIf="image.selectedFile" class="gallery-upload-actions">
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    size="small"
-                    (click)="uploadGalleryImage(i)"
-                    [disabled]="isUploadingGallery[i]"
-                  >
-                    <mat-icon *ngIf="!isUploadingGallery[i]">upload</mat-icon>
-                    <mat-icon *ngIf="isUploadingGallery[i]" class="spinning"
-                      >refresh</mat-icon
+                    <button
+                      *ngIf="image.selectedFile"
+                      class="btn-upload btn-sm"
+                      (click)="uploadGalleryImage(i)"
+                      [disabled]="isUploadingGallery[i]"
                     >
-                    {{ isUploadingGallery[i] ? "Uploading..." : "Upload" }}
-                  </button>
-                  <button
-                    mat-button
-                    size="small"
-                    (click)="clearGalleryUpload(i)"
-                    [disabled]="isUploadingGallery[i]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-
-                <!-- Upload Messages -->
-                <div *ngIf="image.uploadError" class="gallery-upload-error">
-                  <mat-icon>error</mat-icon>
-                  {{ image.uploadError }}
-                </div>
-                <div *ngIf="image.uploadSuccess" class="gallery-upload-success">
-                  <mat-icon>check_circle</mat-icon>
-                  {{ image.uploadSuccess }}
+                      <mat-icon *ngIf="!isUploadingGallery[i]">upload</mat-icon>
+                      <mat-icon *ngIf="isUploadingGallery[i]" class="spinning"
+                        >refresh</mat-icon
+                      >
+                      {{ isUploadingGallery[i] ? "Uploading..." : "Upload" }}
+                    </button>
+                    <button
+                      *ngIf="image.selectedFile"
+                      class="btn-cancel btn-sm"
+                      (click)="clearGalleryUpload(i)"
+                      [disabled]="isUploadingGallery[i]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  
+                  <div *ngIf="image.uploadError" class="upload-status error">
+                    <mat-icon>error</mat-icon> {{ image.uploadError }}
+                  </div>
+                  <div *ngIf="image.uploadSuccess" class="upload-status success">
+                    <mat-icon>check_circle</mat-icon> {{ image.uploadSuccess }}
+                  </div>
                 </div>
               </div>
-
-              <!-- Delete Button -->
-              <button
-                mat-icon-button
-                color="warn"
-                class="gallery-delete-btn"
-                (click)="removeGalleryImage(i)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
             </div>
-          </div>
-          <div class="gallery-add-section">
+
+            <!-- Input Fields Section -->
+            <div class="gallery-inputs">
+              <mat-form-field appearance="outline" class="gallery-url-field custom-field">
+                <mat-label>IMAGE URL</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="image.url"
+                  (ngModelChange)="onContentChange()"
+                  placeholder="Enter image URL"
+                />
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="gallery-alt-field custom-field">
+                <mat-label>ALT TEXT</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="image.alt"
+                  (ngModelChange)="onContentChange()"
+                  placeholder="Alt text for accessibility"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- Delete Button -->
             <button
-              mat-raised-button
-              color="primary"
-              (click)="addGalleryImage()"
-              [disabled]="content.galleryImages.length >= MAX_GALLERY_IMAGES"
+              mat-icon-button
+              color="warn"
+              class="gallery-delete-btn"
+              (click)="removeGalleryImage(i)"
             >
-              <mat-icon>add</mat-icon> Add Image
+              <mat-icon>delete</mat-icon>
             </button>
-            <p
-              class="gallery-limit-info"
-              [ngClass]="{
-                'max-reached':
-                  content.galleryImages.length >= MAX_GALLERY_IMAGES
-              }"
-            >
-              {{ content.galleryImages.length }} /
-              {{ MAX_GALLERY_IMAGES }} images
-              {{
-                content.galleryImages.length >= MAX_GALLERY_IMAGES
-                  ? "(Maximum reached)"
-                  : ""
-              }}
-            </p>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
+        </div>
+        
+        <div class="gallery-add-section">
+          <button
+            mat-raised-button
+            class="btn-add"
+            (click)="addGalleryImage()"
+            [disabled]="content.galleryImages.length >= MAX_GALLERY_IMAGES"
+          >
+            <mat-icon>add</mat-icon> Add Image
+          </button>
+          <p
+            class="gallery-limit-info"
+            [ngClass]="{
+              'max-reached': content.galleryImages.length >= MAX_GALLERY_IMAGES
+            }"
+          >
+            {{ content.galleryImages.length }} / {{ MAX_GALLERY_IMAGES }} images
+            {{ content.galleryImages.length >= MAX_GALLERY_IMAGES ? "(Maximum reached)" : "" }}
+          </p>
+        </div>
+      </div>
+    </div>
 
-    <mat-tab label="Contact">
-      <mat-card class="content-card">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Address *</mat-label>
-            <input
-              matInput
-              [(ngModel)]="content.contactInfo.address"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter address"
-            />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Opening Hours</mat-label>
-            <input
-              matInput
-              [(ngModel)]="content.contactInfo.openingHours"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter opening hours"
-            />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Phone *</mat-label>
-            <input
-              matInput
-              [(ngModel)]="content.contactInfo.phone"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter phone number"
-            />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email *</mat-label>
-            <input
-              matInput
-              type="email"
-              [(ngModel)]="content.contactInfo.email"
-              (ngModelChange)="onContentChange()"
-              placeholder="Enter email"
-            />
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
+    <!-- CONTACT -->
+    <div class="editor-card">
+      <div class="section-badge">
+        <div class="badge-pipe"></div>
+        <span class="badge-text">CONTACT INFO</span>
+      </div>
+      <div class="card-body">
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>ADDRESS *</mat-label>
+          <input
+            matInput
+            [(ngModel)]="content.contactInfo.address"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter address"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>OPENING HOURS</mat-label>
+          <input
+            matInput
+            [(ngModel)]="content.contactInfo.openingHours"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter opening hours"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>PHONE *</mat-label>
+          <input
+            matInput
+            [(ngModel)]="content.contactInfo.phone"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter phone number"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>EMAIL *</mat-label>
+          <input
+            matInput
+            type="email"
+            [(ngModel)]="content.contactInfo.email"
+            (ngModelChange)="onContentChange()"
+            placeholder="Enter email"
+          />
+        </mat-form-field>
+      </div>
+    </div>
 
-    <mat-tab label="Footer">
-      <mat-card class="content-card">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Copyright</mat-label>
+    <!-- FOOTER -->
+    <div class="editor-card mb-extra">
+      <div class="section-badge">
+        <div class="badge-pipe"></div>
+        <span class="badge-text">FOOTER OPTIONS</span>
+      </div>
+      <div class="card-body">
+        <mat-form-field appearance="outline" class="full-width custom-field">
+          <mat-label>COPYRIGHT</mat-label>
+          <input
+            matInput
+            [(ngModel)]="content.footer.copyright"
+            (ngModelChange)="onContentChange()"
+            placeholder="Copyright text"
+          />
+        </mat-form-field>
+        
+        <div class="services-list">
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>FACEBOOK URL</mat-label>
             <input
               matInput
-              [(ngModel)]="content.footer.copyright"
+              [(ngModel)]="content.footer.facebook"
               (ngModelChange)="onContentChange()"
-              placeholder="Copyright text"
+              placeholder="https://facebook.com/yourpage"
             />
           </mat-form-field>
-          <div class="services-list">
-            <mat-form-field appearance="outline">
-              <mat-label>Facebook URL</mat-label>
-              <input
-                matInput
-                [(ngModel)]="content.footer.facebook"
-                (ngModelChange)="onContentChange()"
-                placeholder="https://facebook.com/yourpage"
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Instagram URL</mat-label>
-              <input
-                matInput
-                [(ngModel)]="content.footer.instagram"
-                (ngModelChange)="onContentChange()"
-                placeholder="https://instagram.com/yourpage"
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Twitter URL</mat-label>
-              <input
-                matInput
-                [(ngModel)]="content.footer.twitter"
-                (ngModelChange)="onContentChange()"
-                placeholder="https://twitter.com/yourpage"
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>TikTok URL</mat-label>
-              <input
-                matInput
-                [(ngModel)]="content.footer.tiktok"
-                (ngModelChange)="onContentChange()"
-                placeholder="https://tiktok.com/@yourpage"
-              />
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
-  </mat-tab-group>
-
-  <div class="save-button-container">
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="saveChanges()"
-      [disabled]="!validationResult.isValid || isSaving"
-    >
-      <mat-icon *ngIf="!isSaving">save</mat-icon>
-      <mat-icon *ngIf="isSaving" class="spinning">refresh</mat-icon>
-      {{ isSaving ? "Saving..." : "Save Changes" }}
-    </button>
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>INSTAGRAM URL</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.instagram"
+              (ngModelChange)="onContentChange()"
+              placeholder="https://instagram.com/yourpage"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>TWITTER URL</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.twitter"
+              (ngModelChange)="onContentChange()"
+              placeholder="https://twitter.com/yourpage"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>TIKTOK URL</mat-label>
+            <input
+              matInput
+              [(ngModel)]="content.footer.tiktok"
+              (ngModelChange)="onContentChange()"
+              placeholder="https://tiktok.com/@yourpage"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="!validationResult.isValid" class="validation-errors">
@@ -402,5 +382,23 @@
     <ul>
       <li *ngFor="let error of validationResult.errors">{{ error }}</li>
     </ul>
+  </div>
+
+  <div class="save-bar">
+    <div class="last-saved-text">
+      <span class="muted-text">Last saved: </span>
+      <span class="saved-time">✔ Today at 2:34 PM</span>
+    </div>
+    <div class="save-button-wrapper">
+      <button
+        class="main-save-btn"
+        (click)="saveChanges()"
+        [disabled]="!validationResult.isValid || isSaving"
+      >
+        <mat-icon *ngIf="!isSaving">save</mat-icon>
+        <mat-icon *ngIf="isSaving" class="spinning">refresh</mat-icon>
+        <span>{{ isSaving ? "Saving..." : "Save Changes" }}</span>
+      </button>
+    </div>
   </div>
 </div>
