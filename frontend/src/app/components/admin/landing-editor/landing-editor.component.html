@@ -16,7 +16,7 @@
 
   <div class="editor-sections">
     <!-- HERO SECTION -->
-    <div id="hero" class="section-group">
+    <div id="hero" class="section-group" *ngIf="activeSection === 'hero'">
       <!-- HERO CONTENT -->
       <div class="editor-card">
         <div class="section-badge">
@@ -142,7 +142,7 @@
     </div> <!-- End Hero Group -->
 
     <!-- GALLERY SECTION -->
-    <div id="gallery" class="section-group">
+    <div id="gallery" class="section-group" *ngIf="activeSection === 'gallery'">
       <div class="editor-card">
         <div class="section-badge">
           <div class="badge-pipe"></div>
@@ -287,7 +287,7 @@
     </div> <!-- End Gallery Group -->
 
     <!-- CONTACT SECTION -->
-    <div id="contact" class="section-group">
+    <div id="contact" class="section-group" *ngIf="activeSection === 'contact'">
       <div class="editor-card">
         <div class="section-badge">
           <div class="badge-pipe"></div>
@@ -336,7 +336,7 @@
     </div> <!-- End Contact Group -->
 
     <!-- FOOTER SECTION -->
-    <div id="footer" class="section-group mb-extra">
+    <div id="footer" class="section-group mb-extra" *ngIf="activeSection === 'footer'">
       <div class="editor-card">
         <div class="section-badge">
           <div class="badge-pipe"></div>

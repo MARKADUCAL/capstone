@@ -122,38 +122,7 @@ export class LandingEditorComponent implements OnInit {
   scrollToSection(sectionId: string): void {
     this.activeSection = sectionId;
     if (isPlatformBrowser(this.platformId)) {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        // Calculate offset to account for sticky navbar
-        const yOffset = -140; 
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      }
-    }
-  }
-
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
-    let current = this.activeSection;
-    for (const section of this.navSections) {
-      const element = document.getElementById(section);
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        if (rect.top <= 160 && rect.bottom >= 160) {
-          current = section;
-        }
-      }
-    }
-    
-    // Special check for bottom of page to highlight footer
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
-      current = 'footer';
-    }
-
-    if (this.activeSection !== current) {
-      this.activeSection = current;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
