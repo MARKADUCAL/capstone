@@ -211,7 +211,10 @@
                     <button *ngIf="image.selectedFile" class="btn-cancel btn-xs" (click)="clearGalleryUpload(i)" [disabled]="isUploadingGallery[i]" title="Cancel">
                       <mat-icon>close</mat-icon>
                     </button>
-                    <button class="btn-done btn-xs" (click)="cancelEditGallery($event)" title="Done editing">
+                    <button class="btn-cancel btn-xs" (click)="removeGalleryImage(i, $event)" title="Delete image">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                    <button class="btn-done btn-xs" (click)="cancelEditGallery(i, $event)" title="Done editing">
                       Done
                     </button>
                   </div>

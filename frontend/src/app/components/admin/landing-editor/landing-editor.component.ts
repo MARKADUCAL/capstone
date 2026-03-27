@@ -102,9 +102,14 @@ export class LandingEditorComponent implements OnInit {
     }
   }
 
-  cancelEditGallery(event?: Event): void {
+  cancelEditGallery(index: number, event?: Event): void {
     if (event) {
       event.stopPropagation();
+    }
+    const img = this.content.galleryImages[index];
+    if (!img.url && !img.preview && !img.selectedFile) {
+      this.snackBar.open('Please upload an image or provide a URL first, or delete this item.', 'Close', { duration: 4500 });
+      return;
     }
     this.editingGalleryIndex = null;
   }
@@ -285,6 +290,9 @@ export class LandingEditorComponent implements OnInit {
     if (event) {
       event.stopPropagation();
     }
+    const confirmed = confirm('Are you sure you want to delete this image?');
+    if (!confirmed) return;
+
     this.content.galleryImages.splice(index, 1);
     this.isUploadingGallery.splice(index, 1);
     
