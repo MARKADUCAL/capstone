@@ -195,7 +195,7 @@
 <section class="gallery" id="gallery">
   <h2>GALLERY</h2>
   <div class="gallery-container" *ngIf="content">
-    <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index">
+    <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index" (click)="openLightbox(g)">
       <img
         [src]="g.url"
         [alt]="g.alt || 'Gallery image'"
@@ -203,6 +203,15 @@
         loading="lazy"
       />
       <div class="gallery-caption">{{ g.alt || 'Photo ' + (i + 1) }}</div>
+    </div>
+  </div>
+
+  <!-- Lightbox Overlay -->
+  <div class="lightbox-overlay" *ngIf="selectedImage" (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="lightbox-close" (click)="closeLightbox()">&times;</button>
+      <img [src]="selectedImage.url" [alt]="selectedImage.alt || 'Gallery image fullscreen'" />
+      <div class="lightbox-caption" *ngIf="selectedImage.alt">{{ selectedImage.alt }}</div>
     </div>
   </div>
 </section>

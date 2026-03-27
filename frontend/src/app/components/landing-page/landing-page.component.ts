@@ -68,6 +68,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'landingPageContent';
   mobileMenuOpen = false;
   showModal = false;
+  selectedImage: GalleryImage | null = null;
 
   // Contact form properties
   contactForm: ContactForm = {
@@ -209,12 +210,22 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   private toggleBodyScroll() {
     if (isPlatformBrowser(this.platformId)) {
-      if (this.mobileMenuOpen) {
+      if (this.mobileMenuOpen || this.selectedImage) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = '';
       }
     }
+  }
+
+  openLightbox(image: GalleryImage): void {
+    this.selectedImage = image;
+    this.toggleBodyScroll();
+  }
+
+  closeLightbox(): void {
+    this.selectedImage = null;
+    this.toggleBodyScroll();
   }
 
   ngOnDestroy() {
