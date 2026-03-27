@@ -1375,10 +1375,47 @@ html {
     flex-wrap: wrap;
   }
 
-  /* Pricing responsive */
+  /* Pricing responsive (Tablet ~768px) */
+  .packages-explanation,
+  .vehicle-types-explanation {
+    padding: 20px 15px;
+  }
+
+  .packages-explanation h3,
+  .vehicle-types-explanation h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
   .packages-grid,
   .vehicle-types-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .package-info,
+  .vehicle-info {
+    padding: 15px 8px;
+  }
+
+  .package-info h4 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .package-info p {
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .vehicle-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+
+  .vehicle-info p {
+    font-size: 0.7rem;
+    line-height: 1.3;
   }
 
   .pricing-table-container {
@@ -1397,6 +1434,35 @@ html {
   .package-desc,
   .vehicle-desc {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .packages-grid,
+  .vehicle-types-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .package-info,
+  .vehicle-info {
+    padding: 15px 10px;
+  }
+
+  .package-info h4 {
+    font-size: 1rem;
+  }
+
+  .package-info p {
+    font-size: 0.8rem;
+  }
+
+  .vehicle-info h4 {
+    font-size: 1.2rem;
+  }
+
+  .vehicle-info p {
+    font-size: 0.75rem;
   }
 }
 
