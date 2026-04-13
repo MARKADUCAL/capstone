@@ -102,54 +102,46 @@ import { MatIconModule } from '@angular/material/icon';
   `,
   styles: [
     `
-      :host ::ng-deep {
-        --accent-color: #343dff;
-        --dark-bg: #1a1b1f;
-        --card-bg: #2a2b2f;
-        --text-light: #ffffff;
-        --text-muted: #9a9aa0;
-      }
-
       .pricing-modal-content {
         display: flex;
         flex-direction: column;
         max-height: 90vh;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: var(--dark-bg);
-        color: var(--text-light);
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+        border-radius: 20px;
+        overflow: hidden;
       }
 
       .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 24px;
-        background: linear-gradient(
-          135deg,
-          var(--accent-color) 0%,
-          #005cbb 100%
-        );
+        padding: 28px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
         color: white;
-        margin: -24px -24px 0 -24px;
-        border-radius: 4px 4px 0 0;
       }
 
       .header-branding h2 {
         margin: 0;
-        font-size: 20px;
-        font-weight: 600;
+        font-size: 24px;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        letter-spacing: -0.5px;
       }
 
       .close-btn {
         color: white;
-        opacity: 0.8;
-        transition: opacity 0.2s;
+        opacity: 0.85;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-radius: 8px !important;
 
         &:hover {
           opacity: 1;
+          background: rgba(255, 255, 255, 0.25) !important;
+          transform: rotate(90deg);
         }
 
         mat-icon {
@@ -162,12 +154,13 @@ import { MatIconModule } from '@angular/material/icon';
       .modal-body {
         flex: 1;
         overflow-y: auto;
-        padding: 24px;
-        background: var(--dark-bg);
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(10px);
       }
 
       .pricing-step {
-        margin-bottom: 28px;
+        margin-bottom: 36px;
 
         &:last-child {
           margin-bottom: 0;
@@ -177,15 +170,16 @@ import { MatIconModule } from '@angular/material/icon';
       .step-header {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 14px;
+        margin-bottom: 20px;
 
         h4 {
           margin: 0;
-          font-size: 15px;
+          font-size: 18px;
           font-weight: 600;
-          color: var(--text-light);
+          color: var(--text-dark);
           text-transform: capitalize;
+          letter-spacing: -0.3px;
         }
       }
 
@@ -193,21 +187,22 @@ import { MatIconModule } from '@angular/material/icon';
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
-        background: var(--accent-color);
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
         color: white;
         border-radius: 50%;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 15px;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(52, 61, 255, 0.2);
       }
 
       /* Vehicle Type Buttons */
       .vehicle-types-buttons {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
+        gap: 12px;
       }
 
       .vehicle-type-btn {
@@ -215,36 +210,41 @@ import { MatIconModule } from '@angular/material/icon';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        padding: 12px 8px;
-        background: transparent;
-        border: 2px solid var(--text-muted);
-        border-radius: 8px;
-        color: var(--text-light);
+        gap: 8px;
+        padding: 16px 12px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        color: var(--text-dark);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         font-family: inherit;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
         &:hover {
-          border-color: var(--accent-color);
-          background: rgba(52, 61, 255, 0.1);
+          border-color: var(--primary);
+          background: rgba(0, 92, 187, 0.05);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 92, 187, 0.15);
         }
 
         &.selected {
-          background: var(--accent-color);
-          border-color: var(--accent-color);
+          background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+          border-color: var(--primary);
           color: white;
+          box-shadow: 0 6px 20px rgba(0, 92, 187, 0.3);
         }
       }
 
       .vehicle-code {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 700;
       }
 
       .vehicle-label {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 500;
+        opacity: 0.8;
       }
 
       /* Service Packages */
@@ -256,22 +256,27 @@ import { MatIconModule } from '@angular/material/icon';
 
       .service-package-item {
         display: flex;
-        gap: 14px;
-        padding: 14px;
-        background: var(--card-bg);
-        border-radius: 8px;
-        border-left: 3px solid var(--accent-color);
+        gap: 16px;
+        padding: 18px;
+        background: white;
+        border-left: 4px solid var(--accent);
+        border-radius: 12px;
         align-items: flex-start;
-        transition: background 0.2s ease;
+        transition: all 0.3s ease;
         cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
 
         &:hover {
-          background: rgba(52, 61, 255, 0.1);
+          transform: translateX(4px);
+          box-shadow: 0 4px 16px rgba(0, 92, 187, 0.12);
+          background: rgba(0, 92, 187, 0.03);
         }
 
         &.selected {
-          background: rgba(52, 61, 255, 0.2);
-          border-left-color: var(--accent-color);
+          background: rgba(0, 92, 187, 0.08);
+          border-left-color: var(--primary);
+          border-left-width: 5px;
         }
       }
 
@@ -279,13 +284,13 @@ import { MatIconModule } from '@angular/material/icon';
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
-        background: var(--accent-color);
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
         color: white;
-        border-radius: 50%;
-        font-weight: 600;
-        font-size: 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13px;
         flex-shrink: 0;
       }
 
@@ -295,10 +300,10 @@ import { MatIconModule } from '@angular/material/icon';
 
       .service-name {
         display: block;
-        font-weight: 500;
-        color: var(--text-light);
-        font-size: 14px;
-        margin-bottom: 6px;
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 15px;
+        margin-bottom: 8px;
       }
 
       .service-tags {
@@ -310,103 +315,168 @@ import { MatIconModule } from '@angular/material/icon';
       .tag {
         display: inline-block;
         font-size: 11px;
-        padding: 4px 8px;
-        background: rgba(52, 61, 255, 0.15);
-        color: var(--accent-color);
-        border-radius: 12px;
+        padding: 4px 10px;
+        background: linear-gradient(135deg, rgba(0, 92, 187, 0.1) 0%, rgba(52, 61, 255, 0.1) 100%);
+        color: var(--primary);
+        border-radius: 14px;
         font-weight: 500;
         text-transform: capitalize;
+        border: 1px solid rgba(0, 92, 187, 0.2);
       }
 
       /* Price Section */
       .price-section {
         margin-top: 32px;
+        padding-top: 32px;
+        border-top: 2px solid #f0f0f0;
       }
 
       .price-display-card {
-        background: var(--card-bg);
-        border-left: 3px solid var(--accent-color);
-        padding: 20px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(0, 92, 187, 0.08) 0%, rgba(52, 61, 255, 0.08) 100%);
+        border-left: 5px solid var(--primary);
+        padding: 28px;
+        border-radius: 16px;
         text-align: center;
+        border: 1px solid #e8f0ff;
+        box-shadow: 0 4px 12px rgba(0, 92, 187, 0.08);
       }
 
       .price-label {
-        font-size: 12px;
-        color: var(--text-muted);
-        text-transform: capitalize;
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
         margin-bottom: 8px;
       }
 
       .price-amount {
-        font-size: 36px;
+        font-size: 44px;
         font-weight: 700;
-        color: var(--accent-color);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 12px;
       }
 
       .price-details {
-        font-size: 13px;
-        color: var(--text-muted);
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.7);
+        font-weight: 500;
 
         strong {
-          color: var(--text-light);
-          font-weight: 600;
+          color: var(--primary);
+          font-weight: 700;
         }
       }
 
       /* Modal Footer */
       .modal-footer {
-        padding: 20px 24px;
-        background: var(--card-bg);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 24px 32px;
+        background: rgba(255, 255, 255, 0.95);
+        border-top: 1px solid #f0f0f0;
+        backdrop-filter: blur(10px);
       }
 
       .book-btn {
         width: 100%;
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 12px 24px !important;
+        gap: 10px;
+        padding: 16px 24px !important;
         font-weight: 600;
-        font-size: 14px;
-        background: var(--accent-color) !important;
+        font-size: 15px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) !important;
         color: white !important;
         text-transform: capitalize;
-        border-radius: 6px !important;
-        transition: all 0.2s ease;
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+        border: none !important;
+        letter-spacing: -0.3px;
 
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(52, 61, 255, 0.3);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(0, 92, 187, 0.35);
         }
 
         i {
-          font-size: 16px;
+          font-size: 18px;
+        }
+      }
+
+      /* Scrollbar styling */
+      .modal-body::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+
+      .modal-body::-webkit-scrollbar-thumb {
+        background: rgba(0, 92, 187, 0.3);
+        border-radius: 10px;
+
+        &:hover {
+          background: rgba(0, 92, 187, 0.5);
         }
       }
 
       /* Responsive */
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
+        .modal-body {
+          padding: 20px;
+        }
+
         .vehicle-types-buttons {
           grid-template-columns: repeat(2, 1fr);
         }
 
         .price-amount {
-          font-size: 28px;
+          font-size: 36px;
         }
 
         .modal-header {
-          padding: 16px 20px;
+          padding: 20px;
         }
 
-        .modal-body {
-          padding: 16px;
+        .header-branding h2 {
+          font-size: 20px;
         }
 
-        .modal-footer {
-          padding: 16px;
+        .step-header h4 {
+          font-size: 16px;
+        }
+
+        .price-display-card {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .vehicle-types-buttons {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+        }
+
+        .vehicle-type-btn {
+          padding: 12px 8px;
+        }
+
+        .vehicle-code {
+          font-size: 18px;
+        }
+
+        .price-amount {
+          font-size: 32px;
+        }
+
+        .service-package-item {
+          padding: 14px;
+          gap: 12px;
         }
       }
     `,
