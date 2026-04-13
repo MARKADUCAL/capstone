@@ -35,7 +35,7 @@ export class CustomerRegisterComponent {
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -127,7 +127,7 @@ export class CustomerRegisterComponent {
       .post(
         `${environment.apiUrl}/send_registration_code`,
         { email: this.customer.email },
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { 'Content-Type': 'application/json' } },
       )
       .subscribe({
         next: async (codeResp: any) => {
@@ -176,10 +176,7 @@ export class CustomerRegisterComponent {
                   response.status.remarks === 'success'
                 ) {
                   // Automatically log in the newly registered user
-                  this.autoLogin(
-                    this.customer.email,
-                    this.customer.password
-                  );
+                  this.autoLogin(this.customer.email, this.customer.password);
                 } else {
                   this.isLoading = false;
                   const errorMessage =
@@ -246,7 +243,7 @@ export class CustomerRegisterComponent {
                 localStorage.setItem('auth_token', response.payload.token);
                 localStorage.setItem(
                   'customer_data',
-                  JSON.stringify(response.payload.customer)
+                  JSON.stringify(response.payload.customer),
                 );
               }
 

@@ -28,7 +28,7 @@ export class CustomerLoginComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit() {
@@ -78,7 +78,7 @@ export class CustomerLoginComponent implements OnInit {
               localStorage.setItem('auth_token', response.payload.token);
               localStorage.setItem(
                 'customer_data',
-                JSON.stringify(response.payload.customer)
+                JSON.stringify(response.payload.customer),
               );
 
               // Show success message
