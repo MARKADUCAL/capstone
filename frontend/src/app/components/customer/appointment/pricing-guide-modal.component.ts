@@ -107,13 +107,6 @@ import { MatIconModule } from '@angular/material/icon';
   `,
   styles: [
     `
-      .pricing-modal-content {
-        display: flex;
-        flex-direction: column;
-        max-height: 90vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  styles: [
-    `
       :host ::ng-deep {
         --accent-color: #16a34a;
         --dark-bg: #1a1a1a;
@@ -494,5 +487,4 @@ export class PricingGuideModalComponent implements OnInit {
       return 'N/A';
     }
   }
-}
 }
