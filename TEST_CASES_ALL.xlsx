@@ -1,0 +1,893 @@
+Test ID,Phase,Category,Test Title,Role,Severity,Steps,Expected Result,Test Data,Success Criteria,Status,Assigned To,Test Date,Result,Notes
+AUTH-C001,Phase 1,Authentication,Register as a new customer account,Customer,CRITICAL,"1. Navigate to landing page
+2. Click Register button
+3. Enter first name, last name, email, phone
+4. Enter password (min 8 chars)
+5. Confirm password
+6. Click Register","✓ Account created
+✓ Verification email sent
+✓ User redirected to verification page
+✓ Database confirms new customer","Email: test.customer.001@test.com
+Phone: 09123456789
+Name: John Test
+Password: SecurePass123!","- Customer record exists
+- is_verified = 0
+- Email link valid
+- Email contains activation link","",,"","","
+AUTH-C002,Phase 1,Authentication,Login as a customer with valid credentials,Customer,CRITICAL,"1. Navigate to customer login page
+2. Enter verified customer email
+3. Enter correct password
+4. Click Login","✓ Login successful
+✓ Redirected to dashboard
+✓ Session token created
+✓ User identity verified in navbar","Email: verified.customer@test.com
+Password: SecurePass123!","- Session established
+- Can access protected routes
+- Dashboard loads with customer data","",,"","","
+AUTH-C003,Phase 1,Authentication,Login with invalid credentials,Customer,CRITICAL,"1. Navigate to customer login page
+2. Enter customer email
+3. Enter incorrect password
+4. Click Login","✓ Login fails
+✓ Error message displayed
+✓ No session token created
+✓ User remains on login page","Email: verified.customer@test.com
+Password: WrongPassword123!","- No unauthorized access
+- Error message user-friendly
+- No sensitive data leaked","",,"","","
+AUTH-C004,Phase 1,Authentication,Reset customer password via email,Customer,CRITICAL,"1. Click Forgot Password
+2. Enter registered email
+3. Click Send Reset Link
+4. Check email for reset link
+5. Click link in email
+6. Enter new password
+7. Confirm new password
+8. Click Reset Password","✓ Reset email sent
+✓ Reset link valid for 24 hours
+✓ Old password no longer works
+✓ New password works on next login","Email: verified.customer@test.com
+New Password: NewSecurePass456!","- Password changed in database
+- Reset link expires after 24h
+- Old password rejected
+- No duplicate reset tokens","",,"","","
+AUTH-A001,Phase 1,Authentication,Register as new admin account,Admin,CRITICAL,"1. Login as existing admin
+2. Navigate to User Management
+3. Click Create Admin Account
+4. Enter email, first name, last name
+5. System generates temporary password
+6. Click Create","✓ Admin account created
+✓ Temporary password sent to email
+✓ Account requires password change
+✓ Confirmation message displayed","Email: new.admin@test.com
+Name: Admin Test","- Admin account exists
+- Temporary password secure
+- First login forces password change","",,"","","
+AUTH-A002,Phase 1,Authentication,Login as admin with valid credentials,Admin,CRITICAL,"1. Navigate to admin login page
+2. Enter admin email
+3. Enter correct password
+4. Click Login","✓ Login successful
+✓ Redirected to admin dashboard
+✓ Full admin panel access visible
+✓ Session token created","Email: admin@test.com
+Password: AdminPass123!","- Admin dashboard loads
+- All admin menus visible
+- Access to all admin functions","",,"","","
+AUTH-E001,Phase 1,Authentication,Login as employee with valid credentials,Employee,CRITICAL,"1. Navigate to employee login page
+2. Enter employee email
+3. Enter correct password
+4. Click Login","✓ Login successful
+✓ Redirected to employee dashboard
+✓ Employee-specific functions visible
+✓ Session token created","Email: employee@test.com
+Password: EmployeePass123!","- Employee dashboard loads
+- Employee menus visible
+- Access restricted to employee functions","",,"","","
+AUTH-001,Phase 1,Authentication,Validate email verification for new account,Customer/Employee/Admin,CRITICAL,"1. Register new account
+2. Check email for verification link
+3. Click verification link
+4. Account marked as verified
+5. Attempt login with verified account","✓ Verification email received
+✓ Link is valid and clickable
+✓ Account immediately verified
+✓ Verified account can login","Multiple role email verification","- Email delivery reliable (>95%)
+- Verification instant
+- is_verified = 1 in database","",,"","","
+BOOK-001,Phase 1,Booking,View landing page and service offerings,Customer,CRITICAL,"1. Navigate to http://localhost:4200/
+2. Wait for page to load
+3. Scroll through content","✓ Landing page displays hero section
+✓ Service offerings visible
+✓ Call-to-action buttons visible
+✓ No console errors","Unauthenticated access","- Page load time < 3 seconds
+- All images loaded
+- Responsive on all devices
+- CTA buttons clickable","",,"","","
+BOOK-002,Phase 1,Booking,View available services and pricing,Customer,CRITICAL,"1. Login as customer
+2. Navigate to Services/Pricing page
+3. View all available service packages
+4. View pricing for different vehicle types","✓ All service packages displayed
+✓ Prices shown for each vehicle type
+✓ Service descriptions visible
+✓ Pricing data matches database","Services: Basic Wash ($15-25), Wash + Vacuum ($25-35), Premium ($35-50)
+Vehicles: Sedan, SUV, Truck, Van","- All packages visible
+- Pricing calculations correct
+- Vehicle types properly filtered","",,"","","
+BOOK-003,Phase 1,Booking,Search for available appointment slots,Customer,CRITICAL,"1. Login as customer
+2. Click Book Appointment
+3. Select preferred date
+4. Select preferred time
+5. View available slots
+6. Select a slot","✓ Calendar displays available dates
+✓ Time slots shown for selected date
+✓ Booked slots disabled/grayed out
+✓ Current date/time blocked from past selection","Current Date: March 31, 2026
+Search Date: April 5, 2026
+Search Time: 09:00 AM - 12:00 PM","- Only available slots shown
+- Cannot select past times
+- Slot availability updated in real-time
+- Booking capacity respected","",,"","","
+BOOK-004,Phase 1,Booking,Filter appointments by date and time,Customer,CRITICAL,"1. Login as customer
+2. Click Browse Appointments
+3. Use filter: Date range
+4. Use filter: Time of day
+5. View filtered results","✓ Filters applied correctly
+✓ Only matching slots displayed
+✓ Result count updated
+✓ Filters can be cleared","Date Range: April 1-15, 2026
+Time Range: 9 AM - 5 PM","- Filtering is instant
+- Results are accurate
+- Multiple filters work together","",,"","","
+BOOK-005,Phase 1,Booking,Select service package for appointment,Customer,CRITICAL,"1. Login as customer
+2. Start booking process
+3. Select a date/time slot
+4. Choose service package
+5. View pricing for selected package","✓ All packages available for selection
+✓ Pricing updates based on selection
+✓ Service details displayed
+✓ Selection visually highlighted","Package: Wash + Vacuum
+Vehicle Type: Sedan
+Expected Price: $28","- Pricing calculations correct
+- All options accessible
+- Clear selection indication","",,"","","
+BOOK-006,Phase 1,Booking,Book an appointment for a vehicle,Customer,CRITICAL,"1. Login as customer
+2. Start booking process
+3. Select or add vehicle
+4. If new: Enter make, model, year, color, plate
+5. Confirm vehicle selection","✓ Existing vehicles listed
+✓ Can add new vehicle
+✓ Vehicle details validated
+✓ Vehicle saved to customer profile","Vehicle: Toyota Camry 2022, White, Plate: ABC123","- Existing vehicles easily accessible
+- New vehicle form functional
+- Vehicle details required fields validated","",,"","","
+BOOK-007,Phase 1,Booking,Confirm and complete appointment booking,Customer,CRITICAL,"1. Follow booking process through vehicle selection
+2. Review booking summary
+3. Agree to terms
+4. Click Confirm Booking","✓ Booking saved to database
+✓ Booking confirmation displayed
+✓ Booking ID generated and shown
+✓ Booking added to customer dashboard","Date: April 5, 2026
+Time: 10:00 AM
+Service: Wash + Vacuum
+Vehicle: Toyota Camry
+Price: $28
+Status: Pending Payment","- Booking record created
+- All details correct in database
+- Booking appears in dashboard","",,"","","
+BOOK-008,Phase 1,Booking,Make payment for appointment,Customer,CRITICAL,"1. Complete booking flow
+2. System displays payment options
+3. Select payment method
+4. Enter payment details
+5. Click Pay Now","✓ Payment processed successfully
+✓ Transaction recorded in system
+✓ Booking status changes to Confirmed
+✓ Payment receipt generated","Amount: $28.00
+Payment Method: Credit Card (Test)
+Card: 4111111111111111","- Payment transaction recorded
+- Amount correct
+- Transaction ID generated
+- Booking status updated","",,"","","
+BOOK-009,Phase 1,Booking,Receive booking confirmation via email,Customer,CRITICAL,"1. Complete booking and payment
+2. Wait 5 seconds
+3. Check email for confirmation","✓ Confirmation email received
+✓ Email contains booking details
+✓ Email includes booking ID
+✓ Email contains payment receipt
+✓ Customer can get support info","Email: test.customer@test.com
+Required Content: Booking ID, Date/Time, Vehicle, Service, Price, Cancellation Policy","- Email delivery reliable
+- All required info present
+- Professional formatting
+- Links work correctly","",,"","","
+BOOK-010,Phase 1,Booking,View list of all my bookings/appointments,Customer,CRITICAL,"1. Login as customer
+2. Navigate to My Appointments
+3. View list of all bookings","✓ All customer bookings displayed
+✓ Bookings sorted by date (upcoming first)
+✓ Booking status is clear
+✓ Pagination if >10 bookings","Customer has 5 existing bookings","- All bookings visible
+- Sorting works correctly
+- Status is current and accurate","",,"","","
+BOOK-011,Phase 1,Booking,Cancel a scheduled appointment,Customer,CRITICAL,"1. Login as customer
+2. View My Appointments
+3. Click Cancel on an upcoming appointment
+4. Confirm cancellation
+5. Optionally provide reason","✓ Booking status changes to Cancelled
+✓ Cancellation notice on dashboard
+✓ Refund processed (if applicable)
+✓ Cancellation email sent
+✓ Slot becomes available for rebooking","Booking to Cancel: April 10, 2026","- Booking status updated
+- Cannot cancel within 24 hours (based on policy)
+- Refund initiated
+- Slot released for others","",,"","","
+BOOK-012,Phase 1,Booking,Reschedule an existing appointment,Customer,CRITICAL,"1. Login as customer
+2. Click Reschedule on booking
+3. Select new date/time
+4. Confirm reschedule
+5. Accept any rescheduling fees","✓ New appointment created
+✓ Old booking marked as Rescheduled
+✓ Slot released from old time
+✓ Confirmation email sent with new details","Original: April 5, 2026 @ 10:00 AM
+Rescheduled: April 7, 2026 @ 2:00 PM","- Both bookings reflected correctly
+- Customer charged only once
+- Email confirms new details","",,"","","
+BOOK-013,Phase 1,Booking,View appointment status and progress,Customer,HIGH,"1. Login as customer
+2. View My Appointments
+3. Click on an appointment
+4. View detailed status","✓ Current status displayed clearly
+✓ Status history shown (timeline)
+✓ Estimated completion time shown
+✓ Employee assigned shown (if available)","Booking Status: In Progress
+Expected Completion: 11:30 AM","- Status updates in real-time
+- Timeline accurate
+- Employee info displayed","",,"","","
+PROF-C001,Phase 2,Profile,Add a new vehicle to my profile,Customer,HIGH,"1. Login as customer
+2. Navigate to Profile
+3. Go to My Vehicles
+4. Click Add New Vehicle
+5. Enter: Make, Model, Year, Color, Plate
+6. Click Save Vehicle","✓ Vehicle added to profile
+✓ Vehicle appears in vehicle list
+✓ All fields validated
+✓ Confirmation message shown","Make: Honda
+Model: Civic
+Year: 2023
+Color: Blue
+Plate: XYZ789","- Vehicle saved in database
+- Appears in booking vehicle selector
+- All fields properly stored","",,"","","
+PROF-C002,Phase 2,Profile,Edit vehicle information,Customer,HIGH,"1. Login as customer
+2. Go to My Vehicles
+3. Click Edit on a vehicle
+4. Modify vehicle details
+5. Click Save","✓ Changes saved
+✓ Updated info displayed
+✓ No data loss","Update: Color from Blue to Red","- Changes persisted in database
+- Old bookings keep original vehicle info
+- New bookings use updated info","",,"","","
+PROF-C003,Phase 2,Profile,Delete a vehicle from my profile,Customer,MEDIUM,"1. Login as customer
+2. Go to My Vehicles
+3. Click Delete on a vehicle
+4. Confirm deletion","✓ Vehicle removed from list
+✓ Cannot be selected for new bookings
+✓ Existing bookings unaffected
+✓ Soft delete or archive preferred","Vehicle: 2020 Ford Mustang","- Vehicle no longer appears
+- Old bookings still show vehicle info
+- Cannot cause data integrity issues","",,"","","
+PROF-C004,Phase 2,Profile,View all my registered vehicles,Customer,HIGH,"1. Login as customer
+2. Navigate to Profile
+3. Click My Vehicles","✓ All customer vehicles listed
+✓ Vehicle details displayed
+✓ Edit/Delete buttons available
+✓ Add Vehicle button prominent","Customer has 3 vehicles","- All vehicles visible
+- List properly formatted
+- Actions accessible","",,"","","
+PROF-C005,Phase 2,Profile,View and edit profile information,Customer,HIGH,"1. Login as customer
+2. Navigate to Profile
+3. Click Edit Profile
+4. Modify any allowed fields
+5. Click Save","✓ Changes saved
+✓ Confirmation message
+✓ Changes reflected immediately
+✓ Validation on email uniqueness","Update: Phone from 09123456789 to 09987654321","- Changes stored in database
+- Email conflicts prevented
+- Navbar updated if name changed","",,"","","
+PROF-C006,Phase 2,Profile,Update password from profile,Customer,HIGH,"1. Login as customer
+2. Navigate to Profile
+3. Click Change Password
+4. Enter current password
+5. Enter new password
+6. Confirm new password
+7. Click Update","✓ Old password required for verification
+✓ New password updated
+✓ Old password no longer works
+✓ Confirmation email sent
+✓ All other sessions logged out","Old Password: SecurePass123!
+New Password: NewSecurePass456!","- Password changed in database
+- Hash updated
+- Old password fails on next login
+- Confirmation email sent","",,"","","
+DASH-C002,Phase 2,Dashboard,View transaction/payment history,Customer,HIGH,"1. Login as customer
+2. Navigate to Transaction History
+3. View all past payments","✓ All transactions listed
+✓ Paginated if >10 items
+✓ Sortable by date
+✓ Filterable by status/amount
+✓ Payment methods shown","Customer has 8 transactions","- All transactions visible
+- Sorting/filtering works
+- Amounts correct","",,"","","
+DASH-C003,Phase 2,Dashboard,Download invoice/receipt for appointment,Customer,HIGH,"1. Login as customer
+2. View transaction history
+3. Click Download Invoice
+4. PDF downloads","✓ PDF file generated
+✓ Invoice contains all details
+✓ Professional formatting
+✓ Download starts automatically","Invoice for: April 1, 2026 booking ($28)","- PDF creates without errors
+- Contains all required info
+- File is readable","",,"","","
+DASH-E001,Phase 2,Dashboard,View employee dashboard with key metrics,Employee,HIGH,"1. Login as employee
+2. View main dashboard
+3. Observe widgets/cards","✓ Dashboard displays KPIs
+✓ All metrics current
+✓ Total appointments today shown
+✓ Pending appointments count shown","Today: 5 appointments scheduled","- Metrics accurate
+- Updates in real-time
+- Dashboard loads in <2 seconds","",,"","","
+EMP-001,Phase 2,Booking,View all assigned car wash bookings,Employee,HIGH,"1. Login as employee
+2. Navigate to My Bookings
+3. View list of assigned appointments","✓ All assigned appointments displayed
+✓ Shows vehicle info
+✓ Shows customer name
+✓ Shows service type
+✓ Shows scheduled time","Employee assigned to 5 bookings today","- All bookings visible
+- Sorted chronologically
+- Customer info accessible","",,"","","
+EMP-002,Phase 2,Booking,Update booking status,Employee,CRITICAL,"1. Login as employee
+2. View assigned bookings
+3. Click on a booking
+4. Click Start Service
+5. Upon completion, click Complete Service","✓ Status changes reflected immediately
+✓ Timer/duration tracked
+✓ Customer notified of status change
+✓ Status history recorded","Booking: April 5, 2026, 10:00 AM
+Status Flow: Pending → In Progress → Completed","- Status updates in database
+- Timestamp recorded
+- Customer notified
+- Status changes visible to customer","",,"","","
+EMP-003,Phase 2,Booking,View customer details for appointments,Employee,HIGH,"1. Login as employee
+2. Click on a booking
+3. View customer details panel","✓ Customer name displayed
+✓ Customer phone number shown
+✓ Customer email shown
+✓ Vehicle details displayed
+✓ Previous booking history available","Booking for: John Doe","- All details accessible
+- Contact info displayed
+- Can call/email if needed","",,"","","
+EMP-004,Phase 2,Booking,Filter bookings by date/time/status,Employee,MEDIUM,"1. Login as employee
+2. Go to bookings list
+3. Use filter for status
+4. View filtered results","✓ Filters applied
+✓ Only matching bookings shown
+✓ Result count updates
+✓ Multiple filters can combine","Filter: Status = Pending
+Results: 3 bookings","- Filtering accurate
+- Performance good with many bookings
+- Filters can be cleared","",,"","","
+EMP-005,Phase 2,Booking,Mark appointment as completed,Employee,CRITICAL,"1. Login as employee
+2. View assigned bookings
+3. Click on In Progress booking
+4. Click Mark as Completed
+5. Optional: Add notes/comments","✓ Status changes to Completed
+✓ Completion time recorded
+✓ Service duration calculated
+✓ Customer notified
+✓ Booking moved to history","Booking: Completed at 10:45 AM (45 min duration)","- Status persisted
+- Duration calculated correctly
+- Cannot be modified after marked complete
+- Customer sees completion notification","",,"","","
+EMP-006,Phase 2,Booking,View all customer records/history,Employee,HIGH,"1. Login as employee
+2. Navigate to Customer Records
+3. View list of all customers","✓ All customers listed
+✓ Pagination if >20 customers
+✓ Search functionality available
+✓ Basic info displayed","System has 150 customers","- All records accessible
+- Search works
+- Performance acceptable","",,"","","
+EMP-007,Phase 2,Booking,Search for specific customer records,Employee,HIGH,"1. Login as employee
+2. Go to Customer Records
+3. Use search box
+4. Enter customer name or email
+5. View results","✓ Search results displayed
+✓ Results filtered correctly
+✓ Can click to view details
+✓ Search is case-insensitive","Search: John → Results: 5 customers named John","- Search accurate
+- Results relevant
+- Performance good","",,"","","
+EMP-008,Phase 2,Booking,View customer booking history,Employee,HIGH,"1. Login as employee
+2. Go to Customer Records
+3. Find a customer
+4. Click View History","✓ All customer bookings listed
+✓ Dates, services, amounts shown
+✓ Status of each booking shown
+✓ Sortable by date","Customer: John Doe
+Bookings: 12 total","- All bookings visible
+- Accurate data
+- Sorted correctly","",,"","","
+EMP-009,Phase 2,Booking,View assigned washing points/stations,Employee,MEDIUM,"1. Login as employee
+2. Navigate to Washing Stations
+3. View assigned stations","✓ Assigned stations displayed
+✓ Station details shown
+✓ Current occupancy shown
+✓ Features/equipment listed","Employee assigned to: Station 1, Station 3","- Stations clearly displayed
+- Current status visible
+- Can be used for flow coordination","",,"","","
+DASH-A002,Phase 2,Dashboard,Access admin dashboard main page,Admin,HIGH,"1. Login as admin
+2. Dashboard loads automatically
+3. View main dashboard","✓ Dashboard displays comprehensive overview
+✓ Multiple widgets load
+✓ Analytics visible
+✓ Quick action buttons present","Admin: admin@test.com","- Dashboard responsive
+- All data loads
+- Navigation clear","",,"","","
+DASH-A003,Phase 2,Dashboard,View system overview and statistics,Admin,HIGH,"1. Login as admin
+2. View dashboard overview section
+3. Observe key metrics","✓ Total customers count
+✓ Total bookings count
+✓ Revenue today/this month
+✓ Pending tasks count
+✓ All metrics update regularly","Customers: 247
+Bookings: 1,205
+Revenue This Month: $5,432","- Numbers accurate
+- Update frequency acceptable
+- Data sources correct","",,"","","
+ANALYTICS-001,Phase 2,Analytics,View total customer count,Admin,MEDIUM,"1. Login as admin
+2. Navigate to Analytics/Reports
+3. View customer statistics","✓ Total customer count displayed
+✓ New customers this month shown
+✓ Growth trend visible
+✓ Can compare periods","Total: 247 customers
+New This Month: 23","- Count accurate
+- Trends displayable
+- Comparison features work","",,"","","
+ANALYTICS-002,Phase 2,Analytics,View total booking count,Admin,MEDIUM,"1. Login as admin
+2. Go to Analytics
+3. View booking statistics","✓ Total bookings displayed
+✓ Bookings by status shown
+✓ Bookings by service type shown
+✓ Charts/graphs visible","Total: 1,205 bookings
+Completed: 1,100
+Pending: 105","- Numbers accurate
+- Charts render properly
+- Data sliceable by multiple dimensions","",,"","","
+ANALYTICS-003,Phase 2,Analytics,View revenue analytics,Admin,HIGH,"1. Login as admin
+2. Go to Revenue section
+3. View revenue metrics","✓ Total revenue displayed
+✓ Revenue by period shown
+✓ Revenue by service type shown
+✓ Top performing services highlighted","Total Revenue: $18,540
+Top Service: Wash + Wax ($6,200)","- Revenue calculations correct
+- Breakdowns accurate
+- Charts display properly","",,"","","
+REPORT-001,Phase 2,Reporting,Generate reports by date range,Admin,HIGH,"1. Login as admin
+2. Navigate to Reports
+3. Select report type
+4. Select date range
+5. Click Generate","✓ Report generated within 10 seconds
+✓ Report displays all requested data
+✓ Data is accurate
+✓ Report format is professional","Report: Booking Report
+Date Range: Jan 1 - Mar 31, 2026
+Records: 847 bookings","- Report accuracy verified
+- Generation time acceptable
+- Format professional","",,"","","
+REPORT-002,Phase 2,Reporting,Export report data to CSV/PDF,Admin,MEDIUM,"1. Generate a report
+2. Click Export button
+3. Choose format: CSV or PDF
+4. File downloads","✓ Export file created
+✓ Format chosen correctly
+✓ Data complete
+✓ File is readable","Export: Booking Report as CSV","- File created successfully
+- Data complete
+- File opens in correct application
+- No data loss in conversion","",,"","","
+SERVICE-001,Phase 2,Services,Create a new car wash service package,Admin,CRITICAL,"1. Login as admin
+2. Navigate to Service Management
+3. Click Create New Service
+4. Enter: Package name, Description, Duration, Features
+5. Click Save","✓ Service created
+✓ Service appears in list
+✓ Service code auto-generated
+✓ Confirmation message","Name: Deluxe Wash + Wax + Interior Vacuum
+Duration: 90 minutes
+Features: Full wash, wax, interior vacuum, carpet shampoo","- Service saved in database
+- Available for pricing
+- Can be selected for bookings","",,"","","
+SERVICE-002,Phase 2,Services,Edit existing service package details,Admin,HIGH,"1. Login as admin
+2. Go to Service Management
+3. Click Edit on a service
+4. Modify details
+5. Click Save","✓ Changes saved
+✓ Update reflected immediately
+✓ Existing bookings not affected
+✓ New bookings use updated details","Service: Wash + Vacuum
+Update: Duration 30 → 40 minutes","- Changes persisted
+- Old bookings unchanged
+- New bookings use new duration","",,"","","
+SERVICE-003,Phase 2,Services,Delete a service package,Admin,MEDIUM,"1. Login as admin
+2. Go to Service Management
+3. Click Delete on a service
+4. Confirm deletion","✓ Service removed from list
+✓ Cannot be selected for new bookings
+✓ Option: Archive instead of delete
+✓ Old bookings still show service","Service to Delete: Seasonal Special Wash","- Service no longer available
+- Old bookings unaffected
+- No data integrity issues","",,"","","
+SERVICE-004,Phase 2,Services,Set pricing for service by vehicle type,Admin,CRITICAL,"1. Login as admin
+2. Go to Service Management
+3. Select a service
+4. Go to Pricing
+5. Enter prices for each vehicle type
+6. Click Save Pricing","✓ Pricing saved for each vehicle type
+✓ Pricing appears in booking system
+✓ Confirmation message
+✓ Can be edited later","Service: Wash + Wax
+Sedan: $35, SUV: $45, Truck: $55, Van: $50","- All prices stored correctly
+- Applied during booking calculation
+- Can be changed later","",,"","","
+SERVICE-005,Phase 2,Services,Update service package pricing,Admin,HIGH,"1. Login as admin
+2. Go to Service Management
+3. Click Edit Pricing on service
+4. Modify prices
+5. Click Update","✓ New prices applied
+✓ Effective immediately for new bookings
+✓ Old bookings keep original pricing
+✓ Confirmation message","Service: Basic Wash
+Old Sedan Price: $15 → New: $18","- Prices updated in database
+- New bookings use new prices
+- Old bookings unaffected","",,"","","
+SERVICE-006,Phase 2,Services,Activate/deactivate service packages,Admin,HIGH,"1. Login as admin
+2. Go to Service Management
+3. Find a service
+4. Toggle Active switch
+5. Confirm","✓ Service status changes
+✓ Inactive services don't appear in booking
+✓ Can be reactivated anytime
+✓ Existing bookings unaffected","Service: Winter Special → Deactivate","- Status changes immediately
+- Not available for new bookings
+- No impact on existing bookings","",,"","","
+SERVICE-007,Phase 2,Services,View all service packages,Admin,MEDIUM,"1. Login as admin
+2. Go to Service Management
+3. View list of all services","✓ All services listed (active and inactive)
+✓ Service details visible
+✓ Edit/Delete buttons present
+✓ Pagination if >10 services","Total Services: 8","- All services visible
+- List comprehensive
+- Actionable items present","",,"","","
+FACILITY-001,Phase 2,Facilities,Create a new washing point/station,Admin,CRITICAL,"1. Login as admin
+2. Go to Washing Points
+3. Click Create New Station
+4. Enter: Station name, Location, Capacity, Equipment type, Features
+5. Click Save","✓ Station created
+✓ Appears in station list
+✓ Can assign employees
+✓ Confirmation message","Name: Station A-1
+Location: North Building, Bay 1
+Capacity: 2 vehicles
+Equipment: Standard wash bay","- Station saved in database
+- Available for assignment
+- Employee can see during shift","",,"","","
+FACILITY-002,Phase 2,Facilities,Edit/Delete washing point details,Admin,HIGH,"1. Login as admin
+2. Go to Washing Points
+3. Click Edit or Delete
+4. Modify or confirm deletion","✓ Changes saved or deletion confirmed
+✓ Existing assignments reviewed
+✓ No bookings disrupted","Station: Station B-2
+Update: Capacity 2 → 3","- Changes persisted
+- Employee schedules considered
+- No data loss","",,"","","
+USER-E001,Phase 2,Users,Create new employee account,Admin,CRITICAL,"1. Login as admin
+2. Go to Employee Management
+3. Click Create Employee
+4. Enter: Email, First Name, Last Name, Phone, Stations
+5. Click Create","✓ Employee account created
+✓ Temporary password sent to email
+✓ Employee added to system
+✓ Can assign to bookings
+✓ Confirmation message","Email: newemployee@test.com
+Name: Jane Smith
+Stations: Station A-1, Station A-2","- Account created in database
+- Email sent with credentials
+- Employee can login
+- Can be assigned shifts","",,"","","
+USER-E002,Phase 2,Users,Edit employee information,Admin,MEDIUM,"1. Login as admin
+2. Go to Employee Management
+3. Click Edit on an employee
+4. Modify details
+5. Click Save","✓ Changes saved
+✓ Employee notified of changes
+✓ Changes visible immediately","Employee: Jane Smith
+Update: Phone number change","- Information updated
+- Employee can see changes after login","",,"","","
+USER-C001,Phase 2,Users,View all customer accounts,Admin,HIGH,"1. Login as admin
+2. Go to User Management
+3. View list of all customers","✓ All customers listed
+✓ Pagination if >20
+✓ Search available
+✓ Basic info shown
+✓ Account status shown","Total Customers: 247","- All customers accessible
+- Search functional
+- Performance good","",,"","","
+USER-C002,Phase 2,Users,Suspend/activate customer account,Admin,HIGH,"1. Login as admin
+2. Go to Customers
+3. Find a customer
+4. Click Suspend or Activate
+5. Add reason (for suspension)
+6. Confirm","✓ Account status changes
+✓ Cannot book if suspended
+✓ Can be reactivated anytime
+✓ Customer notified
+✓ Existing bookings handled appropriately","Customer: John Doe
+Action: Suspend (Reason: Multiple non-shows)","- Status updated
+- Suspended customers cannot book
+- Can be unsuspended","",,"","","
+FEEDBACK-001,Phase 2,Feedback,Submit feedback/review for completed service,Customer,MEDIUM,"1. Login as customer
+2. View completed appointment
+3. Click Leave Feedback
+4. Enter rating (1-5 stars)
+5. Enter comment text
+6. Click Submit","✓ Feedback submitted
+✓ Confirmation shown
+✓ Stored in database
+✓ Visible to admin/employees","Rating: 5 stars
+Comment: Excellent service! Very thorough wash.","- Feedback saved
+- Can be viewed by admins
+- Rating calculation includes this","",,"","","
+FEEDBACK-002,Phase 2,Feedback,View customer feedback/reviews,Admin,MEDIUM,"1. Login as admin
+2. Navigate to Feedback Management
+3. View all customer feedback","✓ All feedback listed
+✓ Rating shown clearly
+✓ Customer name shown
+✓ Date posted shown
+✓ Comment text visible","Total Feedback: 34","- All feedback accessible
+- Sortable by rating, date, customer
+- Professional display","",,"","","
+FEEDBACK-003,Phase 2,Feedback,Respond to customer feedback,Admin,MEDIUM,"1. Login as admin
+2. Go to Feedback Management
+3. Click on feedback item
+4. Click Reply
+5. Enter response text
+6. Click Send","✓ Response saved
+✓ Customer notified
+✓ Response visible alongside feedback
+✓ Professional tone encouraged","Response: Thank you for your feedback! We appreciate your business.","- Response stored
+- Customer sees it
+- Contributes to customer satisfaction","",,"","","
+INQUIRY-001,Phase 2,Inquiries,View and manage customer inquiries,Admin,MEDIUM,"1. Login as admin
+2. Go to Manage Inquiries
+3. View list of inquiries
+4. See unresolved count
+5. Filter by status","✓ All inquiries listed
+✓ Status clear (New, In Progress, Resolved)
+✓ Customer name shown
+✓ Date submitted shown
+✓ Priority level shown","Total: 12 inquiries (8 new, 3 in progress, 1 resolved)","- All inquiries visible
+- Easy to prioritize
+- Actionable items clear","",,"","","
+INQUIRY-002,Phase 2,Inquiries,Respond to customer inquiries,Admin,MEDIUM,"1. Login as admin
+2. Go to Manage Inquiries
+3. Click on unresolved inquiry
+4. Click Reply
+5. Enter response message
+6. Click Send","✓ Response sent to customer
+✓ Email delivered
+✓ Response tracked in inquiry
+✓ Status updated if resolved","Inquiry: Can I cancel my April 5 appointment?
+Response: Yes, you can cancel up to 24 hours before.","- Customer receives response
+- Response linked to inquiry
+- Professional communication maintained","",,"","","
+INQUIRY-003,Phase 2,Inquiries,Mark inquiries as resolved,Admin,MEDIUM,"1. Login as admin
+2. Go to Manage Inquiries
+3. Click on inquiry
+4. Click Mark as Resolved
+5. Close ticket","✓ Status changes to Resolved
+✓ Disappears from New/In Progress filters
+✓ Moved to Resolved section
+✓ Customer notified","Inquiry: Booking confirmation question","- Status updated
+- No longer appears in action list
+- Customer sees resolution","",,"","","
+CONTENT-001,Phase 2,Content,Edit landing page content,Admin,MEDIUM,"1. Login as admin
+2. Navigate to Landing Page Editor
+3. Edit text sections
+4. Click Save Draft or Publish","✓ Changes can be drafted
+✓ Changes can be previewed
+✓ Can save as draft
+✓ Can publish live
+✓ Live visible to customers immediately","Update: Main heading Welcome to AutoWash Hub!","- Changes saved
+- Preview accurate
+- Live changes immediate","",,"","","
+CONTENT-002,Phase 2,Content,Upload images for landing page,Admin,MEDIUM,"1. Login as admin
+2. Go to Landing Page Editor
+3. Click Upload Image for section
+4. Select image from computer
+5. Upload and confirm placement","✓ Image uploaded to server
+✓ Image appears in editor
+✓ Can be positioned
+✓ Can be replaced/deleted
+✓ Optimized for web","Image: car-wash-hero.jpg (2MB, 1920x1080px)","- Image uploaded successfully
+- Displays properly
+- Optimized for load time
+- Responsive on mobile","",,"","","
+AUTH-002,Phase 1,Authentication,Logout from any role,All Roles,CRITICAL,"1. Login to any account
+2. Click Logout or user menu → Logout
+3. Confirm logout if prompted","✓ Session terminated
+✓ Redirected to login or landing page
+✓ Cannot access protected routes
+✓ Session data cleared","Any authenticated user","- Session cleared properly
+- Cannot navigate to protected pages
+- Session storage cleared","",,"","","
+DASH-C001,Phase 1,Dashboard,Login and access customer dashboard,Customer,CRITICAL,"1. Login as customer
+2. System redirects to dashboard
+3. View dashboard content","✓ Dashboard loads within 2 seconds
+✓ Customer name displayed in navbar
+✓ Navigation menu visible
+✓ All widgets load properly
+✓ No console errors","Customer: John Doe (john@test.com)","- Dashboard responsive
+- All data loads
+- Navigation functional","",,"","","
+DASH-E002,Phase 1,Dashboard,Login and access employee dashboard,Employee,CRITICAL,"1. Login as employee
+2. System redirects to dashboard
+3. View employee-specific widgets","✓ Employee dashboard loads
+✓ Employee name in navbar
+✓ Employee-specific menus visible
+✓ Booking list visible","Employee: Jane Smith (jane@test.com)","- Dashboard loads quickly
+- Employee can see assigned bookings","",,"","","
+DASH-A001,Phase 1,Dashboard,Login and access admin dashboard,Admin,CRITICAL,"1. Login as admin
+2. System redirects to admin panel
+3. View admin dashboard","✓ Admin dashboard loads
+✓ Admin name in navbar
+✓ Full admin menu visible
+✓ Statistics/KPIs displayed
+✓ All admin features accessible","Admin: Admin Test (admin@test.com)","- Admin has full access
+- All menus functioning
+- Dashboard metrics display","",,"","","
+SYSTEM-001,Phase 3,System,Test backend API connection,QA/Technical,CRITICAL,"1. Navigate to connection-test page
+2. View connection status page
+3. Observe API endpoint status","✓ Connection to API established
+✓ API responds to test request
+✓ Response time shown (<500ms)
+✓ Green indicator for Connected","API Base URL: http://localhost/autowash-hub-api/api/","- Connection stable
+- Response times acceptable
+- Can reach all endpoints","",,"","","
+SYSTEM-002,Phase 3,System,Verify database connectivity,QA/Technical,CRITICAL,"1. Check backend system logs
+2. Verify database connection string
+3. Test query execution
+4. Monitor connection pool","✓ Database connection active
+✓ Queries execute successfully
+✓ No connection timeouts
+✓ Connection pool healthy","Database: AutoWash Hub Database
+Tables: customers, employees, bookings, services, pricing","- Database accessible
+- All tables readable/writable
+- Query performance acceptable","",,"","","
+SYSTEM-003,Phase 3,System,Verify email service working,QA/Technical,CRITICAL,"1. Register a test account
+2. Check system logs for PHP Mailer
+3. Check test email inbox
+4. Verify email format
+5. Click verification link","✓ Email sent within 10 seconds
+✓ Email properly formatted
+✓ Verification link works
+✓ Account activated after click
+✓ Database updated","Test Email: qatestemail@test.com","- Email delivery reliable
+- Links functional
+- Account activation works
+- No spam folder issues","",,"","","
+SYSTEM-004,Phase 3,System,Test file upload functionality,QA/Technical,HIGH,"1. Navigate to upload feature
+2. Select file from computer
+3. Upload file
+4. Verify file stored on server
+5. Test file retrieval","✓ File uploaded successfully
+✓ File stored in correct directory
+✓ File accessible for retrieval
+✓ File size validated
+✓ File type validated
+✓ Virus scan passed (if implemented)","File: profile-picture.jpg (500KB, JPG)","- File storage working
+- Retrieval working
+- Security validated
+- Size/type restrictions enforced","",,"","","
+SYSTEM-005,Phase 3,System,Verify password reset email delivery,QA/Technical,CRITICAL,"1. Initiate password reset
+2. Enter email address
+3. Check email inbox
+4. Verify email format
+5. Click reset link","✓ Email sent within 10 seconds
+✓ Email contains reset link
+✓ Link valid for 24 hours
+✓ Link contains secure token
+✓ Password can be reset via link","Reset Email: test.reset@test.com","- Email delivery reliable
+- Reset link works
+- Token security verified
+- Reset process successful","",,"","","
+SYSTEM-006,Phase 3,System,Test appointment confirmation email,QA/Technical,HIGH,"1. Complete booking process
+2. Check customer email
+3. Verify email received
+4. Check email content","✓ Confirmation email sent
+✓ Email contains booking ID
+✓ Email contains appointment details
+✓ Email contains cancellation policy
+✓ Email is professionally formatted
+✓ Links are functional","Booking Details: Booking ID #12345
+Date: April 5, 2026
+Time: 10:00 AM
+Service: Wash + Vacuum
+Total: $28.00","- Email reliable delivery
+- All content correct
+- Professional formatting
+- Links work correctly","",,"","","
+SYSTEM-007,Phase 3,System,Test real-time status updates,QA/Technical,MEDIUM,"1. Employee marks booking as In Progress
+2. Customer views booking in real-time
+3. Observe status change within 5 seconds
+4. Employee marks booking as Completed
+5. Observe final status update","✓ Status updates within 5 seconds
+✓ No page refresh required
+✓ Customer sees live progress
+✓ Employee can track progress
+✓ Multiple users see same status","Booking: April 5, 2026, 10:00 AM booking","- Updates fast (<5 seconds)
+- Updates reliable
+- Multiple user sync working","",,"","","
+SYSTEM-008,Phase 3,System,Test offline functionality,QA/Technical,LOW,"1. Load application online
+2. Disable internet connection
+3. Try to navigate/use app
+4. Observe offline page
+5. Re-enable internet","✓ Offline page loads
+✓ User sees appropriate message
+✓ Service worker functions
+✓ Application gracefully degrades","Simulate: Network disconnection","- Graceful offline handling
+- User doesn't see errors
+- Can reconnect seamlessly","",,"","","
+SYSTEM-009,Phase 3,System,Verify database backup/recovery,QA/Technical,HIGH,"1. Monitor database backup process
+2. Verify backup file created
+3. Test backup file integrity
+4. Test recovery procedure
+5. Verify data restored correctly","✓ Backups created automatically
+✓ Backup files verified
+✓ Recovery procedure works
+✓ Data integrity maintained
+✓ No data loss","Backup Schedule: Daily at 2 AM
+Backup Size: ~500MB (estimated)","- Reliable backup process
+- Recovery tested and working
+- RPO (Recovery Point Objective) met","",,"","","
+SYSTEM-010,Phase 3,System,Verify logging & monitoring,QA/Technical,MEDIUM,"1. Access system logs
+2. Verify key events logged
+3. Check log file sizes
+4. Verify log rotation working","✓ All events logged with timestamps
+✓ Error logs contain stack traces
+✓ Logs rotated to prevent overgrowth
+✓ Can search/filter logs
+✓ Security sensitive data masked","Sample Log Events","- Comprehensive logging
+- Proper log management
+- Searchable logs
+- Performance not affected","",,"","","
+UX-001,Phase 3,UX,Verify responsive design on mobile,QA/UX,HIGH,"1. Navigate to application on mobile
+2. Test on multiple screen sizes
+3. Test all major flows
+4. Verify touch interactions work","✓ Layout responsive and readable
+✓ Text readable (no horizontal scrolling)
+✓ Buttons/links easily tappable (44px minimum)
+✓ Forms functional on mobile
+✓ No content hidden unintentionally
+✓ Navigation works with touch","Devices: iPhone 12 Pro, Samsung Galaxy A21, Chrome DevTools emulation","- Mobile score >85
+- Touch interactions work
+- No horizontal scroll
+- Text readable without zoom","",,"","","
+UX-002,Phase 3,UX,Verify responsive design on tablet,QA/UX,MEDIUM,"1. Test on tablet devices
+2. Test all major features
+3. Verify layout adapts appropriately
+4. Test both portrait and landscape","✓ Layout optimized for tablet
+✓ Good use of screen real estate
+✓ Content properly spaced
+✓ No awkward gaps or overflow
+✓ Works in portrait and landscape","Devices: iPad Air, Samsung Galaxy Tab S7","- Tablet layout professional
+- All features accessible
+- Orientation changes smooth","",,"","","
+UX-003,Phase 3,UX,Verify responsive design on desktop,QA/UX,MEDIUM,"1. Test on desktop browsers
+2. Test at non-standard resolutions
+3. Verify layout scalable","✓ Desktop layout professional
+✓ Content well-organized
+✓ Whitespace appropriate
+✓ Works at standard resolutions
+✓ Sidebar navigation functional","Browsers: Chrome, Firefox, Safari, Edge (latest)","- Desktop experience excellent
+- All features accessible
+- Performance good"
