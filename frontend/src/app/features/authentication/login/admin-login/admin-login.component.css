@@ -391,24 +391,36 @@ html {
 }
 
 @media (max-width: 768px) {
+  .login-wrapper {
+    padding: 0;
+    align-items: flex-start;
+  }
+
   .login-card {
     flex-direction: column;
     width: 100%;
-    max-width: 420px;
-    border-radius: 20px;
+    max-width: 100%;
+    border-radius: 0;
+    min-height: 100vh;
+    box-shadow: none;
+    background: transparent;
   }
 
   .logo-section {
     flex: 0 0 auto;
-    padding: 35px 25px;
-    border-radius: 20px 20px 0 0;
+    padding: 60px 25px 70px 25px;
+    border-radius: 0;
     min-height: auto;
   }
 
   .form-section {
     flex: 1;
-    padding: 28px 25px;
-    border-radius: 0 0 20px 20px;
+    padding: 40px 25px;
+    border-radius: 30px 30px 0 0;
+    background: #ffffff;
+    margin-top: -30px;
+    position: relative;
+    z-index: 2;
   }
 
   .login-form {
@@ -416,18 +428,111 @@ html {
   }
 
   .welcome-title {
-    font-size: 22px;
+    font-size: 24px;
     margin-bottom: 6px;
+    color: #111;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
+    color: #888;
+  }
+
+  .logo-title {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .logo-subtitle {
+    font-size: 13px;
+  }
+
+  .logo {
+    width: 90px;
+    height: 90px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    margin-bottom: 16px;
+  }
+
+  .logo-container {
+    margin-bottom: 12px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #444;
+  }
+
+  .form-group input {
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid #ede2eb;
+    border-radius: 12px;
+    background-color: #ffffff;
+  }
+
+  .password-toggle {
+    color: var(--primary);
+  }
+
+  .forgot-password-container {
+    margin-bottom: 24px;
+  }
+
+  .forgot-password {
+    font-size: 13px;
+    color: var(--primary);
+  }
+
+  .sign-in-btn {
+    padding: 14px 0;
+    font-size: 16px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
+
+  .sign-in-btn:disabled {
+    background: #ffffff;
+    color: #f7e8f0;
+    border: 1px solid #f4ecf1;
+  }
+
+  .sign-up-link {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .back-link {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-section {
+    padding: 50px 20px 60px 20px;
+  }
+
+  .form-section {
+    padding: 30px 20px;
+  }
+
+  .welcome-title {
+    font-size: 22px;
   }
 
   .welcome-subtitle {
     font-size: 13px;
-    margin-bottom: 24px;
   }
-
+  
   .logo-title {
     font-size: 22px;
-    margin-bottom: 4px;
   }
 
   .logo-subtitle {
@@ -437,134 +542,11 @@ html {
   .logo {
     width: 80px;
     height: 80px;
-    margin-bottom: 16px;
-  }
-
-  .logo-container {
-    margin-bottom: 12px;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-  }
-
-  .form-group label {
-    font-size: 11px;
-    margin-bottom: 6px;
   }
 
   .form-group input {
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .forgot-password-container {
-    margin-bottom: 18px;
-  }
-
-  .forgot-password {
-    font-size: 12px;
-  }
-
-  .sign-in-btn {
-    padding: 11px 0;
+    padding: 12px 14px;
     font-size: 14px;
-    margin-bottom: 16px;
-  }
-
-  .sign-up-link {
-    font-size: 13px;
-    margin-top: 0;
-  }
-
-  .back-link {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-wrapper {
-    padding: 15px;
-  }
-
-  .login-card {
-    border-radius: 16px;
-    max-width: 100%;
-  }
-
-  .logo-section {
-    padding: 32px 20px;
-    border-radius: 16px 16px 0 0;
-  }
-
-  .form-section {
-    padding: 24px 20px;
-    border-radius: 0 0 16px 16px;
-  }
-
-  .welcome-title {
-    font-size: 20px;
-    margin-bottom: 4px;
-  }
-
-  .welcome-subtitle {
-    font-size: 12px;
-    margin-bottom: 20px;
-  }
-
-  .login-form {
-    margin: 0;
-  }
-
-  .logo-title {
-    font-size: 20px;
-    margin-bottom: 3px;
-  }
-
-  .logo-subtitle {
-    font-size: 11px;
-  }
-
-  .logo-container {
-    margin-bottom: 10px;
-  }
-
-  .logo {
-    width: 75px;
-    height: 75px;
-  }
-
-  .form-group {
-    margin-bottom: 14px;
-  }
-
-  .form-group label {
-    font-size: 10px;
-    margin-bottom: 5px;
-  }
-
-  .form-group input {
-    padding: 9px 11px;
-    font-size: 13px;
-  }
-
-  .forgot-password-container {
-    margin-bottom: 16px;
-  }
-
-  .forgot-password {
-    font-size: 12px;
-  }
-
-  .sign-in-btn {
-    padding: 11px 0;
-    font-size: 14px;
-    margin-bottom: 14px;
-  }
-
-  .sign-up-link {
-    font-size: 12px;
-    margin-top: 0;
   }
 }
 
