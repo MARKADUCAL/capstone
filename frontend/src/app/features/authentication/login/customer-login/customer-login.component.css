@@ -371,6 +371,11 @@ html {
   display: none;
 }
 
+/* Mobile Back Button - hidden on desktop */
+.mobile-back-btn {
+  display: none;
+}
+
 /* Error Message */
 .error-message {
   color: #d32f2f;
@@ -394,6 +399,33 @@ html {
   .login-wrapper {
     padding: 0;
     align-items: flex-start;
+  }
+
+  .mobile-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 10;
+  }
+
+  .mobile-back-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .mobile-back-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   .login-card {
