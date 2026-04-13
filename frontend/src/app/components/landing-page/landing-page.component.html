@@ -2,13 +2,7 @@
 <nav class="navbar">
   <div class="container">
     <div class="logo">
-      <img
-        src="assets/logo3.png"
-        alt="Leydi boss Logo"
-        title="Leydi boss Logo"
-        routerLink="/landing-page"
-      />
-      <span>Leydi Boss</span>
+      <span class="logo-text">Leydi<strong>Boss</strong></span>
     </div>
     <div
       class="mobile-menu-toggle"
@@ -22,7 +16,7 @@
     <ul class="nav-links" [class.mobile-nav-active]="mobileMenuOpen">
       <li><a href="#hero" (click)="closeMobileMenu()">Home</a></li>
       <li>
-        <a href="#pricing" (click)="closeMobileMenu()">Services & Pricing</a>
+        <a href="#pricing" (click)="closeMobileMenu()">Services</a>
       </li>
       <li><a href="#gallery" (click)="closeMobileMenu()">Gallery</a></li>
       <li><a href="#contact" (click)="closeMobileMenu()">Contact</a></li>
@@ -41,26 +35,53 @@
 ></div>
 
 <!-- Hero Section -->
-<header
-  class="hero"
-  id="hero"
-  [ngStyle]="{
-    'background-image': content
-      ? 'url(' + content.heroBackgroundUrl + ')'
-      : 'none'
-  }"
->
-  <div class="hero-content" *ngIf="content && !isLoadingContent">
-    <h2>
-      {{ content.heroTitle.split(" ").slice(0, 1).join(" ") }} <br />
-      {{ content.heroTitle.split(" ").slice(1).join(" ") || "" }}
-    </h2>
-    <p>
+<header class="hero" id="hero">
+  <div class="hero-content">
+    <!-- Badge -->
+    <div class="hero-badge">
+      <span class="badge-icon">🚗</span>
+      Now accepting online bookings
+    </div>
+
+    <h1 class="hero-headline" *ngIf="content && !isLoadingContent">
+      {{ content.heroTitle.split(' ').slice(0, -1).join(' ') || 'The cleanest car in' }}
+      <span class="hero-city">{{ content.heroTitle.split(' ').slice(-1)[0] || 'Olongapo' }}.</span>
+    </h1>
+    <h1 class="hero-headline" *ngIf="!content || isLoadingContent">
+      The cleanest car in<br />
+      <span class="hero-city">Olongapo.</span>
+    </h1>
+
+    <p class="hero-description" *ngIf="content && !isLoadingContent">
       {{ content.heroDescription }}
     </p>
-    <a (click)="showModal = true" class="book-now-btn">Book Now</a>
+    <p class="hero-description" *ngIf="!content || isLoadingContent">
+      Fast <span class="highlight">booking</span>, instant <span class="highlight">updates</span>, and smooth car wash
+      service management — all in one place.
+    </p>
+
+    <div class="hero-cta">
+      <a (click)="showModal = true" class="btn-primary" style="cursor:pointer;">Book Now</a>
+      <a href="#pricing" class="btn-secondary">View Services</a>
+    </div>
+
+    <!-- Hero Image Slot -->
+    <div class="hero-image-container" *ngIf="content && content.heroBackgroundUrl">
+      <img [src]="content.heroBackgroundUrl" alt="Car wash service" class="hero-image" />
+    </div>
+    <div class="hero-image-placeholder" *ngIf="!content || !content.heroBackgroundUrl">
+      <div class="placeholder-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>ADD YOUR PHOTO HERE</span>
+      </div>
+    </div>
   </div>
 </header>
+
 
 <!-- Pricing Section -->
 <section class="pricing" id="pricing">
