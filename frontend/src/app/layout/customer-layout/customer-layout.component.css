@@ -94,6 +94,7 @@ body {
   justify-content: center;
   border-radius: 4px;
   transition: background-color 0.2s;
+  z-index: 1010;
 }
 
 .close-btn:hover {
@@ -335,7 +336,7 @@ body {
 
   /* Show close button in sidebar */
   .close-btn {
-    display: flex;
+    display: flex !important;
   }
 
   /* Adjust content margin */

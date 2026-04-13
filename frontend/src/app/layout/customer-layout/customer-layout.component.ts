@@ -143,7 +143,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   toggleSidebar() {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (window.innerWidth < 768) {
+    if (window.innerWidth <= 768) {
       this.sidebarActive = !this.sidebarActive;
       document.body.style.overflow = this.sidebarActive ? 'hidden' : 'auto';
       return;
@@ -154,7 +154,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   }
 
   closeSidebarOnMobile() {
-    if (isPlatformBrowser(this.platformId) && window.innerWidth < 768) {
+    if (isPlatformBrowser(this.platformId) && window.innerWidth <= 768) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
