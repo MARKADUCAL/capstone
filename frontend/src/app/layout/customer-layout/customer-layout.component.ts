@@ -41,7 +41,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     // Initialize the subscription
     this.routeSubscription = new Subscription();
@@ -64,7 +64,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.router.events
       .pipe(
         filter((event: Event) => event instanceof NavigationEnd),
-        map(() => this.getPageTitle(this.activatedRoute))
+        map(() => this.getPageTitle(this.activatedRoute)),
       )
       .subscribe((title) => {
         this.pageTitle = title;

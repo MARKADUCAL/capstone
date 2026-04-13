@@ -286,7 +286,8 @@ body {
   }
 
   .sidebar-close {
-    display: flex;
+    display: flex !important;
+    z-index: 1010;
   }
 
   .menu-icon {
