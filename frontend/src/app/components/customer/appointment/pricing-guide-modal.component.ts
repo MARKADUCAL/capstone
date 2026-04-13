@@ -66,7 +66,10 @@ import { MatIconModule } from '@angular/material/icon';
                   data.extractServiceDescription(service)
                 }}</span>
                 <div class="service-tags">
-                  <span class="tag" *ngFor="let tag of extractServiceTags(service)">
+                  <span
+                    class="tag"
+                    *ngFor="let tag of extractServiceTags(service)"
+                  >
                     {{ tag }}
                   </span>
                 </div>
@@ -95,24 +98,16 @@ import { MatIconModule } from '@angular/material/icon';
           </div>
         </div>
       </div>
-
-      <!-- Modal Footer -->
-      <div class="modal-footer">
-        <button mat-raised-button color="accent" class="book-btn">
-          <i class="fas fa-check"></i>
-          Book this service
-        </button>
-      </div>
     </div>
   `,
   styles: [
     `
       :host ::ng-deep {
-        --accent-color: #16a34a;
-        --dark-bg: #1a1a1a;
-        --card-bg: #2a2a2a;
-        --text-light: #e0e0e0;
-        --text-muted: #a0a0a0;
+        --accent-color: #343dff;
+        --dark-bg: #1a1b1f;
+        --card-bg: #2a2b2f;
+        --text-light: #ffffff;
+        --text-muted: #9a9aa0;
       }
 
       .pricing-modal-content {
@@ -129,7 +124,11 @@ import { MatIconModule } from '@angular/material/icon';
         justify-content: space-between;
         align-items: center;
         padding: 20px 24px;
-        background: linear-gradient(135deg, var(--accent-color) 0%, #15803d 100%);
+        background: linear-gradient(
+          135deg,
+          var(--accent-color) 0%,
+          #005cbb 100%
+        );
         color: white;
         margin: -24px -24px 0 -24px;
         border-radius: 4px 4px 0 0;
@@ -228,7 +227,7 @@ import { MatIconModule } from '@angular/material/icon';
 
         &:hover {
           border-color: var(--accent-color);
-          background: rgba(22, 163, 74, 0.1);
+          background: rgba(52, 61, 255, 0.1);
         }
 
         &.selected {
@@ -267,11 +266,11 @@ import { MatIconModule } from '@angular/material/icon';
         cursor: pointer;
 
         &:hover {
-          background: rgba(22, 163, 74, 0.1);
+          background: rgba(52, 61, 255, 0.1);
         }
 
         &.selected {
-          background: rgba(22, 163, 74, 0.2);
+          background: rgba(52, 61, 255, 0.2);
           border-left-color: var(--accent-color);
         }
       }
@@ -312,7 +311,7 @@ import { MatIconModule } from '@angular/material/icon';
         display: inline-block;
         font-size: 11px;
         padding: 4px 8px;
-        background: rgba(22, 163, 74, 0.15);
+        background: rgba(52, 61, 255, 0.15);
         color: var(--accent-color);
         border-radius: 12px;
         font-weight: 500;
@@ -380,7 +379,7 @@ import { MatIconModule } from '@angular/material/icon';
 
         &:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+          box-shadow: 0 4px 12px rgba(52, 61, 255, 0.3);
         }
 
         i {
@@ -475,7 +474,9 @@ export class PricingGuideModalComponent implements OnInit {
 
     try {
       // Find the service code based on selected service
-      const serviceIndex = this.data.servicePackages.indexOf(this.selectedService);
+      const serviceIndex = this.data.servicePackages.indexOf(
+        this.selectedService,
+      );
       if (serviceIndex === -1) return 'N/A';
 
       const serviceCode = this.data.serviceCodes[serviceIndex];
