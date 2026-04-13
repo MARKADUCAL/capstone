@@ -107,7 +107,11 @@ import { MatIconModule } from '@angular/material/icon';
         flex-direction: column;
         max-height: 90vh;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--secondary) 0%,
+          var(--primary) 100%
+        );
         border-radius: 20px;
         overflow: hidden;
       }
@@ -117,7 +121,11 @@ import { MatIconModule } from '@angular/material/icon';
         justify-content: space-between;
         align-items: center;
         padding: 28px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--accent) 100%
+        );
         color: white;
       }
 
@@ -189,7 +197,11 @@ import { MatIconModule } from '@angular/material/icon';
         justify-content: center;
         width: 32px;
         height: 32px;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--primary) 100%
+        );
         color: white;
         border-radius: 50%;
         font-weight: 700;
@@ -229,7 +241,11 @@ import { MatIconModule } from '@angular/material/icon';
         }
 
         &.selected {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+          background: linear-gradient(
+            135deg,
+            var(--primary) 0%,
+            var(--accent) 100%
+          );
           border-color: var(--primary);
           color: white;
           box-shadow: 0 6px 20px rgba(0, 92, 187, 0.3);
@@ -286,7 +302,11 @@ import { MatIconModule } from '@angular/material/icon';
         justify-content: center;
         width: 32px;
         height: 32px;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--primary) 100%
+        );
         color: white;
         border-radius: 8px;
         font-weight: 700;
@@ -316,7 +336,11 @@ import { MatIconModule } from '@angular/material/icon';
         display: inline-block;
         font-size: 11px;
         padding: 4px 10px;
-        background: linear-gradient(135deg, rgba(0, 92, 187, 0.1) 0%, rgba(52, 61, 255, 0.1) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 92, 187, 0.1) 0%,
+          rgba(52, 61, 255, 0.1) 100%
+        );
         color: var(--primary);
         border-radius: 14px;
         font-weight: 500;
@@ -332,7 +356,11 @@ import { MatIconModule } from '@angular/material/icon';
       }
 
       .price-display-card {
-        background: linear-gradient(135deg, rgba(0, 92, 187, 0.08) 0%, rgba(52, 61, 255, 0.08) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 92, 187, 0.08) 0%,
+          rgba(52, 61, 255, 0.08) 100%
+        );
         border-left: 5px solid var(--primary);
         padding: 28px;
         border-radius: 16px;
@@ -353,7 +381,11 @@ import { MatIconModule } from '@angular/material/icon';
       .price-amount {
         font-size: 44px;
         font-weight: 700;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--accent) 100%
+        );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -388,7 +420,11 @@ import { MatIconModule } from '@angular/material/icon';
         padding: 16px 24px !important;
         font-weight: 600;
         font-size: 15px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) !important;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--accent) 100%
+        ) !important;
         color: white !important;
         text-transform: capitalize;
         border-radius: 12px !important;
