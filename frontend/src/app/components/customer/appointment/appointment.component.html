@@ -9,6 +9,19 @@
         </h1>
         <p class="page-subtitle">Schedule your car wash service with ease</p>
       </div>
+      <div class="header-right">
+        <button
+          type="button"
+          mat-raised-button
+          color="accent"
+          (click)="openPricingGuideModal()"
+          class="pricing-guide-btn"
+          title="View pricing information"
+        >
+          <i class="fas fa-calculator"></i>
+          <span>Pricing Guide</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -410,105 +423,7 @@
 
     <!-- Sidebar with Tips -->
     <div class="appointment-sidebar">
-      <!-- Pricing Guide -->
-      <div class="sidebar-card pricing-guide">
-        <div class="card-header">
-          <i class="fas fa-calculator"></i>
-          <h3>PRICING GUIDE</h3>
-        </div>
-        <div class="card-content">
-          <!-- Step 1: Vehicle Types -->
-          <div class="pricing-step">
-            <h4>Step 1: Identify Vehicle Type</h4>
-            <div class="vehicle-types-list">
-              <div class="vehicle-type-item">
-                <span class="vehicle-code">S:</span>
-                <span class="vehicle-desc">Sedans (all sedan types)</span>
-              </div>
-              <div class="vehicle-type-item">
-                <span class="vehicle-code">M:</span>
-                <span class="vehicle-desc">SUVs (all SUV types)</span>
-              </div>
-              <div class="vehicle-type-item">
-                <span class="vehicle-code">L:</span>
-                <span class="vehicle-desc">VANs (any type of van)</span>
-              </div>
-              <div class="vehicle-type-item">
-                <span class="vehicle-code">XL:</span>
-                <span class="vehicle-desc"
-                  >Larger than vans (big SUVs/pickups, oversized vehicles)</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 2: Service Packages -->
-          <div class="pricing-step">
-            <h4>Step 2: Select Services</h4>
-            <div class="service-packages-list">
-              <div
-                *ngFor="let service of servicePackages; let i = index"
-                class="service-package-item"
-              >
-                <span class="service-code">{{ i + 1 }}:</span>
-                <span class="service-desc">{{
-                  extractServiceDescription(service)
-                }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 3: Pricing Table -->
-          <div class="pricing-step">
-            <h4>Step 3: Determine Price</h4>
-            <div class="pricing-table">
-              <div class="pricing-header">
-                <div class="header-cell">Vehicle</div>
-                <div
-                  class="header-cell"
-                  *ngFor="let serviceCode of serviceCodes"
-                >
-                  {{ serviceCode.replace("p", "") }}
-                </div>
-              </div>
-              <div
-                class="pricing-row"
-                *ngFor="let vehicleCode of vehicleTypeCodes"
-              >
-                <div class="vehicle-cell">{{ vehicleCode }}</div>
-                <div
-                  class="price-cell"
-                  *ngFor="let serviceCode of serviceCodes"
-                >
-                  {{ formatPrice(vehicleCode, serviceCode) }}
-                </div>
-              </div>
-            </div>
-            <div class="pricing-table-mobile">
-              <div
-                class="pricing-mobile-card"
-                *ngFor="let vehicleCode of vehicleTypeCodes"
-              >
-                <div class="pricing-mobile-header">
-                  Vehicle Type: {{ vehicleCode }}
-                </div>
-                <div
-                  class="pricing-mobile-row"
-                  *ngFor="let serviceCode of serviceCodes"
-                >
-                  <span class="pricing-mobile-label">
-                    {{ serviceCode.replace("p", "Package ") }}
-                  </span>
-                  <span class="pricing-mobile-value">
-                    {{ formatPrice(vehicleCode, serviceCode) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <!-- Tips Card -->
       <div class="sidebar-card">
         <div class="card-header">
           <i class="fas fa-lightbulb"></i>

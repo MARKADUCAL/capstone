@@ -37,6 +37,13 @@
 
 .header-left {
   flex: 1;
+  min-width: 200px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .page-title {
@@ -61,9 +68,48 @@
   font-weight: 400;
 }
 
-.header-right {
+.pricing-guide-btn {
   display: flex;
   align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 10px 20px !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  i {
+    font-size: 18px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Responsive adjustments for pricing button */
+@media (max-width: 768px) {
+  .pricing-guide-btn {
+    padding: 8px 16px !important;
+    font-size: 12px;
+
+    i {
+      font-size: 16px;
+    }
+
+    span {
+      display: none;
+    }
+
+    &::after {
+      content: '';
+    }
+  }
+
+  .header-content {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
 .available-slots-card {

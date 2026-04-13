@@ -21,6 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
 import {
   VEHICLE_TYPES,
   VEHICLE_TYPE_CODES,
@@ -35,6 +36,8 @@ import {
 } from '../../../models/booking.model';
 import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PricingGuideModalComponent } from './pricing-guide-modal.component';
 
 interface CalendarDay {
   date: Date;
@@ -68,6 +71,8 @@ type CalendarStatusType =
     MatSelectModule,
     MatFormFieldModule,
     MatIconModule,
+    MatDialogModule,
+    PricingGuideModalComponent,
   ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],
@@ -149,6 +154,7 @@ export class AppointmentComponent implements OnInit {
     private serviceService: ServiceService,
     private route: ActivatedRoute,
     private http: HttpClient,
+    private dialog: MatDialog,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -1280,6 +1286,23 @@ export class AppointmentComponent implements OnInit {
     } catch {
       return 'N/A';
     }
+  }
+
+  // Open pricing guide modal
+  openPricingGuideModal(): void {
+    this.dialog.open(PricingGuideModalComponent, {
+      width: '90%',
+      maxWidth: '600px',
+      disableClose: false,
+      data: {
+        servicePackages: this.servicePackages,
+        serviceCodes: this.serviceCodes,
+        vehicleTypeCodes: this.vehicleTypeCodes,
+        pricingMatrix: this.pricingMatrix,
+        formatPrice: this.formatPrice.bind(this),
+        extractServiceDescription: this.extractServiceDescription.bind(this),
+      },
+    });
   }
 
   // View booking details (in a real app, this might navigate to a details page)
