@@ -1069,150 +1069,272 @@ html {
 
 /* Contact Section */
 .contact {
-  height: auto; /* Auto height */
-  min-height: 780px; /* Set minimum height */
-  overflow-y: auto; /* Allow scrolling */
   text-align: center;
   margin: 40px 0;
-  padding: 60px 20px; /* Add padding */
-  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%);
+  padding: 80px 20px;
+  background-color: #f9f9f9;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   position: relative;
 }
 
-.contact h2 {
-  font-size: 61px;
-  margin: 40px 0 50px;
-  color: #010001;
-  font-weight: bold;
+.contact-header {
+  margin-bottom: 50px;
+}
+
+.contact-header h2 {
+  font-size: 36px;
+  color: #111;
+  font-weight: 800;
+  margin-bottom: 12px;
   position: relative;
   display: inline-block;
 }
 
-.contact h2::after {
+.contact-header h2::after {
   content: "";
   position: absolute;
-  bottom: -15px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(90deg, #ad2d7e, #ad2d7e);
+  width: 50px;
+  height: 3px;
+  background: #bd277c;
   border-radius: 2px;
 }
 
-.contact-info {
+.contact-subtitle {
+  color: #888;
+  font-size: 15px;
+  margin: 0;
+}
+
+.contact-wrapper {
   display: flex;
-  flex-direction: row; /* Default direction */
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  flex-wrap: wrap; /* Allow wrapping for smaller screens */
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: left;
 }
 
+/* Left / Top: Contact Info Box */
 .quick-contact {
-  width: 100%; /* Full width for small screens */
-  max-width: 426px; /* Maximum width */
-  height: auto; /* Auto height */
-  min-height: 555px; /* Minimum height */
-  background-color: #010001;
-  color: white; /* White text */
-  padding: 30px; /* Padding around the section */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack items vertically */
-  justify-content: center; /* Center items vertically */
-  margin-bottom: 30px; /* Add margin for small screens */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 0 0 340px;
+  background-color: #bd277c;
+  color: #ffffff;
+  padding: 45px 35px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
-.quick-contact:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+.quick-contact-header h3 {
+  font-size: 24px;
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: #fff;
 }
 
-.quick-contact h3 {
-  margin-top: -50px;
-  margin-bottom: 50px; /* Space below the heading */
-  font-size: 32px; /* Increased font size for the heading */
+.quick-contact-header p {
+  font-size: 13px;
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+.quick-contact-divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  margin-bottom: 35px;
+}
+
+/* Grid for the contact items */
+.contact-items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .contact-item {
-  text-align: left;
-  display: flex; /* Flexbox for alignment */
-  align-items: center; /* Center items vertically */
-  margin-bottom: 15px; /* Space between items */
-  font-size: 20px; /* Increased font size for contact items */
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
 }
 
-.contact-item i {
-  margin-right: 10px; /* Space between icon and text */
-  font-size: 28px; /* Increased icon size */
-  color: #ad2d7e;
+.icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.contact-form {
-  flex: 2;
+.icon-circle i {
+  color: #fff;
+  font-size: 14px;
+}
+
+.contact-text {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Space between inputs */
-  align-items: center; /* Center items horizontally */
-  width: 100%; /* Full width for small screens */
-  max-width: 600px; /* Maximum width */
-  margin: 0 auto; /* Center for small screens */
-  background: rgba(255, 255, 255, 0.8);
-  padding: 30px;
+  justify-content: center;
+}
+
+.contact-text span, .contact-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.contact-text p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.4;
+}
+
+/* Right / Bottom: Form Wrapper */
+.contact-form-wrapper {
+  flex: 1;
+  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f5f5f5;
 }
 
-.contact-form input,
-.contact-form textarea {
-  padding: 15px; /* Increase padding for a more spacious feel */
-  border: 2px solid #ede2eb;
-  border-radius: 8px; /* Slightly rounded corners */
+.contact-form-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
   width: 100%;
-  color: #010001;
-  background-color: #ffffff;
-  transition: all 0.3s; /* Smooth transition */
-  font-size: 16px;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: #ad2d7e;
-  outline: none; /* Remove default outline */
-  box-shadow: 0 0 0 3px rgba(173, 45, 126, 0.1);
-  background-color: #ffffff;
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
 }
 
-.contact-form button {
-  font-size: 18px;
-  height: 55px; /* Fixed height */
-  width: 100%; /* Responsive width */
-  max-width: 317px; /* Maximum width */
-  padding: 10px;
-  background-color: #010001;
-  color: white; /* Button text color */
-  border: none; /* No border */
-  border-radius: 30px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor */
-  margin-top: 20px; /* Space above the button */
-  font-weight: bold;
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  background-color: #333333;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 14px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
 }
 
-.contact-form button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ad2d7e 0%, #ad2d7e 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(173, 45, 126, 0.4);
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #888888;
 }
 
-.contact-form button:disabled {
-  background-color: rgba(0, 0, 0, 0.2);
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ad2d7e;
+  box-shadow: 0 0 0 2px rgba(173, 45, 126, 0.2);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.btn-submit-modern {
+  width: 100%;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #f6f6f6;
+  border-radius: 8px;
+  color: #f7f7f7;   /* Faint text imitating mockup */
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-submit-modern:hover:not(:disabled) {
+  background-color: #bd277c;
+  border-color: #bd277c;
+  color: #ffffff;
+}
+
+.btn-submit-modern:disabled {
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* Tablet sizing (up to 950px) */
+@media (max-width: 950px) {
+  .contact-wrapper {
+    flex-direction: column;
+    max-width: 650px;
+  }
+  
+  .quick-contact {
+    flex: auto;
+  }
+
+  .contact-items-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+}
+
+/* Mobile sizing */
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contact-form-wrapper {
+    padding: 30px 20px;
+  }
+
+  .quick-contact {
+    padding: 35px 25px;
+  }
 }
 
 /* Success and Error Messages */

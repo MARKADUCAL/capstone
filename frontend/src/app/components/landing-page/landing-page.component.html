@@ -276,82 +276,98 @@
 
 <!-- Contact Section -->
 <section class="contact" id="contact">
-  <h2>Contact for any Query</h2>
-  <div class="contact-info">
+  <div class="contact-header">
+    <h2>Get in Touch</h2>
+    <p class="contact-subtitle">Have questions or want to book? We'd love to hear from you.</p>
+  </div>
+  
+  <div class="contact-wrapper">
+    <!-- Left / Top: Contact Info -->
     <div class="quick-contact" *ngIf="content">
-      <h3>Quick Contact Info</h3>
-      <div class="contact-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <p><strong>Address:</strong> {{ content.contactInfo.address }}</p>
+      <div class="quick-contact-header">
+        <h3>Contact Info</h3>
+        <p>Reach us through any of these channels.</p>
       </div>
-      <div class="contact-item">
-        <i class="fas fa-clock"></i>
-        <p>
-          <strong>Opening Time:</strong> {{ content.contactInfo.openingHours }}
-        </p>
-      </div>
-      <div class="contact-item">
-        <i class="fas fa-phone"></i>
-        <p><strong>Call Us:</strong> {{ content.contactInfo.phone }}</p>
-      </div>
-      <div class="contact-item">
-        <i class="fas fa-envelope"></i>
-        <p><strong>Email Us:</strong> {{ content.contactInfo.email }}</p>
+      <div class="quick-contact-divider"></div>
+      
+      <div class="contact-items-grid">
+        <div class="contact-item">
+          <div class="icon-circle">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="contact-text">
+            <span>ADDRESS</span>
+            <p>{{ content.contactInfo.address }}</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="icon-circle">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="contact-text">
+            <span>HOURS</span>
+            <p>{{ content.contactInfo.openingHours }}</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="icon-circle">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div class="contact-text">
+            <span>CALL US</span>
+            <p>{{ content.contactInfo.phone }}</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="icon-circle">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="contact-text">
+            <span>EMAIL</span>
+            <p>{{ content.contactInfo.email }}</p>
+          </div>
+        </div>
       </div>
     </div>
-    <form
-      class="contact-form"
-      (ngSubmit)="onSubmitContactForm()"
-      #contactFormRef="ngForm"
-    >
-      <!-- Success/Error Messages -->
-      <div *ngIf="contactSuccessMessage" class="success-message">
-        {{ contactSuccessMessage }}
-      </div>
-      <div *ngIf="contactErrorMessage" class="error-message">
-        {{ contactErrorMessage }}
-      </div>
 
-      <input
-        type="text"
-        class="input-medium"
-        id="yourname"
-        name="name"
-        [(ngModel)]="contactForm.name"
-        placeholder="Your Name"
-        required
-      />
-      <input
-        type="email"
-        class="input-medium"
-        id="youremail"
-        name="email"
-        [(ngModel)]="contactForm.email"
-        placeholder="Your Email"
-        required
-      />
-      <input
-        type="text"
-        class="input-small"
-        id="subject"
-        name="subject"
-        [(ngModel)]="contactForm.subject"
-        placeholder="Subject"
-        required
-      />
-      <textarea
-        class="input-large"
-        id="message"
-        name="message"
-        [(ngModel)]="contactForm.message"
-        placeholder="Message"
-        required
-      ></textarea>
-      <button type="submit" [disabled]="isSubmitting">
-        <span *ngIf="!isSubmitting">Send Message</span>
-        <span *ngIf="isSubmitting">Sending...</span>
-      </button>
-    </form>
+    <!-- Right / Bottom: Contact Form -->
+    <div class="contact-form-wrapper">
+      <form class="contact-form-modern" (ngSubmit)="onSubmitContactForm()" #contactFormRef="ngForm">
+        <!-- Success/Error Messages -->
+        <div *ngIf="contactSuccessMessage" class="success-message">
+          {{ contactSuccessMessage }}
+        </div>
+        <div *ngIf="contactErrorMessage" class="error-message">
+          {{ contactErrorMessage }}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label for="yourname">Full Name</label>
+            <input type="text" id="yourname" name="name" [(ngModel)]="contactForm.name" placeholder="Juan dela Cruz" required />
+          </div>
+          <div class="form-group half-width">
+            <label for="youremail">Email Address</label>
+            <input type="email" id="youremail" name="email" [(ngModel)]="contactForm.email" placeholder="juan@email.com" required />
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" [(ngModel)]="contactForm.subject" placeholder="Booking inquiry, pricing, etc." required />
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" [(ngModel)]="contactForm.message" placeholder="Tell us how we can help you..." required></textarea>
+        </div>
+        
+        <button type="submit" class="btn-submit-modern" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Send Message</span>
+          <span *ngIf="isSubmitting">Sending...</span>
+        </button>
+      </form>
+    </div>
   </div>
 </section>
 
