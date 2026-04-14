@@ -374,8 +374,23 @@
 <!-- Footer Section -->
 <footer class="footer">
   <div class="footer-container">
-    <div class="quick-links">
-      <h3>Quick Links</h3>
+    
+    <!-- Column 1: Info -->
+    <div class="footer-info">
+      <div class="logo">
+        <span class="logo-text" style="color: white; font-size: 24px;">Leydi<strong style="color: #ad2d7e;">Boss</strong></span>
+      </div>
+      <p class="footer-description">
+        Your all-in-one platform for fast booking and smooth car wash service management.
+      </p>
+      <div class="footer-pill">
+        <span class="dot"></span> Open Daily · 7AM – 9PM
+      </div>
+    </div>
+
+    <!-- Column 2: Quick Links -->
+    <div class="footer-links">
+      <h3 class="footer-heading">QUICK LINKS</h3>
       <ul>
         <li><a href="#hero">Home</a></li>
         <li><a href="#pricing">Services</a></li>
@@ -386,34 +401,58 @@
         <li><a routerLink="/employee">Employee Login</a></li>
       </ul>
     </div>
-    <div class="contact-us" *ngIf="content">
-      <h3>Contact Us</h3>
-      <div class="contact-footer-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <p><strong>Address:</strong> {{ content.contactInfo.address }}</p>
+
+    <!-- Column 3: Contact Us -->
+    <div class="footer-contact" *ngIf="content">
+      <h3 class="footer-heading">CONTACT US</h3>
+      
+      <div class="contact-card">
+        <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="item-text">
+          <span>Address</span>
+          <p>{{ content.contactInfo.address }}</p>
+        </div>
       </div>
-      <div class="contact-footer-item">
-        <i class="fas fa-phone"></i>
-        <p><strong>Phone:</strong> {{ content.contactInfo.phone }}</p>
+      
+      <div class="contact-card">
+        <div class="icon-box"><i class="fas fa-phone"></i></div>
+        <div class="item-text">
+          <span>Phone</span>
+          <p>{{ content.contactInfo.phone }}</p>
+        </div>
       </div>
-      <div class="contact-footer-item">
-        <i class="fas fa-envelope"></i>
-        <p><strong>Email:</strong> {{ content.contactInfo.email }}</p>
+      
+      <div class="contact-card">
+        <div class="icon-box"><i class="fas fa-envelope"></i></div>
+        <div class="item-text">
+          <span>Email</span>
+          <p>{{ content.contactInfo.email }}</p>
+        </div>
       </div>
     </div>
-    <div class="follow-us" *ngIf="content">
-      <h3>Follow Us</h3>
-      <div class="social-links">
-        <a [href]="content.footer.facebook" target="_blank">Facebook</a>
-      </div>
-      <a class="booknow-button" (click)="showModal = true" style="cursor: pointer;">Book Now</a>
+
+    <!-- Column 4: Follow Us & Book -->
+    <div class="footer-action">
+      <h3 class="footer-heading">FOLLOW US</h3>
+      <a class="btn-facebook" [href]="content?.footer?.facebook || '#'" target="_blank">
+        <i class="fab fa-facebook-f fb-icon"></i> Facebook
+      </a>
+      
+      <h3 class="footer-heading mt-4">BOOK A SLOT</h3>
+      <button class="btn-book-footer" (click)="showModal = true">
+        Book Now
+      </button>
     </div>
+
   </div>
+
   <div class="footer-divider"></div>
   <div class="footer-bottom">
-    <p *ngIf="content">
-      {{ content.footer.copyright }}
-    </p>
+    <p class="copyright">© 2026 Leydi Boss Car Wash. All rights reserved.</p>
+    <div class="footer-legal">
+      <a href="javascript:void(0)">Privacy Policy</a>
+      <a href="javascript:void(0)">Terms of Service</a>
+    </div>
   </div>
 </footer>
 
