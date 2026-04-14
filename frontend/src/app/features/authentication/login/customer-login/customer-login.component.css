@@ -241,25 +241,6 @@ html {
   opacity: 0.5;
 }
 
-.forgot-password-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 24px;
-}
-
-.forgot-password {
-  color: var(--primary);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-  color: var(--secondary);
-}
-
 /* Sign In Button */
 .sign-in-btn {
   width: 100%;
