@@ -495,14 +495,6 @@ html {
     color: var(--primary);
   }
 
-  .forgot-password-container {
-    margin-bottom: 24px;
-  }
-
-  .forgot-password {
-    font-size: 13px;
-    color: var(--primary);
-  }
 
   .sign-in-btn {
     padding: 14px 0;
