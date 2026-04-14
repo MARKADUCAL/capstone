@@ -166,8 +166,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   toggleSidebar() {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Keep this in sync with CSS breakpoint: @media (max-width: 768px)
-    if (window.innerWidth <= 768) {
+    // Keep this in sync with CSS breakpoint: @media (max-width: 1024px)
+    if (window.innerWidth <= 1024) {
       this.sidebarActive = !this.sidebarActive;
       document.body.style.overflow = this.sidebarActive ? 'hidden' : 'auto';
       return;
@@ -179,7 +179,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   closeSidebarOnMobile() {
-    if (isPlatformBrowser(this.platformId) && window.innerWidth <= 768) {
+    if (isPlatformBrowser(this.platformId) && window.innerWidth <= 1024) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }
@@ -190,7 +190,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     // If we leave mobile, always close the mobile overlay state
-    if (window.innerWidth > 768 && this.sidebarActive) {
+    if (window.innerWidth > 1024 && this.sidebarActive) {
       this.sidebarActive = false;
       document.body.style.overflow = 'auto';
     }

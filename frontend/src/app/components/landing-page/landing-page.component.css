@@ -1486,10 +1486,11 @@ html {
 
 /* Footer Section */
 .footer {
-  background-color: #000000;
+  background-color: #0c0b0c;
   color: #a0a0a0;
-  padding: 80px 20px 30px;
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 60px 20px 30px;
+  font-family: inherit;
+  border-top: 1px solid #1a1a1a;
 }
 
 .footer-container {
@@ -1504,17 +1505,17 @@ html {
 
 /* Footer Heading */
 .footer-heading {
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
+  color: #6a6a6a;
+  font-size: 11px;
+  font-weight: 800;
   letter-spacing: 0.5px;
   margin-top: 0;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   text-transform: uppercase;
 }
 
 .mt-4 {
-  margin-top: 35px;
+  margin-top: 30px;
 }
 
 /* 1. Info Column */
@@ -1526,32 +1527,37 @@ html {
 }
 
 .footer-info .logo {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .footer-description {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #cccccc;
-  margin-bottom: 25px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8c8c8c;
+  margin-bottom: 20px;
   max-width: 280px;
 }
 
 .footer-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background-color: transparent;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 6px;
+  background-color: rgba(173, 45, 126, 0.15);
+  border: 1px solid rgba(173, 45, 126, 0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: #bd277c;
+  font-size: 10px;
+  font-weight: 700;
   width: fit-content;
 }
 
 .footer-pill .dot {
-  width: 0;
-  height: 0;
-  display: none;
+  width: 6px;
+  height: 6px;
+  background-color: #bd277c;
+  border-radius: 50%;
+  display: block;
 }
 
 /* 2. Quick Links Column */
@@ -1571,7 +1577,7 @@ html {
 }
 
 .footer-links a {
-  color: #1a73e8;
+  color: #8c8c8c;
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
@@ -1579,7 +1585,7 @@ html {
 }
 
 .footer-links a:hover {
-  text-decoration: underline;
+  color: #ffffff;
 }
 
 /* 3. Contact Us Column */
@@ -1593,23 +1599,25 @@ html {
 
 .footer-contact .contact-card {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 15px;
   margin-bottom: 0px;
 }
 
 .footer-contact .icon-box {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(173, 45, 126, 0.1);
+  border-radius: 6px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   flex-shrink: 0;
 }
 
 .footer-contact .icon-box i {
-  color: #ffffff;
-  font-size: 14px;
+  color: #bd277c;
+  font-size: 12px;
 }
 
 .footer-contact .item-text {
@@ -1618,17 +1626,19 @@ html {
 }
 
 .footer-contact .item-text span {
-  font-size: 13px;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #555555;
+  margin-bottom: 2px;
+  text-transform: uppercase;
 }
 
 .footer-contact .item-text p {
   margin: 0;
-  color: #cccccc;
-  font-size: 13px;
+  color: #d1d1d1;
+  font-size: 12px;
   line-height: 1.4;
+  font-weight: 500;
 }
 
 /* 4. Action Column */
@@ -1643,39 +1653,52 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background-color: transparent;
-  color: #1a73e8;
-  padding: 0;
+  background-color: #0c0b0c;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+  color: #a0a0a0;
+  padding: 10px 16px;
   text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   transition: all 0.2s;
-  width: fit-content;
+  width: 100%;
 }
 
 .btn-facebook:hover {
-  text-decoration: underline;
+  background-color: #151515;
+  border-color: #333333;
 }
 
 .fb-icon {
-  color: #1877f2;
+  background-color: #1877f2;
+  color: #ffffff;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  font-size: 10px;
 }
 
 .btn-book-footer {
-  background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #ffffff;
-  padding: 8px 20px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 600;
+  background-color: #bd277c;
+  color: #ffffff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s;
-  width: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .btn-book-footer:hover {
-  background-color: #f0f0f0;
+  background-color: #9d1c64;
 }
 
 /* Footer Bottom Strip */
@@ -1683,7 +1706,7 @@ html {
   width: 100%;
   max-width: 1100px;
   height: 1px;
-  background-color: #333333;
+  background-color: #1a1a1a;
   margin: 40px auto 20px;
 }
 
@@ -1691,16 +1714,17 @@ html {
   max-width: 1100px;
   margin: 0 auto;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
 }
 
 .copyright {
-  color: #cccccc;
-  font-size: 12px;
+  color: #666666;
+  font-size: 11px;
   margin: 0;
+  font-weight: 500;
 }
 
 .footer-legal {
@@ -1709,14 +1733,15 @@ html {
 }
 
 .footer-legal a {
-  color: #1a73e8;
+  color: #666666;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
   transition: color 0.2s;
 }
 
 .footer-legal a:hover {
-  text-decoration: underline;
+  color: #a0a0a0;
 }
 
 /* Prevent mobile elements on desktop */
@@ -1724,6 +1749,32 @@ html {
   .mobile-menu-overlay,
   .mobile-sidebar {
     display: none !important;
+  }
+}
+
+/* Tablet Grid Layout */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .footer-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: flex-start;
+  }
+  
+  .footer-info {
+    order: 1;
+  }
+  
+  .footer-contact {
+    order: 2;
+  }
+  
+  .footer-links {
+    order: 3;
+  }
+  
+  .footer-action {
+    order: 4;
   }
 }
 
@@ -1936,26 +1987,27 @@ html {
 
   /* Footer */
   .footer-container {
-    justify-content: center;
-    text-align: center;
+    justify-content: flex-start;
+    text-align: left;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 35px;
   }
 
   .footer-container > div {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
     width: 100%;
     max-width: 100%;
   }
 
   .contact-footer-item {
-    justify-content: center;
-    text-align: center;
+    justify-content: flex-start;
+    text-align: left;
   }
 
   .social-links {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
   }
