@@ -450,8 +450,16 @@
   <div class="footer-bottom">
     <p class="copyright">© 2026 Leydi Boss Car Wash. All rights reserved.</p>
     <div class="footer-legal">
-      <a href="javascript:void(0)">Privacy Policy</a>
-      <a href="javascript:void(0)">Terms of Service</a>
+     <a
+                    routerLink="/terms"
+                    [queryParams]="{ from: 'customer-register' }"
+                    >Terms of Service</a
+                  >
+      <a
+                    routerLink="/privacy"
+                    [queryParams]="{ from: 'customer-register' }"
+                    >Privacy Policy</a
+                  >
     </div>
   </div>
 </footer>
