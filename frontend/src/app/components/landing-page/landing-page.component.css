@@ -1251,7 +1251,7 @@ html {
   border: 1px solid #2a2a2a;
   border-radius: 6px;
   padding: 14px 16px;
-  color: #ffffff;
+  color: #2a2a2a;
   font-size: 14px;
   font-family: inherit;
   transition: all 0.3s ease;
@@ -1279,9 +1279,9 @@ html {
   width: 100%;
   padding: 16px;
   background-color: #ffffff;
-  border: 1px solid #f6f6f6;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
-  color: #f7f7f7;   /* Faint text imitating mockup */
+  color: #2a2a2a;   /* Faint text imitating mockup */
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
