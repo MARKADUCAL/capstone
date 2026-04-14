@@ -448,16 +448,16 @@
 
   <div class="footer-divider"></div>
   <div class="footer-bottom">
-    <p class="copyright">© 2026 Leydi Boss Car Wash. All rights reserved.</p>
+    <p class="copyright">{{ content?.footer?.copyright || '© 2026 Leydi Boss Car Wash. All rights reserved.' }}</p>
     <div class="footer-legal">
      <a
                     routerLink="/terms"
-                    [queryParams]="{ from: 'customer-register' }"
+                    [queryParams]="{ from: 'landing-page' }"
                     >Terms of Service</a
                   >
       <a
                     routerLink="/privacy"
-                    [queryParams]="{ from: 'customer-register' }"
+                    [queryParams]="{ from: 'landing-page' }"
                     >Privacy Policy</a
                   >
     </div>
