@@ -27,6 +27,7 @@ html {
   box-shadow: 0 1px 0 rgba(0,0,0,0.08);
   transition: box-shadow 0.3s ease;
   border-bottom: 1px solid #f0f0f0;
+  box-sizing: border-box;
 }
 
 .navbar .container {
@@ -37,6 +38,7 @@ html {
   padding: 0 32px;
   max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Logo Styling */
@@ -180,6 +182,7 @@ html {
   flex-direction: column;
   align-items: center;
   animation: fadeInUp 0.7s ease-out;
+  box-sizing: border-box;
 }
 
 @keyframes fadeInUp {
@@ -291,6 +294,7 @@ html {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  box-sizing: border-box;
 }
 
 .hero-image {
@@ -310,6 +314,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   border: 1.5px dashed rgba(173, 45, 126, 0.25);
 }
 
@@ -365,8 +370,10 @@ html {
 
 .service-item {
   text-align: center;
-  width: 150px;
+  width: 100%;
+  max-width: 150px;
   margin-bottom: 20px; /* Add margin for small screens */
+  flex: 1 1 150px;
 }
 
 .service-item img {
@@ -603,7 +610,8 @@ html {
   margin-bottom: 30px;
 }
 
-.pricing-table {
+.pricing-tabl100%;
+  overflow-x: auto
   width: 100%;
   min-width: 800px;
 }
@@ -888,7 +896,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 80px;
+  gap: 30px;
   padding: 0 20px; /* Add padding for small screens */
 }
 
@@ -897,10 +905,12 @@ html {
   border: 1px solid #ede2eb;
   border-radius: 8px; /* Rounded corners */
   padding: 20px; /* Padding inside the card */
-  width: 250px; /* Fixed width for cards */
+  width: 100%;
+  max-width: 250px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   text-align: left; /* Align text to the left */
   margin-bottom: 30px; /* Add margin for small screens */
+  flex: 1 1 250px;
 }
 
 .location-icon {
@@ -914,7 +924,7 @@ html {
   margin: 40px 0;
   background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   height: auto;
-  min-height: 805px;
+  min-height: auto;
   padding: 50px 20px;
   position: relative;
 }
@@ -1045,7 +1055,14 @@ html {
   font-size: 1.2rem;
   font-weight: 500;
   text-align: center;
+}tablet: switch to 2 columns */
+@media (min-width: 768px) and (max-width: 959px) {
+  .gallery-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
+/* On 
 
 /* On laptop/desktop: switch to a 3-column masonry-like grid */
 @media (min-width: 960px) {
@@ -1774,18 +1791,42 @@ html {
   }
   
   .footer-action {
-    order: 4;
-  }
-}
-
-/* Media Queries for Responsive Design */
-@media (max-width: 768px) {
-  /* Mobile Navigation */
-  .navbar .container {
-    padding: 0 15px;
+    height: 64px;
   }
 
   .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .get-started {
+    display: none; /* Hide on mobile, shown in menu instead */
+  }
+
+  .hero-content {
+    padding: 60px 16px 40px;
+  }
+
+  .hero-headline {
+    font-size: 32px;
+    line-height: 1.3;
+  }
+
+  .hero-description {
+    font-size: 15px;
+  }
+
+  .services-container {
+    padding: 0 15px;
+    gap: 1rem;
+  }
+
+  .service-item {
+    width: 100%;
+    max-width: none;
     display: flex;
   }
 
@@ -2062,6 +2103,42 @@ html {
 }
 
 @media (max-width: 600px) {
+
+  .location-cards {
+    gap: 20px;
+  }
+
+  .gallery-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .gallery-item {
+    aspect-ratio: 4/3;
+  }
+
+  /* Hide gallery item grid-column spans on mobile */
+  .gallery-item:nth-child(6n + 1),
+  .gallery-item:nth-child(6n + 4),
+  .gallery-item:nth-child(6n + 6) {
+    grid-column: unset;
+  }
+
+  .gallery h2 {
+    font-size: 24px;
+  }
+
+  .contact-wrapper {
+    gap: 20px;
+  }
+
+  .quick-contact {
+    padding: 30px 25px;
+  }
+
+  .contact-form-wrapper {
+    padding: 25px 15px;
+  }
   .packages-grid,
   .vehicle-types-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2090,7 +2167,10 @@ html {
   }
 }
 
-@media (max-width: 480px) {
+@mehero-headline {
+    font-size: 28px;
+  }
+
   .section-header h2 {
     font-size: 1.8rem;
   }
@@ -2106,6 +2186,16 @@ html {
 
   .btn-book-service {
     padding: 8px 15px;
+    font-size: 12px;
+  }
+
+  .contact-form-wrapper {
+    padding: 20px 15px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 12px 1415px;
     font-size: 12px;
   }
 }
