@@ -269,7 +269,7 @@ body {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 90;
+  z-index: 290;
   display: none;
 }
 
@@ -279,6 +279,9 @@ body {
     position: fixed;
     left: -280px;
     width: 280px;
+    z-index: 300;
+    height: 100vh;
+    top: 0;
   }
 
   .sidebar-active {
