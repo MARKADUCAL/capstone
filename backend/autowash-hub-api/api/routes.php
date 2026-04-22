@@ -945,6 +945,12 @@ if ($method === 'PUT') {
     $headers = getallheaders();
     $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
     
+    if (strpos($request, 'update_admin_profile') !== false) {
+        $result = $put->update_admin_profile($data);
+        echo json_encode($result);
+        exit();
+    }
+
     if (strpos($request, 'update_customer_profile') !== false) {
         // Process the update
         $result = $put->update_customer_profile($data);

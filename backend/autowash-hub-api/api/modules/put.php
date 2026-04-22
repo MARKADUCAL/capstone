@@ -130,6 +130,89 @@ class Put {
         }
     }
 
+    public function update_admin_profile($data) {
+        try {
+            if (!isset($data->id) || empty($data->id)) {
+                return $this->sendPayload(null, "failed", "Admin ID is required", 400);
+            }
+
+            // Build dynamic update set
+            $fieldsMap = [
+                'first_name' => 'first_name',
+                'last_name' => 'last_name',
+                'email' => 'email',
+                'phone' => 'phone'
+            ];
+
+            $updates = [];
+            $values = [];
+
+            foreach ($fieldsMap as $inputKey => $column) {
+                if (isset($data->$inputKey)) {
+                    $updates[] = "$column = ?";
+                    $values[] = $data->$inputKey;
+                }
+            }
+
+            // Handle password change flow
+            $hasNewPassword = isset($data->new_password) && !empty($data->new_password);
+            $hasCurrentPassword = isset($data->current_password) && !empty($data->current_password);
+
+            if ($hasNewPassword) {
+                if (!$hasCurrentPassword) {
+                    return $this->sendPayload(null, "failed", "Current password is required to change password", 400);
+                }
+
+                $sqlFetch = "SELECT password FROM admins WHERE id = ?";
+                $stmtFetch = $this->pdo->prepare($sqlFetch);
+                $stmtFetch->execute([$data->id]);
+                $existing = $stmtFetch->fetch(PDO::FETCH_ASSOC);
+
+                if (!$existing) {
+                    return $this->sendPayload(null, "failed", "Admin not found", 404);
+                }
+
+                $currentHash = $existing['password'] ?? '';
+                if (!password_verify($data->current_password, $currentHash)) {
+                    return $this->sendPayload(null, "failed", "Current password is incorrect", 401);
+                }
+
+                $updates[] = "password = ?";
+                $values[] = password_hash($data->new_password, PASSWORD_DEFAULT);
+            }
+
+            if (empty($updates)) {
+                return $this->sendPayload(null, "failed", "No fields provided to update", 400);
+            }
+
+            $values[] = $data->id;
+
+            $sql = "UPDATE admins SET " . implode(", ", $updates) . " WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+
+            if ($stmt->rowCount() > 0) {
+                // Return updated admin
+                $stmtGet = $this->pdo->prepare("SELECT id, admin_id, first_name, last_name, email, phone FROM admins WHERE id = ?");
+                $stmtGet->execute([$data->id]);
+                $admin = $stmtGet->fetch(PDO::FETCH_ASSOC);
+                return $this->sendPayload(['admin' => $admin], "success", "Admin profile updated successfully", 200);
+            }
+
+            // Even if rowCount is 0, fetch current data to confirm it exists and return it
+            $stmtGet = $this->pdo->prepare("SELECT id, admin_id, first_name, last_name, email, phone FROM admins WHERE id = ?");
+            $stmtGet->execute([$data->id]);
+            $admin = $stmtGet->fetch(PDO::FETCH_ASSOC);
+            if ($admin) {
+                return $this->sendPayload(['admin' => $admin], "success", "No changes made", 200);
+            }
+
+            return $this->sendPayload(null, "failed", "Admin not found", 404);
+        } catch (Exception $e) {
+            return $this->sendPayload(null, "failed", $e->getMessage(), 500);
+        }
+    }
+
     public function update_employee($data) {
         try {
             if (!isset($data->id) || empty($data->id)) {
