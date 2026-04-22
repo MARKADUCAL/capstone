@@ -93,20 +93,8 @@
                 <span class="file-size text-muted-extra" *ngIf="!content.heroBackgroundUrl">· 1920×1080px recommended</span>
               </div>
 
-              <div class="btn-group-upload">
-                <input
-                  type="file"
-                  id="heroImageUpload"
-                  accept="image/*"
-                  (change)="onFileSelected($event)"
-                  class="file-input-hidden"
-                />
-                <label *ngIf="!selectedFile" for="heroImageUpload" class="btn-choose-file">
-                  <mat-icon>cloud_upload</mat-icon> Choose Image File
-                </label>
-
+              <div class="btn-group-upload" *ngIf="selectedFile">
                 <button
-                  *ngIf="selectedFile"
                   class="btn-upload"
                   (click)="uploadImage()"
                   [disabled]="isUploading"
@@ -116,12 +104,31 @@
                   {{ isUploading ? "Uploading..." : "Upload Image" }}
                 </button>
                 <button
-                  *ngIf="selectedFile"
                   class="btn-cancel"
                   (click)="clearUploadForm()"
                   [disabled]="isUploading"
                 >
                   Cancel
+                </button>
+              </div>
+
+              <div class="img-upload-actions-mockup" *ngIf="!selectedFile" style="margin-bottom: 0;">
+                <input
+                  type="file"
+                  id="heroImageUpload"
+                  accept="image/*"
+                  (change)="onFileSelected($event)"
+                  class="file-input-hidden"
+                />
+                
+                <label for="heroImageUpload" class="btn-upload-solid" style="flex-direction: row; gap: 8px;" title="Choose Image File">
+                  <mat-icon style="margin-bottom: 0;">cloud_upload</mat-icon>
+                  <span>Choose Image File</span>
+                </label>
+                
+                <button type="button" class="btn-req-outline" style="flex: 0 0 auto; padding: 0 20px;" (click)="showRequirementsAlert()">
+                  <mat-icon>info_outline</mat-icon>
+                  Requirements
                 </button>
               </div>
 
