@@ -73,7 +73,7 @@ type FrontendLandingPageContent = {
   styleUrl: './landing-editor.component.css',
 })
 export class LandingEditorComponent implements OnInit {
-  readonly MAX_GALLERY_IMAGES = 6;
+  readonly MAX_GALLERY_IMAGES = 10;
   isSaving = false;
   validationResult: { isValid: boolean; errors: string[] } = {
     isValid: true,
@@ -157,6 +157,143 @@ export class LandingEditorComponent implements OnInit {
       const dateString = d.toLocaleDateString();
       return `✔ ${dateString} at ${timeString}`;
     }
+  }
+
+  checkRequirementsAndUpload(type: 'hero' | 'gallery', index?: number, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    const isHero = type === 'hero';
+    const titleText = isHero ? 'Hero Image Requirements' : 'Gallery Image Requirements';
+    const recSize = isHero ? '1920 × 1080 px recommended' : '800 × 600 px minimum';
+    const maxSize = isHero ? '5 MB' : '2 MB';
+    const maxCount = isHero ? '1 image only' : `Up to ${this.MAX_GALLERY_IMAGES} images only`;
+
+    Swal.fire({
+      width: '500px',
+      padding: '0',
+      showCloseButton: true,
+      showCancelButton: true,
+      showConfirmButton: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: '<mat-icon class="mat-icon material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 6px;">upload</mat-icon> Proceed to Upload',
+      customClass: {
+        container: 'req-modal-container',
+        popup: 'req-modal-popup',
+        header: 'req-modal-header',
+        title: 'req-modal-title',
+        closeButton: 'req-modal-close',
+        htmlContainer: 'req-modal-html',
+        actions: 'req-modal-actions',
+        confirmButton: 'req-modal-confirm',
+        cancelButton: 'req-modal-cancel'
+      },
+      html: `
+        <div class="req-header-content">
+          <div class="req-header-icon"><mat-icon class="mat-icon material-icons">folder</mat-icon></div>
+          <div class="req-header-text">
+            <div class="req-subtitle">BEFORE YOU UPLOAD</div>
+            <div class="req-maintitle">${titleText}</div>
+          </div>
+        </div>
+        <div class="req-body">
+          <p class="req-intro">Please ensure your image meets all requirements before uploading to avoid display issues or upload errors.</p>
+          
+          <div class="req-list">
+            <div class="req-item">
+              <div class="req-item-icon text-gray"><mat-icon class="mat-icon material-icons">straighten</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">RECOMMENDED SIZE</div>
+                <div class="req-item-val">${recSize}</div>
+              </div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon text-yellow"><mat-icon class="mat-icon material-icons">folder</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">ACCEPTED FORMATS</div>
+                <div class="req-item-val">JPG, JPEG, PNG, WEBP</div>
+              </div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon text-orange"><mat-icon class="mat-icon material-icons">scale</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">MAX FILE SIZE</div>
+                <div class="req-item-val">${maxSize} per image</div>
+              </div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon text-blue"><mat-icon class="mat-icon material-icons">looks_one</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">MAX GALLERY COUNT</div>
+                <div class="req-item-val">${maxCount}</div>
+              </div>
+            </div>
+
+            <div class="req-item">
+              <div class="req-item-icon text-pink"><mat-icon class="mat-icon material-icons">palette</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">COLOR MODE</div>
+                <div class="req-item-val">RGB (not CMYK)</div>
+              </div>
+            </div>
+
+            <div class="req-item">
+              <div class="req-item-icon text-red"><mat-icon class="mat-icon material-icons">block</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">AVOID</div>
+                <div class="req-item-val">Low resolution or heavily filtered images. <br/><strong>Ensure vehicle plate numbers are blurred.</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="req-warning">
+            <mat-icon class="mat-icon material-icons req-warning-icon">bolt</mat-icon>
+            <span>Images that don't meet these requirements may result in poor display quality or upload failure.</span>
+          </div>
+
+          <div class="req-checkbox-wrap">
+            <input type="checkbox" id="req-agree-checkbox" />
+            <label for="req-agree-checkbox">I have read and understood all the upload requirements above.</label>
+          </div>
+        </div>
+      `,
+      didOpen: () => {
+        const confirmBtn = Swal.getConfirmButton();
+        if (confirmBtn) {
+           confirmBtn.disabled = true;
+           confirmBtn.style.opacity = '0.5';
+           confirmBtn.style.cursor = 'not-allowed';
+           
+           const checkbox = document.getElementById('req-agree-checkbox') as HTMLInputElement;
+           checkbox.addEventListener('change', (e) => {
+             const checked = (e.target as HTMLInputElement).checked;
+             confirmBtn.disabled = !checked;
+             if(checked) {
+                confirmBtn.style.opacity = '1';
+                confirmBtn.style.cursor = 'pointer';
+             } else {
+                confirmBtn.style.opacity = '0.5';
+                confirmBtn.style.cursor = 'not-allowed';
+             }
+           });
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (isHero) {
+          document.getElementById('heroImageUpload')?.click();
+        } else if (index !== undefined) {
+          document.getElementById('galleryGridUpload' + index)?.click();
+        } else {
+          document.getElementById('galleryAddUpload')?.click();
+        }
+      }
+    });
   }
 
   content: FrontendLandingPageContent = {
@@ -680,6 +817,27 @@ export class LandingEditorComponent implements OnInit {
   }
 
   // Gallery file upload methods
+  onGalleryFileSelectedNew(event: any): void {
+    if (this.content.galleryImages.length >= this.MAX_GALLERY_IMAGES) {
+      this.snackBar.open(
+        `Gallery is limited to ${this.MAX_GALLERY_IMAGES} images. Please remove an image before adding a new one.`,
+        'Close',
+        { duration: 4000 }
+      );
+      return;
+    }
+    
+    // Check if the Event has files
+    if (event.target.files && event.target.files[0]) {
+      this.addGalleryImage();
+      const newIndex = this.content.galleryImages.length - 1;
+      this.onGalleryFileSelected(event, newIndex);
+      
+      // Clear the value so the same file could potentially be uploaded again
+      event.target.value = '';
+    }
+  }
+
   onGalleryFileSelected(event: any, index: number): void {
     const file = event.target.files[0];
     if (file) {

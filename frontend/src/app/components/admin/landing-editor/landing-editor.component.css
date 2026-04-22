@@ -901,3 +901,178 @@
   padding: 0 28px;
   font-size: 15px;
 }
+
+/* Custom Utility Classes */
+.mb-3 { margin-bottom: 16px; }
+.fw-bold { font-weight: 700; }
+.text-yellow { color: #f5b041; }
+.text-orange { color: #f39c12; }
+.text-blue { color: #3498db; }
+.text-pink { color: #9C2780; }
+.text-red { color: #e74c3c; }
+.text-gray { color: #95a5a6; }
+.fs-18 { font-size: 18px; }
+
+/* Header Pills */
+.header-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #F8EDF4;
+  color: #B9217E;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pill mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+/* Empty state view */
+.empty-state-view {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+.empty-state-icon {
+  width: 140px;
+  height: 90px;
+  background-color: #EFE9F3;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.large-img-icon { font-size: 40px; width: 40px; height: 40px; color: #f5b041; }
+
+.empty-state-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.empty-state-text .file-name {
+  font-size: 15px;
+  color: #1c192b;
+  font-weight: 600;
+}
+.empty-state-text .file-desc {
+  font-size: 13px;
+  color: #8c889f;
+}
+
+/* Gallery Hover Overlay Button */
+.gallery-card-overlay-hover {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 8px;
+}
+.image-preview-area:hover .gallery-card-overlay-hover {
+  opacity: 1;
+}
+.overlay-btn-circle {
+  background: white; border: none; border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #333;
+}
+.overlay-btn-circle:hover { background: #f0f0f0; }
+
+/* Add Card Style Overrides */
+.gallery-grid-card.add-card {
+  border: 2px dashed #D5C9DE;
+  background-color: #FAF4F8;
+  cursor: pointer;
+}
+.gallery-grid-card.add-card:hover {
+  border-color: #9C2780;
+}
+
+/* SweetAlert Requirements Modal */
+::ng-deep .req-modal-popup {
+  border-radius: 16px !important;
+  overflow: hidden;
+  font-family: 'Inter', Roboto, sans-serif !important;
+}
+::ng-deep .req-modal-header {
+  background-color: #C2185B !important; 
+  padding: 24px !important;
+  color: white !important;
+  border-bottom: none !important;
+  align-items: flex-start !important;
+}
+::ng-deep .req-modal-close {
+  color: white !important;
+  background: rgba(255,255,255,0.2) !important;
+  border-radius: 8px !important;
+  width: 32px !important; height: 32px !important;
+  margin-top: 20px !important; margin-right: 20px !important;
+}
+::ng-deep .req-header-content {
+  display: flex; gap: 16px; align-items: center; width: 100%; text-align: left;
+}
+::ng-deep .req-header-icon {
+  background: #f5b041;
+  border-radius: 8px;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+::ng-deep .req-header-icon mat-icon { font-size: 28px; width: 28px; height: 28px; }
+::ng-deep .req-header-text { flex: 1; }
+::ng-deep .req-subtitle { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+::ng-deep .req-maintitle { font-size: 20px; font-weight: 800; }
+
+::ng-deep .req-modal-html { margin: 0 !important; padding: 0 !important; }
+::ng-deep .req-body {
+  padding: 24px;
+  text-align: left;
+  background: #fdfdfd;
+}
+::ng-deep .req-intro { color: #8c889f; font-size: 14px; margin: 0 0 20px 0; line-height: 1.5; }
+::ng-deep .req-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+::ng-deep .req-item {
+  display: flex; gap: 16px; align-items: center;
+  border: 1px solid #EBE5F0; border-radius: 8px; padding: 12px 16px; background: white;
+}
+::ng-deep .req-item-icon { display: flex; align-items: center; justify-content: center; }
+::ng-deep .req-item-text { flex: 1; }
+::ng-deep .req-item-label { font-size: 11px; font-weight: 700; color: #C2185B; letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase; }
+::ng-deep .req-item-val { font-size: 13px; color: #1c192b; font-weight: 500; }
+
+::ng-deep .req-warning {
+  background-color: #FFF8E1; border: 1px solid #FFE082; border-radius: 8px;
+  padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start;
+  color: #8D6E63; font-size: 13px; line-height: 1.5; margin-bottom: 24px;
+}
+::ng-deep .req-warning-icon { color: #FF8F00; }
+
+::ng-deep .req-checkbox-wrap {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+::ng-deep .req-checkbox-wrap label { font-size: 13px; color: #4A4A4A; cursor: pointer; line-height: 1.4; font-weight: 500; margin-top: 2px; user-select: none;}
+
+::ng-deep .req-modal-actions {
+  padding: 20px 24px 24px 24px !important; margin: 0 !important; background: #fdfdfd !important; border-top: none !important; justify-content: center !important; gap: 16px !important;
+}
+::ng-deep .req-modal-cancel {
+  background: white !important; color: #8c889f !important; border: 1px solid #EBE5F0 !important;
+  border-radius: 8px !important; padding: 10px 24px !important; font-weight: 600 !important; font-size: 14px !important;
+}
+::ng-deep .req-modal-confirm {
+  background: #E0E0E0 !important; color: #9E9E9E !important; border: none !important;
+  border-radius: 8px !important; padding: 10px 24px !important; font-weight: 600 !important; font-size: 14px !important; box-shadow: none !important;
+}
+::ng-deep .req-modal-confirm.swal2-styled.active-confirm-btn {
+  background: #E6E6E6 !important; color: #C2185B !important; 
+}
