@@ -69,6 +69,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   mobileMenuOpen = false;
   showModal = false;
   selectedImage: GalleryImage | null = null;
+  showUploadRequirementsModal = false;
+  uploadRequirementsAcknowledged = false;
+  fileUploadInput: any;
 
   // Contact form properties
   contactForm: ContactForm = {
@@ -226,6 +229,69 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   closeLightbox(): void {
     this.selectedImage = null;
     this.toggleBodyScroll();
+  }
+
+  deleteGalleryImage(index: number): void {
+    if (this.content && this.content.galleryImages) {
+      this.content.galleryImages.splice(index, 1);
+      // Close lightbox if the deleted image was selected
+      if (this.selectedImage === this.content.galleryImages[index]) {
+        this.closeLightbox();
+      }
+    }
+  }
+
+  openUploadModal(): void {
+    this.showUploadRequirementsModal = true;
+    this.uploadRequirementsAcknowledged = false;
+  }
+
+  closeUploadModal(): void {
+    this.showUploadRequirementsModal = false;
+    this.uploadRequirementsAcknowledged = false;
+  }
+
+  proceedToUpload(): void {
+    if (this.uploadRequirementsAcknowledged) {
+      // Trigger the hidden file input
+      const fileInput = document.querySelector('#fileUploadInput') as HTMLInputElement;
+      fileInput?.click();
+    }
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      // Validate file size (5 MB)
+      const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+      if (file.size > maxSize) {
+        alert('File size exceeds 5 MB limit. Please choose a smaller image.');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file format. Please use JPG, PNG, or WEBP.');
+        return;
+      }
+
+      // Create a preview and add to gallery
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (this.content) {
+          const newImage: GalleryImage = {
+            url: e.target.result,
+            alt: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+          };
+          this.content.galleryImages.push(newImage);
+          this.closeUploadModal();
+          alert('Image added to gallery successfully!');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   ngOnDestroy() {
