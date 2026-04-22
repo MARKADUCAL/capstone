@@ -203,43 +203,6 @@ export class LandingEditorComponent implements OnInit {
               </div>
               <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
             </div>
-
-            <div class="req-item">
-              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #90A4AE;">square_foot</mat-icon></div>
-              <div class="req-item-text">
-                <div class="req-item-label">RECOMMENDED SIZE</div>
-                <div class="req-item-val" style="font-size: 16px;">1280 × 720px or higher</div>
-              </div>
-              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
-            </div>
-
-            <div class="req-item">
-              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #B0BEC5;">straighten</mat-icon></div>
-              <div class="req-item-text">
-                <div class="req-item-label">MINIMUM DIMENSIONS</div>
-                <div class="req-item-val" style="font-size: 16px;">300 × 200px</div>
-              </div>
-              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
-            </div>
-            
-            <div class="req-item">
-              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #64B5F6;">looks_one</mat-icon></div>
-              <div class="req-item-text">
-                <div class="req-item-label">MAX IMAGES</div>
-                <div class="req-item-val" style="font-size: 16px;">Up to ${this.MAX_GALLERY_IMAGES} gallery images</div>
-              </div>
-              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
-            </div>
-            
-            <div class="req-item">
-              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #F06292;">palette</mat-icon></div>
-              <div class="req-item-text">
-                <div class="req-item-label">COLOR MODE</div>
-                <div class="req-item-val" style="font-size: 16px;">RGB only (no CMYK)</div>
-              </div>
-              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
-            </div>
-
             <div class="req-item">
               <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #E57373;">block</mat-icon></div>
               <div class="req-item-text">
