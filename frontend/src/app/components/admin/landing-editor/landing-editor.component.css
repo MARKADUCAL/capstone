@@ -600,6 +600,34 @@
     grid-template-columns: 1fr;
   }
 
+  /* Fix for long file names pushing container width */
+  .file-name {
+    word-break: break-all;
+    white-space: normal;
+  }
+
+  .upload-controls {
+    width: 100%;
+  }
+
+  /* Make sure buttons stack on very small screens to avoid overflow */
+  .img-upload-actions-mockup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .img-upload-actions-mockup .btn-upload-solid,
+  .img-upload-actions-mockup .btn-req-outline {
+    width: 100% !important;
+    margin-bottom: 8px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  
+  .img-upload-actions-mockup .btn-req-outline {
+    margin-bottom: 0;
+  }
+
   .section-navbar {
     gap: 16px;
   }

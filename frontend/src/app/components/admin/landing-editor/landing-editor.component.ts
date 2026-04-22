@@ -422,9 +422,20 @@ export class LandingEditorComponent implements OnInit {
           this.editingGalleryIndex--;
         }
         this.updateValidation();
+        
+        const stripDataUrl = (val: string | undefined | null): string => {
+          if (!val) return '';
+          return val.startsWith('data:') ? '' : val;
+        };
+        const galleryPayload = this.content.galleryImages.map((g) => ({
+          url: stripDataUrl(g.url),
+          alt: g.alt,
+        }));
+        this.landingPageService.updateSection('gallery', galleryPayload).subscribe();
+
         Swal.fire({
           title: 'Deleted!',
-          text: 'The image has been removed.',
+          text: 'The image has been removed from the database.',
           icon: 'success',
           confirmButtonColor: '#9C2780',
           timer: 1500,
