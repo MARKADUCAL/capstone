@@ -1891,6 +1891,7 @@ html {
     width: 85%;
     max-width: 350px;
     height: 100vh;
+    height: 100dvh;
     background-color: #ffffff;
     display: flex;
     flex-direction: column;
