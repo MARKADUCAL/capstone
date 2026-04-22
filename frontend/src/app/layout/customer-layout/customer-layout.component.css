@@ -208,10 +208,14 @@ body {
 
 /* User info styles */
 .user-info {
+  position: relative;
+}
+
+.user-profile-trigger {
   display: flex;
   align-items: center;
-  position: relative;
   gap: 10px;
+  cursor: pointer;
 }
 
 .user-avatar {

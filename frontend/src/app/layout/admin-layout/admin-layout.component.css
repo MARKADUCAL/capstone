@@ -155,10 +155,14 @@ body {
 }
 
 .user-info {
+  position: relative;
+}
+
+.user-profile-trigger {
   display: flex;
   align-items: center;
   gap: 10px;
-  position: relative;
+  cursor: pointer;
 }
 
 .user-avatar {
@@ -317,7 +321,7 @@ body {
     font-size: 18px;
   }
 
-  .user-info {
+  .user-profile-trigger {
     gap: 5px;
   }
 

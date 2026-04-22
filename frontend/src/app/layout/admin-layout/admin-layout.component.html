@@ -105,17 +105,18 @@
       </div>
       <h2>{{ pageTitle }}</h2>
       <div class="user-info" (clickOutside)="hideDropdown()">
-        <div class="user-avatar-placeholder">{{ userInitials }}</div>
-        <span class="user-name">{{ fullName }}</span>
-        <button
-          class="dropdown-btn"
-          type="button"
-          (click)="toggleDropdown()"
-          aria-label="Toggle user menu"
-          title="Toggle user menu"
-        >
-          <i class="fas fa-chevron-down"></i>
-        </button>
+        <div class="user-profile-trigger" (click)="toggleDropdown()">
+          <div class="user-avatar-placeholder">{{ userInitials }}</div>
+          <span class="user-name">{{ fullName }}</span>
+          <button
+            class="dropdown-btn"
+            type="button"
+            aria-label="Toggle user menu"
+            title="Toggle user menu"
+          >
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
         <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
           <a class="dropdown-item" routerLink="/admin-view/profile">
             <i class="fas fa-user profile-icon"></i> Profile
