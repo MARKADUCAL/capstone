@@ -72,6 +72,7 @@ type CalendarStatusType =
     MatFormFieldModule,
     MatIconModule,
     MatDialogModule,
+    PricingGuideModalComponent,
   ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],

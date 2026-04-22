@@ -56,12 +56,6 @@
           <span class="badge-text">HERO BACKGROUND IMAGE</span>
         </div>
         <div class="card-body">
-          <div class="header-pills mb-3">
-            <span class="pill"><mat-icon class="mat-icon material-icons">aspect_ratio</mat-icon> 1920×1080px</span>
-            <span class="pill text-yellow"><mat-icon class="mat-icon material-icons">folder</mat-icon> JPG / PNG / WEBP</span>
-            <span class="pill text-orange"><mat-icon class="mat-icon material-icons">scale</mat-icon> Max 5MB</span>
-          </div>
-          
           <div class="image-upload-box">
             <!-- Thumbnail Preview -->
             <div class="image-preview-area" *ngIf="content.heroBackgroundUrl && !imagePreview">
@@ -71,9 +65,6 @@
                 alt="Current hero background"
                 (error)="handleImageError($event)"
               />
-              <div class="gallery-card-overlay-hover">
-                 <button class="overlay-btn-circle" (click)="checkRequirementsAndUpload('hero', undefined, $event)" title="Change Image"><mat-icon>edit</mat-icon></button>
-              </div>
             </div>
             
             <div class="image-preview-area" *ngIf="imagePreview">
@@ -90,26 +81,16 @@
               </div>
             </div>
 
-            <!-- Empty state view -->
-            <div class="empty-state-view" *ngIf="!selectedFile && !content.heroBackgroundUrl && !imagePreview">
-              <div class="empty-state-icon text-gray">
-                <mat-icon class="large-img-icon mat-icon material-icons">image</mat-icon>
-              </div>
-              <div class="empty-state-text">
-                <div class="file-name">No image selected</div>
-                <div class="file-desc">Click the button to browse and choose a file</div>
-              </div>
-            </div>
-
             <!-- Upload Controls -->
             <div class="upload-controls">
               <div class="file-info" *ngIf="selectedFile">
                 <span class="file-name">{{ selectedFile.name }}</span>
                 <span class="file-size">· {{ (selectedFile.size / 1024 / 1024).toFixed(1) }} MB</span>
               </div>
-              <div class="file-info text-muted" *ngIf="!selectedFile && content.heroBackgroundUrl">
-                <span class="file-name">{{ content.heroBackgroundUrl.split('/').pop() || 'hero-bg.jpg' }}</span>
-                <span class="file-size text-muted-extra">· 1920×1080px recommended</span>
+              <div class="file-info text-muted" *ngIf="!selectedFile">
+                <span class="file-name">{{ content.heroBackgroundUrl ? (content.heroBackgroundUrl.split('/').pop() || 'hero-bg.jpg') : 'No image selected' }}</span>
+                <span class="file-size text-muted-extra" *ngIf="content.heroBackgroundUrl">· 1.2 MB<br/>1920×1080px recommended</span>
+                <span class="file-size text-muted-extra" *ngIf="!content.heroBackgroundUrl">· 1920×1080px recommended</span>
               </div>
 
               <div class="btn-group-upload">
@@ -120,10 +101,9 @@
                   (change)="onFileSelected($event)"
                   class="file-input-hidden"
                 />
-                
-                <button *ngIf="!selectedFile && !imagePreview" class="btn-choose-file" (click)="checkRequirementsAndUpload('hero', undefined, $event)">
-                  <mat-icon class="mat-icon material-icons fs-18">collections_bookmark</mat-icon> Choose File
-                </button>
+                <label *ngIf="!selectedFile" for="heroImageUpload" class="btn-choose-file">
+                  <mat-icon>cloud_upload</mat-icon> Choose Image File
+                </label>
 
                 <button
                   *ngIf="selectedFile"
@@ -169,19 +149,10 @@
             <div class="badge-pipe"></div>
             <span class="badge-text">GALLERY IMAGES</span>
           </div>
-          <span class="item-count-badge">{{ content.galleryImages.length }} / {{ MAX_GALLERY_IMAGES }} ITEMS</span>
+          <span class="item-count-badge">{{ content.galleryImages.length }} ITEMS</span>
         </div>
         <div class="card-body">
-          <div class="header-pills mb-3">
-            <span class="pill"><mat-icon class="mat-icon material-icons">aspect_ratio</mat-icon> Min 800×600px</span>
-            <span class="pill text-yellow"><mat-icon class="mat-icon material-icons">folder</mat-icon> JPG / PNG / WEBP</span>
-            <span class="pill text-orange"><mat-icon class="mat-icon material-icons">scale</mat-icon> Max 2MB each</span>
-            <span class="pill text-blue"><mat-icon class="mat-icon material-icons">looks_one</mat-icon> Up to {{ MAX_GALLERY_IMAGES }} images</span>
-          </div>
-
           <div class="gallery-grid">
-            <!-- Hidden input for adding new gallery image -->
-            <input type="file" id="galleryAddUpload" accept="image/*" (change)="onGalleryFileSelectedNew($event)" class="file-input-hidden" />
             
             <div
               class="gallery-grid-card"
@@ -231,9 +202,9 @@
                     <input type="file" [id]="'galleryGridUpload' + i" accept="image/*" (change)="onGalleryFileSelected($event, i)" class="file-input-hidden" />
                     
                     <!-- Purple Upload -->
-                    <button class="sweet-btn btn-sw-upload" title="Upload Image" *ngIf="!isUploadingGallery[i]" (click)="checkRequirementsAndUpload('gallery', i, $event)">
+                    <label [for]="'galleryGridUpload' + i" class="sweet-btn btn-sw-upload" title="Upload Image" *ngIf="!isUploadingGallery[i]">
                       <mat-icon>file_upload</mat-icon>
-                    </button>
+                    </label>
                     <button class="sweet-btn btn-sw-upload" disabled *ngIf="isUploadingGallery[i]">
                       <mat-icon class="spinning">refresh</mat-icon>
                     </button>
@@ -253,16 +224,17 @@
               </div>
             </div> <!-- end single card -->
 
+            <!-- Add Image Card -->
             <div
               class="gallery-grid-card add-card"
-              (click)="checkRequirementsAndUpload('gallery', undefined, $event)"
+              (click)="addGalleryImage()"
               *ngIf="content.galleryImages.length < MAX_GALLERY_IMAGES"
             >
               <div class="add-card-content">
-                <div class="add-icon-circle text-pink">
+                <div class="add-icon-circle">
                   <mat-icon>add</mat-icon>
                 </div>
-                <span class="text-pink fw-bold">Add image</span>
+                <span>Add image</span>
               </div>
             </div>
 
