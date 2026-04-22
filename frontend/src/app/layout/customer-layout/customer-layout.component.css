@@ -39,6 +39,7 @@ body {
   width: 250px;
   background-color: var(--mat-sys-surface-container);
   height: 100vh;
+  height: 100dvh;
   position: fixed;
   left: 0;
   top: 0;
