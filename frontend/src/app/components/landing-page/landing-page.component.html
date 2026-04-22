@@ -106,50 +106,18 @@
     <div class="hero-image-container" *ngIf="content && content.heroBackgroundUrl">
       <img [src]="content.heroBackgroundUrl" alt="Car wash service" class="hero-image" />
     </div>
+    <div class="hero-image-placeholder" *ngIf="!content || !content.heroBackgroundUrl">
+      <div class="placeholder-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>ADD YOUR PHOTO HERE</span>
+      </div>
+    </div>
   </div>
 </header>
-
-<!-- Hero Background Upload Editor -->
-<section class="upload-editor hero-background-editor">
-  <div class="editor-container">
-    <div class="editor-header">
-      <div class="editor-title">
-        <i class="fas fa-image"></i>
-        <span>HERO BACKGROUND IMAGE</span>
-      </div>
-    </div>
-    
-    <div class="editor-requirements">
-      <span class="requirement-badge size-badge">
-        <i class="fas fa-expand"></i> 1920×1080px
-      </span>
-      <span class="requirement-badge format-badge">
-        <i class="fas fa-file-image"></i> JPG / PNG / WEBP
-      </span>
-      <span class="requirement-badge size-limit-badge">
-        <i class="fas fa-weight"></i> Max 5MB
-      </span>
-    </div>
-
-    <div class="upload-area hero-upload-area" [class.has-image]="content && content.heroBackgroundUrl">
-      <div class="upload-content" *ngIf="!content || !content.heroBackgroundUrl">
-        <div class="placeholder-icon">
-          <i class="fas fa-image"></i>
-        </div>
-        <p class="no-image-text">No image selected</p>
-        <p class="helper-text">Click the button to browse and choose a file</p>
-      </div>
-      <div class="upload-preview" *ngIf="content && content.heroBackgroundUrl">
-        <img [src]="content.heroBackgroundUrl" alt="Hero background preview" />
-      </div>
-      <button class="btn-choose-file" (click)="heroFileInput.click()">
-        <i class="fas fa-folder-open"></i> Choose File
-      </button>
-    </div>
-
-    <input type="file" #heroFileInput hidden accept="image/jpeg,image/png,image/webp" (change)="onHeroFileSelected($event)" />
-  </div>
-</section>
 
 
 <!-- Pricing Section -->
@@ -283,57 +251,17 @@
 
 <!-- Gallery Section -->
 <section class="gallery" id="gallery">
-  <div class="gallery-editor-wrapper">
-    <div class="editor-header">
-      <div class="editor-title">
-        <i class="fas fa-images"></i>
-        <span>GALLERY IMAGES</span>
-      </div>
-      <div class="gallery-counter">
-        {{ content?.galleryImages?.length || 0 }} / 10 ITEMS
-      </div>
+  <h2>GALLERY</h2>
+  <div class="gallery-container" *ngIf="content">
+    <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index" (click)="openLightbox(g)">
+      <img
+        [src]="g.url"
+        [alt]="g.alt || 'Gallery image'"
+        [title]="g.alt || 'Gallery image'"
+        loading="lazy"
+      />
+      <div class="gallery-caption">{{ g.alt || 'Photo ' + (i + 1) }}</div>
     </div>
-
-    <div class="editor-requirements">
-      <span class="requirement-badge size-badge">
-        <i class="fas fa-expand"></i> Min 800×600px
-      </span>
-      <span class="requirement-badge format-badge">
-        <i class="fas fa-file-image"></i> JPG / PNG / WEBP
-      </span>
-      <span class="requirement-badge size-limit-badge">
-        <i class="fas fa-weight"></i> Max 2MB each
-      </span>
-      <span class="requirement-badge count-badge">
-        <i class="fas fa-images"></i> Up to 10 images
-      </span>
-    </div>
-
-    <div class="gallery-upload-container">
-      <button class="add-image-box" (click)="galleryFileInput.click()" [disabled]="(content?.galleryImages?.length || 0) >= 10">
-        <div class="add-image-content">
-          <i class="fas fa-plus"></i>
-          <p>Add image</p>
-        </div>
-      </button>
-
-      <div class="gallery-items-grid" *ngIf="content && content.galleryImages && content.galleryImages.length > 0">
-        <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index" (click)="openLightbox(g)">
-          <img
-            [src]="g.url"
-            [alt]="g.alt || 'Gallery image'"
-            [title]="g.alt || 'Gallery image'"
-            loading="lazy"
-          />
-          <div class="gallery-caption">{{ g.alt || 'Photo ' + (i + 1) }}</div>
-          <button class="gallery-delete-btn" (click)="deleteGalleryImage(i); $event.stopPropagation()" title="Delete image">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <input type="file" #galleryFileInput hidden accept="image/jpeg,image/png,image/webp" (change)="onGalleryFileSelected($event)" />
   </div>
 
   <!-- Lightbox Overlay -->
