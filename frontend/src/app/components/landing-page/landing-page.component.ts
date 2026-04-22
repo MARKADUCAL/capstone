@@ -69,9 +69,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   mobileMenuOpen = false;
   showModal = false;
   selectedImage: GalleryImage | null = null;
-  showUploadRequirementsModal = false;
-  uploadRequirementsAcknowledged = false;
-  fileUploadInput: any;
 
   // Contact form properties
   contactForm: ContactForm = {
@@ -241,29 +238,60 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  openUploadModal(): void {
-    this.showUploadRequirementsModal = true;
-    this.uploadRequirementsAcknowledged = false;
-  }
-
-  closeUploadModal(): void {
-    this.showUploadRequirementsModal = false;
-    this.uploadRequirementsAcknowledged = false;
-  }
-
-  proceedToUpload(): void {
-    if (this.uploadRequirementsAcknowledged) {
-      // Trigger the hidden file input
-      const fileInput = document.querySelector('#fileUploadInput') as HTMLInputElement;
-      fileInput?.click();
-    }
-  }
-
-  onFileSelected(event: any): void {
+  onGalleryFileSelected(event: any): void {
     const file: File = event.target.files[0];
 
     if (file) {
-      // Validate file size (5 MB)
+      // Check if gallery is full (max 10 images)
+      if (this.content && this.content.galleryImages && this.content.galleryImages.length >= 10) {
+        alert('Gallery is full. Maximum 10 images allowed. Please delete some images first.');
+        return;
+      }
+
+      // Validate file size (2 MB for gallery)
+      const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+      if (file.size > maxSize) {
+        alert('File size exceeds 2 MB limit. Please choose a smaller image.');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file format. Please use JPG, PNG, or WEBP.');
+        return;
+      }
+
+      // Validate minimum dimensions (800x600)
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          if (img.width < 800 || img.height < 600) {
+            alert('Image must be at least 800×600 pixels.');
+            return;
+          }
+
+          if (this.content) {
+            const newImage: GalleryImage = {
+              url: e.target.result,
+              alt: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+            };
+            this.content.galleryImages.push(newImage);
+            alert('Image added to gallery successfully!');
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onHeroFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      // Validate file size (5 MB for hero)
       const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
       if (file.size > maxSize) {
         alert('File size exceeds 5 MB limit. Please choose a smaller image.');
@@ -277,18 +305,17 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Create a preview and add to gallery
+      // Validate dimensions (recommended 1920x1080)
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        if (this.content) {
-          const newImage: GalleryImage = {
-            url: e.target.result,
-            alt: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
-          };
-          this.content.galleryImages.push(newImage);
-          this.closeUploadModal();
-          alert('Image added to gallery successfully!');
-        }
+        const img = new Image();
+        img.onload = () => {
+          if (this.content) {
+            this.content.heroBackgroundUrl = e.target.result;
+            alert('Hero background image updated successfully!');
+          }
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
