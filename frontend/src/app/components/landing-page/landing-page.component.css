@@ -610,8 +610,8 @@ html {
   margin-bottom: 30px;
 }
 
-.pricing-tabl100%;
-  overflow-x: auto
+.pricing-table {
+  overflow-x: auto;
   width: 100%;
   min-width: 800px;
 }

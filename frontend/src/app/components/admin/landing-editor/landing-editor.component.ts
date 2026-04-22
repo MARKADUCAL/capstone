@@ -182,7 +182,6 @@ export class LandingEditorComponent implements OnInit {
       customClass: {
         container: 'req-modal-container',
         popup: 'req-modal-popup',
-        header: 'req-modal-header',
         title: 'req-modal-title',
         closeButton: 'req-modal-close',
         htmlContainer: 'req-modal-html',
