@@ -73,7 +73,7 @@ type FrontendLandingPageContent = {
   styleUrl: './landing-editor.component.css',
 })
 export class LandingEditorComponent implements OnInit {
-  readonly MAX_GALLERY_IMAGES = 6;
+  readonly MAX_GALLERY_IMAGES = 10;
   isSaving = false;
   validationResult: { isValid: boolean; errors: string[] } = {
     isValid: true,
@@ -157,6 +157,107 @@ export class LandingEditorComponent implements OnInit {
       const dateString = d.toLocaleDateString();
       return `✔ ${dateString} at ${timeString}`;
     }
+  }
+
+  showRequirementsAlert(): void {
+    Swal.fire({
+      width: '450px',
+      padding: '0',
+      showCloseButton: true,
+      showConfirmButton: true,
+      confirmButtonText: 'Got it!',
+      customClass: {
+        container: 'req-modal-container',
+        popup: 'req-modal-popup',
+        title: 'req-modal-title',
+        closeButton: 'req-modal-close',
+        htmlContainer: 'req-modal-html',
+        actions: 'req-modal-actions',
+        confirmButton: 'req-modal-confirm'
+      },
+      html: `
+        <div class="req-header-content">
+          <div class="req-header-icon"><mat-icon class="mat-icon material-icons">assignment</mat-icon></div>
+          <div class="req-header-text">
+            <div class="req-maintitle" style="font-size: 18px;">Image Upload Requirements</div>
+            <div class="req-subtitle" style="font-size: 13px; font-weight: normal; color: #8c889f; margin-top: 4px; text-transform: none; letter-spacing: 0;">Make sure your image meets these before uploading</div>
+          </div>
+        </div>
+        <div class="req-body">
+          <div class="req-list">
+            
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">image</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">ACCEPTED FORMATS</div>
+                <div class="req-item-val" style="font-size: 16px;">JPG, PNG, WEBP, GIF</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #A1887F;">inventory_2</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">MAXIMUM FILE SIZE</div>
+                <div class="req-item-val" style="font-size: 16px;">5 MB per image</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #90A4AE;">square_foot</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">RECOMMENDED SIZE</div>
+                <div class="req-item-val" style="font-size: 16px;">1280 × 720px or higher</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #B0BEC5;">straighten</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">MINIMUM DIMENSIONS</div>
+                <div class="req-item-val" style="font-size: 16px;">300 × 200px</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #64B5F6;">looks_one</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">MAX IMAGES</div>
+                <div class="req-item-val" style="font-size: 16px;">Up to ${this.MAX_GALLERY_IMAGES} gallery images</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+            
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #F06292;">palette</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">COLOR MODE</div>
+                <div class="req-item-val" style="font-size: 16px;">RGB only (no CMYK)</div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+
+            <div class="req-item">
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #E57373;">block</mat-icon></div>
+              <div class="req-item-text">
+                <div class="req-item-label">AVOID</div>
+                <div class="req-item-val" style="font-size: 16px;"><strong>Blur any vehicle plate numbers!</strong></div>
+              </div>
+              <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
+            </div>
+
+          </div>
+
+          <div class="req-warning">
+            <mat-icon class="mat-icon material-icons req-warning-icon" style="color: #FBC02D; margin-right: 12px;">lightbulb</mat-icon>
+            <span style="color: #5D4037; font-size: 14px; line-height: 1.4;">Images that don't meet these requirements will be rejected on upload.</span>
+          </div>
+        </div>
+      `
+    });
   }
 
   content: FrontendLandingPageContent = {

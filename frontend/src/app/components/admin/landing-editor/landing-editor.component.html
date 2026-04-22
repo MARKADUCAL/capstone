@@ -186,6 +186,23 @@
 
               <!-- Card Edit Form (Bottom Half - Edit Mode) -->
               <div class="gallery-card-edit" *ngIf="editingGalleryIndex === i">
+                
+                <div class="img-upload-actions-mockup">
+                  <input type="file" [id]="'galleryGridUpload' + i" accept="image/*" (change)="onGalleryFileSelected($event, i)" class="file-input-hidden" />
+                  
+                  <label [for]="'galleryGridUpload' + i" class="btn-upload-solid" title="Choose Image File">
+                    <mat-icon>file_upload</mat-icon>
+                    <span>Choose<br/>Image File</span>
+                  </label>
+                  
+                  <button type="button" class="btn-req-outline" (click)="showRequirementsAlert()">
+                    <mat-icon>info_outline</mat-icon>
+                    Requirements
+                  </button>
+                </div>
+                
+                <div class="or-divider-mockup">or use URL</div>
+
                 <div class="gallery-inputs-sm">
                   <mat-form-field appearance="outline" class="gallery-url-field custom-field-sm">
                     <mat-label>IMAGE URL</mat-label>
@@ -199,8 +216,6 @@
 
                 <div class="upload-controls-sm">
                   <div class="sweet-btn-group">
-                    <input type="file" [id]="'galleryGridUpload' + i" accept="image/*" (change)="onGalleryFileSelected($event, i)" class="file-input-hidden" />
-                    
                     <!-- Purple Upload -->
                     <label [for]="'galleryGridUpload' + i" class="sweet-btn btn-sw-upload" title="Upload Image" *ngIf="!isUploadingGallery[i]">
                       <mat-icon>file_upload</mat-icon>
@@ -211,6 +226,7 @@
 
                     <!-- Red Delete -->
                     <button class="sweet-btn btn-sw-delete" (click)="removeGalleryImage(i, $event)" title="Delete image">
+                      <mat-icon>delete_outline</mat-icon>
                     </button>
 
                     <!-- Pill Done -->
