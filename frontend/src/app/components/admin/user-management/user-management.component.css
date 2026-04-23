@@ -1269,8 +1269,8 @@
 .vehicles-header h3 {
   margin: 0;
   font-size: 16px;
-  font-wei1f2937: 600;
-  color: #fff;
+  font-weight: 600;        /* ❌ was: font-wei1f2937: 600 */
+  color: #1f2937;          /* ❌ was: color: #fff */
 }
 
 .vehicle-count-badge {
@@ -1301,7 +1301,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14pxf3f4f6;
+  padding: 14px;            /* ❌ was: padding: 14pxf3f4f6 */
+  background: #f3f4f6;      /* ❌ this was merged with padding above */
   border-radius: 10px;
   border: 1px solid #d1d5db;
   transition: all 0.2s ease;
@@ -1310,8 +1311,8 @@
 .vehicle-item:hover {
   background: #e5e7eb;
   border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15)
-  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); /* ❌ missing semicolon */
+  /* ❌ removed duplicate border-color */
 }
 
 .vehicle-item-icon {
@@ -1339,7 +1340,7 @@
 .vehicle-nickname {
   margin: 0 0 4px 0;
   font-size: 14px;
-  font-wei1f2937;
+  font-weight: 600;         /* ❌ was: font-wei1f2937 (no value) */
 }
 
 .vehicle-type {
@@ -1350,32 +1351,28 @@
 
 .vehicle-plate {
   margin: 0;
-  font-size: 12px;
-  color: #6b728012px;
-  color: #999;
+  font-size: 12px;          /* ❌ was: color: #6b728012px — merged garbage */
+  color: #6b7280;           /* ❌ was merged with font-size above */
   font-family: "Courier New", monospace;
 }
 
+/* ❌ Missing — vehicle-item-model had no styles */
 .vehicle-item-model {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
-  min-width: 80px;
+  flex-shrink: 0;
 }
 
 .model-label {
-  font-size: 10px;
-  text-tra9ca3af;
-  letter-spacing: 0.08em;
-  font-weight: 600;
+  font-size: 11px;
+  color: #9ca3af;
 }
 
 .model-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1f2937: 600;
-  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
 }
 
 /* Form Actions Redesigned */

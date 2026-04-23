@@ -7,7 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingService } from '../../../services/booking.service';
-import { FeedbackService, CustomerFeedback } from '../../../services/feedback.service';
+import {
+  FeedbackService,
+  CustomerFeedback,
+} from '../../../services/feedback.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
@@ -122,7 +125,7 @@ export class UserManagementComponent implements OnInit {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookingService: BookingService,
-    private feedbackService: FeedbackService
+    private feedbackService: FeedbackService,
   ) {}
 
   ngOnInit(): void {
@@ -162,7 +165,7 @@ export class UserManagementComponent implements OnInit {
         this.error = 'Error loading customers. Please try again later.';
         console.error('Error loading customers:', error);
         this.showNotification(
-          'Error loading customers. Please try again later.'
+          'Error loading customers. Please try again later.',
         );
       },
     });
@@ -363,7 +366,7 @@ export class UserManagementComponent implements OnInit {
           response.status.remarks === 'success'
         ) {
           const index = this.users.findIndex(
-            (u) => u.id === this.editUserData.id
+            (u) => u.id === this.editUserData.id,
           );
           if (index > -1) {
             this.users[index] = { ...this.editUserData };
@@ -498,20 +501,20 @@ export class UserManagementComponent implements OnInit {
         u.name.toLowerCase().includes(term) ||
         (u.email && u.email.toLowerCase().includes(term)) ||
         (u.phone && u.phone.includes(term)) ||
-        (u.id && u.id.toString().includes(term))
+        (u.id && u.id.toString().includes(term)),
     );
   }
 
   get paginatedUsers(): User[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredUsers.slice(
-      startIndex,
-      startIndex + this.itemsPerPage
-    );
+    return this.filteredUsers.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredUsers.length / this.itemsPerPage));
+    return Math.max(
+      1,
+      Math.ceil(this.filteredUsers.length / this.itemsPerPage),
+    );
   }
 
   nextPage(): void {
@@ -593,7 +596,7 @@ export class UserManagementComponent implements OnInit {
   openBookingDetailsModal(booking: CustomerBookingSummary): void {
     // Load feedback for this booking
     const bookingWithFeedback = { ...booking };
-    
+
     this.feedbackService.getFeedbackByBookingId(booking.id).subscribe({
       next: (feedbackList) => {
         if (feedbackList && feedbackList.length > 0) {
@@ -656,15 +659,22 @@ export class UserManagementComponent implements OnInit {
   }
 
   getTotalSpent(): number {
-    return this.customerBookings.reduce((total, booking) => total + booking.totalAmount, 0);
+    return this.customerBookings.reduce(
+      (total, booking) => total + booking.totalAmount,
+      0,
+    );
   }
 
   getCompletedCount(): number {
-    return this.customerBookings.filter(b => b.status.toLowerCase() === 'completed').length;
+    return this.customerBookings.filter(
+      (b) => b.status.toLowerCase() === 'completed',
+    ).length;
   }
 
   getPendingCount(): number {
-    return this.customerBookings.filter(b => b.status.toLowerCase() === 'pending').length;
+    return this.customerBookings.filter(
+      (b) => b.status.toLowerCase() === 'pending',
+    ).length;
   }
 
   loadCustomerVehicles(customerId: number): void {
@@ -672,25 +682,32 @@ export class UserManagementComponent implements OnInit {
     this.customerVehiclesError = null;
     this.customerVehicles = [];
 
-    this.http.get(`${this.apiUrl}/get_customer_vehicles?customer_id=${customerId}`).subscribe({
-      next: (response: any) => {
-        this.customerVehiclesLoading = false;
-        if (response && response.status && response.status.remarks === 'success' && response.payload) {
-          this.customerVehicles = response.payload.vehicles || [];
-          if (this.selectedUser) {
-            this.selectedUser.vehicles = this.customerVehicles;
+    this.http
+      .get(`${this.apiUrl}/get_customer_vehicles?customer_id=${customerId}`)
+      .subscribe({
+        next: (response: any) => {
+          this.customerVehiclesLoading = false;
+          if (
+            response &&
+            response.status &&
+            response.status.remarks === 'success' &&
+            response.payload
+          ) {
+            this.customerVehicles = response.payload.vehicles || [];
+            if (this.selectedUser) {
+              this.selectedUser.vehicles = this.customerVehicles;
+            }
+          } else {
+            this.customerVehicles = [];
           }
-        } else {
+        },
+        error: (error) => {
+          this.customerVehiclesLoading = false;
+          console.error('Error loading customer vehicles:', error);
           this.customerVehicles = [];
-        }
-      },
-      error: (error) => {
-        this.customerVehiclesLoading = false;
-        console.error('Error loading customer vehicles:', error);
-        this.customerVehicles = [];
-        // Don't show error message for vehicles as it's optional
-      }
-    });
+          // Don't show error message for vehicles as it's optional
+        },
+      });
   }
 
   changePassword(user: User): void {
@@ -720,8 +737,12 @@ export class UserManagementComponent implements OnInit {
       cancelButtonColor: '#6b7280',
       focusConfirm: false,
       preConfirm: () => {
-        const newPassword = (document.getElementById('swal-new-password') as HTMLInputElement).value;
-        const confirmPassword = (document.getElementById('swal-confirm-password') as HTMLInputElement).value;
+        const newPassword = (
+          document.getElementById('swal-new-password') as HTMLInputElement
+        ).value;
+        const confirmPassword = (
+          document.getElementById('swal-confirm-password') as HTMLInputElement
+        ).value;
 
         if (!newPassword || !confirmPassword) {
           Swal.showValidationMessage('Please fill in both password fields');
@@ -739,90 +760,95 @@ export class UserManagementComponent implements OnInit {
         }
 
         return { newPassword };
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
         const payload = {
           id: user.id,
-          password: result.value.newPassword
+          password: result.value.newPassword,
         };
 
-        this.http.put(`${this.apiUrl}/update_customer_password`, payload, {
-          observe: 'response'
-        }).subscribe({
-          next: (httpResponse) => {
-            const response = httpResponse.body as any;
-            console.log('Password update response:', response);
-            console.log('HTTP Status:', httpResponse.status);
-            
-            // Handle different response formats
-            if (httpResponse.status === 200) {
-              // Check for success in various response formats
-              const isSuccess = response?.status?.remarks === 'success' ||
-                               response?.success === true ||
-                               response?.status === 'success' ||
-                               (response?.message && response?.message.toLowerCase().includes('success'));
-              
-              if (isSuccess) {
-                Swal.fire({
-                  title: 'Success!',
-                  text: `Password for ${user.name} has been updated successfully.`,
-                  icon: 'success',
-                  confirmButtonText: 'OK',
-                  confirmButtonColor: '#16a34a',
-                });
-                return;
+        this.http
+          .put(`${this.apiUrl}/update_customer_password`, payload, {
+            observe: 'response',
+          })
+          .subscribe({
+            next: (httpResponse) => {
+              const response = httpResponse.body as any;
+              console.log('Password update response:', response);
+              console.log('HTTP Status:', httpResponse.status);
+
+              // Handle different response formats
+              if (httpResponse.status === 200) {
+                // Check for success in various response formats
+                const isSuccess =
+                  response?.status?.remarks === 'success' ||
+                  response?.success === true ||
+                  response?.status === 'success' ||
+                  (response?.message &&
+                    response?.message.toLowerCase().includes('success'));
+
+                if (isSuccess) {
+                  Swal.fire({
+                    title: 'Success!',
+                    text: `Password for ${user.name} has been updated successfully.`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#16a34a',
+                  });
+                  return;
+                }
               }
-            }
-            
-            // If we get here, it's not a success response
-            const errorMessage = response?.status?.message || 
-                                 response?.message || 
-                                 response?.error ||
-                                 'Failed to update password';
-            Swal.fire({
-              title: 'Error!',
-              text: errorMessage,
-              icon: 'error',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#dc2626',
-            });
-          },
-          error: (error) => {
-            console.error('Error updating password:', error);
-            
-            let errorMessage = 'Failed to update password. Please try again.';
-            
-            if (error.error) {
-              if (error.error.status?.message) {
-                errorMessage = error.error.status.message;
-              } else if (error.error.message) {
-                errorMessage = error.error.message;
-              } else if (typeof error.error === 'string') {
-                errorMessage = error.error;
+
+              // If we get here, it's not a success response
+              const errorMessage =
+                response?.status?.message ||
+                response?.message ||
+                response?.error ||
+                'Failed to update password';
+              Swal.fire({
+                title: 'Error!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            },
+            error: (error) => {
+              console.error('Error updating password:', error);
+
+              let errorMessage = 'Failed to update password. Please try again.';
+
+              if (error.error) {
+                if (error.error.status?.message) {
+                  errorMessage = error.error.status.message;
+                } else if (error.error.message) {
+                  errorMessage = error.error.message;
+                } else if (typeof error.error === 'string') {
+                  errorMessage = error.error;
+                }
+              } else if (error.message) {
+                errorMessage = error.message;
               }
-            } else if (error.message) {
-              errorMessage = error.message;
-            }
-            
-            // Check if endpoint doesn't exist (404) or server error (500)
-            if (error.status === 404) {
-              errorMessage = 'Password update endpoint not found. Please contact administrator.';
-            } else if (error.status === 500) {
-              errorMessage = 'Server error occurred. Please try again later.';
-            }
-            
-            Swal.fire({
-              title: 'Error!',
-              text: errorMessage,
-              icon: 'error',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#dc2626',
-            });
-          }
-        });
+
+              // Check if endpoint doesn't exist (404) or server error (500)
+              if (error.status === 404) {
+                errorMessage =
+                  'Password update endpoint not found. Please contact administrator.';
+              } else if (error.status === 500) {
+                errorMessage = 'Server error occurred. Please try again later.';
+              }
+
+              Swal.fire({
+                title: 'Error!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+              });
+            },
+          });
       }
     });
   }
-
 }
