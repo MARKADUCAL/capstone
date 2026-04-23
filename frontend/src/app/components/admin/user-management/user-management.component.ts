@@ -12,6 +12,15 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
+export interface Vehicle {
+  id: number;
+  nickname?: string;
+  vehicle_type: string;
+  vehicle_model: string;
+  plate_number: string;
+  vehicle_color?: string;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -19,6 +28,7 @@ export interface User {
   phone: string;
   registrationDate: string;
   imageUrl?: string;
+  vehicles?: Vehicle[];
 }
 
 interface NewUser {
@@ -100,6 +110,11 @@ export class UserManagementComponent implements OnInit {
   customerBookings: CustomerBookingSummary[] = [];
   isBookingDetailsModalOpen: boolean = false;
   selectedBookingDetails: CustomerBookingSummary | null = null;
+
+  // Customer vehicles state
+  customerVehicles: Vehicle[] = [];
+  customerVehiclesLoading: boolean = false;
+  customerVehiclesError: string | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -309,11 +324,14 @@ export class UserManagementComponent implements OnInit {
   viewUser(user: User): void {
     this.selectedUser = user;
     this.isViewModalOpen = true;
+    this.loadCustomerVehicles(user.id);
   }
 
   closeViewUserModal(): void {
     this.isViewModalOpen = false;
     this.selectedUser = null;
+    this.customerVehicles = [];
+    this.customerVehiclesError = null;
   }
 
   editUser(user: User): void {
@@ -635,6 +653,32 @@ export class UserManagementComponent implements OnInit {
 
   getStarArray(): number[] {
     return [1, 2, 3, 4, 5];
+  }
+
+  loadCustomerVehicles(customerId: number): void {
+    this.customerVehiclesLoading = true;
+    this.customerVehiclesError = null;
+    this.customerVehicles = [];
+
+    this.http.get(`${this.apiUrl}/customers/${customerId}/vehicles`).subscribe({
+      next: (response: any) => {
+        this.customerVehiclesLoading = false;
+        if (response && response.status && response.status.remarks === 'success' && response.payload) {
+          this.customerVehicles = response.payload.vehicles || response.payload || [];
+          if (this.selectedUser) {
+            this.selectedUser.vehicles = this.customerVehicles;
+          }
+        } else {
+          this.customerVehicles = [];
+        }
+      },
+      error: (error) => {
+        this.customerVehiclesLoading = false;
+        console.error('Error loading customer vehicles:', error);
+        this.customerVehicles = [];
+        // Don't show error message for vehicles as it's optional
+      }
+    });
   }
 
   changePassword(user: User): void {
