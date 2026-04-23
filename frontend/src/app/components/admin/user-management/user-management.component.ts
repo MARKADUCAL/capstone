@@ -660,11 +660,11 @@ export class UserManagementComponent implements OnInit {
     this.customerVehiclesError = null;
     this.customerVehicles = [];
 
-    this.http.get(`${this.apiUrl}/customers/${customerId}/vehicles`).subscribe({
+    this.http.get(`${this.apiUrl}/get_customer_vehicles?customer_id=${customerId}`).subscribe({
       next: (response: any) => {
         this.customerVehiclesLoading = false;
         if (response && response.status && response.status.remarks === 'success' && response.payload) {
-          this.customerVehicles = response.payload.vehicles || response.payload || [];
+          this.customerVehicles = response.payload.vehicles || [];
           if (this.selectedUser) {
             this.selectedUser.vehicles = this.customerVehicles;
           }
