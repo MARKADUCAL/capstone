@@ -655,6 +655,18 @@ export class UserManagementComponent implements OnInit {
     return [1, 2, 3, 4, 5];
   }
 
+  getTotalSpent(): number {
+    return this.customerBookings.reduce((total, booking) => total + booking.totalAmount, 0);
+  }
+
+  getCompletedCount(): number {
+    return this.customerBookings.filter(b => b.status.toLowerCase() === 'completed').length;
+  }
+
+  getPendingCount(): number {
+    return this.customerBookings.filter(b => b.status.toLowerCase() === 'pending').length;
+  }
+
   loadCustomerVehicles(customerId: number): void {
     this.customerVehiclesLoading = true;
     this.customerVehiclesError = null;

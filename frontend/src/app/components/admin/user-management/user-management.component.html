@@ -126,56 +126,80 @@
         <h2>Customer Details</h2>
         <span class="close-btn" (click)="closeViewUserModal()">&times;</span>
       </div>
-      <div class="modal-body" *ngIf="selectedUser">
-        <div class="user-details-view">
-          <p><strong>Full Name:</strong> {{ selectedUser.name }}</p>
-          <p><strong>Email:</strong> {{ selectedUser.email }}</p>
-          <p><strong>Phone:</strong> {{ selectedUser.phone }}</p>
-          <p>
-            <strong>Registration Date:</strong>
-            {{ selectedUser.registrationDate }}
-          </p>
+      <div class="modal-body customer-details-modal-body" *ngIf="selectedUser">
+        <!-- Customer Header with Avatar -->
+        <div class="customer-header">
+          <div class="customer-avatar-large">
+            {{ getUserInitials(selectedUser.name) }}
+          </div>
+          <div class="customer-header-info">
+            <h2 class="customer-name">{{ selectedUser.name }}</h2>
+            <p class="customer-since">Customer since {{ selectedUser.registrationDate }}</p>
+          </div>
+        </div>
+
+        <!-- Customer Info Section -->
+        <div class="customer-info-section">
+          <div class="info-row">
+            <span class="info-icon email-icon">
+              <mat-icon>mail</mat-icon>
+            </span>
+            <div class="info-content">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ selectedUser.email }}</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <span class="info-icon phone-icon">
+              <mat-icon>phone</mat-icon>
+            </span>
+            <div class="info-content">
+              <span class="info-label">Phone</span>
+              <span class="info-value">{{ selectedUser.phone }}</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <span class="info-icon calendar-icon">
+              <mat-icon>event</mat-icon>
+            </span>
+            <div class="info-content">
+              <span class="info-label">Registered</span>
+              <span class="info-value">{{ selectedUser.registrationDate }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Customer Vehicles Section -->
-        <div class="vehicles-section">
-          <div class="section-header">
-            <mat-icon class="section-icon">directions_car</mat-icon>
+        <div class="vehicles-section-redesigned">
+          <div class="vehicles-header">
             <h3>Customer Vehicles</h3>
+            <span class="vehicle-count-badge" *ngIf="customerVehicles.length > 0">
+              {{ customerVehicles.length }}
+            </span>
           </div>
-          
+
           <div *ngIf="customerVehiclesLoading" class="loading-container">
             <p>Loading vehicles...</p>
           </div>
-          
-          <div *ngIf="!customerVehiclesLoading && customerVehicles.length === 0" class="empty-vehicles">
-            <p>No vehicles registered for this customer.</p>
+
+          <div *ngIf="!customerVehiclesLoading && customerVehicles.length === 0" class="empty-vehicles-redesigned">
+            <p>No vehicles registered</p>
           </div>
-          
-          <div *ngIf="!customerVehiclesLoading && customerVehicles.length > 0" class="vehicles-grid">
-            <div *ngFor="let vehicle of customerVehicles" class="vehicle-card">
-              <div class="vehicle-header">
-                <div class="vehicle-icon">
-                  <mat-icon>directions_car</mat-icon>
-                </div>
-                <div class="vehicle-name">
-                  <h4>{{ vehicle.nickname || vehicle.vehicle_type }}</h4>
-                  <p class="plate-number">{{ vehicle.plate_number }}</p>
-                </div>
+
+          <div *ngIf="!customerVehiclesLoading && customerVehicles.length > 0" class="vehicles-list">
+            <div *ngFor="let vehicle of customerVehicles" class="vehicle-item">
+              <div class="vehicle-item-icon">
+                <mat-icon>lock</mat-icon>
               </div>
-              <div class="vehicle-details">
-                <div class="detail-item">
-                  <span class="label">Type:</span>
-                  <span class="value">{{ vehicle.vehicle_type }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Model:</span>
-                  <span class="value">{{ vehicle.vehicle_model }}</span>
-                </div>
-                <div class="detail-item" *ngIf="vehicle.vehicle_color">
-                  <span class="label">Color:</span>
-                  <span class="value">{{ vehicle.vehicle_color }}</span>
-                </div>
+              <div class="vehicle-item-info">
+                <p class="vehicle-nickname">{{ vehicle.nickname || vehicle.vehicle_type }} <span class="vehicle-type">({{ vehicle.vehicle_model }})</span></p>
+                <p class="vehicle-plate">{{ vehicle.plate_number }}</p>
+              </div>
+              <div class="vehicle-item-model">
+                <span class="model-label">Model</span>
+                <span class="model-value">{{ vehicle.vehicle_model }}</span>
               </div>
             </div>
           </div>
@@ -184,17 +208,17 @@
         <div class="form-actions">
           <button
             type="button"
-            class="save-btn"
-            (click)="openCustomerBookings(selectedUser)"
-          >
-            View Bookings
-          </button>
-          <button
-            type="button"
-            class="cancel-btn"
+            class="close-btn"
             (click)="closeViewUserModal()"
           >
             Close
+          </button>
+          <button
+            type="button"
+            class="view-bookings-btn"
+            (click)="openCustomerBookings(selectedUser)"
+          >
+            View Bookings
           </button>
         </div>
       </div>
@@ -203,14 +227,14 @@
 
   <!-- Customer Bookings Modal -->
   <div class="modal" [class.show-modal]="isCustomerBookingsModalOpen">
-    <div class="modal-content modal-wide">
+    <div class="modal-content modal-wide bookings-modal-wide">
       <div class="modal-header">
         <h2>Customer Bookings</h2>
         <span class="close-btn" (click)="closeCustomerBookingsModal()"
           >&times;</span
         >
       </div>
-      <div class="modal-body">
+      <div class="modal-body bookings-modal-body">
         <div *ngIf="customerBookingsLoading" class="loading-container">
           <p>Loading bookings...</p>
         </div>
@@ -227,69 +251,83 @@
         >
           <p>No bookings found for this customer.</p>
         </div>
+
+        <!-- Booking Summary Cards -->
         <div
-          class="booking-summary"
+          class="bookings-summary-cards"
           *ngIf="
             !customerBookingsLoading &&
             !customerBookingsError &&
             customerBookings.length > 0
           "
         >
-          <div class="summary-card">
-            <span class="summary-label">Total Bookings</span>
-            <span class="summary-value">{{ customerBookings.length }}</span>
+          <div class="summary-card-item">
+            <div class="card-label">TOTAL BOOKINGS</div>
+            <div class="card-value">{{ customerBookings.length }}</div>
+          </div>
+          <div class="summary-card-item">
+            <div class="card-label">TOTAL SPENT</div>
+            <div class="card-value">₱{{ getTotalSpent() | number : "1.2-2" }}</div>
+          </div>
+          <div class="summary-card-item">
+            <div class="card-label">COMPLETED</div>
+            <div class="card-value completed">{{ getCompletedCount() }}</div>
+          </div>
+          <div class="summary-card-item">
+            <div class="card-label">PENDING</div>
+            <div class="card-value pending">{{ getPendingCount() }}</div>
           </div>
         </div>
+
+        <!-- Bookings Table -->
         <div
-          class="table-container bookings-table-container"
+          class="table-container bookings-table-container-redesigned"
           *ngIf="
             !customerBookingsLoading &&
             !customerBookingsError &&
             customerBookings.length > 0
           "
         >
-          <div class="table-scroll">
-            <table class="customer-table bookings-table">
-              <thead>
-                <tr>
-                  <th>NO.</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                  <th>Total Amount</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let b of customerBookings">
-                  <td>{{ b.service }}</td>
-                  <td>{{ b.date | date : "mediumDate" }}</td>
-                  <td>{{ b.time }}</td>
-                  <td>{{ b.status }}</td>
-                  <td>
-                    {{
-                      b.totalAmount
-                        | currency : "PHP" : "symbol-narrow" : "1.2-2"
-                    }}
-                  </td>
-                  <td class="booking-actions">
-                    <button
-                      type="button"
-                      class="view-booking-btn"
-                      (click)="openBookingDetailsModal(b)"
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table class="bookings-table-redesigned">
+            <thead>
+              <tr>
+                <th>NO.</th>
+                <th>DATE</th>
+                <th>TIME</th>
+                <th>STATUS</th>
+                <th>AMOUNT</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of customerBookings">
+                <td class="booking-no">{{ b.service }}</td>
+                <td class="booking-date">{{ b.date | date : "MMM d, y" }}</td>
+                <td class="booking-time">{{ b.time }}</td>
+                <td class="booking-status">
+                  <span class="status-badge" [ngClass]="'status-' + b.status.toLowerCase()">
+                    {{ b.status }}
+                  </span>
+                </td>
+                <td class="booking-amount">₱{{ b.totalAmount | number : "1.2-2" }}</td>
+                <td class="booking-action">
+                  <button
+                    type="button"
+                    class="view-btn-redesigned"
+                    (click)="openBookingDetailsModal(b)"
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="form-actions">
+
+        <div class="bookings-form-actions">
           <button
             type="button"
-            class="cancel-btn"
+            class="close-bookings-btn"
             (click)="closeCustomerBookingsModal()"
           >
             Close
