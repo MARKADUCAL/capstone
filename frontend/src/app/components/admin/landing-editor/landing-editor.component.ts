@@ -1,4 +1,10 @@
-import { Component, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  HostListener,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
@@ -113,7 +119,7 @@ export class LandingEditorComponent implements OnInit {
         icon: 'warning',
         title: 'Empty Image',
         text: 'Please upload an image or provide a URL first, or delete this item.',
-        confirmButtonColor: '#9C2780'
+        confirmButtonColor: '#9C2780',
       });
       return;
     }
@@ -134,21 +140,26 @@ export class LandingEditorComponent implements OnInit {
 
   formatLastSaved(): string {
     if (!this.lastSavedTime) return 'Unsaved changes';
-    
+
     const d = new Date(this.lastSavedTime);
     const now = new Date();
-    
-    const isToday = d.getDate() === now.getDate() &&
-                    d.getMonth() === now.getMonth() &&
-                    d.getFullYear() === now.getFullYear();
-                    
+
+    const isToday =
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
+
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
-    const isYesterday = d.getDate() === yesterday.getDate() &&
-                        d.getMonth() === yesterday.getMonth() &&
-                        d.getFullYear() === yesterday.getFullYear();
+    const isYesterday =
+      d.getDate() === yesterday.getDate() &&
+      d.getMonth() === yesterday.getMonth() &&
+      d.getFullYear() === yesterday.getFullYear();
 
-    let timeString = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    let timeString = d.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
     if (isToday) {
       return `✔ Today at ${timeString}`;
     } else if (isYesterday) {
@@ -173,7 +184,7 @@ export class LandingEditorComponent implements OnInit {
         closeButton: 'req-modal-close',
         htmlContainer: 'req-modal-html',
         actions: 'req-modal-actions',
-        confirmButton: 'req-modal-confirm'
+        confirmButton: 'req-modal-confirm',
       },
       html: `
         <div class="req-header-content">
@@ -204,9 +215,9 @@ export class LandingEditorComponent implements OnInit {
               <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
             </div>
             <div class="req-item">
-              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #E57373;">block</mat-icon></div>
+              <div class="req-item-icon"><mat-icon class="mat-icon material-icons" style="color: #E57373;">warning/mat-icon></div>
               <div class="req-item-text">
-                <div class="req-item-label">AVOID</div>
+                <div class="req-item-label">WARNING</div>
                 <div class="req-item-val" style="font-size: 16px;"><strong>Blur any vehicle plate numbers!</strong></div>
               </div>
               <div class="req-item-check"><mat-icon class="mat-icon material-icons" style="color: #4CAF50;">check</mat-icon></div>
@@ -219,7 +230,7 @@ export class LandingEditorComponent implements OnInit {
             <span style="color: #5D4037; font-size: 14px; line-height: 1.4;">Images that don't meet these requirements will be rejected on upload.</span>
           </div>
         </div>
-      `
+      `,
     });
   }
 
@@ -246,7 +257,7 @@ export class LandingEditorComponent implements OnInit {
     private snackBar: MatSnackBar,
     private landingPageService: LandingPageService,
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   // Navigation properties
@@ -279,7 +290,7 @@ export class LandingEditorComponent implements OnInit {
           response.payload
         ) {
           this.content = this.landingPageService.convertToFrontendFormat(
-            response.payload
+            response.payload,
           );
           // Normalize any legacy query-style or API file URLs to direct /uploads paths
           const normalize = (url: string | undefined | null): string => {
@@ -301,7 +312,7 @@ export class LandingEditorComponent implements OnInit {
             return val;
           };
           this.content.heroBackgroundUrl = normalize(
-            this.content.heroBackgroundUrl
+            this.content.heroBackgroundUrl,
           );
           this.content.galleryImages = (this.content.galleryImages || [])
             .slice(0, this.MAX_GALLERY_IMAGES)
@@ -310,10 +321,14 @@ export class LandingEditorComponent implements OnInit {
               url: normalize(g.url),
             }));
           // Ensure isUploadingGallery array matches galleryImages length
-          while (this.isUploadingGallery.length < this.content.galleryImages.length) {
+          while (
+            this.isUploadingGallery.length < this.content.galleryImages.length
+          ) {
             this.isUploadingGallery.push(false);
           }
-          while (this.isUploadingGallery.length > this.content.galleryImages.length) {
+          while (
+            this.isUploadingGallery.length > this.content.galleryImages.length
+          ) {
             this.isUploadingGallery.pop();
           }
           this.updateValidation();
@@ -321,7 +336,7 @@ export class LandingEditorComponent implements OnInit {
           this.snackBar.open(
             'Failed to load content. Using empty defaults.',
             'Close',
-            { duration: 3000 }
+            { duration: 3000 },
           );
           this.updateValidation();
         }
@@ -330,7 +345,7 @@ export class LandingEditorComponent implements OnInit {
         this.snackBar.open(
           'Error loading content. Using empty defaults.',
           'Close',
-          { duration: 3000 }
+          { duration: 3000 },
         );
         this.updateValidation();
       },
@@ -352,7 +367,7 @@ export class LandingEditorComponent implements OnInit {
       this.snackBar.open(
         `Gallery is limited to ${this.MAX_GALLERY_IMAGES} images. Please remove an image before adding a new one.`,
         'Close',
-        { duration: 4000 }
+        { duration: 4000 },
       );
       return;
     }
@@ -368,24 +383,27 @@ export class LandingEditorComponent implements OnInit {
     }
     Swal.fire({
       title: 'Delete Image?',
-      text: "Are you sure you want to delete this image? You cannot undo this.",
+      text: 'Are you sure you want to delete this image? You cannot undo this.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#f44336',
       cancelButtonColor: '#8c889f',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
         this.content.galleryImages.splice(index, 1);
         this.isUploadingGallery.splice(index, 1);
-        
+
         if (this.editingGalleryIndex === index) {
           this.editingGalleryIndex = null;
-        } else if (this.editingGalleryIndex !== null && this.editingGalleryIndex > index) {
+        } else if (
+          this.editingGalleryIndex !== null &&
+          this.editingGalleryIndex > index
+        ) {
           this.editingGalleryIndex--;
         }
         this.updateValidation();
-        
+
         const stripDataUrl = (val: string | undefined | null): string => {
           if (!val) return '';
           return val.startsWith('data:') ? '' : val;
@@ -394,7 +412,9 @@ export class LandingEditorComponent implements OnInit {
           url: stripDataUrl(g.url),
           alt: g.alt,
         }));
-        this.landingPageService.updateSection('gallery', galleryPayload).subscribe();
+        this.landingPageService
+          .updateSection('gallery', galleryPayload)
+          .subscribe();
 
         Swal.fire({
           title: 'Deleted!',
@@ -402,7 +422,7 @@ export class LandingEditorComponent implements OnInit {
           icon: 'success',
           confirmButtonColor: '#9C2780',
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
       }
     });
@@ -521,7 +541,7 @@ export class LandingEditorComponent implements OnInit {
               'Close',
               {
                 duration: 3000,
-              }
+              },
             );
           } else {
             this.uploadError =
@@ -564,7 +584,7 @@ export class LandingEditorComponent implements OnInit {
         } else {
           console.warn(
             'Failed to save hero background to database:',
-            response.status?.message
+            response.status?.message,
           );
         }
       },
@@ -582,14 +602,14 @@ export class LandingEditorComponent implements OnInit {
       this.snackBar.open(
         'Please fix validation errors before saving.',
         'Close',
-        { duration: 3000 }
+        { duration: 3000 },
       );
       return;
     }
 
     this.isSaving = true;
     const backendContent = this.landingPageService.convertToBackendFormat(
-      this.content as any
+      this.content as any,
     );
     this.landingPageService
       .updateLandingPageContent(backendContent)
@@ -597,14 +617,17 @@ export class LandingEditorComponent implements OnInit {
         catchError((e) => {
           console.error('Bulk save error — falling back to section saves', e);
           return of(null);
-        })
+        }),
       )
       .subscribe((bulkRes) => {
         if (bulkRes && (bulkRes as any).status?.remarks === 'success') {
           this.isSaving = false;
           this.lastSavedTime = new Date();
           if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('landingEditorLastSaved', this.lastSavedTime.toISOString());
+            localStorage.setItem(
+              'landingEditorLastSaved',
+              this.lastSavedTime.toISOString(),
+            );
           }
           this.clearLandingPageCache();
           this.reloadContent();
@@ -614,7 +637,7 @@ export class LandingEditorComponent implements OnInit {
             icon: 'success',
             confirmButtonColor: '#9C2780',
             timer: 2000,
-            showConfirmButton: false
+            showConfirmButton: false,
           });
           return;
         }
@@ -661,7 +684,7 @@ export class LandingEditorComponent implements OnInit {
             catchError((e) => {
               console.error('Hero save error', e);
               return of(null);
-            })
+            }),
           ),
           services: this.landingPageService
             .updateSection('services', servicesPayload)
@@ -669,7 +692,7 @@ export class LandingEditorComponent implements OnInit {
               catchError((e) => {
                 console.error('Services save error', e);
                 return of(null);
-              })
+              }),
             ),
           gallery: this.landingPageService
             .updateSection('gallery', galleryPayload)
@@ -677,7 +700,7 @@ export class LandingEditorComponent implements OnInit {
               catchError((e) => {
                 console.error('Gallery save error', e);
                 return of(null);
-              })
+              }),
             ),
           contact_info: this.landingPageService
             .updateSection('contact_info', contactPayload)
@@ -685,7 +708,7 @@ export class LandingEditorComponent implements OnInit {
               catchError((e) => {
                 console.error('Contact save error', e);
                 return of(null);
-              })
+              }),
             ),
           footer: this.landingPageService
             .updateSection('footer', footerPayload)
@@ -693,7 +716,7 @@ export class LandingEditorComponent implements OnInit {
               catchError((e) => {
                 console.error('Footer save error', e);
                 return of(null);
-              })
+              }),
             ),
         };
 
@@ -704,10 +727,10 @@ export class LandingEditorComponent implements OnInit {
               const successes = keys.filter(
                 (k) =>
                   (res as any)[k] &&
-                  (res as any)[k].status?.remarks === 'success'
+                  (res as any)[k].status?.remarks === 'success',
               );
               return { total: keys.length, ok: successes.length };
-            })
+            }),
           )
           .subscribe({
             next: ({ total, ok }: any) => {
@@ -715,7 +738,10 @@ export class LandingEditorComponent implements OnInit {
               if (ok === total) {
                 this.lastSavedTime = new Date();
                 if (isPlatformBrowser(this.platformId)) {
-                  localStorage.setItem('landingEditorLastSaved', this.lastSavedTime.toISOString());
+                  localStorage.setItem(
+                    'landingEditorLastSaved',
+                    this.lastSavedTime.toISOString(),
+                  );
                 }
                 this.clearLandingPageCache();
                 this.reloadContent();
@@ -725,19 +751,19 @@ export class LandingEditorComponent implements OnInit {
                   icon: 'success',
                   confirmButtonColor: '#9C2780',
                   timer: 2000,
-                  showConfirmButton: false
+                  showConfirmButton: false,
                 });
               } else if (ok > 0) {
                 this.snackBar.open(
                   `${ok}/${total} sections saved. Some failed — please retry.`,
                   'Close',
-                  { duration: 6000 }
+                  { duration: 6000 },
                 );
               } else {
                 this.snackBar.open(
                   'Failed to save to database. Please try again.',
                   'Close',
-                  { duration: 6000 }
+                  { duration: 6000 },
                 );
               }
             },
@@ -747,7 +773,7 @@ export class LandingEditorComponent implements OnInit {
               this.snackBar.open(
                 'Failed to save to database. Please try again.',
                 'Close',
-                { duration: 6000 }
+                { duration: 6000 },
               );
             },
           });
@@ -782,7 +808,7 @@ export class LandingEditorComponent implements OnInit {
         this.content.galleryImages[index].preview = e.target.result;
       };
       reader.readAsDataURL(file);
-      
+
       // Auto-upload
       this.uploadGalleryImage(index);
     }
@@ -821,7 +847,7 @@ export class LandingEditorComponent implements OnInit {
             this.snackBar.open(
               `Gallery image ${index + 1} uploaded successfully!`,
               'Close',
-              { duration: 3000 }
+              { duration: 3000 },
             );
           } else {
             image.uploadError =
@@ -862,7 +888,7 @@ export class LandingEditorComponent implements OnInit {
 
     const cleanMatch = currentSrc.match(/\/api\/file\/([^/?#]+)$/);
     const queryMatch = currentSrc.match(
-      /\/api\/index\.php\?request=file\/([^&#]+)/
+      /\/api\/index\.php\?request=file\/([^&#]+)/,
     );
 
     if (cleanMatch && cleanMatch[1]) {
