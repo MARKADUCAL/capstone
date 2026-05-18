@@ -1,1 +1,3 @@
-
+# Environment files
+backend/autowash-hub-api/api/.env
+*.env
