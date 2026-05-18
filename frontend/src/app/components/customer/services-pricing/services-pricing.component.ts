@@ -142,22 +142,26 @@ export class ServicesPricingComponent implements OnInit {
 
   loadUserVehicles(): void {
     if (!this.customerId) return;
-    
+
     this.loadingVehicles = true;
-    this.http.get<any>(`${environment.apiUrl}/get_customer_vehicles?customer_id=${this.customerId}`).subscribe({
-      next: (response) => {
-        if (response.status && response.status.remarks === 'success') {
-          this.userVehicles = response.payload.vehicles || [];
-          console.log('Loaded user vehicles:', this.userVehicles);
-        }
-        this.loadingVehicles = false;
-      },
-      error: (error) => {
-        console.error('Error loading vehicles:', error);
-        this.userVehicles = [];
-        this.loadingVehicles = false;
-      },
-    });
+    this.http
+      .get<any>(
+        `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.customerId}`,
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.userVehicles = response.payload.vehicles || [];
+            console.log('Loaded user vehicles:', this.userVehicles);
+          }
+          this.loadingVehicles = false;
+        },
+        error: (error) => {
+          console.error('Error loading vehicles:', error);
+          this.userVehicles = [];
+          this.loadingVehicles = false;
+        },
+      });
   }
 
   get hasVehicles(): boolean {

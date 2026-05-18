@@ -71,6 +71,31 @@
       </div>
     </header>
 
+    <!-- Logout Confirmation Dialog -->
+    <div
+      class="logout-dialog-overlay"
+      *ngIf="showLogoutDialog"
+      (click)="cancelLogout()"
+    >
+      <div class="logout-dialog" (click)="$event.stopPropagation()">
+        <div class="logout-dialog-header">
+          <h2>Confirm Logout</h2>
+        </div>
+        <div class="logout-dialog-body">
+          <p>
+            Are you sure you want to logout? You will need to sign in again to
+            access your account.
+          </p>
+        </div>
+        <div class="logout-dialog-footer">
+          <button class="btn-cancel" (click)="cancelLogout()">Cancel</button>
+          <button class="btn-logout-confirm" (click)="confirmLogout()">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>

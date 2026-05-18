@@ -4,9 +4,12 @@
     <div class="badge-container">
       <span class="badge">🚗 Car Wash Management</span>
     </div>
-    <h1 class="welcome-title">Welcome back, {{ customerName || "Customer" }}</h1>
+    <h1 class="welcome-title">
+      Welcome back, {{ customerName || "Customer" }}
+    </h1>
     <p class="welcome-description">
-      View our comprehensive car wash service pricing based on your vehicle type and service package.
+      View our comprehensive car wash service pricing based on your vehicle type
+      and service package.
     </p>
     <div class="welcome-actions">
       <button class="btn-primary" (click)="navigateToAppointment()">
@@ -114,7 +117,11 @@
                   <div class="price-amount">
                     {{
                       formatPrice(
-                        pricingMatrix[vehicle.code] && pricingMatrix[vehicle.code][package.code] !== undefined ? pricingMatrix[vehicle.code][package.code] : 0
+                        pricingMatrix[vehicle.code] &&
+                          pricingMatrix[vehicle.code][package.code] !==
+                            undefined
+                          ? pricingMatrix[vehicle.code][package.code]
+                          : 0
                       )
                     }}
                   </div>
@@ -134,12 +141,17 @@
             <div class="pricing-card-info">
               <div class="pricing-card-name">
                 {{
-                  vehicle.code === 'S' ? 'Sedan' :
-                  vehicle.code === 'M' ? 'SUV' :
-                  vehicle.code === 'L' ? 'VAN' :
-                  vehicle.code === 'XL' ? 'Oversized' :
-                  vehicle.code === 'XXL' ? 'Extra Oversized' :
-                  vehicle.code
+                  vehicle.code === "S"
+                    ? "Sedan"
+                    : vehicle.code === "M"
+                      ? "SUV"
+                      : vehicle.code === "L"
+                        ? "VAN"
+                        : vehicle.code === "XL"
+                          ? "Oversized"
+                          : vehicle.code === "XXL"
+                            ? "Extra Oversized"
+                            : vehicle.code
                 }}
               </div>
               <div class="pricing-card-desc">{{ vehicle.description }}</div>
@@ -154,7 +166,10 @@
             <div class="pricing-card-price">
               {{
                 formatPrice(
-                  pricingMatrix[vehicle.code] && pricingMatrix[vehicle.code][package.code] !== undefined ? pricingMatrix[vehicle.code][package.code] : 0
+                  pricingMatrix[vehicle.code] &&
+                    pricingMatrix[vehicle.code][package.code] !== undefined
+                    ? pricingMatrix[vehicle.code][package.code]
+                    : 0
                 )
               }}
             </div>

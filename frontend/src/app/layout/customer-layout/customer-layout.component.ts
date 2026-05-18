@@ -27,6 +27,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   showDropdown = false;
   sidebarActive = false;
   sidebarOpen = true;
+  showLogoutDialog = false;
 
   // User data properties
   firstName = '';
@@ -184,14 +185,23 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.showLogoutDialog = true;
+  }
+
+  confirmLogout() {
     // Clear the local storage or cookies
     localStorage.removeItem('auth_token');
     localStorage.removeItem('customer_data');
 
-    // Close dropdown
+    // Close dropdown and dialog
     this.showDropdown = false;
+    this.showLogoutDialog = false;
 
     // Redirect to login page
     this.router.navigate(['/customer']);
+  }
+
+  cancelLogout() {
+    this.showLogoutDialog = false;
   }
 }
