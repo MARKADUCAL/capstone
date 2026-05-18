@@ -136,6 +136,13 @@ export class ServicesPricingComponent implements OnInit {
     this.router.navigate(['/customer-view/appointment']);
   }
 
+  scrollToPricing(): void {
+    const pricingSection = document.querySelector('.services-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   navigateToAppointmentWithPackage(
     vehicleType: string,
     servicePackage: string,

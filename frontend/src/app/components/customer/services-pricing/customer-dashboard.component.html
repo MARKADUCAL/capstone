@@ -1,16 +1,25 @@
 <div class="dashboard-container">
   <!-- Welcome Section -->
   <div class="welcome-section">
-    <div class="welcome-header">
-      <h1 class="welcome-title">Welcome, {{ customerName || "Customer" }}</h1>
+    <div class="badge-container">
+      <span class="badge">🚗 Car Wash Management</span>
     </div>
+    <h1 class="welcome-title">Welcome back, {{ customerName || "Customer" }}</h1>
     <p class="welcome-description">
-      View our comprehensive car wash service pricing based on your vehicle type
-      and service package.
+      View our comprehensive car wash service pricing based on your vehicle type and service package.
     </p>
-    <button class="btn-primary" (click)="navigateToAppointment()">
-      Book a Service Now
-    </button>
+    <div class="welcome-actions">
+      <button class="btn-primary" (click)="navigateToAppointment()">
+        Book a service now
+      </button>
+      <button class="btn-secondary" (click)="scrollToPricing()">
+        View services
+      </button>
+    </div>
+    <div class="vehicle-status">
+      <p class="no-vehicle-text">No vehicle added yet.</p>
+      <a href="#" class="add-vehicle-link">+ Add a vehicle</a>
+    </div>
   </div>
 
   <!-- Authentication Error Section -->
