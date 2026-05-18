@@ -1,7 +1,7 @@
 <!-- Navbar -->
 <nav class="navbar">
   <div class="container">
-    <a routerLink="/" class="logo-link">
+    <a routerLink="#hero" class="logo-link">
       <div class="logo">
         <img src="assets/logo3.png" alt="Leydi Boss Logo" class="logo-image" />
       </div>
@@ -22,7 +22,9 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="get-started">
-      <a class="btn" (click)="showModal = true" style="cursor: pointer;">Get Started</a>
+      <a class="btn" (click)="showModal = true" style="cursor: pointer"
+        >Get Started</a
+      >
     </div>
   </div>
 </nav>
@@ -43,10 +45,22 @@
       </div>
     </a>
     <button class="mobile-sidebar-close" (click)="closeMobileMenu()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#666"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
   </div>
-  
+
   <div class="mobile-sidebar-content">
     <a href="#hero" class="mobile-nav-link" (click)="closeMobileMenu()">
       <span class="mobile-nav-text">Home</span>
@@ -68,7 +82,11 @@
   </div>
 
   <div class="mobile-sidebar-footer">
-    <button class="btn-book-now" (click)="closeMobileMenu(); showModal = true" style="cursor: pointer;">
+    <button
+      class="btn-book-now"
+      (click)="closeMobileMenu(); showModal = true"
+      style="cursor: pointer"
+    >
       🚗 Book Now
     </button>
     <p class="footer-note">Olongapo City · Open Daily</p>
@@ -85,8 +103,13 @@
     </div>
 
     <h1 class="hero-headline" *ngIf="content && !isLoadingContent">
-      {{ content.heroTitle.split(' ').slice(0, -1).join(' ') || 'The cleanest car in' }}
-      <span class="hero-city">{{ content.heroTitle.split(' ').slice(-1)[0] || 'Olongapo' }}.</span>
+      {{
+        content.heroTitle.split(" ").slice(0, -1).join(" ") ||
+          "The cleanest car in"
+      }}
+      <span class="hero-city"
+        >{{ content.heroTitle.split(" ").slice(-1)[0] || "Olongapo" }}.</span
+      >
     </h1>
     <h1 class="hero-headline" *ngIf="!content || isLoadingContent">
       The cleanest car in<br />
@@ -97,22 +120,40 @@
       {{ content.heroDescription }}
     </p>
     <p class="hero-description" *ngIf="!content || isLoadingContent">
-      Fast <span class="highlight">booking</span>, instant <span class="highlight">updates</span>, and smooth car wash
-      service management — all in one place.
+      Fast <span class="highlight">booking</span>, instant
+      <span class="highlight">updates</span>, and smooth car wash service
+      management — all in one place.
     </p>
 
     <div class="hero-cta">
-      <a (click)="showModal = true" class="btn-primary" style="cursor:pointer;">Book Now</a>
+      <a (click)="showModal = true" class="btn-primary" style="cursor: pointer"
+        >Book Now</a
+      >
       <a href="#pricing" class="btn-secondary">View Services</a>
     </div>
 
     <!-- Hero Image Slot -->
-    <div class="hero-image-container" *ngIf="content && content.heroBackgroundUrl">
-      <img [src]="content.heroBackgroundUrl" alt="Car wash service" class="hero-image" />
+    <div
+      class="hero-image-container"
+      *ngIf="content && content.heroBackgroundUrl"
+    >
+      <img
+        [src]="content.heroBackgroundUrl"
+        alt="Car wash service"
+        class="hero-image"
+      />
     </div>
-    <div class="hero-image-placeholder" *ngIf="!content || !content.heroBackgroundUrl">
+    <div
+      class="hero-image-placeholder"
+      *ngIf="!content || !content.heroBackgroundUrl"
+    >
       <div class="placeholder-inner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
@@ -122,7 +163,6 @@
     </div>
   </div>
 </header>
-
 
 <!-- Pricing Section -->
 <section class="pricing" id="pricing">
@@ -214,12 +254,17 @@
             <div class="pricing-card-info">
               <div class="pricing-card-name">
                 {{
-                  vehicle.code === 'S' ? 'Sedan' :
-                  vehicle.code === 'M' ? 'SUV' :
-                  vehicle.code === 'L' ? 'VAN' :
-                  vehicle.code === 'XL' ? 'Oversized' :
-                  vehicle.code === 'XXL' ? 'Extra Oversized' :
-                  vehicle.code
+                  vehicle.code === "S"
+                    ? "Sedan"
+                    : vehicle.code === "M"
+                      ? "SUV"
+                      : vehicle.code === "L"
+                        ? "VAN"
+                        : vehicle.code === "XL"
+                          ? "Oversized"
+                          : vehicle.code === "XXL"
+                            ? "Extra Oversized"
+                            : vehicle.code
                 }}
               </div>
               <div class="pricing-card-desc">{{ vehicle.description }}</div>
@@ -257,14 +302,18 @@
 <section class="gallery" id="gallery">
   <h2>GALLERY</h2>
   <div class="gallery-container" *ngIf="content">
-    <div class="gallery-item" *ngFor="let g of content.galleryImages; let i = index" (click)="openLightbox(g)">
+    <div
+      class="gallery-item"
+      *ngFor="let g of content.galleryImages; let i = index"
+      (click)="openLightbox(g)"
+    >
       <img
         [src]="g.url"
         [alt]="g.alt || 'Gallery image'"
         [title]="g.alt || 'Gallery image'"
         loading="lazy"
       />
-      <div class="gallery-caption">{{ g.alt || 'Photo ' + (i + 1) }}</div>
+      <div class="gallery-caption">{{ g.alt || "Photo " + (i + 1) }}</div>
     </div>
   </div>
 
@@ -272,8 +321,13 @@
   <div class="lightbox-overlay" *ngIf="selectedImage" (click)="closeLightbox()">
     <div class="lightbox-content" (click)="$event.stopPropagation()">
       <button class="lightbox-close" (click)="closeLightbox()">&times;</button>
-      <img [src]="selectedImage.url" [alt]="selectedImage.alt || 'Gallery image fullscreen'" />
-      <div class="lightbox-caption" *ngIf="selectedImage.alt">{{ selectedImage.alt }}</div>
+      <img
+        [src]="selectedImage.url"
+        [alt]="selectedImage.alt || 'Gallery image fullscreen'"
+      />
+      <div class="lightbox-caption" *ngIf="selectedImage.alt">
+        {{ selectedImage.alt }}
+      </div>
     </div>
   </div>
 </section>
@@ -282,9 +336,11 @@
 <section class="contact" id="contact">
   <div class="contact-header">
     <h2>Get in Touch</h2>
-    <p class="contact-subtitle">Have questions or want to book? We'd love to hear from you.</p>
+    <p class="contact-subtitle">
+      Have questions or want to book? We'd love to hear from you.
+    </p>
   </div>
-  
+
   <div class="contact-wrapper">
     <!-- Left / Top: Contact Info -->
     <div class="quick-contact" *ngIf="content">
@@ -293,7 +349,7 @@
         <p>Reach us through any of these channels.</p>
       </div>
       <div class="quick-contact-divider"></div>
-      
+
       <div class="contact-items-grid">
         <div class="contact-item">
           <div class="icon-circle">
@@ -336,7 +392,11 @@
 
     <!-- Right / Bottom: Contact Form -->
     <div class="contact-form-wrapper">
-      <form class="contact-form-modern" (ngSubmit)="onSubmitContactForm()" #contactFormRef="ngForm">
+      <form
+        class="contact-form-modern"
+        (ngSubmit)="onSubmitContactForm()"
+        #contactFormRef="ngForm"
+      >
         <!-- Success/Error Messages -->
         <div *ngIf="contactSuccessMessage" class="success-message">
           {{ contactSuccessMessage }}
@@ -348,25 +408,56 @@
         <div class="form-row">
           <div class="form-group half-width">
             <label for="yourname">Full Name</label>
-            <input type="text" id="yourname" name="name" [(ngModel)]="contactForm.name" placeholder="Juan dela Cruz" required />
+            <input
+              type="text"
+              id="yourname"
+              name="name"
+              [(ngModel)]="contactForm.name"
+              placeholder="Juan dela Cruz"
+              required
+            />
           </div>
           <div class="form-group half-width">
             <label for="youremail">Email Address</label>
-            <input type="email" id="youremail" name="email" [(ngModel)]="contactForm.email" placeholder="juan@email.com" required />
+            <input
+              type="email"
+              id="youremail"
+              name="email"
+              [(ngModel)]="contactForm.email"
+              placeholder="juan@email.com"
+              required
+            />
           </div>
         </div>
-        
+
         <div class="form-group full-width">
           <label for="subject">Subject</label>
-          <input type="text" id="subject" name="subject" [(ngModel)]="contactForm.subject" placeholder="Booking inquiry, pricing, etc." required />
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            [(ngModel)]="contactForm.subject"
+            placeholder="Booking inquiry, pricing, etc."
+            required
+          />
         </div>
-        
+
         <div class="form-group full-width">
           <label for="message">Message</label>
-          <textarea id="message" name="message" [(ngModel)]="contactForm.message" placeholder="Tell us how we can help you..." required></textarea>
+          <textarea
+            id="message"
+            name="message"
+            [(ngModel)]="contactForm.message"
+            placeholder="Tell us how we can help you..."
+            required
+          ></textarea>
         </div>
-        
-        <button type="submit" class="btn-submit-modern" [disabled]="isSubmitting">
+
+        <button
+          type="submit"
+          class="btn-submit-modern"
+          [disabled]="isSubmitting"
+        >
           <span *ngIf="!isSubmitting">Send Message</span>
           <span *ngIf="isSubmitting">Sending...</span>
         </button>
@@ -378,14 +469,16 @@
 <!-- Footer Section -->
 <footer class="footer">
   <div class="footer-container">
-    
     <!-- Column 1: Info -->
     <div class="footer-info">
       <div class="logo">
-        <span class="logo-text" style="color: white; font-size: 24px;">Leydi<strong style="color: #ad2d7e;">Boss</strong></span>
+        <span class="logo-text" style="color: white; font-size: 24px"
+          >Leydi<strong style="color: #ad2d7e">Boss</strong></span
+        >
       </div>
       <p class="footer-description">
-        Your all-in-one platform for fast booking and smooth car wash service management.
+        Your all-in-one platform for fast booking and smooth car wash service
+        management.
       </p>
       <div class="footer-pill">
         <span class="dot"></span> Open Daily · 7AM – 9PM
@@ -409,7 +502,7 @@
     <!-- Column 3: Contact Us -->
     <div class="footer-contact" *ngIf="content">
       <h3 class="footer-heading">CONTACT US</h3>
-      
+
       <div class="contact-card">
         <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
         <div class="item-text">
@@ -417,7 +510,7 @@
           <p>{{ content.contactInfo.address }}</p>
         </div>
       </div>
-      
+
       <div class="contact-card">
         <div class="icon-box"><i class="fas fa-phone"></i></div>
         <div class="item-text">
@@ -425,7 +518,7 @@
           <p>{{ content.contactInfo.phone }}</p>
         </div>
       </div>
-      
+
       <div class="contact-card">
         <div class="icon-box"><i class="fas fa-envelope"></i></div>
         <div class="item-text">
@@ -438,32 +531,36 @@
     <!-- Column 4: Follow Us & Book -->
     <div class="footer-action">
       <h3 class="footer-heading">FOLLOW US</h3>
-      <a class="btn-facebook" [href]="content?.footer?.facebook || '#'" target="_blank">
+      <a
+        class="btn-facebook"
+        [href]="content?.footer?.facebook || '#'"
+        target="_blank"
+      >
         <i class="fab fa-facebook-f fb-icon"></i> Facebook
       </a>
-      
+
       <h3 class="footer-heading mt-4">BOOK A SLOT</h3>
       <button class="btn-book-footer" (click)="showModal = true">
         Book Now
       </button>
     </div>
-
   </div>
 
   <div class="footer-divider"></div>
   <div class="footer-bottom">
-    <p class="copyright">{{ content?.footer?.copyright || '© 2026 Leydi Boss Car Wash. All rights reserved.' }}</p>
+    <p class="copyright">
+      {{
+        content?.footer?.copyright ||
+          "© 2026 Leydi Boss Car Wash. All rights reserved."
+      }}
+    </p>
     <div class="footer-legal">
-     <a
-                    routerLink="/terms"
-                    [queryParams]="{ from: 'landing-page' }"
-                    >Terms of Service</a
-                  >
-      <a
-                    routerLink="/privacy"
-                    [queryParams]="{ from: 'landing-page' }"
-                    >Privacy Policy</a
-                  >
+      <a routerLink="/terms" [queryParams]="{ from: 'landing-page' }"
+        >Terms of Service</a
+      >
+      <a routerLink="/privacy" [queryParams]="{ from: 'landing-page' }"
+        >Privacy Policy</a
+      >
     </div>
   </div>
 </footer>
