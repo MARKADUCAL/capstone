@@ -12,37 +12,24 @@
       <button class="btn-primary" (click)="navigateToAppointment()">
         Book a service now
       </button>
-      <button class="btn-secondary" (click)="scrollToPricing()">
+      <button class="btn-secondary" (click)="openServicesModal()">
         View services
       </button>
     </div>
     <div class="vehicle-status">
-      <p class="no-vehicle-text">No vehicle added yet.</p>
-      <a href="#" class="add-vehicle-link">+ Add a vehicle</a>
+      <p class="no-vehicle-text" *ngIf="!hasVehicles">No vehicle added yet.</p>
+      <p class="no-vehicle-text" *ngIf="hasVehicles">{{ userVehicles.length }} vehicle(s) saved</p>
+      <a href="#" (click)="navigateToProfile(); $event.preventDefault()" class="add-vehicle-link">+ Add a vehicle</a>
     </div>
   </div>
 
-  <!-- Authentication Error Section -->
-  <div
-    *ngIf="
-      (error && error.includes('authentication')) || error.includes('log in')
-    "
-    class="auth-error-section"
-  >
-    <div class="auth-error-content">
-      <h2>Authentication Required</h2>
-      <p>{{ error }}</p>
-      <button class="btn-primary" (click)="redirectToLogin()">
-        Log In Again
-      </button>
-    </div>
-  </div>
-
-  <!-- Services & Pricing Section -->
-  <div
-    *ngIf="!error || !error.includes('authentication')"
-    class="services-section"
-  >
+  <!-- Services & Pricing Modal -->
+  <div class="modal-overlay" *ngIf="showServicesModal" (click)="closeServicesModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeServicesModal()">×</button>
+      
+      <!-- Services & Pricing Section -->
+      <div class="services-section">
     <div class="section-header">
       <h2>Service Packages & Pricing</h2>
       <p>Choose the perfect service package for your vehicle</p>
@@ -213,6 +200,7 @@
           <span class="tip-text">Payment is processed after service completion.</span>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>
