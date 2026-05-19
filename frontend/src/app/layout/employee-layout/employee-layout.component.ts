@@ -37,6 +37,7 @@ import { Subscription, filter, map } from 'rxjs';
 export class EmployeeLayoutComponent implements OnInit, OnDestroy {
   sidebarActive = false;
   sidebarOpen = true;
+  showLogoutDialog = false;
 
   // User data properties
   firstName = '';
@@ -175,6 +176,10 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.showLogoutDialog = true;
+  }
+
+  confirmLogout() {
     // Only attempt to access localStorage in browser environment
     if (isPlatformBrowser(this.platformId)) {
       // Clear any local storage items
@@ -182,7 +187,14 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
       localStorage.removeItem('employee_data');
     }
 
+    // Close dialog
+    this.showLogoutDialog = false;
+
     // Navigate to login page
     this.router.navigate(['/employee']);
+  }
+
+  cancelLogout() {
+    this.showLogoutDialog = false;
   }
 }

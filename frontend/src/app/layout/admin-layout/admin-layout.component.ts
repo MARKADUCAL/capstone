@@ -37,6 +37,7 @@ import { Subscription, filter, map } from 'rxjs';
 export class AdminLayoutComponent implements OnInit, OnDestroy {
   sidebarActive = false;
   sidebarOpen = true;
+  showLogoutDialog = false;
 
   // User data properties
   firstName = '';
@@ -188,6 +189,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.showLogoutDialog = true;
+  }
+
+  confirmLogout() {
     // Only attempt to access localStorage in browser environment
     if (isPlatformBrowser(this.platformId)) {
       // Clear any local storage items
@@ -195,7 +200,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       localStorage.removeItem('admin_data');
     }
 
+    // Close dialog
+    this.showLogoutDialog = false;
+
     // Navigate to login page
     this.router.navigate(['/admin']);
+  }
+
+  cancelLogout() {
+    this.showLogoutDialog = false;
   }
 }
