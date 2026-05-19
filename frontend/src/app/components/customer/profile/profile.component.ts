@@ -97,7 +97,10 @@ export class ProfileComponent implements OnInit {
 
     // Check if we should open the add vehicle modal
     this.route.queryParams.subscribe((params) => {
-      if (params['action'] === 'add-vehicle') {
+      if (
+        params['addVehicle'] === 'true' ||
+        params['action'] === 'add-vehicle'
+      ) {
         // Small delay to ensure profile is loaded
         setTimeout(() => {
           this.startAddVehicle();
