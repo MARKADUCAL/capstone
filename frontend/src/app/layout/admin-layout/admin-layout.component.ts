@@ -198,6 +198,9 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       // Clear any local storage items
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_data');
+
+      // Reset body overflow to ensure scrolling works after logout
+      document.body.style.overflow = 'auto';
     }
 
     // Close dialog

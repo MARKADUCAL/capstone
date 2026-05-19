@@ -185,6 +185,9 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
       // Clear any local storage items
       localStorage.removeItem('employee_token');
       localStorage.removeItem('employee_data');
+
+      // Reset body overflow to ensure scrolling works after logout
+      document.body.style.overflow = 'auto';
     }
 
     // Close dialog

@@ -167,9 +167,15 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   }
 
   confirmLogout() {
-    // Clear the local storage or cookies
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('customer_data');
+    // Only attempt to access localStorage in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      // Clear the local storage or cookies
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('customer_data');
+
+      // Reset body overflow to ensure scrolling works after logout
+      document.body.style.overflow = 'auto';
+    }
 
     // Close dialog
     this.showLogoutDialog = false;
