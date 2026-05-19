@@ -8,7 +8,7 @@
 
 /* Welcome Section */
 .welcome-section {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   padding: 50px 40px;
   border-radius: 15px;
@@ -59,7 +59,7 @@
 
 .btn-primary {
   background: white;
-  color: #2563eb;
+  color: #ad2d7e;
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -69,12 +69,13 @@
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
+  box-shadow: 0 2px 8px rgba(173, 45, 126, 0.25);
 }
 
 .btn-primary:hover {
-  background: #f0f9ff;
+  background: #fef7fc;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 14px rgba(173, 45, 126, 0.35);
 }
 
 .btn-secondary {
@@ -184,8 +185,8 @@
 
 /* Authentication Error Section */
 .auth-error-section {
-  background-color: var(--mat-sys-error-container);
-  border: 1px solid var(--mat-sys-error);
+  background-color: #fef7fc;
+  border: 1px solid #ad2d7e;
   border-radius: 10px;
   padding: 30px;
   margin-bottom: 30px;
@@ -193,7 +194,7 @@
 }
 
 .auth-error-content h2 {
-  color: var(--secondary);
+  color: #7a1f62;
   margin-bottom: 15px;
 }
 
@@ -217,7 +218,7 @@
 
 .section-header h2 {
   font-size: 2.2rem;
-  color: var(--text-dark);
+  color: #010001;
   margin-bottom: 10px;
 }
 
@@ -230,12 +231,12 @@
 .packages-explanation {
   margin-bottom: 40px;
   padding: 30px;
-  background-color: var(--mat-sys-tertiary-container);
+  background-color: #ede2eb;
   border-radius: 12px;
 }
 
 .packages-explanation h3 {
-  color: var(--primary);
+  color: #010001;
   margin-bottom: 25px;
   text-align: center;
   font-size: 1.5rem;
@@ -265,7 +266,7 @@
 }
 
 .package-info h4 {
-  color: var(--accent);
+  color: #ad2d7e;
   margin-bottom: 10px;
   font-size: 1.3rem;
   font-weight: 700;
@@ -282,12 +283,12 @@
 .vehicle-types-explanation {
   margin-bottom: 40px;
   padding: 30px;
-  background-color: var(--mat-sys-tertiary-container);
+  background-color: #ede2eb;
   border-radius: 12px;
 }
 
 .vehicle-types-explanation h3 {
-  color: var(--primary);
+  color: #ad2d7e;
   margin-bottom: 25px;
   text-align: center;
   font-size: 1.5rem;
@@ -317,7 +318,7 @@
 }
 
 .vehicle-info h4 {
-  color: var(--primary);
+  color: #ad2d7e;
   margin-bottom: 10px;
   font-size: 1.3rem;
   font-weight: 700;
@@ -337,7 +338,7 @@
 
 .pricing-section h3 {
   text-align: center;
-  color: var(--text-dark);
+  color: #010001;
   margin-bottom: 30px;
   font-size: 1.8rem;
 }
@@ -351,7 +352,7 @@
 
 .loading-spinner {
   border: 4px solid rgba(0, 0, 0, 0.04);
-  border-top: 4px solid var(--accent);
+  border-top: 4px solid #ad2d7e;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -369,7 +370,7 @@
 }
 
 .error-message {
-  color: var(--secondary);
+  color: #7a1f62;
   margin-bottom: 20px;
 }
 
@@ -394,7 +395,7 @@
 }
 
 .pricing-table th {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   padding: 20px 15px;
   text-align: center;
@@ -430,12 +431,12 @@
 
 .vehicle-cell {
   text-align: left;
-  background: rgba(0, 0, 0, 0.02);
+  background: #ede2eb;
 }
 
 .vehicle-code {
   font-weight: 600;
-  color: var(--text-dark);
+  color: #010001;
   font-size: 1.1rem;
   margin-bottom: 5px;
 }
@@ -453,12 +454,12 @@
 .price-amount {
   font-size: 1.3rem;
   font-weight: 600;
-  color: var(--accent);
+  color: #ad2d7e;
   margin-bottom: 15px;
 }
 
 .btn-book-service {
-  background: var(--primary);
+  background: #ad2d7e;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -472,7 +473,7 @@
 }
 
 .btn-book-service:hover:not(.disabled) {
-  background: var(--secondary);
+  background: #7a1f62;
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
@@ -505,7 +506,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: #ffffff;
 }
 
@@ -574,7 +575,7 @@
 .pricing-card-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--accent);
+  color: #ad2d7e;
   white-space: nowrap;
   margin-left: 12px;
 }
@@ -608,14 +609,14 @@
 
 /* Booking Guide */
 .booking-guide {
-  background-color: #e3f2fd;
+  background-color: #ede2eb;
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
 }
 
 .booking-title {
-  color: #424242;
+  color: #7a1f62;
   margin-bottom: 15px;
   font-size: 1.3rem;
   font-weight: bold;
@@ -650,7 +651,7 @@
 .tips-icon {
   width: 24px;
   height: 24px;
-  color: var(--primary);
+  color: #ad2d7e;
   flex-shrink: 0;
 }
 
@@ -683,7 +684,7 @@
 .tip-icon {
   width: 20px;
   height: 20px;
-  color: var(--primary);
+  color: #ad2d7e;
   flex-shrink: 0;
 }
 
