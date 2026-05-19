@@ -25,6 +25,8 @@ body {
   transition: all 0.3s ease;
   z-index: 100;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .container.sidebar-collapsed .sidebar {
@@ -99,6 +101,8 @@ body {
 .nav-links {
   list-style: none;
   padding: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .nav-links li {
@@ -125,6 +129,8 @@ body {
   margin-top: auto;
   padding: 15px 10px 10px;
   border-top: 1px solid var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface-container);
+  flex-shrink: 0;
 }
 
 .sidebar-user-info {
