@@ -35,7 +35,6 @@ import { Subscription, filter, map } from 'rxjs';
   standalone: true,
 })
 export class AdminLayoutComponent implements OnInit, OnDestroy {
-  showDropdown = false;
   sidebarActive = false;
   sidebarOpen = true;
 
@@ -52,7 +51,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     // Initialize the subscription
     this.routeSubscription = new Subscription();
@@ -75,7 +74,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.router.events
       .pipe(
         filter((event: Event) => event instanceof NavigationEnd),
-        map(() => this.getPageTitle(this.activatedRoute))
+        map(() => this.getPageTitle(this.activatedRoute)),
       )
       .subscribe((title) => {
         this.pageTitle = title;
@@ -155,14 +154,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleDropdown() {
-    this.showDropdown = !this.showDropdown;
-  }
-
-  hideDropdown() {
-    this.showDropdown = false;
-  }
-
   toggleSidebar() {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -203,9 +194,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_data');
     }
-
-    // Close the dropdown
-    this.hideDropdown();
 
     // Navigate to login page
     this.router.navigate(['/admin']);

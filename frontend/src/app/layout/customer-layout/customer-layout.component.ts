@@ -24,7 +24,6 @@ import { Subscription, filter, map } from 'rxjs';
   standalone: true,
 })
 export class CustomerLayoutComponent implements OnInit, OnDestroy {
-  showDropdown = false;
   sidebarActive = false;
   sidebarOpen = true;
   showLogoutDialog = false;
@@ -133,14 +132,6 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleDropdown() {
-    this.showDropdown = !this.showDropdown;
-  }
-
-  hideDropdown() {
-    this.showDropdown = false;
-  }
-
   toggleSidebar() {
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -171,19 +162,6 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    // Close dropdown when clicking outside
-    const userInfoEl = document.querySelector('.user-info');
-    if (
-      userInfoEl &&
-      !userInfoEl.contains(event.target as Node) &&
-      this.showDropdown
-    ) {
-      this.showDropdown = false;
-    }
-  }
-
   logout() {
     this.showLogoutDialog = true;
   }
@@ -193,8 +171,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('customer_data');
 
-    // Close dropdown and dialog
-    this.showDropdown = false;
+    // Close dialog
     this.showLogoutDialog = false;
 
     // Redirect to login page

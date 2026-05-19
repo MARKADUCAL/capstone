@@ -33,6 +33,30 @@
         >
       </li>
     </ul>
+
+    <!-- User Profile Section at Bottom -->
+    <div class="sidebar-user-section">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-avatar">{{ userInitials }}</div>
+        <div class="sidebar-user-details">
+          <span class="sidebar-user-name">{{ fullName }}</span>
+          <span class="sidebar-user-role">Employee</span>
+        </div>
+      </div>
+      <div class="sidebar-user-actions">
+        <a
+          routerLink="/employee-view/profile"
+          routerLinkActive="active"
+          class="sidebar-action-item"
+          (click)="closeSidebarOnMobile()"
+        >
+          <i class="fas fa-user"></i> Profile
+        </a>
+        <a class="sidebar-action-item logout-item" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
   </div>
 
   <div
@@ -47,26 +71,10 @@
         <i class="fas fa-bars"></i>
       </div>
       <h2>{{ pageTitle }}</h2>
-      <div class="user-info" (clickOutside)="hideDropdown()">
-        <div class="user-profile-trigger" (click)="toggleDropdown()">
+      <div class="user-info">
+        <div class="user-profile-display">
           <div class="user-avatar-placeholder">{{ userInitials }}</div>
           <span class="user-name">{{ fullName }}</span>
-          <button
-            class="dropdown-btn"
-            type="button"
-            aria-label="Toggle user menu"
-            title="Toggle user menu"
-          >
-            <i class="fas fa-chevron-down"></i>
-          </button>
-        </div>
-        <div class="dropdown-menu" [class.show-dropdown]="showDropdown">
-          <a class="dropdown-item" routerLink="/employee-view/profile">
-            <i class="fas fa-user profile-icon"></i> Profile
-          </a>
-          <a class="dropdown-item" (click)="logout()">
-            <i class="fas fa-sign-out-alt logout-icon"></i> Logout
-          </a>
         </div>
       </div>
     </div>
