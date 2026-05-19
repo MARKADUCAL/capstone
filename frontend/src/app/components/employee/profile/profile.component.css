@@ -49,7 +49,7 @@
 }
 
 .edit-button {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -284,8 +284,14 @@
   font-size: 20px;
 }
 
-.user-icon { background-color: #e8f0fe; color: #1a73e8; }
-.lock-icon { background-color: #fef7e0; color: #f9ab00; }
+.user-icon {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+.lock-icon {
+  background-color: #fef7e0;
+  color: #f9ab00;
+}
 
 .input-wrapper input {
   flex: 1;
@@ -343,7 +349,7 @@
 }
 
 .save-button {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
 }
 
@@ -353,7 +359,9 @@
 }
 
 .save-button:hover {
-  background-color: #218838;
+  background: linear-gradient(135deg, #7a1f62 0%, #5d1849 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(173, 45, 126, 0.3);
 }
 
 button:disabled {

@@ -59,7 +59,7 @@
 }
 
 .edit-button {
-  background-color: #ff6347;
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -361,7 +361,7 @@
 }
 
 .save-button {
-  background-color: #ff6347;
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
 }
 
@@ -371,7 +371,9 @@
 }
 
 .save-button:hover {
-  background-color: #e5533f;
+  background: linear-gradient(135deg, #7a1f62 0%, #5d1849 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(173, 45, 126, 0.3);
 }
 
 button:disabled {
@@ -439,14 +441,15 @@ button:disabled {
 }
 
 .add-vehicle-button {
-  background: linear-gradient(135deg, #ff6347 0%, #ff4521 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);
+  box-shadow: 0 4px 15px rgba(173, 45, 126, 0.3);
 }
 
 .add-vehicle-button:hover {
+  background: linear-gradient(135deg, #7a1f62 0%, #5d1849 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
+  box-shadow: 0 6px 20px rgba(173, 45, 126, 0.4);
 }
 
 .vehicle-grid {
