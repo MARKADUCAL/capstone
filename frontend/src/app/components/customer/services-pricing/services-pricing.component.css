@@ -118,6 +118,147 @@
   animation: fadeInUp 0.6s ease-out;
 }
 
+/* Vehicle Chips Container */
+.vehicle-chips-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Individual Vehicle Chip */
+.vehicle-chip {
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  animation: slideIn 0.4s ease-out;
+}
+
+.vehicle-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.vehicle-chip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vehicle-chip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.2;
+}
+
+.vehicle-chip-plate {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.vehicle-chip-book-btn {
+  background: white;
+  color: #ad2d7e;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.vehicle-chip-book-btn:hover {
+  background: #fef7fc;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.vehicle-chip-book-btn:active {
+  transform: scale(0.98);
+}
+
+/* More Vehicles Link */
+.more-vehicles-link {
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.more-vehicles-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* Compact Add Vehicle Button */
+.btn-add-vehicle-compact {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn-add-vehicle-compact:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add-vehicle-compact:active {
+  transform: translateY(0);
+}
+
+.vehicle-icon-small {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+}
+
+.btn-add-vehicle-compact:hover .vehicle-icon-small {
+  transform: rotate(90deg);
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

@@ -168,6 +168,26 @@ export class ServicesPricingComponent implements OnInit {
     return this.userVehicles && this.userVehicles.length > 0;
   }
 
+  // Get first 2 vehicles for display
+  get displayedVehicles(): any[] {
+    return this.userVehicles.slice(0, 2);
+  }
+
+  // Get count of remaining vehicles
+  get remainingVehiclesCount(): number {
+    return Math.max(0, this.userVehicles.length - 2);
+  }
+
+  // Book a specific vehicle
+  bookVehicle(vehicle: any): void {
+    // Navigate to appointment with vehicle pre-selected
+    this.router.navigate(['/customer-view/appointment'], {
+      queryParams: {
+        vehicle_id: vehicle.id,
+      },
+    });
+  }
+
   openServicesModal(): void {
     this.showServicesModal = true;
   }

@@ -36,16 +36,47 @@
           Add Your First Vehicle
         </button>
       </div>
-      <div *ngIf="hasVehicles" class="vehicle-info-container">
-        <p class="no-vehicle-text">
-          {{ userVehicles.length }} vehicle(s) saved
-        </p>
+      <div *ngIf="hasVehicles" class="vehicle-chips-container">
+        <!-- Show first 2 vehicles as chips -->
+        <div *ngFor="let vehicle of displayedVehicles" class="vehicle-chip">
+          <div class="vehicle-chip-info">
+            <span class="vehicle-chip-name">{{
+              vehicle.nickname || vehicle.vehicle_model
+            }}</span>
+            <span class="vehicle-chip-plate">{{ vehicle.plate_number }}</span>
+          </div>
+          <button class="vehicle-chip-book-btn" (click)="bookVehicle(vehicle)">
+            Book
+          </button>
+        </div>
+
+        <!-- Show "+ X more" if there are more than 2 vehicles -->
         <a
+          *ngIf="remainingVehiclesCount > 0"
           href="#"
-          (click)="navigateToAddVehicle(); $event.preventDefault()"
-          class="add-vehicle-link"
-          >+ Add a vehicle</a
+          (click)="navigateToProfile(); $event.preventDefault()"
+          class="more-vehicles-link"
         >
+          + {{ remainingVehiclesCount }} more
+        </a>
+
+        <!-- Add vehicle button -->
+        <button
+          class="btn-add-vehicle-compact"
+          (click)="navigateToAddVehicle()"
+        >
+          <svg
+            class="vehicle-icon-small"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
+          </svg>
+          Add a vehicle
+        </button>
       </div>
     </div>
   </div>
