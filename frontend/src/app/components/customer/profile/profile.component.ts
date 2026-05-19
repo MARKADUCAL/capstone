@@ -365,7 +365,10 @@ export class ProfileComponent implements OnInit {
             });
             this.isAddingVehicle = false;
             this.resetVehicleForm();
-            // Reload vehicles from database
+            // Clear cache and reload vehicles from database
+            this.apiCache.clearCache(
+              `${this.apiUrl}/get_customer_vehicles?customer_id=${this.profile.id}`,
+            );
             this.loadVehiclesForCurrentProfile();
           } else {
             Swal.fire({
@@ -449,7 +452,10 @@ export class ProfileComponent implements OnInit {
                   text: 'The vehicle has been removed successfully.',
                   confirmButtonColor: '#ff6347',
                 });
-                // Reload vehicles from database
+                // Clear cache and reload vehicles from database
+                this.apiCache.clearCache(
+                  `${this.apiUrl}/get_customer_vehicles?customer_id=${this.profile.id}`,
+                );
                 this.loadVehiclesForCurrentProfile();
               } else {
                 Swal.fire({
