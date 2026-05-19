@@ -104,11 +104,83 @@
   font-size: 0.9rem;
 }
 
+.no-vehicle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.vehicle-info-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .no-vehicle-text {
   margin: 0;
   opacity: 0.9;
   display: flex;
   align-items: center;
+}
+
+.btn-add-vehicle {
+  background: white;
+  color: #ad2d7e;
+  border: 2px solid white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(173, 45, 126, 0.25);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.btn-add-vehicle:hover {
+  background: #fef7fc;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 14px rgba(173, 45, 126, 0.35);
+  animation: none;
+}
+
+.btn-add-vehicle:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(173, 45, 126, 0.25);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(173, 45, 126, 0.4);
+  }
+}
+
+.vehicle-icon {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.btn-add-vehicle:hover .vehicle-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .add-vehicle-link {

@@ -2,7 +2,7 @@ import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { VEHICLE_TYPES } from '../../../models/booking.model';
 import Swal from 'sweetalert2';
@@ -78,11 +78,37 @@ export class ProfileComponent implements OnInit {
 
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.loadProfile();
     this.checkUserType();
+    this.checkForAddVehicleAction();
+  }
+
+  checkForAddVehicleAction(): void {
+    if (!this.isBrowser) return;
+
+    // Check if we should open the add vehicle modal
+    this.route.queryParams.subscribe((params) => {
+      if (params['action'] === 'add-vehicle') {
+        // Small delay to ensure profile is loaded
+        setTimeout(() => {
+          this.startAddVehicle();
+          // Remove the query parameter from URL without reloading
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }, 300);
+      }
+    });
   }
 
   checkUserType(): void {
@@ -186,13 +212,13 @@ export class ProfileComponent implements OnInit {
             if (response.payload && response.payload.customer) {
               localStorage.setItem(
                 'customer_data',
-                JSON.stringify(response.payload.customer)
+                JSON.stringify(response.payload.customer),
               );
             } else {
               // If backend doesn't return updated data, update with current form data
               localStorage.setItem(
                 'customer_data',
-                JSON.stringify(this.profile)
+                JSON.stringify(this.profile),
               );
             }
 
@@ -250,7 +276,8 @@ export class ProfileComponent implements OnInit {
     }
 
     if (!this.profile.id) {
-      this.vehicleErrorMessage = 'Please reload your profile before adding a vehicle.';
+      this.vehicleErrorMessage =
+        'Please reload your profile before adding a vehicle.';
       return;
     }
 
@@ -266,7 +293,8 @@ export class ProfileComponent implements OnInit {
     });
 
     if (missingField) {
-      this.vehicleErrorMessage = 'Vehicle type, model, and plate number are required.';
+      this.vehicleErrorMessage =
+        'Vehicle type, model, and plate number are required.';
       return;
     }
 
@@ -435,7 +463,7 @@ export class ProfileComponent implements OnInit {
     this.http
       .get<any>(
         `${this.apiUrl}/get_customer_vehicles?customer_id=${this.profile.id}`,
-        { headers }
+        { headers },
       )
       .subscribe({
         next: (response: any) => {

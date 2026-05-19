@@ -180,6 +180,13 @@ export class ServicesPricingComponent implements OnInit {
     this.router.navigate(['/customer-view/profile']);
   }
 
+  navigateToAddVehicle(): void {
+    // Navigate to profile with a query parameter to trigger the add vehicle modal
+    this.router.navigate(['/customer-view/profile'], {
+      queryParams: { action: 'add-vehicle' },
+    });
+  }
+
   scrollToPricing(): void {
     const pricingSection = document.querySelector('.services-section');
     if (pricingSection) {
