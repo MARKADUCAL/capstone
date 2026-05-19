@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +23,8 @@ import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 import Swal from 'sweetalert2';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval, forkJoin, concat, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 interface BusinessStats {
   totalCustomers: number;
@@ -161,7 +168,7 @@ export class DashboardComponent implements OnInit {
   get totalBookingsPages(): number {
     return Math.max(
       1,
-      Math.ceil(this.filteredBookings.length / this.bookingsPageSize)
+      Math.ceil(this.filteredBookings.length / this.bookingsPageSize),
     );
   }
 
@@ -173,7 +180,7 @@ export class DashboardComponent implements OnInit {
     const start = (this.bookingsCurrentPage - 1) * this.bookingsPageSize + 1;
     const end = Math.min(
       this.bookingsCurrentPage * this.bookingsPageSize,
-      total
+      total,
     );
     return { start, end, total };
   }
@@ -282,10 +289,9 @@ export class DashboardComponent implements OnInit {
     const firstTimeLoginFlag = localStorage.getItem(flagKey);
 
     if (!firstTimeLoginFlag) {
-
       Swal.fire({
         title: `Welcome ${adminName}! 👋`,
-       html: `
+        html: `
           <div style="text-align: left; margin: 20px 0;">
             <p style="margin-bottom: 15px;">You're logged in to the Admin Dashboard for the first time. Here's what we recommend to get you started:</p>
 
@@ -379,13 +385,111 @@ export class DashboardComponent implements OnInit {
 
   private loadIndividualStats(): void {
     // Fallback method if dashboard summary fails
-    Promise.all([
-      this.loadCustomerCount(),
-      this.loadEmployeeCount(),
-      this.loadBookingCount(),
-      this.loadCompletedBookingCount(),
-      this.loadPendingBookingCount(),
-    ]);
+    // BEFORE: Called 6 separate endpoints simultaneously, causing rate limit issues
+    // AFTER: Use forkJoin to group all calls into a single subscription
+    forkJoin({
+      customerCount: this.http.get(`${this.apiUrl}/get_customer_count`).pipe(
+        catchError((error) => {
+          console.error('Error fetching customer count:', error);
+          return of(null);
+        }),
+      ),
+      employees: this.http.get(`${this.apiUrl}/get_all_employees`).pipe(
+        catchError((error) => {
+          console.error('Error fetching employees:', error);
+          return of(null);
+        }),
+      ),
+      bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
+        catchError((error) => {
+          console.error('Error fetching booking count:', error);
+          return of(null);
+        }),
+      ),
+      completedCount: this.http
+        .get(`${this.apiUrl}/get_completed_booking_count`)
+        .pipe(
+          catchError((error) => {
+            console.error('Error fetching completed booking count:', error);
+            return of(null);
+          }),
+        ),
+      pendingCount: this.http
+        .get(`${this.apiUrl}/get_pending_booking_count`)
+        .pipe(
+          catchError((error) => {
+            console.error('Error fetching pending booking count:', error);
+            return of(null);
+          }),
+        ),
+    }).subscribe({
+      next: (results) => {
+        // Process customer count
+        if (
+          results.customerCount &&
+          (results.customerCount as any)?.status?.remarks === 'success'
+        ) {
+          this.businessStats.totalCustomers = (
+            results.customerCount as any
+          ).payload.total_customers;
+        }
+
+        // Process employee count
+        if (
+          results.employees &&
+          (results.employees as any)?.status?.remarks === 'success'
+        ) {
+          const employees = (results.employees as any).payload?.employees;
+          if (Array.isArray(employees)) {
+            const hasApprovalFlag = employees.some(
+              (e: any) => 'is_approved' in e && e.is_approved !== undefined,
+            );
+            if (hasApprovalFlag) {
+              const approvedEmployees = employees.filter(
+                (employee: any) => employee.is_approved === 1,
+              );
+              this.businessStats.totalEmployees = approvedEmployees.length;
+            } else {
+              this.businessStats.totalEmployees = employees.length;
+            }
+          }
+        }
+
+        // Process booking count
+        if (
+          results.bookingCount &&
+          (results.bookingCount as any)?.status?.remarks === 'success'
+        ) {
+          this.businessStats.totalBookings = (
+            results.bookingCount as any
+          ).payload.total_bookings;
+        }
+
+        // Process completed booking count
+        if (
+          results.completedCount &&
+          (results.completedCount as any)?.status?.remarks === 'success'
+        ) {
+          this.businessStats.completedBookings = (
+            results.completedCount as any
+          ).payload.completed_bookings;
+        }
+
+        // Process pending booking count
+        if (
+          results.pendingCount &&
+          (results.pendingCount as any)?.status?.remarks === 'success'
+        ) {
+          this.businessStats.pendingBookings = (
+            results.pendingCount as any
+          ).payload.pending_bookings;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading individual stats:', error);
+        this.showError('Failed to load some dashboard statistics');
+      },
+    });
   }
 
   private loadCustomerCount(): Promise<void> {
@@ -659,31 +763,39 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Update expired bookings in the backend
-    expiredBookingIds.forEach((bookingId) => {
-      this.http
-        .put(`${this.apiUrl}/update_booking_status`, {
-          id: bookingId,
-          status: 'Expired',
-        })
-        .subscribe({
-          next: (response: any) => {
-            if (response?.status?.remarks === 'success') {
-              console.log(`Booking #${bookingId} marked as Expired`);
-            }
-          },
-          error: (err) => {
-            console.error(
-              `Failed to mark booking #${bookingId} as Expired:`,
-              err,
-            );
-          },
-        });
-    });
-
+    // BEFORE: forEach loop fired all API calls simultaneously (7 requests at once)
+    // AFTER: Use RxJS concat to fire calls sequentially, one after another
     if (expiredBookingIds.length > 0) {
-      // Regenerate calendar to reflect changes without showing a snackbar
-      this.generateCalendar();
+      // Create an array of observables for each status update
+      const updateObservables = expiredBookingIds.map((bookingId) =>
+        this.http
+          .put(`${this.apiUrl}/update_booking_status`, {
+            id: bookingId,
+            status: 'Expired',
+          })
+          .pipe(
+            catchError((err) => {
+              console.error(
+                `Failed to mark booking #${bookingId} as Expired:`,
+                err,
+              );
+              return of(null); // Continue with next request even if this one fails
+            }),
+          ),
+      );
+
+      // Execute all updates sequentially using concat
+      concat(...updateObservables).subscribe({
+        next: (response: any) => {
+          if (response && response?.status?.remarks === 'success') {
+            console.log(`Booking marked as Expired successfully`);
+          }
+        },
+        complete: () => {
+          // Regenerate calendar after all updates are complete
+          this.generateCalendar();
+        },
+      });
     }
   }
 
