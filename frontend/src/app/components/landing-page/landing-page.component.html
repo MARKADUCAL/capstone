@@ -130,7 +130,9 @@
       <a (click)="showModal = true" class="btn-primary" style="cursor: pointer"
         >Book Now</a
       >
-      <a href="#pricing" class="btn-secondary">View Services</a>
+      <a (click)="installPWA()" class="btn-secondary" style="cursor: pointer">{{
+        installButtonText
+      }}</a>
     </div>
 
     <!-- Hero Image Slot -->

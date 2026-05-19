@@ -86,6 +86,11 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   contactErrorMessage = '';
   isEmailVerified = false;
 
+  // PWA Install properties
+  deferredPrompt: any = null;
+  installButtonText = 'Download App';
+  showInstallInstructions = false;
+
   // Pricing data properties
   loading: boolean = false;
   pricingError: string = '';
@@ -125,6 +130,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       // Then fetch fresh content from API
       this.loadLandingPageContent();
       this.loadPricingData();
+
+      // Setup PWA install prompt listener
+      this.setupPWAInstallPrompt();
     }
   }
 
@@ -675,5 +683,109 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
     // Default image if no match found
     return 'assets/basiccarwash.png';
+  }
+
+  // PWA Install Methods
+  private setupPWAInstallPrompt(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e: any) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      this.deferredPrompt = e;
+      // Update button text to show install is available
+      this.installButtonText = 'Install App';
+      console.log('PWA install prompt is available');
+    });
+
+    // Listen for the app installed event
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      this.deferredPrompt = null;
+      this.installButtonText = 'App Installed';
+    });
+
+    // Check if app is already installed (standalone mode)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      this.installButtonText = 'Open App';
+      console.log('PWA is already installed');
+    }
+  }
+
+  installPWA(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Check if app is already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      alert('App is already installed!');
+      return;
+    }
+
+    // Check if the deferred prompt is available
+    if (this.deferredPrompt) {
+      // Show the install prompt
+      this.deferredPrompt.prompt();
+
+      // Wait for the user to respond to the prompt
+      this.deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+          this.installButtonText = 'Installing...';
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        // Clear the deferred prompt
+        this.deferredPrompt = null;
+      });
+    } else {
+      // Show manual installation instructions
+      this.showManualInstallInstructions();
+    }
+  }
+
+  private showManualInstallInstructions(): void {
+    const userAgent = navigator.userAgent.toLowerCase();
+    let instructions = '';
+
+    if (userAgent.includes('chrome') && !userAgent.includes('edg')) {
+      // Chrome on Desktop
+      instructions =
+        'To install this app:\n\n' +
+        '1. Click the menu icon (⋮) in the top right corner\n' +
+        '2. Select "Install Leydi Boss" or "Install app"\n' +
+        '3. Follow the prompts to complete installation';
+    } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+      // Safari on iOS
+      instructions =
+        'To add this app to your home screen:\n\n' +
+        '1. Tap the Share button (□↑) at the bottom of the screen\n' +
+        '2. Scroll down and tap "Add to Home Screen"\n' +
+        '3. Tap "Add" in the top right corner';
+    } else if (userAgent.includes('edg')) {
+      // Edge
+      instructions =
+        'To install this app:\n\n' +
+        '1. Click the menu icon (⋯) in the top right corner\n' +
+        '2. Select "Apps" > "Install Leydi Boss"\n' +
+        '3. Follow the prompts to complete installation';
+    } else if (userAgent.includes('firefox')) {
+      // Firefox
+      instructions =
+        'To install this app:\n\n' +
+        '1. Look for the install icon in the address bar\n' +
+        '2. Click it and follow the prompts\n' +
+        'Or bookmark this page for quick access';
+    } else {
+      // Generic instructions
+      instructions =
+        'To install this app:\n\n' +
+        '1. Look for an "Install" or "Add to Home Screen" option in your browser menu\n' +
+        '2. Follow the prompts to complete installation\n\n' +
+        'Or bookmark this page for quick access';
+    }
+
+    alert(instructions);
   }
 }
