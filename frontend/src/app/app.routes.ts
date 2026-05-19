@@ -26,7 +26,7 @@ import { ServiceManagementComponent } from './components/admin/service-managemen
 import { FeedbackManagementComponent } from './components/admin/feedback-management/feedback-management.component';
 
 // Customer components
-import { ServicesPricingComponent } from './components/customer/customer-dashboard/services-pricing.component';
+import { ServicesPricingComponent } from './components/customer/customer-dashboard/customer-dashboard.component';
 import { AppointmentComponent } from './components/customer/appointment/appointment.component';
 import { TranactionHitoryComponent } from './components/customer/tranaction-hitory/tranaction-hitory.component';
 import { ProfileComponent as CustomerProfileComponent } from './components/customer/profile/profile.component';
