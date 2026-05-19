@@ -37,7 +37,6 @@ import {
 import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
 import { MatDialog } from '@angular/material/dialog';
-import { PricingGuideModalComponent } from './pricing-guide-modal.component';
 
 interface CalendarDay {
   date: Date;
@@ -72,7 +71,6 @@ type CalendarStatusType =
     MatFormFieldModule,
     MatIconModule,
     MatDialogModule,
-    PricingGuideModalComponent,
   ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],
@@ -1325,19 +1323,11 @@ export class AppointmentComponent implements OnInit {
 
   // Open pricing guide modal
   openPricingGuideModal(): void {
-    this.dialog.open(PricingGuideModalComponent, {
-      width: '90%',
-      maxWidth: '600px',
-      disableClose: false,
-      data: {
-        servicePackages: this.servicePackages,
-        serviceCodes: this.serviceCodes,
-        vehicleTypeCodes: this.vehicleTypeCodes,
-        pricingMatrix: this.pricingMatrix,
-        formatPrice: this.formatPrice.bind(this),
-        extractServiceDescription: this.extractServiceDescription.bind(this),
-      },
-    });
+    // TODO: Re-implement pricing guide modal
+    console.log('Pricing guide modal temporarily disabled');
+    alert(
+      'Pricing guide feature is temporarily unavailable. Please check the pricing table on the landing page.',
+    );
   }
 
   // View booking details (in a real app, this might navigate to a details page)

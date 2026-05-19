@@ -24,7 +24,7 @@ html {
   top: 0;
   left: 0;
   z-index: 1000;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.3s ease;
   border-bottom: 1px solid #f0f0f0;
   box-sizing: border-box;
@@ -209,8 +209,14 @@ html {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Badge */
@@ -316,7 +322,7 @@ html {
   max-width: 640px;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
   box-sizing: border-box;
 }
 
@@ -362,8 +368,6 @@ html {
   letter-spacing: 1px;
   color: #bbb;
 }
-
-
 
 /* Services Section */
 .services {
@@ -633,8 +637,8 @@ html {
   margin-bottom: 30px;
 }
 
-.pricing-tabl100%;
-  overflow-x: auto
+.pricing-table {
+  overflow-x: auto;
   width: 100%;
   min-width: 800px;
 }
@@ -977,7 +981,9 @@ html {
   overflow: hidden;
   position: relative;
   border-radius: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   cursor: pointer;
 }
 
@@ -1012,7 +1018,7 @@ html {
   font-weight: bold;
   pointer-events: none;
   z-index: 2;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Lightbox Overlay Styles */
@@ -1032,8 +1038,12 @@ html {
 }
 
 @keyframes lightboxFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .lightbox-content {
@@ -1064,7 +1074,9 @@ html {
   font-size: 40px;
   cursor: pointer;
   line-height: 1;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
 .lightbox-close:hover {
@@ -1094,7 +1106,7 @@ html {
     grid-template-columns: repeat(3, 1fr);
     gap: 25px;
   }
-  
+
   .gallery-item {
     aspect-ratio: unset;
     min-height: 262px;
@@ -1227,7 +1239,8 @@ html {
   justify-content: center;
 }
 
-.contact-text span, .contact-label {
+.contact-text span,
+.contact-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -1322,7 +1335,7 @@ html {
   background-color: #ffffff;
   border: 1px solid #2a2a2a;
   border-radius: 8px;
-  color: #2a2a2a;   /* Faint text imitating mockup */
+  color: #2a2a2a; /* Faint text imitating mockup */
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -1350,7 +1363,7 @@ html {
     flex-direction: column;
     max-width: 650px;
   }
-  
+
   .quick-contact {
     flex: auto;
   }
@@ -1806,19 +1819,19 @@ html {
     gap: 40px;
     align-items: flex-start;
   }
-  
+
   .footer-info {
     order: 1;
   }
-  
+
   .footer-contact {
     order: 2;
   }
-  
+
   .footer-links {
     order: 3;
   }
-  
+
   .footer-action {
     height: 64px;
   }
@@ -2138,7 +2151,6 @@ html {
 }
 
 @media (max-width: 600px) {
-
   .location-cards {
     gap: 20px;
   }

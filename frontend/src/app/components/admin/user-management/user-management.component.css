@@ -519,7 +519,9 @@
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .view-booking-btn:hover {
@@ -705,7 +707,9 @@
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .view-booking-btn:hover {
@@ -1269,8 +1273,8 @@
 .vehicles-header h3 {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;        /* ❌ was: font-wei1f2937: 600 */
-  color: #1f2937;          /* ❌ was: color: #fff */
+  font-weight: 600; /* ❌ was: font-wei1f2937: 600 */
+  color: #1f2937; /* ❌ was: color: #fff */
 }
 
 .vehicle-count-badge {
@@ -1301,8 +1305,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px;            /* ❌ was: padding: 14pxf3f4f6 */
-  background: #f3f4f6;      /* ❌ this was merged with padding above */
+  padding: 14px; /* ❌ was: padding: 14pxf3f4f6 */
+  background: #f3f4f6; /* ❌ this was merged with padding above */
   border-radius: 10px;
   border: 1px solid #d1d5db;
   transition: all 0.2s ease;
@@ -1340,7 +1344,7 @@
 .vehicle-nickname {
   margin: 0 0 4px 0;
   font-size: 14px;
-  font-weight: 600;         /* ❌ was: font-wei1f2937 (no value) */
+  font-weight: 600; /* ❌ was: font-wei1f2937 (no value) */
 }
 
 .vehicle-type {
@@ -1351,8 +1355,8 @@
 
 .vehicle-plate {
   margin: 0;
-  font-size: 12px;          /* ❌ was: color: #6b728012px — merged garbage */
-  color: #6b7280;           /* ❌ was merged with font-size above */
+  font-size: 12px; /* ❌ was: color: #6b728012px — merged garbage */
+  color: #6b7280; /* ❌ was merged with font-size above */
   font-family: "Courier New", monospace;
 }
 
@@ -1381,8 +1385,8 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 24px;
-  padding-top: 16px;e5e7eb
-  border-top: 1px solid #404040;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
 }
 
 .close-btn {

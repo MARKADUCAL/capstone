@@ -29,6 +29,10 @@ export class ServicesPricingComponent implements OnInit {
   loading: boolean = false;
   error: string = '';
   isBrowser: boolean;
+  showServicesModal: boolean = false;
+  userVehicles: any[] = [];
+  loadingVehicles: boolean = false;
+  selectedVehicleId: number | null = null;
 
   // Vehicle types with descriptions
   vehicleTypes = [
@@ -63,6 +67,7 @@ export class ServicesPricingComponent implements OnInit {
       this.loadCustomerData();
       this.loadServicePackages();
       this.loadPricingData();
+      this.loadUserVehicles();
     }
   }
 
@@ -133,7 +138,60 @@ export class ServicesPricingComponent implements OnInit {
   }
 
   navigateToAppointment(): void {
-    this.router.navigate(['/customer-view/appointment']);
+    if (this.selectedVehicleId) {
+      this.router.navigate(['/customer-view/appointment'], {
+        queryParams: { vehicle_id: this.selectedVehicleId },
+      });
+    } else {
+      this.router.navigate(['/customer-view/appointment']);
+    }
+  }
+
+  loadUserVehicles(): void {
+    if (!this.customerId) return;
+
+    this.loadingVehicles = true;
+    this.http
+      .get<any>(
+        `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.customerId}`,
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.userVehicles = response.payload.vehicles || [];
+            console.log('Loaded user vehicles:', this.userVehicles);
+          }
+          this.loadingVehicles = false;
+        },
+        error: (error) => {
+          console.error('Error loading vehicles:', error);
+          this.userVehicles = [];
+          this.loadingVehicles = false;
+        },
+      });
+  }
+
+  selectVehicle(vehicleId: number): void {
+    this.selectedVehicleId =
+      this.selectedVehicleId === vehicleId ? null : vehicleId;
+  }
+
+  isVehicleSelected(vehicleId: number): boolean {
+    return this.selectedVehicleId === vehicleId;
+  }
+
+  navigateToAddVehicle(): void {
+    this.router.navigate(['/customer-view/profile'], {
+      queryParams: { addVehicle: 'true' },
+    });
+  }
+
+  openServicesModal(): void {
+    this.showServicesModal = true;
+  }
+
+  closeServicesModal(): void {
+    this.showServicesModal = false;
   }
 
   navigateToEditProfile(): void {

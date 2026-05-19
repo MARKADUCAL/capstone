@@ -295,8 +295,14 @@
   font-size: 20px;
 }
 
-.user-icon { background-color: #e8f0fe; color: #1a73e8; }
-.lock-icon { background-color: #fef7e0; color: #f9ab00; }
+.user-icon {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+.lock-icon {
+  background-color: #fef7e0;
+  color: #f9ab00;
+}
 
 .input-wrapper input {
   flex: 1;
@@ -443,8 +449,6 @@ button:disabled {
   box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
 }
 
-
-
 .vehicle-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
@@ -460,12 +464,12 @@ button:disabled {
   flex-direction: column;
   overflow: hidden;
   color: #202124;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   transition: box-shadow 0.2s;
 }
 
 .vehicle-card-dark:hover {
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .vcard-header {
@@ -494,9 +498,18 @@ button:disabled {
   font-size: 20px;
 }
 
-.blue-icon { background-color: #e8f0fe !important; color: #1a73e8 !important; }
-.green-icon { background-color: #e6f4ea !important; color: #1e8e3e !important; }
-.orange-icon { background-color: #fef7e0 !important; color: #f9ab00 !important; }
+.blue-icon {
+  background-color: #e8f0fe !important;
+  color: #1a73e8 !important;
+}
+.green-icon {
+  background-color: #e6f4ea !important;
+  color: #1e8e3e !important;
+}
+.orange-icon {
+  background-color: #fef7e0 !important;
+  color: #f9ab00 !important;
+}
 
 .vcard-title {
   margin: 0;
@@ -631,8 +644,12 @@ button:disabled {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-container {
@@ -652,6 +669,10 @@ button:disabled {
   max-height: 90vh;
   overflow-y: auto;
 }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;

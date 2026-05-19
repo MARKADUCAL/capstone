@@ -6,33 +6,21 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Color Variables - Match Landing Page Theme */
+:root {
+  --primary: #ad2d7e;
+  --secondary: #7a1f62;
+  --text-dark: #010001;
+  --soft-borders: #ede2eb;
+}
+
 /* Welcome Section */
 .welcome-section {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #ad2d7e 0%, #7a1f62 100%);
   color: white;
   padding: 50px 40px;
   border-radius: 15px;
   margin-bottom: 30px;
-}
-
-.badge-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.badge {
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 500;
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .welcome-header {
@@ -85,16 +73,181 @@
   max-width: 500px;
 }
 
+/* Vehicle Display Section */
+.vehicle-display {
+  margin-bottom: 30px;
+}
+
+.no-vehicles-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.no-vehicles-text {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.btn-add-vehicle {
+  background: white;
+  color: #ad2d7e;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(173, 45, 126, 0.25);
+}
+
+.btn-add-vehicle:hover {
+  background: #fef7fc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(173, 45, 126, 0.35);
+}
+
+.btn-add-vehicle .material-icons {
+  font-size: 20px;
+}
+
+/* Vehicle Chips Container */
+.vehicle-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.vehicle-chip {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.vehicle-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-chip.selected {
+  background: white;
+  border: 2px solid white;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.vehicle-chip.selected .vehicle-chip-info {
+  color: #ad2d7e;
+}
+
+.vehicle-chip.selected .vehicle-chip-icon {
+  color: #ad2d7e;
+}
+
+.vehicle-chip-icon {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.vehicle-chip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.vehicle-chip-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.vehicle-chip-plate {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.vehicle-chip-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  padding: 6px 12px;
+  background: white;
+  color: #ad2d7e;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.vehicle-chip.selected .vehicle-chip-select {
+  background: #ad2d7e;
+  color: white;
+}
+
+.select-btn {
+  cursor: pointer;
+}
+
+.vehicle-chip-select .material-icons {
+  font-size: 18px;
+}
+
+.btn-add-another {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-add-another:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Welcome Actions */
 .welcome-actions {
   display: flex;
   gap: 15px;
-  margin-bottom: 25px;
   flex-wrap: wrap;
 }
 
 .btn-primary {
   background: white;
-  color: #2563eb;
+  color: #ad2d7e;
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -104,12 +257,13 @@
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
+  box-shadow: 0 2px 8px rgba(173, 45, 126, 0.25);
 }
 
 .btn-primary:hover {
-  background: #f0f9ff;
+  background: #fef7fc;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 14px rgba(173, 45, 126, 0.35);
 }
 
 .btn-secondary {
@@ -131,30 +285,72 @@
   transform: translateY(-2px);
 }
 
-.vehicle-status {
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.no-vehicle-text {
-  margin: 0;
-  opacity: 0.9;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #ad2d7e;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
 }
 
-.add-vehicle-link {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  border-bottom: 1px solid white;
-  transition: opacity 0.3s ease;
-}
-
-.add-vehicle-link:hover {
-  opacity: 0.8;
+.modal-close:hover {
+  transform: scale(1.1);
 }
 
 /* Authentication Error Section */
