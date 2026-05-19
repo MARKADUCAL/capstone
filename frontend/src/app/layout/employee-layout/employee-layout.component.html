@@ -36,13 +36,6 @@
 
     <!-- User Profile Section at Bottom -->
     <div class="sidebar-user-section">
-      <div class="sidebar-user-info">
-        <div class="sidebar-user-avatar">{{ userInitials }}</div>
-        <div class="sidebar-user-details">
-          <span class="sidebar-user-name">{{ fullName }}</span>
-          <span class="sidebar-user-role">Employee</span>
-        </div>
-      </div>
       <div class="sidebar-user-actions">
         <a
           routerLink="/employee-view/profile"
@@ -55,6 +48,13 @@
         <a class="sidebar-action-item logout-item" (click)="logout()">
           <i class="fas fa-sign-out-alt"></i> Logout
         </a>
+      </div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-avatar">{{ userInitials }}</div>
+        <div class="sidebar-user-details">
+          <span class="sidebar-user-name">{{ fullName }}</span>
+          <span class="sidebar-user-role">Employee</span>
+        </div>
       </div>
     </div>
   </div>
