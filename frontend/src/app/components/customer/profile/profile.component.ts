@@ -246,8 +246,6 @@ export class ProfileComponent implements OnInit {
         next: (response: any) => {
           this.isSaving = false;
           if (response.status && response.status.remarks === 'success') {
-            this.successMessage = 'Profile updated successfully';
-
             // Update localStorage
             if (response.payload && response.payload.customer) {
               localStorage.setItem(
@@ -269,6 +267,21 @@ export class ProfileComponent implements OnInit {
 
             this.isEditing = false;
             this.isModalOpen = false;
+
+            // Show SweetAlert success message
+            Swal.fire({
+              icon: 'success',
+              title: 'Profile Updated!',
+              text: 'Your profile has been updated successfully.',
+              confirmButtonColor: '#ff6347',
+            }).then(() => {
+              // Trigger a custom event to notify other components
+              window.dispatchEvent(
+                new CustomEvent('customerProfileUpdated', {
+                  detail: this.profile,
+                }),
+              );
+            });
           } else {
             this.errorMessage =
               response.status?.message || 'Failed to update profile';

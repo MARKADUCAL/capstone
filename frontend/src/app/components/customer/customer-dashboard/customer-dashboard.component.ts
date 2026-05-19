@@ -1,4 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +30,7 @@ interface PricingMatrix {
   styleUrl: './customer-dashboard.component.css',
   standalone: true,
 })
-export class ServicesPricingComponent implements OnInit {
+export class ServicesPricingComponent implements OnInit, OnDestroy {
   customerName: string = 'Customer';
   customerId: string = '';
   loading: boolean = false;
@@ -70,7 +76,27 @@ export class ServicesPricingComponent implements OnInit {
       this.loadServicePackages();
       this.loadPricingData();
       this.loadUserVehicles();
+
+      // Listen for profile updates
+      window.addEventListener(
+        'customerProfileUpdated',
+        this.handleProfileUpdate.bind(this),
+      );
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.isBrowser) {
+      window.removeEventListener(
+        'customerProfileUpdated',
+        this.handleProfileUpdate.bind(this),
+      );
+    }
+  }
+
+  private handleProfileUpdate(event: any): void {
+    // Reload customer data from localStorage
+    this.loadCustomerData();
   }
 
   // Load customer data from localStorage
