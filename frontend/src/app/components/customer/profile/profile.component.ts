@@ -6,6 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { VEHICLE_TYPES } from '../../../models/booking.model';
 import Swal from 'sweetalert2';
+import { ApiCacheService } from '../../../services/api-cache.service';
 
 interface CustomerProfile {
   id: number;
@@ -83,6 +84,7 @@ export class ProfileComponent implements OnInit {
     private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
+    private apiCache: ApiCacheService,
   ) {}
 
   ngOnInit(): void {
@@ -493,10 +495,9 @@ export class ProfileComponent implements OnInit {
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${token}`);
 
-    this.http
+    this.apiCache
       .get<any>(
         `${this.apiUrl}/get_customer_vehicles?customer_id=${this.profile.id}`,
-        { headers },
       )
       .subscribe({
         next: (response: any) => {

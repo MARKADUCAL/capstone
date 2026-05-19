@@ -37,6 +37,7 @@ import {
 import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
 import { MatDialog } from '@angular/material/dialog';
+import { ApiCacheService } from '../../../services/api-cache.service';
 
 interface CalendarDay {
   date: Date;
@@ -154,6 +155,7 @@ export class AppointmentComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private dialog: MatDialog,
+    private apiCache: ApiCacheService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -470,7 +472,7 @@ export class AppointmentComponent implements OnInit {
         'Loading service packages from:',
         `${environment.apiUrl}/get_packages`,
       );
-      this.http.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
+      this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
         next: (response) => {
           console.log('Service packages API response:', response);
           if (response.status && response.status.remarks === 'success') {
@@ -507,22 +509,24 @@ export class AppointmentComponent implements OnInit {
         'Loading pricing data from:',
         `${environment.apiUrl}/get_pricing_matrix`,
       );
-      this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
-        next: (response) => {
-          console.log('Raw API response:', response);
-          if (response.status && response.status.remarks === 'success') {
-            this.pricingMatrix = response.payload.pricing_matrix || {};
-            console.log('Loaded pricing matrix:', this.pricingMatrix);
-          } else {
-            console.error('Failed to load pricing matrix:', response);
+      this.apiCache
+        .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
+        .subscribe({
+          next: (response) => {
+            console.log('Raw API response:', response);
+            if (response.status && response.status.remarks === 'success') {
+              this.pricingMatrix = response.payload.pricing_matrix || {};
+              console.log('Loaded pricing matrix:', this.pricingMatrix);
+            } else {
+              console.error('Failed to load pricing matrix:', response);
+              this.pricingMatrix = {};
+            }
+          },
+          error: (error) => {
+            console.error('Error loading pricing matrix:', error);
             this.pricingMatrix = {};
-          }
-        },
-        error: (error) => {
-          console.error('Error loading pricing matrix:', error);
-          this.pricingMatrix = {};
-        },
-      });
+          },
+        });
     }
   }
 
@@ -708,10 +712,9 @@ export class AppointmentComponent implements OnInit {
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${token}`);
 
-    this.http
+    this.apiCache
       .get<any>(
         `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.userCustomerId}`,
-        { headers },
       )
       .subscribe({
         next: (response: any) => {

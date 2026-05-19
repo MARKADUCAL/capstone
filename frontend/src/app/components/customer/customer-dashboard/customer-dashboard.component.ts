@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { ApiCacheService } from '../../../services/api-cache.service';
 
 interface PricingEntry {
   id: number;
@@ -57,6 +58,7 @@ export class ServicesPricingComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
+    private apiCache: ApiCacheService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -96,7 +98,7 @@ export class ServicesPricingComponent implements OnInit {
   }
 
   loadServicePackages(): void {
-    this.http.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
+    this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
       next: (response) => {
         if (response.status && response.status.remarks === 'success') {
           this.servicePackages = response.payload.packages || [];
@@ -118,23 +120,25 @@ export class ServicesPricingComponent implements OnInit {
     this.error = '';
 
     // Load pricing from database
-    this.http.get<any>(`${environment.apiUrl}/get_pricing_matrix`).subscribe({
-      next: (response) => {
-        if (response.status && response.status.remarks === 'success') {
-          this.pricingMatrix = response.payload.pricing_matrix || {};
-          console.log('Loaded pricing matrix:', this.pricingMatrix);
-        } else {
-          console.error('Failed to load pricing matrix:', response);
+    this.apiCache
+      .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.status.remarks === 'success') {
+            this.pricingMatrix = response.payload.pricing_matrix || {};
+            console.log('Loaded pricing matrix:', this.pricingMatrix);
+          } else {
+            console.error('Failed to load pricing matrix:', response);
+            this.pricingMatrix = {};
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading pricing matrix:', error);
           this.pricingMatrix = {};
-        }
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading pricing matrix:', error);
-        this.pricingMatrix = {};
-        this.loading = false;
-      },
-    });
+          this.loading = false;
+        },
+      });
   }
 
   navigateToAppointment(): void {
@@ -151,7 +155,7 @@ export class ServicesPricingComponent implements OnInit {
     if (!this.customerId) return;
 
     this.loadingVehicles = true;
-    this.http
+    this.apiCache
       .get<any>(
         `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.customerId}`,
       )
