@@ -18,9 +18,9 @@ body {
   width: 250px;
   height: 100vh;
   height: 100dvh;
-  background: linear-gradient(180deg, #ad2d7e 0%, #7a1f62 100%);
+  background-color: var(--mat-sys-surface-container);
   padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--mat-sys-level1);
   position: relative;
   transition: all 0.3s ease;
   z-index: 100;
@@ -50,7 +50,7 @@ body {
   top: 10px;
   right: 10px;
   cursor: pointer;
-  color: #ffffff;
+  color: var(--text-dark);
   width: 30px;
   height: 30px;
   align-items: center;
@@ -60,7 +60,7 @@ body {
 }
 
 .sidebar-close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-close i {
@@ -95,7 +95,7 @@ body {
 .logo-container h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-dark);
 }
 
 .nav-links {
@@ -111,7 +111,7 @@ body {
 
 .nav-links a {
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-dark);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -121,13 +121,11 @@ body {
 }
 
 .nav-links a:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background-color: var(--mat-sys-primary-container);
 }
 
 .nav-links a.active {
-  background-color: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  background-color: var(--mat-sys-primary-container);
   font-weight: 600;
 }
 
@@ -141,8 +139,8 @@ body {
 .sidebar-user-section {
   margin-top: auto;
   padding: 15px 10px 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface-container);
   flex-shrink: 0;
 }
 
@@ -158,8 +156,8 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #ffffff;
-  color: #ad2d7e;
+  background-color: var(--accent);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,7 +175,7 @@ body {
 .sidebar-user-name {
   font-weight: 600;
   font-size: 14px;
-  color: #ffffff;
+  color: var(--text-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -185,7 +183,7 @@ body {
 
 .sidebar-user-role {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted, #666);
 }
 
 .sidebar-user-actions {
@@ -200,7 +198,7 @@ body {
   align-items: center;
   padding: 10px 15px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-dark);
   font-size: 14px;
   border-radius: 8px;
   transition: all 0.3s;
@@ -208,18 +206,16 @@ body {
 }
 
 .sidebar-action-item:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background-color: var(--mat-sys-primary-container);
 }
 
 .sidebar-action-item.active {
-  background-color: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  background-color: var(--mat-sys-primary-container);
 }
 
 .sidebar-action-item.logout-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background-color: rgba(211, 47, 47, 0.1);
+  color: #d32f2f;
 }
 
 .sidebar-action-item i {
@@ -241,15 +237,15 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 15px 20px;
-  background: linear-gradient(90deg, #ad2d7e 0%, #7a1f62 100%);
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15);
+  background-color: var(--mat-sys-surface-container-high);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 200;
 }
 
 .header h2 {
-  color: #ffffff;
+  color: var(--text-dark);
   font-weight: 600;
 }
 
@@ -263,11 +259,10 @@ body {
   height: 40px;
   border-radius: 10px;
   transition: background-color 0.2s ease;
-  color: #ffffff;
 }
 
 .menu-icon:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 .user-info {
@@ -291,8 +286,8 @@ body {
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  background-color: #ffffff;
-  color: #ad2d7e;
+  background-color: var(--accent);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,7 +297,6 @@ body {
 
 .user-name {
   font-weight: bold;
-  color: #ffffff;
 }
 
 .main-content {
