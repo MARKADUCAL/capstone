@@ -355,7 +355,7 @@ export const routes: Routes = [
     path: "customer-view",
     component: CustomerLayoutComponent,
     children: [
-      { path: "services-pricing", component: ServicesPricingComponent },
+      { path: "services", component: ServicesPricingComponent },
       { path: "appointment", component: AppointmentComponent },
     ],
   },

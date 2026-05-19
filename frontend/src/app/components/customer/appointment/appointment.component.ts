@@ -174,7 +174,7 @@ export class AppointmentComponent implements OnInit {
         const servicePackageCode = params['service_package'];
         const vehicleId = params['vehicle_id'];
 
-        // Handle pre-selected vehicle from services-pricing page
+        // Handle pre-selected vehicle from customer-dashboard page
         if (vehicleId) {
           setTimeout(() => {
             this.preSelectVehicleById(vehicleId);
@@ -767,7 +767,7 @@ export class AppointmentComponent implements OnInit {
     );
   }
 
-  // Pre-select vehicle by ID (used when navigating from services-pricing page)
+  // Pre-select vehicle by ID (used when navigating from customer-dashboard page)
   preSelectVehicleById(vehicleId: string | number): void {
     const id =
       typeof vehicleId === 'string' ? parseInt(vehicleId, 10) : vehicleId;
