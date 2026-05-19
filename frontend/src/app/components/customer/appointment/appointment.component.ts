@@ -172,6 +172,14 @@ export class AppointmentComponent implements OnInit {
       this.route.queryParams.subscribe((params) => {
         const vehicleTypeCode = params['vehicle_type'];
         const servicePackageCode = params['service_package'];
+        const vehicleId = params['vehicle_id'];
+
+        // Handle pre-selected vehicle from services-pricing page
+        if (vehicleId) {
+          setTimeout(() => {
+            this.preSelectVehicleById(vehicleId);
+          }, 500);
+        }
 
         if (vehicleTypeCode && servicePackageCode) {
           // Convert codes to full descriptions and pre-select
@@ -757,6 +765,32 @@ export class AppointmentComponent implements OnInit {
     this.filteredVehicles = this.customerVehicles.filter(
       (vehicle) => vehicle.vehicle_type === vehicleTypeCode,
     );
+  }
+
+  // Pre-select vehicle by ID (used when navigating from services-pricing page)
+  preSelectVehicleById(vehicleId: string | number): void {
+    const id =
+      typeof vehicleId === 'string' ? parseInt(vehicleId, 10) : vehicleId;
+
+    if (isNaN(id)) {
+      console.warn('Invalid vehicle ID:', vehicleId);
+      return;
+    }
+
+    // Wait for vehicles to load before selecting
+    const attemptSelection = (attempts: number = 0) => {
+      const maxAttempts = 10; // Try for up to 5 seconds (10 * 500ms)
+
+      if (this.customerVehicles.length > 0 || attempts >= maxAttempts) {
+        // Use the existing onSavedVehicleSelect method
+        this.onSavedVehicleSelect(id);
+      } else {
+        // Retry after 500ms
+        setTimeout(() => attemptSelection(attempts + 1), 500);
+      }
+    };
+
+    attemptSelection();
   }
 
   // Handle saved vehicle selection

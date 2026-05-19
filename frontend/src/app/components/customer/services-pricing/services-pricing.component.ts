@@ -138,7 +138,17 @@ export class ServicesPricingComponent implements OnInit {
   }
 
   navigateToAppointment(): void {
-    this.router.navigate(['/customer-view/appointment']);
+    // If a vehicle is selected, pass it to the appointment page
+    if (this.selectedVehicleId) {
+      this.router.navigate(['/customer-view/appointment'], {
+        queryParams: {
+          vehicle_id: this.selectedVehicleId,
+        },
+      });
+    } else {
+      // No vehicle selected, navigate normally
+      this.router.navigate(['/customer-view/appointment']);
+    }
   }
 
   loadUserVehicles(): void {
