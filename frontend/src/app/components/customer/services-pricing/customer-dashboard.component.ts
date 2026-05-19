@@ -136,6 +136,12 @@ export class ServicesPricingComponent implements OnInit {
     this.router.navigate(['/customer-view/appointment']);
   }
 
+  navigateToEditProfile(): void {
+    this.router.navigate(['/customer-view/profile'], {
+      queryParams: { editProfile: 'true' },
+    });
+  }
+
   scrollToPricing(): void {
     const pricingSection = document.querySelector('.services-section');
     if (pricingSection) {

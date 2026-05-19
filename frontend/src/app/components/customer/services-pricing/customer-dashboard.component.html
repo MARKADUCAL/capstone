@@ -4,9 +4,15 @@
     <div class="badge-container">
       <span class="badge">🚗 Car Wash Management</span>
     </div>
-    <h1 class="welcome-title">
-      Welcome back, {{ customerName || "Customer" }}
-    </h1>
+    <div class="welcome-header">
+      <h1 class="welcome-title">
+        Welcome back, {{ customerName || "Customer" }}
+      </h1>
+      <button class="btn-edit-profile" (click)="navigateToEditProfile()">
+        <i class="material-icons">edit</i>
+        Edit Profile
+      </button>
+    </div>
     <p class="welcome-description">
       View our comprehensive car wash service pricing based on your vehicle type
       and service package.

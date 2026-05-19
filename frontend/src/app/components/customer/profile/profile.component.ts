@@ -89,6 +89,7 @@ export class ProfileComponent implements OnInit {
     this.loadProfile();
     this.checkUserType();
     this.checkForAddVehicleAction();
+    this.checkForEditProfileAction();
   }
 
   checkForAddVehicleAction(): void {
@@ -100,6 +101,27 @@ export class ProfileComponent implements OnInit {
         // Small delay to ensure profile is loaded
         setTimeout(() => {
           this.startAddVehicle();
+          // Remove the query parameter from URL without reloading
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }, 300);
+      }
+    });
+  }
+
+  checkForEditProfileAction(): void {
+    if (!this.isBrowser) return;
+
+    // Check if we should open the edit profile modal
+    this.route.queryParams.subscribe((params) => {
+      if (params['editProfile'] === 'true') {
+        // Small delay to ensure profile is loaded
+        setTimeout(() => {
+          this.toggleEdit();
           // Remove the query parameter from URL without reloading
           this.router.navigate([], {
             relativeTo: this.route,
