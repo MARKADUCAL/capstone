@@ -1,8 +1,6 @@
 <div class="dashboard-container">
   <!-- Header with refresh button -->
 
-
-
   <!-- Stats Cards -->
   <div class="stats-container">
     <mat-card class="stats-card">
@@ -97,7 +95,7 @@
           </button>
           <div class="auto-refresh-note">
             <mat-icon class="refresh-icon">autorenew</mat-icon>
-            <span>Auto-refreshes every 1 min</span>
+            <span>Refreshing in {{ refreshCountdown }}s</span>
           </div>
         </div>
         <button
@@ -177,7 +175,11 @@
       <div class="table-container" *ngIf="!isLoadingBookings">
         <!-- Desktop Table View -->
         <div class="desktop-table">
-          <table mat-table [dataSource]="paginatedBookings" class="bookings-table">
+          <table
+            mat-table
+            [dataSource]="paginatedBookings"
+            class="bookings-table"
+          >
             <!-- Customer Name Column -->
             <ng-container matColumnDef="customerName">
               <th mat-header-cell *matHeaderCellDef>Customer</th>
@@ -284,7 +286,9 @@
         <!-- Pagination -->
         <div
           class="pagination-controls"
-          *ngIf="!isLoadingBookings && filteredBookings.length > bookingsPageSize"
+          *ngIf="
+            !isLoadingBookings && filteredBookings.length > bookingsPageSize
+          "
         >
           <span class="pagination-info">
             Showing {{ bookingsPageRange.start }}–{{ bookingsPageRange.end }} of
@@ -314,19 +318,30 @@
         </div>
 
         <!-- Empty state -->
-        <div class="empty-state" *ngIf="!bookingsSearchTerm && recentBookings.length === 0">
+        <div
+          class="empty-state"
+          *ngIf="!bookingsSearchTerm && recentBookings.length === 0"
+        >
           <mat-icon>event_busy</mat-icon>
           <h3>No bookings found</h3>
           <p>There are no recent bookings to display.</p>
         </div>
 
-        <div class="empty-state" *ngIf="bookingsSearchTerm && filteredBookings.length === 0">
+        <div
+          class="empty-state"
+          *ngIf="bookingsSearchTerm && filteredBookings.length === 0"
+        >
           <mat-icon>search_off</mat-icon>
           <h3>No matches</h3>
           <p>
-            No bookings match "<strong>{{ bookingsSearchTerm }}</strong>".
+            No bookings match "<strong>{{ bookingsSearchTerm }}</strong
+            >".
           </p>
-          <button mat-stroked-button type="button" (click)="clearBookingsSearch()">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="clearBookingsSearch()"
+          >
             Clear search
           </button>
         </div>

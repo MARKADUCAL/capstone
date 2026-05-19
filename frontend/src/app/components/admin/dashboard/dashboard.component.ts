@@ -251,7 +251,9 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   private autoRefreshSub: Subscription | null = null;
+  private countdownSub: Subscription | null = null;
   private readonly autoRefreshMs = 60_000; // 1 minute
+  refreshCountdown = 60; // Countdown in seconds
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -259,11 +261,14 @@ export class DashboardComponent implements OnInit {
     this.checkFirstTimeLogin();
 
     this.startAutoRefresh();
+    this.startCountdown();
   }
 
   ngOnDestroy(): void {
     this.autoRefreshSub?.unsubscribe();
     this.autoRefreshSub = null;
+    this.countdownSub?.unsubscribe();
+    this.countdownSub = null;
   }
 
   private startAutoRefresh(): void {
@@ -274,6 +279,23 @@ export class DashboardComponent implements OnInit {
       // Avoid stacking refresh calls if a load is already in progress.
       if (this.isLoading) return;
       this.loadDashboardData();
+      // Reset countdown when data refreshes
+      this.refreshCountdown = 60;
+    });
+  }
+
+  private startCountdown(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.countdownSub) return;
+
+    // Update countdown every second
+    this.countdownSub = interval(1000).subscribe(() => {
+      if (this.refreshCountdown > 0) {
+        this.refreshCountdown--;
+      } else {
+        // Reset to 60 when it reaches 0
+        this.refreshCountdown = 60;
+      }
     });
   }
 
