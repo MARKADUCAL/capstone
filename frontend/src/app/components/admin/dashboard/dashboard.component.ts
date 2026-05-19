@@ -628,22 +628,11 @@ export class DashboardComponent implements OnInit {
         next: (response: any) => {
           if (response?.status?.remarks === 'success') {
             const bookings = response.payload.bookings || [];
-            console.log('API Response - Bookings:', bookings); // Debug log
 
             // Map all bookings without filtering by status
             this.recentBookings = bookings.map((booking: any) => {
-              console.log('Processing booking:', booking); // Debug log for each booking
-
               // Get customer name from firstname and lastname
               let customerName = 'Unknown Customer';
-
-              // Debug: Log firstname and lastname fields
-              console.log('Customer name fields:', {
-                firstname: booking.firstname,
-                lastname: booking.lastname,
-                first_name: booking.first_name,
-                last_name: booking.last_name,
-              });
 
               // Combine firstname and lastname
               const firstName = booking.firstname || booking.first_name || '';
@@ -667,8 +656,6 @@ export class DashboardComponent implements OnInit {
                   customerName = 'Unknown Customer';
                 }
               }
-
-              console.log('Final customer name:', customerName);
 
               return {
                 id: booking.id,
@@ -808,11 +795,6 @@ export class DashboardComponent implements OnInit {
 
       // Execute all updates sequentially using concat
       concat(...updateObservables).subscribe({
-        next: (response: any) => {
-          if (response && response?.status?.remarks === 'success') {
-            console.log(`Booking marked as Expired successfully`);
-          }
-        },
         complete: () => {
           // Regenerate calendar after all updates are complete
           this.generateCalendar();
