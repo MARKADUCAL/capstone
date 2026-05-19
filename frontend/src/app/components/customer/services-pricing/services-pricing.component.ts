@@ -32,6 +32,7 @@ export class ServicesPricingComponent implements OnInit {
   showServicesModal: boolean = false;
   userVehicles: any[] = [];
   loadingVehicles: boolean = false;
+  selectedVehicleId: number | null = null;
 
   // Vehicle types with descriptions
   vehicleTypes = [
@@ -178,14 +179,33 @@ export class ServicesPricingComponent implements OnInit {
     return Math.max(0, this.userVehicles.length - 2);
   }
 
-  // Book a specific vehicle
+  // Select/toggle a specific vehicle
   bookVehicle(vehicle: any): void {
-    // Navigate to appointment with vehicle pre-selected
-    this.router.navigate(['/customer-view/appointment'], {
-      queryParams: {
-        vehicle_id: vehicle.id,
-      },
-    });
+    // Toggle selection - if already selected, deselect; otherwise select this one
+    if (this.selectedVehicleId === vehicle.id) {
+      this.selectedVehicleId = null;
+    } else {
+      this.selectedVehicleId = vehicle.id;
+    }
+  }
+
+  // Check if a vehicle is selected
+  isVehicleSelected(vehicle: any): boolean {
+    return this.selectedVehicleId === vehicle.id;
+  }
+
+  // Navigate to appointment with selected vehicle
+  proceedToBooking(): void {
+    if (this.selectedVehicleId) {
+      this.router.navigate(['/customer-view/appointment'], {
+        queryParams: {
+          vehicle_id: this.selectedVehicleId,
+        },
+      });
+    } else {
+      // No vehicle selected, just navigate to appointment
+      this.router.navigate(['/customer-view/appointment']);
+    }
   }
 
   openServicesModal(): void {

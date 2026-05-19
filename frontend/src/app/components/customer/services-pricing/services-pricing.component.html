@@ -38,16 +38,40 @@
       </div>
       <div *ngIf="hasVehicles" class="vehicle-chips-container">
         <!-- Show first 2 vehicles as chips -->
-        <div *ngFor="let vehicle of displayedVehicles" class="vehicle-chip">
+        <div
+          *ngFor="let vehicle of displayedVehicles"
+          class="vehicle-chip"
+          [class.selected]="isVehicleSelected(vehicle)"
+          (click)="bookVehicle(vehicle)"
+        >
           <div class="vehicle-chip-info">
             <span class="vehicle-chip-name">{{
               vehicle.nickname || vehicle.vehicle_model
             }}</span>
             <span class="vehicle-chip-plate">{{ vehicle.plate_number }}</span>
           </div>
-          <button class="vehicle-chip-book-btn" (click)="bookVehicle(vehicle)">
-            Book
-          </button>
+          <div class="vehicle-chip-action">
+            <svg
+              *ngIf="isVehicleSelected(vehicle)"
+              class="checkmark-icon"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                fill="currentColor"
+              />
+            </svg>
+            <span *ngIf="!isVehicleSelected(vehicle)" class="select-text"
+              >Select</span
+            >
+            <span *ngIf="isVehicleSelected(vehicle)" class="selected-text"
+              >Selected</span
+            >
+          </div>
         </div>
 
         <!-- Show "+ X more" if there are more than 2 vehicles -->

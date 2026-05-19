@@ -140,12 +140,26 @@
   gap: 12px;
   transition: all 0.3s ease;
   animation: slideIn 0.4s ease-out;
+  cursor: pointer;
 }
 
 .vehicle-chip:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Selected Vehicle Chip */
+.vehicle-chip.selected {
+  background: white;
+  border: 2px solid white;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.vehicle-chip.selected:hover {
+  background: white;
+  transform: translateY(-2px) scale(1.02);
 }
 
 @keyframes slideIn {
@@ -177,29 +191,70 @@
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.5px;
+  transition: color 0.3s ease;
 }
 
-.vehicle-chip-book-btn {
+/* Selected state text colors */
+.vehicle-chip.selected .vehicle-chip-name {
+  color: #ad2d7e;
+  font-weight: 700;
+}
+
+.vehicle-chip.selected .vehicle-chip-plate {
+  color: #7a1f62;
+  font-weight: 600;
+}
+
+/* Vehicle Chip Action Area */
+.vehicle-chip-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
   background: white;
   color: #ad2d7e;
-  border: none;
-  padding: 6px 16px;
-  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
   white-space: nowrap;
+  transition: all 0.3s ease;
 }
 
-.vehicle-chip-book-btn:hover {
-  background: #fef7fc;
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.vehicle-chip:not(.selected) .vehicle-chip-action {
+  background: white;
+  color: #ad2d7e;
 }
 
-.vehicle-chip-book-btn:active {
-  transform: scale(0.98);
+.vehicle-chip.selected .vehicle-chip-action {
+  background: #ad2d7e;
+  color: white;
+}
+
+.checkmark-icon {
+  width: 18px;
+  height: 18px;
+  animation: checkmarkPop 0.3s ease-out;
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.select-text,
+.selected-text {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 /* More Vehicles Link */
