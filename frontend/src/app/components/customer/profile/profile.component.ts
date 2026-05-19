@@ -59,6 +59,7 @@ export class ProfileComponent implements OnInit {
 
   isEditing: boolean = false;
   isSaving: boolean = false;
+  isModalOpen: boolean = false;
   successMessage: string = '';
   errorMessage: string = '';
 
@@ -141,7 +142,19 @@ export class ProfileComponent implements OnInit {
   }
 
   toggleEdit(): void {
-    this.isEditing = !this.isEditing;
+    this.isModalOpen = true;
+    this.isEditing = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.isEditing = false;
+    this.loadProfile(); // Reload original data
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
     this.successMessage = '';
     this.errorMessage = '';
   }
@@ -228,6 +241,7 @@ export class ProfileComponent implements OnInit {
             this.confirmPassword = '';
 
             this.isEditing = false;
+            this.isModalOpen = false;
           } else {
             this.errorMessage =
               response.status?.message || 'Failed to update profile';
@@ -244,13 +258,7 @@ export class ProfileComponent implements OnInit {
   }
 
   cancelEdit(): void {
-    this.isEditing = false;
-    this.loadProfile(); // Reload original data
-    this.currentPassword = '';
-    this.newPassword = '';
-    this.confirmPassword = '';
-    this.successMessage = '';
-    this.errorMessage = '';
+    this.closeModal();
   }
 
   startAddVehicle(): void {

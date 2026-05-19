@@ -1,22 +1,14 @@
 <div class="profile-container">
   <div class="profile-header">
     <h2>Customer Profile</h2>
-    <div class="action-buttons" *ngIf="!isEditing">
+    <div class="action-buttons">
       <button class="edit-button" (click)="toggleEdit()">Edit Profile</button>
     </div>
   </div>
 
-  <div class="alert success" *ngIf="successMessage">
-    {{ successMessage }}
-  </div>
-
-  <div class="alert error" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-
   <div class="profile-content">
     <!-- View Mode -->
-    <div class="profile-info" *ngIf="!isEditing">
+    <div class="profile-info">
       <div class="profile-header-card">
         <div class="avatar-container">
           <div class="avatar-placeholder">
@@ -29,11 +21,13 @@
         </div>
       </div>
 
-      <hr class="profile-divider">
+      <hr class="profile-divider" />
 
       <div class="profile-details-list">
         <div class="info-item">
-          <div class="icon-box email-icon"><i class="material-icons">email</i></div>
+          <div class="icon-box email-icon">
+            <i class="material-icons">email</i>
+          </div>
           <div class="info-text">
             <span>Email</span>
             <strong>{{ profile.email }}</strong>
@@ -41,7 +35,9 @@
         </div>
 
         <div class="info-item">
-          <div class="icon-box phone-icon"><i class="material-icons">phone</i></div>
+          <div class="icon-box phone-icon">
+            <i class="material-icons">phone</i>
+          </div>
           <div class="info-text">
             <span>Phone</span>
             <strong>{{ profile.phone || "Not provided" }}</strong>
@@ -49,7 +45,9 @@
         </div>
 
         <div class="info-item">
-          <div class="icon-box role-icon"><i class="material-icons">person</i></div>
+          <div class="icon-box role-icon">
+            <i class="material-icons">person</i>
+          </div>
           <div class="info-text">
             <span>Account Type</span>
             <strong>Customer</strong>
@@ -57,9 +55,35 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Edit Mode -->
-    <form *ngIf="isEditing" (ngSubmit)="saveProfile()">
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-container profile-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i
+          class="material-icons"
+          style="vertical-align: middle; color: #ff6347; margin-right: 8px"
+          >person</i
+        >
+        Edit Profile
+      </h3>
+      <button type="button" class="modal-close-btn" (click)="closeModal()">
+        <i class="material-icons" style="font-size: 18px">close</i>
+      </button>
+    </div>
+
+    <div class="alert success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+
+    <div class="alert error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="saveProfile()">
       <div class="form-section">
         <div class="section-header">
           <h3>Personal Information</h3>
@@ -69,32 +93,64 @@
           <div class="form-group-with-icon">
             <label for="firstName">First Name</label>
             <div class="input-wrapper">
-              <div class="input-icon-box user-icon"><i class="material-icons">person</i></div>
-              <input type="text" id="firstName" name="firstName" [(ngModel)]="profile.first_name" required />
+              <div class="input-icon-box user-icon">
+                <i class="material-icons">person</i>
+              </div>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                [(ngModel)]="profile.first_name"
+                required
+              />
             </div>
           </div>
 
           <div class="form-group-with-icon">
             <label for="lastName">Last Name</label>
             <div class="input-wrapper">
-              <div class="input-icon-box user-icon"><i class="material-icons">person</i></div>
-              <input type="text" id="lastName" name="lastName" [(ngModel)]="profile.last_name" required />
+              <div class="input-icon-box user-icon">
+                <i class="material-icons">person</i>
+              </div>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                [(ngModel)]="profile.last_name"
+                required
+              />
             </div>
           </div>
 
           <div class="form-group-with-icon full-width">
             <label for="email">Email</label>
             <div class="input-wrapper">
-              <div class="input-icon-box email-icon"><i class="material-icons">email</i></div>
-              <input type="email" id="email" name="email" [(ngModel)]="profile.email" required disabled />
+              <div class="input-icon-box email-icon">
+                <i class="material-icons">email</i>
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                [(ngModel)]="profile.email"
+                required
+                disabled
+              />
             </div>
           </div>
 
           <div class="form-group-with-icon full-width">
             <label for="phone">Phone</label>
             <div class="input-wrapper">
-              <div class="input-icon-box phone-icon"><i class="material-icons">phone</i></div>
-              <input type="tel" id="phone" name="phone" [(ngModel)]="profile.phone" />
+              <div class="input-icon-box phone-icon">
+                <i class="material-icons">phone</i>
+              </div>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                [(ngModel)]="profile.phone"
+              />
             </div>
           </div>
         </div>
@@ -109,33 +165,62 @@
           <div class="form-group-with-icon full-width">
             <label for="currentPassword">Current Password</label>
             <div class="input-wrapper">
-              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
-              <input type="password" id="currentPassword" name="currentPassword" [(ngModel)]="currentPassword" placeholder="Enter current password" />
+              <div class="input-icon-box lock-icon">
+                <i class="material-icons">lock</i>
+              </div>
+              <input
+                type="password"
+                id="currentPassword"
+                name="currentPassword"
+                [(ngModel)]="currentPassword"
+                placeholder="Enter current password"
+              />
             </div>
           </div>
 
           <div class="form-group-with-icon">
             <label for="newPassword">New Password</label>
             <div class="input-wrapper">
-              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
-              <input type="password" id="newPassword" name="newPassword" [(ngModel)]="newPassword" placeholder="New password" />
+              <div class="input-icon-box lock-icon">
+                <i class="material-icons">lock</i>
+              </div>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                [(ngModel)]="newPassword"
+                placeholder="New password"
+              />
             </div>
           </div>
 
           <div class="form-group-with-icon">
             <label for="confirmPassword">Confirm New Password</label>
             <div class="input-wrapper">
-              <div class="input-icon-box lock-icon"><i class="material-icons">lock</i></div>
-              <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirm password" />
+              <div class="input-icon-box lock-icon">
+                <i class="material-icons">lock</i>
+              </div>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                [(ngModel)]="confirmPassword"
+                placeholder="Confirm password"
+              />
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="form-divider"></div>
 
       <div class="form-actions">
-        <button type="button" class="cancel-button ghost-btn" (click)="cancelEdit()" [disabled]="isSaving">
+        <button
+          type="button"
+          class="cancel-button ghost-btn"
+          (click)="cancelEdit()"
+          [disabled]="isSaving"
+        >
           Cancel
         </button>
         <button type="submit" class="save-button" [disabled]="isSaving">
@@ -179,11 +264,20 @@
             <div class="vcard-icon-box blue-icon">
               <i class="material-icons">directions_car</i>
             </div>
-            <h4 class="vcard-title">{{ vehicle.nickname || vehicle.vehicle_model }}</h4>
-            <button class="vcard-remove-btn" (click)="removeVehicle(vehicle.id)">Remove</button>
+            <h4 class="vcard-title">
+              {{ vehicle.nickname || vehicle.vehicle_model }}
+            </h4>
+            <button
+              class="vcard-remove-btn"
+              (click)="removeVehicle(vehicle.id)"
+            >
+              Remove
+            </button>
           </div>
           <div class="vcard-type-pill green-pill">
-            <i class="material-icons" style="font-size: 14px; margin-right: 4px;">local_shipping</i>
+            <i class="material-icons" style="font-size: 14px; margin-right: 4px"
+              >local_shipping</i
+            >
             <span>{{ vehicle.vehicle_type }}</span>
           </div>
         </div>
@@ -191,7 +285,9 @@
         <div class="vcard-body">
           <div class="vcard-info-row">
             <div class="vcard-info-label">
-              <div class="vcard-icon-box blue-icon"><i class="material-icons">badge</i></div>
+              <div class="vcard-icon-box blue-icon">
+                <i class="material-icons">badge</i>
+              </div>
               <span>Model</span>
             </div>
             <span class="vcard-info-val">{{ vehicle.vehicle_model }}</span>
@@ -199,7 +295,9 @@
 
           <div class="vcard-info-row">
             <div class="vcard-info-label">
-              <div class="vcard-icon-box green-icon"><i class="material-icons">credit_card</i></div>
+              <div class="vcard-icon-box green-icon">
+                <i class="material-icons">credit_card</i>
+              </div>
               <span>Plate Number</span>
             </div>
             <span class="vcard-info-val">{{ vehicle.plate_number }}</span>
@@ -207,15 +305,28 @@
 
           <div class="vcard-info-row">
             <div class="vcard-info-label">
-              <div class="vcard-icon-box orange-icon"><i class="material-icons">palette</i></div>
+              <div class="vcard-icon-box orange-icon">
+                <i class="material-icons">palette</i>
+              </div>
               <span>Color</span>
             </div>
-            <span class="vcard-info-val" [class.not-set]="!vehicle.vehicle_color">{{ vehicle.vehicle_color || "Not set" }}</span>
+            <span
+              class="vcard-info-val"
+              [class.not-set]="!vehicle.vehicle_color"
+              >{{ vehicle.vehicle_color || "Not set" }}</span
+            >
           </div>
         </div>
 
         <div class="vcard-footer">
-          <span class="vcard-date"><i class="material-icons dot-icon" style="font-size: 10px; color: #1e8e3e; margin-right: 6px;">fiber_manual_record</i> Added {{ vehicle.created_at | date : "mediumDate" }}</span>
+          <span class="vcard-date"
+            ><i
+              class="material-icons dot-icon"
+              style="font-size: 10px; color: #1e8e3e; margin-right: 6px"
+              >fiber_manual_record</i
+            >
+            Added {{ vehicle.created_at | date: "mediumDate" }}</span
+          >
         </div>
       </div>
     </div>
@@ -226,24 +337,44 @@
     </div>
 
     <!-- Add Vehicle Modal -->
-    <div class="modal-overlay" *ngIf="isAddingVehicle" (click)="cancelAddVehicle()">
+    <div
+      class="modal-overlay"
+      *ngIf="isAddingVehicle"
+      (click)="cancelAddVehicle()"
+    >
       <div class="modal-container" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3><i class="material-icons" style="vertical-align: middle; color: #1a73e8; margin-right: 8px;">directions_car</i> Add Vehicle</h3>
-          <button type="button" class="modal-close-btn" (click)="cancelAddVehicle()">
-            <i class="material-icons" style="font-size: 18px;">close</i>
+          <h3>
+            <i
+              class="material-icons"
+              style="vertical-align: middle; color: #1a73e8; margin-right: 8px"
+              >directions_car</i
+            >
+            Add Vehicle
+          </h3>
+          <button
+            type="button"
+            class="modal-close-btn"
+            (click)="cancelAddVehicle()"
+          >
+            <i class="material-icons" style="font-size: 18px">close</i>
           </button>
         </div>
         <form (ngSubmit)="addVehicle()">
           <div class="modal-section-header">
             <h4>VEHICLE INFO</h4>
           </div>
-          
+
           <div class="form-grid">
             <div class="form-group-with-icon">
               <label for="vehicleType">Vehicle Type</label>
               <div class="input-wrapper">
-                <div class="input-icon-box" style="background-color: #e8f0fe; color: #1a73e8;"><i class="material-icons">local_shipping</i></div>
+                <div
+                  class="input-icon-box"
+                  style="background-color: #e8f0fe; color: #1a73e8"
+                >
+                  <i class="material-icons">local_shipping</i>
+                </div>
                 <select
                   id="vehicleType"
                   name="vehicleType"
@@ -261,7 +392,12 @@
             <div class="form-group-with-icon">
               <label for="vehicleModel">Vehicle Model</label>
               <div class="input-wrapper">
-                <div class="input-icon-box" style="background-color: #e8f0fe; color: #1a73e8;"><i class="material-icons">badge</i></div>
+                <div
+                  class="input-icon-box"
+                  style="background-color: #e8f0fe; color: #1a73e8"
+                >
+                  <i class="material-icons">badge</i>
+                </div>
                 <input
                   type="text"
                   id="vehicleModel"
@@ -276,7 +412,12 @@
             <div class="form-group-with-icon">
               <label for="plateNumber">Plate Number</label>
               <div class="input-wrapper">
-                <div class="input-icon-box" style="background-color: #e6f4ea; color: #1e8e3e;"><i class="material-icons">credit_card</i></div>
+                <div
+                  class="input-icon-box"
+                  style="background-color: #e6f4ea; color: #1e8e3e"
+                >
+                  <i class="material-icons">credit_card</i>
+                </div>
                 <input
                   type="text"
                   id="plateNumber"
@@ -290,10 +431,26 @@
 
             <div class="form-group-with-icon">
               <label for="vehicleColor"
-                >Vehicle Color <span class="optional" style="font-size: 11px; padding: 2px 6px; background-color: #f1f3f4; border-radius: 4px; margin-left: 4px;">Optional</span></label
+                >Vehicle Color
+                <span
+                  class="optional"
+                  style="
+                    font-size: 11px;
+                    padding: 2px 6px;
+                    background-color: #f1f3f4;
+                    border-radius: 4px;
+                    margin-left: 4px;
+                  "
+                  >Optional</span
+                ></label
               >
               <div class="input-wrapper">
-                <div class="input-icon-box" style="background-color: #fef7e0; color: #f9ab00;"><i class="material-icons">palette</i></div>
+                <div
+                  class="input-icon-box"
+                  style="background-color: #fef7e0; color: #f9ab00"
+                >
+                  <i class="material-icons">palette</i>
+                </div>
                 <input
                   type="text"
                   id="vehicleColor"
@@ -306,10 +463,26 @@
 
             <div class="form-group-with-icon full-width">
               <label for="nickname"
-                >Nickname <span class="optional" style="font-size: 11px; padding: 2px 6px; background-color: #f1f3f4; border-radius: 4px; margin-left: 4px;">Optional</span></label
+                >Nickname
+                <span
+                  class="optional"
+                  style="
+                    font-size: 11px;
+                    padding: 2px 6px;
+                    background-color: #f1f3f4;
+                    border-radius: 4px;
+                    margin-left: 4px;
+                  "
+                  >Optional</span
+                ></label
               >
               <div class="input-wrapper">
-                <div class="input-icon-box" style="background-color: #f3e8fd; color: #9333ea;"><i class="material-icons">dashboard</i></div>
+                <div
+                  class="input-icon-box"
+                  style="background-color: #f3e8fd; color: #9333ea"
+                >
+                  <i class="material-icons">dashboard</i>
+                </div>
                 <input
                   type="text"
                   id="nickname"
@@ -331,7 +504,19 @@
             >
               Cancel
             </button>
-            <button type="submit" class="save-button"><i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 4px; margin-bottom: 2px;">save</i> Save Vehicle</button>
+            <button type="submit" class="save-button">
+              <i
+                class="material-icons"
+                style="
+                  font-size: 18px;
+                  vertical-align: middle;
+                  margin-right: 4px;
+                  margin-bottom: 2px;
+                "
+                >save</i
+              >
+              Save Vehicle
+            </button>
           </div>
         </form>
       </div>
