@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import Swal from 'sweetalert2';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -153,6 +153,7 @@ export class AppointmentComponent implements OnInit {
     private bookingService: BookingService,
     private serviceService: ServiceService,
     private route: ActivatedRoute,
+    private router: Router,
     private http: HttpClient,
     private dialog: MatDialog,
     @Inject(PLATFORM_ID) platformId: Object,
@@ -1811,5 +1812,12 @@ export class AppointmentComponent implements OnInit {
         error,
       );
     }
+  }
+
+  // Navigate to profile page with add vehicle action
+  navigateToAddVehicle(): void {
+    this.router.navigate(['/customer-view/profile'], {
+      queryParams: { action: 'add-vehicle' },
+    });
   }
 }
