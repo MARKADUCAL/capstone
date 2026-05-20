@@ -282,7 +282,7 @@ body {
 .menu-icon {
   font-size: 24px;
   cursor: pointer;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 40px;
@@ -445,7 +445,7 @@ body {
 }
 
 /* Media queries for responsive design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* Show mobile toggle button */
   .mobile-toggle {
     display: block;
@@ -475,7 +475,7 @@ body {
 
   /* Show menu icon */
   .menu-icon {
-    display: block;
+    display: flex;
   }
 
   /* Adjust header for mobile */

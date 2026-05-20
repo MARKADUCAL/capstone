@@ -252,7 +252,7 @@ body {
 .menu-icon {
   font-size: 24px;
   cursor: pointer;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 40px;
@@ -417,7 +417,7 @@ body {
 }
 
 /* Media Queries for Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .sidebar {
     position: fixed;
     left: -280px;
@@ -433,7 +433,7 @@ body {
   }
 
   .menu-icon {
-    display: block;
+    display: flex;
   }
 
   /* Hide the overlay by default and only show when active */
