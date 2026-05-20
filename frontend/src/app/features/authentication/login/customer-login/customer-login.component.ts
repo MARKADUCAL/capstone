@@ -24,6 +24,7 @@ export class CustomerLoginComponent implements OnInit {
   isLoading = false;
   apiBaseUrl = environment.apiUrl; // Use environment configuration
   showPassword = false;
+  showSuccessAnimation = false;
 
   constructor(
     private http: HttpClient,
@@ -81,16 +82,13 @@ export class CustomerLoginComponent implements OnInit {
                 JSON.stringify(response.payload.customer),
               );
 
-              // Show success message
-              Swal.fire({
-                title: 'Login Successful!',
-                text: 'Welcome back!',
-                icon: 'success',
-                confirmButtonText: 'OK',
-              }).then(() => {
-                // Navigate to customer dashboard
+              // Show custom success animation
+              this.showSuccessAnimation = true;
+
+              // Navigate to customer dashboard after animation
+              setTimeout(() => {
                 this.router.navigate(['/customer-view']);
-              });
+              }, 2500); // 2.5 seconds for animation to complete
             } else {
               this.errorMessage = 'Invalid response from server';
             }
