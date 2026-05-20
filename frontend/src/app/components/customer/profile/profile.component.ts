@@ -7,6 +7,7 @@ import { environment } from '../../../../environments/environment';
 import { VEHICLE_TYPES } from '../../../models/booking.model';
 import Swal from 'sweetalert2';
 import { ApiCacheService } from '../../../services/api-cache.service';
+import { pageEntranceAnimation } from '../../../animations/page-animations';
 
 interface CustomerProfile {
   id: number;
@@ -41,6 +42,7 @@ type VehicleForm = {
   imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
+  animations: [pageEntranceAnimation],
 })
 export class ProfileComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);

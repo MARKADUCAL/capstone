@@ -22,6 +22,7 @@ import {
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { pageEntranceAnimation } from '../../../animations/page-animations';
 
 @Component({
   selector: 'app-tranaction-hitory',
@@ -29,6 +30,7 @@ import Swal from 'sweetalert2';
   imports: [CommonModule, FormsModule, MatTooltipModule],
   templateUrl: './tranaction-hitory.component.html',
   styleUrl: './tranaction-hitory.component.css',
+  animations: [pageEntranceAnimation],
 })
 export class TranactionHitoryComponent implements OnInit, OnDestroy {
   isViewModalOpen = false;

@@ -10,6 +10,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ApiCacheService } from '../../../services/api-cache.service';
+import { pageEntranceAnimation } from '../../../animations/page-animations';
 
 interface PricingEntry {
   id: number;
@@ -29,6 +30,7 @@ interface PricingMatrix {
   templateUrl: './customer-dashboard.component.html',
   styleUrl: './customer-dashboard.component.css',
   standalone: true,
+  animations: [pageEntranceAnimation],
 })
 export class ServicesPricingComponent implements OnInit, OnDestroy {
   customerName: string = 'Customer';

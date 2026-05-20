@@ -38,6 +38,7 @@ import { BookingService } from '../../../services/booking.service';
 import { ServiceService, Service } from '../../../services/service.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiCacheService } from '../../../services/api-cache.service';
+import { pageEntranceAnimation } from '../../../animations/page-animations';
 
 interface CalendarDay {
   date: Date;
@@ -75,6 +76,7 @@ type CalendarStatusType =
   ],
   templateUrl: './appointment.component.html',
   styleUrls: ['./appointment.component.css'],
+  animations: [pageEntranceAnimation],
 })
 export class AppointmentComponent implements OnInit {
   // Properties for booking modal

@@ -12,9 +12,11 @@ import {
   NavigationEnd,
   Event,
   ActivatedRoute,
+  RouterOutlet,
 } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription, filter, map } from 'rxjs';
+import { routerTransition } from '../../animations/page-animations';
 
 @Component({
   selector: 'app-customer-layout',
@@ -22,6 +24,7 @@ import { Subscription, filter, map } from 'rxjs';
   templateUrl: './customer-layout.component.html',
   styleUrl: './customer-layout.component.css',
   standalone: true,
+  animations: [routerTransition],
 })
 export class CustomerLayoutComponent implements OnInit, OnDestroy {
   sidebarActive = false;
@@ -200,5 +203,14 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
 
   cancelLogout() {
     this.showLogoutDialog = false;
+  }
+
+  // Animation helper for router outlet
+  prepareRoute(outlet: RouterOutlet) {
+    return (
+      outlet &&
+      outlet.activatedRouteData &&
+      outlet.activatedRouteData['animation']
+    );
   }
 }
