@@ -23,7 +23,6 @@ import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { pageEntranceAnimation } from '../../../animations/page-animations';
-
 @Component({
   selector: 'app-tranaction-hitory',
   standalone: true,
@@ -49,7 +48,6 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   bookingToCancel: Booking | null = null;
   isCancelling = false;
   cancelReason: string = '';
-
   // Feedback related properties
   feedbackComment: string = '';
   employeeFeedbackComment: string = '';
@@ -59,12 +57,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   feedbackExistsMap: Map<number, boolean> = new Map(); // Track which bookings have feedback
   feedbackIdMap: Map<number, number> = new Map(); // Track feedback IDs for each booking
   isEditingFeedback = false; // Track if we're editing existing feedback
-
   readonly vehicleTypeLabels = VEHICLE_TYPES;
   readonly vehicleTypeCodes = VEHICLE_TYPE_CODES;
-
   private isBrowser: boolean;
-
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookingService: BookingService,
@@ -73,10 +68,8 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
-
   ngOnInit(): void {
     this.loadBookings();
-
     // Add event listener for when the page becomes visible (user navigates back)
     if (this.isBrowser) {
       document.addEventListener(
@@ -85,17 +78,14 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
       );
     }
   }
-
   navigateToBooking(): void {
     if (!this.isBrowser) {
       return;
     }
-
     this.router.navigate(['/customer-view/appointment']).catch((error) => {
 this.errorMessage = 'Unable to open booking page. Please try again.';
     });
   }
-
   ngOnDestroy(): void {
     if (this.isBrowser) {
       document.removeEventListener(
@@ -104,19 +94,16 @@ this.errorMessage = 'Unable to open booking page. Please try again.';
       );
     }
   }
-
   private handleVisibilityChange(): void {
     if (!document.hidden) {
       // Page became visible, refresh data to ensure consistency
 this.loadBookings();
     }
   }
-
   setFilter(filter: string): void {
     this.currentFilter = filter;
     this.applyFilter();
   }
-
   applyFilter(): void {
     if (this.currentFilter === 'all') {
       this.filteredBookings = this.bookings;
@@ -127,7 +114,6 @@ this.loadBookings();
       });
     }
   }
-
   displayStatus(status: string): string {
     const raw = (status ?? '').toString().trim();
     if (!raw) return 'pending';
@@ -149,7 +135,6 @@ this.loadBookings();
         return s || 'pending';
     }
   }
-
   getStatusDefinition(status: string): string {
     const normalized = this.normalizeStatus(status);
     switch (normalized) {
@@ -171,7 +156,6 @@ this.loadBookings();
         return 'Booking status information';
     }
   }
-
   normalizeStatus(
     status: string,
   ):
@@ -190,57 +174,46 @@ this.loadBookings();
     if (s === 'expired') return 'expired';
     return s;
   }
-
   getVehicleDisplayName(booking: Booking): string {
     const nickname =
       (booking as any).nickname ?? (booking as any).vehicleNickname;
     if (nickname && nickname.toString().trim().length > 0) {
       return nickname.toString().trim();
     }
-
     const model =
       (booking as any).vehicleModel ?? (booking as any).vehicle_model;
     if (model && model.toString().trim().length > 0) {
       return model.toString().trim();
     }
-
     const type = booking.vehicleType ?? (booking as any).vehicle_type;
     if (type && type.toString().trim().length > 0) {
       return type.toString().trim();
     }
-
     return 'Saved Vehicle';
   }
-
   getVehiclePlate(booking: Booking): string {
     const plate =
       booking.plateNumber ??
       (booking as any).plate_number ??
       (booking as any).vehiclePlate;
-
     if (plate && plate.toString().trim().length > 0) {
       return plate.toString().trim();
     }
-
     return 'Plate not set';
   }
-
   getVehicleTypeLabel(booking: Booking): string {
     const rawType =
       booking.vehicleType ??
       (booking as any).vehicle_type ??
       (booking as any).vehicleTypeCode;
-
     if (!rawType) {
       return 'Vehicle';
     }
-
     const normalized = rawType.toString().trim().toUpperCase();
     const directIndex = this.vehicleTypeCodes.indexOf(normalized);
     if (directIndex >= 0) {
       return this.vehicleTypeLabels[directIndex];
     }
-
     const codeMatch = rawType.toString().match(/^([A-Z]+)\s*-\s*/);
     if (codeMatch) {
       const matchIndex = this.vehicleTypeCodes.indexOf(
@@ -250,21 +223,17 @@ this.loadBookings();
         return this.vehicleTypeLabels[matchIndex];
       }
     }
-
     return rawType.toString();
   }
-
   private resolveServicePackageCode(booking: any): string | null {
     const rawValue =
       booking?.servicePackage ??
       booking?.service_package ??
       booking?.serviceCode ??
       booking?.service_code;
-
     if (!rawValue) {
       return null;
     }
-
     const normalized = rawValue
       .toString()
       .trim()
@@ -272,14 +241,11 @@ this.loadBookings();
       .shift()
       ?.split('-') // handle values like "p1- Wash"
       .shift();
-
     if (!normalized) {
       return null;
     }
-
     return normalized.toLowerCase();
   }
-
   getServiceName(booking: any): string {
     // Check if serviceName exists and is not just a package code
     if (booking.serviceName) {
@@ -289,13 +255,10 @@ this.loadBookings();
         return serviceNameStr;
       }
     }
-
     const packageCode = this.resolveServicePackageCode(booking);
-
     if (!packageCode) {
       return `Package ${booking.servicePackage || 'Unknown'}`;
     }
-
     const packageMap: Record<string, string> = {
       '1': 'Body Wash',
       '2': 'Body Wash + Tire Black + Vacuum',
@@ -306,21 +269,16 @@ this.loadBookings();
       p3: 'Wash + Vacuum + Hand Wax',
       p4: 'Wash + Vacuum + Buffing Wax',
     };
-
     return packageMap[packageCode] || `Package ${packageCode.toUpperCase()}`;
   }
-
   getServiceDescription(booking: any): string {
     if (booking.serviceDescription) {
       return booking.serviceDescription;
     }
-
     const packageCode = this.resolveServicePackageCode(booking);
-
     if (!packageCode) {
       return 'Car wash service';
     }
-
     const descriptionMap: Record<string, string> = {
       '1': 'Basic exterior wash with hand drying',
       '1.5': 'Exterior wash with tire black application',
@@ -333,13 +291,10 @@ this.loadBookings();
       p3: 'Premium wash including vacuum and hand wax finish.',
       p4: 'Full-service wash with buffing wax for lasting protection.',
     };
-
     return descriptionMap[packageCode] || 'Car wash service';
   }
-
   getPackageLabel(booking: any): string {
     const packageCode = this.resolveServicePackageCode(booking);
-
     if (!packageCode) {
       const rawValue =
         booking?.servicePackage ??
@@ -348,10 +303,8 @@ this.loadBookings();
         booking?.service_code;
       return rawValue ? `Package ${rawValue.toString().trim()}` : 'Package N/A';
     }
-
     return `Package ${packageCode.toLowerCase()}`;
   }
-
   loadBookings(): void {
     if (this.isBrowser) {
 // Check if customer is logged in
@@ -363,7 +316,6 @@ if (customerData) {
 if (customerId) {
             this.isLoading = true;
             this.errorMessage = null;
-
             this.bookingService.getBookingsByCustomerId(customerId).subscribe({
               next: (bookings) => {
 // Sort bookings by washDate and washTime descending (newest first)
@@ -376,17 +328,16 @@ if (customerId) {
                   );
                   return dateB.getTime() - dateA.getTime();
                 });
-
                 // Check for expired pending bookings and mark them
                 this.markExpiredBookings();
-
                 this.applyFilter();
                 this.isLoading = false;
 // Check for existing feedback for each completed booking
                 this.checkExistingFeedback();
-
                 // Log each booking status for debugging
                 this.bookings.forEach((booking, index) => {
+                  }`,
+                  );
                 });
               },
               error: (error) => {
@@ -409,32 +360,27 @@ this.errorMessage =
       }
     }
   }
-
   openViewModal(booking: Booking): void {
     this.selectedBooking = booking;
 this.isViewModalOpen = true;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
-
     // Ensure feedback data (customer rating/comment and admin reply) are up-to-date for this booking
     this.refreshFeedbackForBooking(booking);
   }
-
   closeViewModal(): void {
 this.isViewModalOpen = false;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = ''; // Restore scrolling
     }
   }
-
   openFeedbackModal(booking?: Booking): void {
 if (booking) {
       this.selectedBooking = booking;
       const canRateEmployee = this.hasEmployeeAssigned(booking);
       this.employeeRating = 0;
       this.employeeFeedbackComment = '';
-
       // Check if feedback exists for this booking
       if (this.hasFeedback(booking)) {
         // Load existing feedback for editing
@@ -446,7 +392,6 @@ if (booking) {
         this.currentRating = 0;
         this.feedbackComment = '';
       }
-
       if (!canRateEmployee) {
         this.employeeRating = 0;
         this.employeeFeedbackComment = '';
@@ -458,7 +403,6 @@ if (booking) {
       this.employeeRating = 0;
       this.employeeFeedbackComment = '';
     }
-
     this.feedbackSuccessMessage = null;
     this.feedbackErrorMessage = null;
     this.isFeedbackModalOpen = true;
@@ -466,15 +410,12 @@ if (booking) {
       document.body.style.overflow = 'hidden';
     }
   }
-
   // Load existing feedback data for editing
   private loadExistingFeedback(booking: Booking): void {
     const bookingId = parseInt(booking.id);
-
     this.feedbackService.getAllFeedback(200).subscribe({
       next: (list) => {
         const feedbackForBooking = list.find((f) => f.booking_id === bookingId);
-
         if (feedbackForBooking) {
           this.currentRating =
             feedbackForBooking.service_rating ?? feedbackForBooking.rating ?? 0;
@@ -493,7 +434,6 @@ this.feedbackErrorMessage = 'Failed to load existing feedback.';
       },
     });
   }
-
   closeFeedbackModal(): void {
 this.isFeedbackModalOpen = false;
     this.selectedBooking = null;
@@ -508,7 +448,6 @@ this.isFeedbackModalOpen = false;
       document.body.style.overflow = '';
     }
   }
-
   openCancelModal(booking: Booking): void {
     this.bookingToCancel = booking;
     this.cancelReason = '';
@@ -517,7 +456,6 @@ this.isFeedbackModalOpen = false;
       document.body.style.overflow = 'hidden';
     }
   }
-
   closeCancelModal(): void {
     this.isCancelModalOpen = false;
     this.bookingToCancel = null;
@@ -525,13 +463,10 @@ this.isFeedbackModalOpen = false;
       document.body.style.overflow = '';
     }
   }
-
   async cancelBooking(): Promise<void> {
     if (!this.bookingToCancel) return;
-
     this.isCancelling = true;
     try {
-
       const result = await this.bookingService
         .updateBookingStatus(
           this.bookingToCancel.id,
@@ -545,12 +480,10 @@ this.isFeedbackModalOpen = false;
       if (result && result.success) {
 // Close modal first
         this.closeCancelModal();
-
         // Set success message
         this.successMessage =
           result.message || 'Booking cancelled successfully!';
         this.errorMessage = null;
-
         Swal.fire({
           icon: 'success',
           title: 'Booking cancelled',
@@ -565,7 +498,6 @@ throw new Error('Failed to cancel booking');
     } catch (error) {
 this.errorMessage = 'Failed to cancel booking. Please try again.';
       this.successMessage = null;
-
       Swal.fire({
         icon: 'error',
         title: 'Cancellation failed',
@@ -576,11 +508,9 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
       this.isCancelling = false;
     }
   }
-
   canCancelBooking(booking: Booking): boolean {
     return this.normalizeStatus(booking.status) === 'pending';
   }
-
   // Check if a booking date has passed (is in the past)
   private isBookingDatePassed(dateString: string): boolean {
     if (!dateString) return false;
@@ -592,23 +522,17 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
     ) {
       return false;
     }
-
     const bookingDate = new Date(trimmed);
     if (isNaN(bookingDate.getTime())) return false;
-
     // Set booking date to end of day for comparison
     bookingDate.setHours(23, 59, 59, 999);
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     return bookingDate < today;
   }
-
   // Mark pending bookings as expired if their date has passed
   private markExpiredBookings(): void {
     const expiredBookingIds: string[] = [];
-
     this.bookings.forEach((booking) => {
       const normalizedStatus = this.normalizeStatus(booking.status);
       const washDate = booking.washDate || (booking as any).wash_date;
@@ -621,7 +545,6 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
         expiredBookingIds.push(booking.id);
       }
     });
-
     // Update expired bookings in the backend
     expiredBookingIds.forEach((bookingId) => {
       this.bookingService.updateBookingStatus(bookingId, 'Expired').subscribe({
@@ -631,31 +554,26 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
 },
       });
     });
-
     if (expiredBookingIds.length > 0) {
+       marked as expired`,
+      );
     }
   }
-
   clearSuccessMessage(): void {
     this.successMessage = null;
   }
-
   setRating(rating: number): void {
 this.currentRating = rating;
   }
-
   getRatingText(): string {
     return this.currentRating > 0 ? this.ratingTexts[this.currentRating] : '';
   }
-
   setEmployeeRating(rating: number): void {
 this.employeeRating = rating;
   }
-
   getEmployeeRatingText(): string {
     return this.employeeRating > 0 ? this.ratingTexts[this.employeeRating] : '';
   }
-
   // Submit feedback for a completed booking (create or update)
   async submitFeedback(): Promise<void> {
     if (!this.selectedBooking || this.currentRating === 0) {
@@ -663,52 +581,42 @@ this.employeeRating = rating;
         'Please select a rating before submitting feedback.';
       return;
     }
-
     const requiresEmployeeFeedback = this.selectedBooking
       ? this.hasEmployeeAssigned(this.selectedBooking)
       : false;
-
     if (requiresEmployeeFeedback && this.employeeRating === 0) {
       this.feedbackErrorMessage =
         'Please rate your assigned staff member before submitting.';
       return;
     }
-
     // Check if booking is completed
     if (this.normalizeStatus(this.selectedBooking.status) !== 'completed') {
       this.feedbackErrorMessage =
         'Feedback can only be submitted for completed bookings.';
       return;
     }
-
     this.isSubmittingFeedback = true;
     this.feedbackErrorMessage = null;
     this.feedbackSuccessMessage = null;
-
     try {
       // Get customer data from localStorage
       const customerData = localStorage.getItem('customer_data');
       if (!customerData) {
         throw new Error('Customer data not found. Please log in again.');
       }
-
       const customer = JSON.parse(customerData);
       const customerId = customer.id;
-
       if (!customerId) {
         throw new Error('Customer ID not found. Please log in again.');
       }
-
       const bookingId = parseInt(this.selectedBooking.id);
       const feedbackId = this.feedbackIdMap.get(bookingId);
-
       const serviceComment = this.feedbackComment.trim();
       const employeeComment = this.employeeFeedbackComment.trim();
       const employeeRatingValue =
         requiresEmployeeFeedback && this.employeeRating > 0
           ? this.employeeRating
           : null;
-
       if (this.isEditingFeedback && feedbackId) {
         // Update existing feedback
         const feedbackData: CustomerFeedback = {
@@ -726,11 +634,9 @@ this.employeeRating = rating;
 const result = await this.feedbackService
           .updateCustomerFeedback(feedbackData)
           .toPromise();
-
         if (result && result.success) {
 this.feedbackSuccessMessage =
             result.message || 'Feedback updated successfully!';
-
           // Close modal after a short delay
           setTimeout(() => {
             this.closeFeedbackModal();
@@ -756,19 +662,15 @@ this.feedbackSuccessMessage =
 const result = await this.feedbackService
           .submitFeedback(feedbackData)
           .toPromise();
-
         if (result && result.success) {
 this.feedbackSuccessMessage =
             result.message || 'Feedback submitted successfully!';
-
           // Mark this booking as having feedback
           this.feedbackExistsMap.set(bookingId, true);
-
           // Store feedback ID if available
           if (result.data && result.data.id) {
             this.feedbackIdMap.set(bookingId, result.data.id);
           }
-
           // Close modal after a short delay
           setTimeout(() => {
             this.closeFeedbackModal();
@@ -788,24 +690,20 @@ this.feedbackErrorMessage =
       this.isSubmittingFeedback = false;
     }
   }
-
   // Check if a booking can receive feedback (only completed bookings)
   canSubmitFeedback(booking: Booking): boolean {
     return this.normalizeStatus(booking.status) === 'completed';
   }
-
   // Check if a booking already has feedback
   hasFeedback(booking: Booking): boolean {
     const bookingId = parseInt(booking.id);
     return this.feedbackExistsMap.get(bookingId) || false;
   }
-
   // Check for existing feedback for all completed bookings
   private checkExistingFeedback(): void {
     const completedBookings = this.bookings.filter(
       (booking) => this.normalizeStatus(booking.status) === 'completed',
     );
-
     completedBookings.forEach((booking) => {
       const bookingId = parseInt(booking.id);
       this.feedbackService.getAllFeedback(200).subscribe({
@@ -825,7 +723,6 @@ this.feedbackErrorMessage =
               feedbackForBooking.service_comment ??
               feedbackForBooking.comment ??
               null;
-
             (booking as any).serviceRating = serviceRating;
             (booking as any).customerRating = serviceRating;
             (booking as any).rating = serviceRating;
@@ -866,7 +763,6 @@ this.feedbackExistsMap.set(bookingId, false);
       });
     });
   }
-
   // Refresh feedback data for a single booking (used when opening the details modal)
   private refreshFeedbackForBooking(booking: Booking): void {
     const bookingId = parseInt(booking.id);
@@ -884,7 +780,6 @@ this.feedbackExistsMap.set(bookingId, false);
             feedbackForBooking.service_comment ??
             feedbackForBooking.comment ??
             null;
-
           (booking as any).serviceRating = serviceRating;
           (booking as any).customerRating = serviceRating;
           (booking as any).rating = serviceRating;
@@ -921,13 +816,11 @@ this.feedbackExistsMap.set(bookingId, false);
 },
     });
   }
-
   // Clear feedback messages
   clearFeedbackMessages(): void {
     this.feedbackSuccessMessage = null;
     this.feedbackErrorMessage = null;
   }
-
   // New methods for enhanced UI
   getFilterCount(filter: string): number {
     if (filter === 'all') {
@@ -938,11 +831,9 @@ this.feedbackExistsMap.set(bookingId, false);
       return normalized === filter;
     }).length;
   }
-
   trackByBooking(index: number, booking: Booking): string | number {
     return booking.id;
   }
-
   getStatusIcon(status: string): string {
     switch (status) {
       case 'completed':
@@ -961,7 +852,6 @@ this.feedbackExistsMap.set(bookingId, false);
         return '📋';
     }
   }
-
   getStatusDescription(status: string): string {
     switch (status) {
       case 'completed':
@@ -980,7 +870,6 @@ this.feedbackExistsMap.set(bookingId, false);
         return 'Your booking status is being updated.';
     }
   }
-
   // Helper method to get rejection reason with fallback to notes field
   getRejectionReason(booking: Booking): string | null {
     // First check dedicated rejection reason fields
@@ -990,7 +879,6 @@ this.feedbackExistsMap.set(bookingId, false);
     if (booking.rejection_reason) {
       return booking.rejection_reason;
     }
-
     // Fallback: check notes field for rejection reason
     if (booking.status === 'rejected' && booking.notes) {
       const notes = booking.notes;
@@ -1005,17 +893,13 @@ this.feedbackExistsMap.set(bookingId, false);
       // If no prefix found but status is rejected, return the entire notes
       return notes.trim();
     }
-
     return null;
   }
-
   formatTime(time: string): string {
     if (!time) return '';
-
     try {
       // Handle different time formats
       let timeStr = time.toString().trim();
-
       // If it's already in 12-hour format, return as is
       if (
         timeStr.toLowerCase().includes('am') ||
@@ -1023,43 +907,34 @@ this.feedbackExistsMap.set(bookingId, false);
       ) {
         return timeStr;
       }
-
       // If it's in 24-hour format (HH:MM:SS or HH:MM), convert to 12-hour
       if (timeStr.includes(':')) {
         const [hours, minutes] = timeStr.split(':');
         const hour = parseInt(hours, 10);
         const minute = parseInt(minutes, 10);
-
         if (isNaN(hour) || isNaN(minute)) {
           return timeStr; // Return original if parsing fails
         }
-
         const period = hour >= 12 ? 'PM' : 'AM';
         const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
         const displayMinute = minute.toString().padStart(2, '0');
-
         return `${displayHour}:${displayMinute}${period}`;
       }
-
       return timeStr; // Return original if no recognizable format
     } catch (error) {
 return time; // Return original if any error occurs
     }
   }
-
   // Custom date formatting method to avoid timezone issues
   formatDate(dateString: string): string {
     if (!dateString) return '';
-
     try {
       // Parse the date string directly without timezone conversion
       const date = new Date(dateString + 'T00:00:00'); // Add time to avoid timezone issues
-
       // Check if the date is valid
       if (isNaN(date.getTime())) {
         return dateString; // Return original if invalid
       }
-
       const months = [
         'Jan',
         'Feb',
@@ -1074,17 +949,14 @@ return time; // Return original if any error occurs
         'Nov',
         'Dec',
       ];
-
       const month = months[date.getMonth()];
       const day = date.getDate().toString().padStart(2, '0');
       const year = date.getFullYear();
-
       return `${month} ${day}, ${year}`;
     } catch (error) {
 return dateString; // Return original on error
     }
   }
-
   getUserInitials(name: string): string {
     return name
       .split(' ')
@@ -1093,7 +965,6 @@ return dateString; // Return original on error
       .toUpperCase()
       .slice(0, 2);
   }
-
   getEmployeeInfo(booking: any): string {
     if (
       booking.assigned_employee_id &&
@@ -1108,7 +979,6 @@ return dateString; // Return original on error
     }
     return 'Pending Assignment';
   }
-
   hasEmployeeAssigned(booking: any): boolean {
     return !!(
       booking.assigned_employee_id &&
@@ -1116,14 +986,12 @@ return dateString; // Return original on error
       booking.employee_last_name
     );
   }
-
   // New methods for enhanced modal display
   getCustomerRating(booking: any): number | null {
     const rating =
       booking.serviceRating ?? booking.customerRating ?? booking.rating ?? null;
     return typeof rating === 'number' ? rating : null;
   }
-
   getCustomerRatingComment(booking: any): string | null {
     return (
       booking.serviceComment ||
@@ -1132,16 +1000,13 @@ return dateString; // Return original on error
       null
     );
   }
-
   getEmployeeRating(booking: any): number | null {
     const rating = booking.employeeRating ?? null;
     return typeof rating === 'number' ? rating : null;
   }
-
   getEmployeeRatingComment(booking: any): string | null {
     return booking.employeeComment || null;
   }
-
   isSubmitFeedbackDisabled(): boolean {
     const requiresEmployeeFeedback =
       this.selectedBooking && this.hasEmployeeAssigned(this.selectedBooking);
@@ -1153,24 +1018,20 @@ return dateString; // Return original on error
       this.isSubmittingFeedback
     );
   }
-
   getBookingNotes(booking: Booking): string | null {
     const notes = (booking?.notes || '').toString();
     if (!notes.trim()) {
       return null;
     }
-
     if (this.normalizeStatus(booking.status) === 'rejected') {
       const rejectionPrefix = 'Rejection reason:';
       const legacyPrefix = 'Customer reason:';
-
       if (notes.includes(rejectionPrefix)) {
         const originalNotes = notes.split(rejectionPrefix)[0]?.trim();
         if (originalNotes) {
           return originalNotes;
         }
       }
-
       if (notes.includes(legacyPrefix)) {
         const originalNotes = notes.split(legacyPrefix)[0]?.trim();
         if (originalNotes) {
@@ -1178,10 +1039,8 @@ return dateString; // Return original on error
         }
       }
     }
-
     return notes.trim();
   }
-
   getCustomerRatingLabel(booking: Booking): string {
     const rating = this.getCustomerRating(booking);
     if (!rating || rating < 0 || rating >= this.ratingTexts.length) {
@@ -1189,7 +1048,6 @@ return dateString; // Return original on error
     }
     return this.ratingTexts[Math.round(rating)] || '';
   }
-
   getFeedbackVisibility(booking: Booking): string {
     const visibility = (booking as any).feedbackVisibility;
     if (!visibility) {
@@ -1197,7 +1055,6 @@ return dateString; // Return original on error
     }
     return visibility;
   }
-
   getStarDisplay(rating: number): string {
     if (!rating) return '';
     const fullStars = Math.floor(rating);
@@ -1208,7 +1065,6 @@ return dateString; // Return original on error
     }
     return stars;
   }
-
   hasAdditionalInfo(booking: any): boolean {
     return !!(
       this.getBookingNotes(booking) ||
@@ -1217,7 +1073,6 @@ return dateString; // Return original on error
       booking.estimatedDuration
     );
   }
-
   hasServiceTimeline(booking: any): boolean {
     return !!(
       booking.bookingCreatedAt ||

@@ -294,7 +294,6 @@ export class ProfileComponent implements OnInit {
           this.errorMessage =
             error.error?.status?.message ||
             'An error occurred while updating profile';
-          console.error('Profile update error:', error);
         },
       });
   }
@@ -403,7 +402,6 @@ export class ProfileComponent implements OnInit {
               'An error occurred while adding vehicle',
             confirmButtonColor: '#ff6347',
           });
-          console.error('Vehicle add error:', error);
         },
       });
   }
@@ -490,7 +488,6 @@ export class ProfileComponent implements OnInit {
                   'An error occurred while removing vehicle',
                 confirmButtonColor: '#ff6347',
               });
-              console.error('Vehicle remove error:', error);
             },
           });
       }
@@ -507,7 +504,6 @@ export class ProfileComponent implements OnInit {
 
     const token = localStorage.getItem('auth_token');
     if (!token) {
-      console.warn('No auth token found, cannot load vehicles');
       this.customerVehicles = [];
       return;
     }
@@ -525,12 +521,10 @@ export class ProfileComponent implements OnInit {
           if (response.status && response.status.remarks === 'success') {
             this.customerVehicles = response.payload?.vehicles || [];
           } else {
-            console.error('Failed to load vehicles:', response.status?.message);
             this.customerVehicles = [];
           }
         },
         error: (error) => {
-          console.error('Error loading vehicles:', error);
           this.customerVehicles = [];
         },
       });

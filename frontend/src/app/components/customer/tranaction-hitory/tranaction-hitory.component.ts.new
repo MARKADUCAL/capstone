@@ -92,7 +92,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigate(['/customer-view/appointment']).catch((error) => {
-this.errorMessage = 'Unable to open booking page. Please try again.';
+      this.errorMessage = 'Unable to open booking page. Please try again.';
     });
   }
 
@@ -108,7 +108,7 @@ this.errorMessage = 'Unable to open booking page. Please try again.';
   private handleVisibilityChange(): void {
     if (!document.hidden) {
       // Page became visible, refresh data to ensure consistency
-this.loadBookings();
+      this.loadBookings();
     }
   }
 
@@ -354,19 +354,23 @@ this.loadBookings();
 
   loadBookings(): void {
     if (this.isBrowser) {
-// Check if customer is logged in
+
+      // Check if customer is logged in
       const customerData = localStorage.getItem('customer_data');
-if (customerData) {
+
+      if (customerData) {
         try {
           const customer = JSON.parse(customerData);
           const customerId = customer.id;
-if (customerId) {
+
+          if (customerId) {
             this.isLoading = true;
             this.errorMessage = null;
 
             this.bookingService.getBookingsByCustomerId(customerId).subscribe({
               next: (bookings) => {
-// Sort bookings by washDate and washTime descending (newest first)
+
+                // Sort bookings by washDate and washTime descending (newest first)
                 this.bookings = bookings.sort((a: any, b: any) => {
                   const dateA = new Date(
                     a.washDate + 'T' + (a.washTime || '00:00:00'),
@@ -382,7 +386,8 @@ if (customerId) {
 
                 this.applyFilter();
                 this.isLoading = false;
-// Check for existing feedback for each completed booking
+
+                // Check for existing feedback for each completed booking
                 this.checkExistingFeedback();
 
                 // Log each booking status for debugging
@@ -390,20 +395,20 @@ if (customerId) {
                 });
               },
               error: (error) => {
-this.errorMessage = `Failed to load bookings: ${error.message}`;
+                this.errorMessage = `Failed to load bookings: ${error.message}`;
                 this.isLoading = false;
               },
             });
           } else {
-this.errorMessage = 'Customer ID not found. Please log in again.';
+            this.errorMessage = 'Customer ID not found. Please log in again.';
             this.isLoading = false;
           }
         } catch (error) {
-this.errorMessage = 'Invalid customer data. Please log in again.';
+          this.errorMessage = 'Invalid customer data. Please log in again.';
           this.isLoading = false;
         }
       } else {
-this.errorMessage =
+        this.errorMessage =
           'You must be logged in to view your transaction history.';
         this.isLoading = false;
       }
@@ -412,7 +417,7 @@ this.errorMessage =
 
   openViewModal(booking: Booking): void {
     this.selectedBooking = booking;
-this.isViewModalOpen = true;
+    this.isViewModalOpen = true;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
@@ -422,14 +427,15 @@ this.isViewModalOpen = true;
   }
 
   closeViewModal(): void {
-this.isViewModalOpen = false;
+    this.isViewModalOpen = false;
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = ''; // Restore scrolling
     }
   }
 
   openFeedbackModal(booking?: Booking): void {
-if (booking) {
+
+    if (booking) {
       this.selectedBooking = booking;
       const canRateEmployee = this.hasEmployeeAssigned(booking);
       this.employeeRating = 0;
@@ -486,16 +492,16 @@ if (booking) {
           this.employeeFeedbackComment =
             feedbackForBooking.employee_comment || '';
           this.feedbackIdMap.set(bookingId, feedbackForBooking.id!);
-}
+        }
       },
       error: (error) => {
-this.feedbackErrorMessage = 'Failed to load existing feedback.';
+        this.feedbackErrorMessage = 'Failed to load existing feedback.';
       },
     });
   }
 
   closeFeedbackModal(): void {
-this.isFeedbackModalOpen = false;
+    this.isFeedbackModalOpen = false;
     this.selectedBooking = null;
     this.currentRating = 0;
     this.feedbackComment = '';
@@ -541,9 +547,11 @@ this.isFeedbackModalOpen = false;
             : undefined,
         )
         .toPromise();
-// Check if the update was successful
+
+      // Check if the update was successful
       if (result && result.success) {
-// Close modal first
+
+        // Close modal first
         this.closeCancelModal();
 
         // Set success message
@@ -557,13 +565,14 @@ this.isFeedbackModalOpen = false;
           text: 'The booking has been cancelled successfully.',
           confirmButtonColor: '#3498db',
         });
-// Reload data from backend to ensure consistency
-await this.loadBookings();
-} else {
-throw new Error('Failed to cancel booking');
+
+        // Reload data from backend to ensure consistency
+        await this.loadBookings();
+      } else {
+        throw new Error('Failed to cancel booking');
       }
     } catch (error) {
-this.errorMessage = 'Failed to cancel booking. Please try again.';
+      this.errorMessage = 'Failed to cancel booking. Please try again.';
       this.successMessage = null;
 
       Swal.fire({
@@ -626,9 +635,9 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
     expiredBookingIds.forEach((bookingId) => {
       this.bookingService.updateBookingStatus(bookingId, 'Expired').subscribe({
         next: () => {
-},
+        },
         error: (err) => {
-},
+        },
       });
     });
 
@@ -641,7 +650,7 @@ this.errorMessage = 'Failed to cancel booking. Please try again.';
   }
 
   setRating(rating: number): void {
-this.currentRating = rating;
+    this.currentRating = rating;
   }
 
   getRatingText(): string {
@@ -649,7 +658,7 @@ this.currentRating = rating;
   }
 
   setEmployeeRating(rating: number): void {
-this.employeeRating = rating;
+    this.employeeRating = rating;
   }
 
   getEmployeeRatingText(): string {
@@ -723,12 +732,13 @@ this.employeeRating = rating;
           employee_comment: employeeComment || null,
           is_public: true,
         };
-const result = await this.feedbackService
+
+        const result = await this.feedbackService
           .updateCustomerFeedback(feedbackData)
           .toPromise();
 
         if (result && result.success) {
-this.feedbackSuccessMessage =
+          this.feedbackSuccessMessage =
             result.message || 'Feedback updated successfully!';
 
           // Close modal after a short delay
@@ -753,12 +763,13 @@ this.feedbackSuccessMessage =
           employee_comment: employeeComment || null,
           is_public: true,
         };
-const result = await this.feedbackService
+
+        const result = await this.feedbackService
           .submitFeedback(feedbackData)
           .toPromise();
 
         if (result && result.success) {
-this.feedbackSuccessMessage =
+          this.feedbackSuccessMessage =
             result.message || 'Feedback submitted successfully!';
 
           // Mark this booking as having feedback
@@ -780,7 +791,7 @@ this.feedbackSuccessMessage =
         }
       }
     } catch (error) {
-this.feedbackErrorMessage =
+      this.feedbackErrorMessage =
         error instanceof Error
           ? error.message
           : 'Failed to submit feedback. Please try again.';
@@ -815,7 +826,7 @@ this.feedbackErrorMessage =
           );
           const exists = !!feedbackForBooking;
           this.feedbackExistsMap.set(bookingId, exists);
-// Attach customer rating/comment and admin comment (if present) to the booking for modal display
+          // Attach customer rating/comment and admin comment (if present) to the booking for modal display
           if (feedbackForBooking) {
             const serviceRating =
               feedbackForBooking.service_rating ??
@@ -861,7 +872,7 @@ this.feedbackErrorMessage =
           }
         },
         error: (error) => {
-this.feedbackExistsMap.set(bookingId, false);
+          this.feedbackExistsMap.set(bookingId, false);
         },
       });
     });
@@ -918,7 +929,7 @@ this.feedbackExistsMap.set(bookingId, false);
         }
       },
       error: (error) => {
-},
+      },
     });
   }
 
@@ -1043,7 +1054,7 @@ this.feedbackExistsMap.set(bookingId, false);
 
       return timeStr; // Return original if no recognizable format
     } catch (error) {
-return time; // Return original if any error occurs
+      return time; // Return original if any error occurs
     }
   }
 
@@ -1081,7 +1092,7 @@ return time; // Return original if any error occurs
 
       return `${month} ${day}, ${year}`;
     } catch (error) {
-return dateString; // Return original on error
+      return dateString; // Return original on error
     }
   }
 

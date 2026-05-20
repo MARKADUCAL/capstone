@@ -115,12 +115,10 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
         if (!this.customerName) this.customerName = 'Customer';
         this.customerId = customerData.id || customerData.customer_id || '';
       } catch (error) {
-        console.error('Error parsing customer data:', error);
         this.error =
           'Failed to load customer information. Please log in again.';
       }
     } else {
-      console.error('No customer data found in localStorage');
       this.error = 'Please log in to view pricing.';
     }
   }
@@ -130,14 +128,11 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.status && response.status.remarks === 'success') {
           this.servicePackages = response.payload.packages || [];
-          console.log('Loaded service packages:', this.servicePackages);
         } else {
-          console.error('Failed to load service packages:', response);
           this.servicePackages = [];
         }
       },
       error: (error) => {
-        console.error('Error loading service packages:', error);
         this.servicePackages = [];
       },
     });
@@ -154,15 +149,12 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.status && response.status.remarks === 'success') {
             this.pricingMatrix = response.payload.pricing_matrix || {};
-            console.log('Loaded pricing matrix:', this.pricingMatrix);
           } else {
-            console.error('Failed to load pricing matrix:', response);
             this.pricingMatrix = {};
           }
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading pricing matrix:', error);
           this.pricingMatrix = {};
           this.loading = false;
         },
@@ -191,12 +183,10 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.status && response.status.remarks === 'success') {
             this.userVehicles = response.payload.vehicles || [];
-            console.log('Loaded user vehicles:', this.userVehicles);
           }
           this.loadingVehicles = false;
         },
         error: (error) => {
-          console.error('Error loading vehicles:', error);
           this.userVehicles = [];
           this.loadingVehicles = false;
         },

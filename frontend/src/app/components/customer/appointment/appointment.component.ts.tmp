@@ -470,8 +470,13 @@ export class AppointmentComponent implements OnInit {
 
   loadServicePackages(): void {
     if (this.isBrowser) {
+      console.log(
+        'Loading service packages from:',
+        `${environment.apiUrl}/get_packages`,
+      );
       this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
         next: (response) => {
+
           if (response.status && response.status.remarks === 'success') {
             const packages = response.payload.packages || [];
             // Transform API response to format: "code - description"
@@ -480,13 +485,17 @@ export class AppointmentComponent implements OnInit {
             );
             // Extract just the codes for the codes array
             this.serviceCodes = packages.map((pkg: any) => pkg.code);
+
+
           } else {
+
             // Fallback to defaults
             this.servicePackages = SERVICE_PACKAGES;
             this.serviceCodes = SERVICE_CODES;
           }
         },
         error: (error) => {
+
           // Fallback to defaults
           this.servicePackages = SERVICE_PACKAGES;
           this.serviceCodes = SERVICE_CODES;
@@ -498,17 +507,25 @@ export class AppointmentComponent implements OnInit {
   // Load pricing data from database
   loadPricingData(): void {
     if (this.isBrowser) {
+      console.log(
+        'Loading pricing data from:',
+        `${environment.apiUrl}/get_pricing_matrix`,
+      );
       this.apiCache
         .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
         .subscribe({
           next: (response) => {
+
             if (response.status && response.status.remarks === 'success') {
               this.pricingMatrix = response.payload.pricing_matrix || {};
+
             } else {
+
               this.pricingMatrix = {};
             }
           },
           error: (error) => {
+
             this.pricingMatrix = {};
           },
         });
@@ -541,8 +558,16 @@ export class AppointmentComponent implements OnInit {
 
   // Calculate price based on vehicle type and service
   calculatePrice(): void {
+    console.log(
+      'Calculating price for:',
+      this.bookingForm.vehicleType,
+      this.bookingForm.services,
+    );
     const vehicleCode = this.getVehicleTypeCode(this.bookingForm.vehicleType);
     const serviceCode = this.getServiceCode(this.bookingForm.services);
+
+
+
     // Get price from database pricing matrix
     this.isUnavailableSelection = false;
     if (
@@ -552,6 +577,9 @@ export class AppointmentComponent implements OnInit {
       this.pricingMatrix[vehicleCode][serviceCode]
     ) {
       this.selectedPrice = this.pricingMatrix[vehicleCode][serviceCode];
+      console.log(
+        `Price for ${vehicleCode} - ${serviceCode}: ${this.selectedPrice}`,
+      );
     } else {
       this.selectedPrice = null;
       // If both selections are present but no price found, mark as unavailable
@@ -559,6 +587,15 @@ export class AppointmentComponent implements OnInit {
         this.isUnavailableSelection = true;
       }
 
+
+      if (this.pricingMatrix[vehicleCode]) {
+        console.log(
+          'Available service codes for',
+          vehicleCode,
+          ':',
+          Object.keys(this.pricingMatrix[vehicleCode]),
+        );
+      }
     }
   }
 
@@ -612,11 +649,16 @@ export class AppointmentComponent implements OnInit {
     if (customerDataStr) {
       try {
         const customerData = JSON.parse(customerDataStr);
+
+
         // Set user data properties
         this.userFirstName = customerData.first_name || '';
         this.userLastName = customerData.last_name || '';
         this.userPhone = customerData.mobile_no || customerData.phone || '';
         this.userCustomerId = customerData.id || ''; // Get customer ID
+
+
+
         // Pre-fill the form with user data
         this.bookingForm.firstName = this.userFirstName;
         this.bookingForm.lastName = this.userLastName;
@@ -627,14 +669,17 @@ export class AppointmentComponent implements OnInit {
         // Load customer vehicles
         this.loadCustomerVehicles();
       } catch (error) {
+
       }
     } else {
+
     }
   }
 
   // Load customer bookings
   loadBookings(): void {
     if (!this.userCustomerId) {
+
       return;
     }
 
@@ -661,6 +706,7 @@ export class AppointmentComponent implements OnInit {
 
     const token = localStorage.getItem('auth_token');
     if (!token) {
+
       return;
     }
 
@@ -678,11 +724,13 @@ export class AppointmentComponent implements OnInit {
             this.customerVehicles = response.payload?.vehicles || [];
             this.filterVehiclesByType();
           } else {
+
             this.customerVehicles = [];
             this.filteredVehicles = [];
           }
         },
         error: (error) => {
+
           this.customerVehicles = [];
           this.filteredVehicles = [];
         },
@@ -728,6 +776,7 @@ export class AppointmentComponent implements OnInit {
       typeof vehicleId === 'string' ? parseInt(vehicleId, 10) : vehicleId;
 
     if (isNaN(id)) {
+
       return;
     }
 
@@ -801,6 +850,7 @@ export class AppointmentComponent implements OnInit {
       if (vehicleTypeToSet) {
         this.bookingForm.vehicleType = vehicleTypeToSet;
       } else {
+
         // Fallback: try to use the stored value directly
         this.bookingForm.vehicleType = vehicle.vehicle_type;
       }
@@ -814,6 +864,7 @@ export class AppointmentComponent implements OnInit {
       // Recalculate price after setting vehicle type
       this.calculatePrice();
     } else {
+
       this.selectedVehicleId = null;
       this.selectedVehicle = null;
     }
@@ -1278,6 +1329,7 @@ export class AppointmentComponent implements OnInit {
   // Open pricing guide modal
   openPricingGuideModal(): void {
     // TODO: Re-implement pricing guide modal
+
     alert(
       'Pricing guide feature is temporarily unavailable. Please check the pricing table on the landing page.',
     );
@@ -1747,6 +1799,7 @@ export class AppointmentComponent implements OnInit {
         JSON.stringify(pricingSelection),
       );
     } catch (error) {
+
     }
   }
 
@@ -1770,6 +1823,10 @@ export class AppointmentComponent implements OnInit {
         }
       }
     } catch (error) {
+      console.error(
+        'Error loading pricing selection from localStorage:',
+        error,
+      );
     }
   }
 
@@ -1779,6 +1836,10 @@ export class AppointmentComponent implements OnInit {
     try {
       localStorage.removeItem('selected_pricing');
     } catch (error) {
+      console.error(
+        'Error clearing pricing selection from localStorage:',
+        error,
+      );
     }
   }
 
