@@ -95,13 +95,13 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
       case 'profile':
         return 'Profile';
       case 'services':
-        return 'Services & Pricing';
+        return 'Customer Dashboard';
       case 'appointment':
         return 'Appointment';
       case 'tranaction-hitory':
         return 'Transaction History';
       default:
-        return 'Customer Booking';
+        return 'Customer Dashboard';
     }
   }
 
