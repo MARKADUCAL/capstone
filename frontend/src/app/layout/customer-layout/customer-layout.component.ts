@@ -36,27 +36,29 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
 
   // Page title
   pageTitle = 'Customer Dashboard';
-  private routeSubscription: Subscription;
+  private routeSubscription: Subscription | null = null;
+  private navigationSubscription: Subscription | null = null;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: Object,
-  ) {
-    // Initialize the subscription
-    this.routeSubscription = new Subscription();
-  }
+  ) {}
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.loadUserData();
       this.setupRouteTitleTracking();
+      this.setupNavigationListener();
     }
   }
 
   ngOnDestroy() {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
+    }
+    if (this.navigationSubscription) {
+      this.navigationSubscription.unsubscribe();
     }
   }
 
@@ -68,6 +70,18 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
       )
       .subscribe((title) => {
         this.pageTitle = title;
+      });
+  }
+
+  setupNavigationListener() {
+    // Close mobile sidebar on navigation to maintain consistency
+    this.navigationSubscription = this.router.events
+      .pipe(filter((event: Event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (isPlatformBrowser(this.platformId) && window.innerWidth <= 768) {
+          this.sidebarActive = false;
+          document.body.style.overflow = 'auto';
+        }
       });
   }
 

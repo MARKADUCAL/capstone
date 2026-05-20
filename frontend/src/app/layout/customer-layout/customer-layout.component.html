@@ -11,6 +11,7 @@
       <a
         routerLink="/customer-view/services"
         routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
         (click)="closeSidebarOnMobile()"
       >
@@ -19,6 +20,7 @@
       <a
         routerLink="/customer-view/appointment"
         routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
         (click)="closeSidebarOnMobile()"
       >
@@ -27,6 +29,7 @@
       <a
         routerLink="/customer-view/tranaction-hitory"
         routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
         (click)="closeSidebarOnMobile()"
       >
@@ -40,6 +43,7 @@
         <a
           routerLink="/customer-view/profile"
           routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
           class="sidebar-action-item"
           (click)="closeSidebarOnMobile()"
         >

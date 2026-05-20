@@ -134,6 +134,7 @@ body {
 .nav-item.active {
   background-color: var(--mat-sys-primary-container);
   font-weight: bold;
+  color: var(--mat-sys-primary);
 }
 
 .nav-item i {
