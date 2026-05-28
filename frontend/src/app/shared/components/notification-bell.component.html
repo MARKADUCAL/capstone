@@ -1,89 +1,36 @@
 <div class="notification-bell" (click)="$event.stopPropagation()">
-  <button
-    type="button"
-    class="bell-button"
-    (click)="toggleDropdown($event)"
-    aria-label="Notifications"
-  >
+  <button type="button" class="bell-button" (click)="toggleDropdown($event)" aria-label="Notifications">
     <svg class="bell-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5-6.7V3a2 2 0 1 0-4 0v1.3A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"
-      />
+      <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5-6.7V3a2 2 0 1 0-4 0v1.3A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z" />
     </svg>
-    <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? "9+" : unreadCount }}</span>
+    <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
   </button>
 
   <div class="notification-dropdown" *ngIf="dropdownOpen">
     <div class="notification-header">
       <h3>Notifications</h3>
-      <button
-        type="button"
-        class="mark-all-button"
-        *ngIf="notifications.length > 0"
-        (click)="markAllAsRead($event)"
-      >
+      <button type="button" class="mark-all-button" *ngIf="notifications.length > 0" (click)="markAllAsRead($event)">
         Mark all as read
       </button>
     </div>
 
     <div class="notification-list" *ngIf="notifications.length > 0; else emptyState">
-      <ng-container *ngFor="let section of notificationSections">
-        <p class="notification-section" *ngIf="section.items.length > 0">{{ section.label }}</p>
-
-        <button
-          type="button"
-          class="notification-card"
-          *ngFor="let notification of section.items; let first = first"
-          [class.unread]="notification.is_read === 0"
-          [class.featured-unread]="notification.is_read === 0 && section.label === 'Today' && first"
-          (click)="onNotifClick(notification)"
-        >
-          <span class="notification-icon" [ngClass]="getNotificationType(notification)">
-            <svg *ngIf="getNotificationType(notification) === 'completed'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="m9.55 16.95-4.2-4.2 1.4-1.4 2.8 2.78 7.7-7.68 1.4 1.4-9.1 9.1Z" />
-            </svg>
-            <svg *ngIf="getNotificationType(notification) === 'booking'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M7 2h2v3H7V2Zm8 0h2v3h-2V2ZM4 5h16a1 1 0 0 1 1 1v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2L3 6a1 1 0 0 1 1-1Zm1 6v9h14v-9H5Zm0-4v2h14V7H5Z" />
-            </svg>
-            <svg *ngIf="getNotificationType(notification) === 'update'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z" />
-            </svg>
-          </span>
-
-          <span class="notification-copy">
-            <span class="notification-title-row">
-              <span class="notification-title">{{ getNotificationTitle(notification) }}</span>
-              <span class="unread-dot" *ngIf="notification.is_read === 0"></span>
-            </span>
-            <span class="notification-brand">{{ getNotificationHighlight(notification) }}</span>
-            <span class="notification-message">{{ getNotificationDescription(notification) }}</span>
-            <span class="notification-time">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M12 2a10 10 0 1 0 .01 0H12Zm1 10.2 3.2 1.9-1 1.65L11 13.25V7h2v5.2Z" />
-              </svg>
-              {{ section.label === "Today" ? (notification.created_at | date: "h:mm a" : "+0800") : (notification.created_at | date: "MMM d, h:mm a" : "+0800") }}
-            </span>
-          </span>
-        </button>
-      </ng-container>
+      <button
+        type="button"
+        class="notification-item"
+        *ngFor="let notification of notifications"
+        [class.unread]="notification.is_read === 0"
+        [class.read]="notification.is_read === 1"
+        (click)="onNotifClick(notification)"
+      >
+        <span class="notification-message">{{ notification.message }}</span>
+        <span class="notification-date">{{ notification.created_at | date: 'MMM d, y h:mm a' : '+0800' }}</span>
+      </button>
     </div>
 
     <ng-template #emptyState>
-      <div class="empty-state">
-        <span class="empty-icon">✦</span>
-        <strong>No new notifications</strong>
-        <span>Leydi Boss is all caught up.</span>
-      </div>
+      <div class="empty-state">No new notifications</div>
     </ng-template>
-
-    <div class="notification-footer" *ngIf="notifications.length > 0">
-      <button type="button" class="view-all-button" (click)="$event.stopPropagation()">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4 5h3v3H4V5Zm5 0h11v3H9V5ZM4 10.5h3v3H4v-3Zm5 0h11v3H9v-3ZM4 16h3v3H4v-3Zm5 0h11v3H9v-3Z" />
-        </svg>
-        View all notifications
-      </button>
-    </div>
 
     <div class="pagination-controls" *ngIf="totalPages > 1">
       <button type="button" (click)="previousPage($event)" [disabled]="currentPage <= 1">Previous</button>
