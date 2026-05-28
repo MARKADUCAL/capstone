@@ -79,7 +79,21 @@ export class NotificationService {
   }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('admin_token') || localStorage.getItem('employee_token') || localStorage.getItem('auth_token');
+    // Get the current user's role from localStorage to determine which token to use
+    const userRole = localStorage.getItem('user_role');
+    let token = null;
+
+    if (userRole === 'admin') {
+      token = localStorage.getItem('admin_token');
+    } else if (userRole === 'employee') {
+      token = localStorage.getItem('employee_token');
+    } else if (userRole === 'customer') {
+      token = localStorage.getItem('auth_token');
+    } else {
+      // Fallback: try to find any token (for backward compatibility)
+      token = localStorage.getItem('auth_token') || localStorage.getItem('admin_token') || localStorage.getItem('employee_token');
+    }
+
     return token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : new HttpHeaders();
   }
 }

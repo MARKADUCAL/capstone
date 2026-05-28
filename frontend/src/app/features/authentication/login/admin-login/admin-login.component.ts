@@ -67,6 +67,7 @@ export class AdminLoginComponent {
             if (this.isBrowser && response.payload && response.payload.token) {
               try {
                 localStorage.setItem('admin_token', response.payload.token);
+                localStorage.setItem('user_role', 'admin');
                 localStorage.setItem(
                   'admin_data',
                   JSON.stringify(response.payload.admin)

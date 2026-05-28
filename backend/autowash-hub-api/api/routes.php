@@ -1126,6 +1126,19 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'assign_employee_to_booking') !== false) {
         error_log("Processing assign_employee_to_booking request");
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        if (!empty($authHeader) && strpos($authHeader, 'Bearer ') === 0) {
+            try {
+                $token = substr($authHeader, 7);
+                $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+                $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+                $data->actor_role = $decoded->aud ?? null;
+                $data->actor_id = $decoded->data->id ?? null;
+            } catch (Exception $e) {
+                error_log("Unable to decode assign_employee_to_booking actor: " . $e->getMessage());
+            }
+        }
         $result = $put->assign_employee_to_booking($data);
         error_log("assign_employee_to_booking result: " . json_encode($result));
         echo json_encode($result);

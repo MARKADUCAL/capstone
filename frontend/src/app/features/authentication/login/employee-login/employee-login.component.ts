@@ -67,6 +67,7 @@ export class EmployeeLoginComponent {
             if (this.isBrowser && response.payload && response.payload.token) {
               try {
                 localStorage.setItem('employee_token', response.payload.token);
+                localStorage.setItem('user_role', 'employee');
                 localStorage.setItem(
                   'employee_data',
                   JSON.stringify(response.payload.employee)

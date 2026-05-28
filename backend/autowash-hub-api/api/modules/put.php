@@ -592,16 +592,9 @@ class Put {
             if ($affectedRows === 0) {
                 throw new Exception("No rows were updated");
             }
-            
-            sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_status_updated', "Your booking on {$booking['wash_date']} is now {$normalizedStatus}.", [
-                'booking_id' => $bookingId,
-                'service' => $booking['service_package'],
-                'date' => $booking['wash_date'],
-                'time' => $booking['wash_time'],
-                'status' => $normalizedStatus
-            ]);
 
-            if (in_array($normalizedStatus, ['Done', 'Completed'], true) && (($data->actor_role ?? null) === 'employee')) {
+            // When employee marks as DONE → notify ADMIN only
+            if ($normalizedStatus === 'Done') {
                 $employeeName = '';
                 $employeeId = $data->employee_id ?? $data->actor_id ?? $booking['assigned_employee_id'] ?? null;
                 if ($employeeId) {
@@ -614,11 +607,11 @@ class Put {
                     $employeeName = 'Employee';
                 }
                 $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
-                $adminStmt = $this->pdo->prepare("SELECT id FROM admins ORDER BY id ASC");
+                $adminStmt = $this->pdo->prepare("SELECT id FROM admins LIMIT 1");
                 $adminStmt->execute();
-                $adminIds = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
-                foreach ($adminIds as $adminId) {
-                    sendNotification($this->pdo, 'admin', $adminId, 'booking_completed', "{$employeeName} has completed the booking for {$customerName} — {$booking['service_package']}", [
+                $adminId = $adminStmt->fetchColumn();
+                if ($adminId) {
+                    sendNotification($this->pdo, 'admin', $adminId, 'booking_done', "{$employeeName} has marked the booking for {$customerName} — {$booking['service_package']} as done. Please review and complete.", [
                         'booking_id' => $bookingId,
                         'customer_id' => $booking['customer_id'],
                         'customer_name' => $customerName,
@@ -626,10 +619,19 @@ class Put {
                         'employee_name' => $employeeName,
                         'service' => $booking['service_package'],
                         'date' => $booking['wash_date'],
-                        'time' => $booking['wash_time'],
-                        'status' => $normalizedStatus
+                        'time' => $booking['wash_time']
                     ]);
                 }
+            }
+
+            // When admin marks as COMPLETE → notify CUSTOMER only
+            if ($normalizedStatus === 'Completed') {
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_completed', "Your booking for {$booking['service_package']} on {$booking['wash_date']} has been completed. Thank you for choosing Leydi Boss!", [
+                    'booking_id' => $bookingId,
+                    'service' => $booking['service_package'],
+                    'date' => $booking['wash_date'],
+                    'time' => $booking['wash_time']
+                ]);
             }
 
             error_log("Booking status updated successfully");
@@ -693,14 +695,8 @@ class Put {
             }
             
             $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
-            sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_status_updated', "Your booking on {$booking['wash_date']} is now Approved.", [
-                'booking_id' => $bookingId,
-                'service' => $booking['service_package'],
-                'date' => $booking['wash_date'],
-                'time' => $booking['wash_time'],
-                'status' => 'Approved'
-            ]);
-            sendNotification($this->pdo, 'employee', $employeeId, 'booking_assigned', "You have a new assignment: {$customerName} — {$booking['service_package']} on {$booking['wash_date']}", [
+            error_log("🔔 EMPLOYEE_ASSIGNED: About to send notification to employee {$employeeId}");
+            sendNotification($this->pdo, 'employee', $employeeId, 'booking_assigned', "New assignment: {$customerName} — {$booking['service_package']} on {$booking['wash_date']}", [
                 'booking_id' => $bookingId,
                 'customer_id' => $booking['customer_id'],
                 'customer_name' => $customerName,

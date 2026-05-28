@@ -77,6 +77,7 @@ export class CustomerLoginComponent implements OnInit {
             // Save token and customer data to localStorage
             if (response.payload && response.payload.token) {
               localStorage.setItem('auth_token', response.payload.token);
+              localStorage.setItem('user_role', 'customer');
               localStorage.setItem(
                 'customer_data',
                 JSON.stringify(response.payload.customer),
