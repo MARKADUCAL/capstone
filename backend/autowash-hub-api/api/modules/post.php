@@ -1480,12 +1480,11 @@ class Post extends GlobalMethods
                 $customerStmt->execute([$data->customer_id]);
                 $customer = $customerStmt->fetch(PDO::FETCH_ASSOC);
                 $customerName = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
-                $adminStmt = $this->pdo->prepare("SELECT id FROM admins LIMIT 1");
+                $adminStmt = $this->pdo->prepare("SELECT id FROM admins");
                 $adminStmt->execute();
-                $adminId = $adminStmt->fetchColumn();
-                error_log("🔔 NEW_BOOKING: About to send notification. AdminId=" . ($adminId ?: 'NULL'));
-                if ($adminId) {
-                    error_log("🔔 NEW_BOOKING: Calling sendNotification for admin {$adminId}");
+                $adminIds = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
+                error_log("🔔 NEW_BOOKING: Sending notification to " . count($adminIds) . " admins");
+                foreach ($adminIds as $adminId) {
                     sendNotification($this->pdo, 'admin', $adminId, 'new_booking', "New booking from {$customerName} — {$data->service_package} on {$data->wash_date}", [
                         'booking_id' => $nextId,
                         'customer_id' => $data->customer_id,

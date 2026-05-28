@@ -84,19 +84,15 @@ export class NotificationService {
   }
 
   private getHeaders(): HttpHeaders {
-    // Get the current user's role from localStorage to determine which token to use
-    const userRole = localStorage.getItem('user_role');
+    const path = window.location.pathname;
     let token = null;
 
-    if (userRole === 'admin') {
+    if (path.startsWith('/admin')) {
       token = localStorage.getItem('admin_token');
-    } else if (userRole === 'employee') {
+    } else if (path.startsWith('/employee')) {
       token = localStorage.getItem('employee_token');
-    } else if (userRole === 'customer') {
+    } else if (path.startsWith('/customer')) {
       token = localStorage.getItem('auth_token');
-    } else {
-      // Fallback: try to find any token (for backward compatibility)
-      token = localStorage.getItem('auth_token') || localStorage.getItem('admin_token') || localStorage.getItem('employee_token');
     }
 
     return token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : new HttpHeaders();

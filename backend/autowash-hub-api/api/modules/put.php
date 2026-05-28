@@ -593,6 +593,45 @@ class Put {
                 throw new Exception("No rows were updated");
             }
 
+            // When admin APPROVES booking → notify CUSTOMER
+            if ($normalizedStatus === 'Approved') {
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_approved', "Your booking for {$booking['service_package']} on {$booking['wash_date']} has been approved! See you at Leydi Boss.", [
+                    'booking_id' => $bookingId,
+                    'service' => $booking['service_package'],
+                    'date' => $booking['wash_date'],
+                    'time' => $booking['wash_time']
+                ]);
+            }
+
+            // When admin REJECTS booking → notify CUSTOMER
+            if ($normalizedStatus === 'Rejected') {
+                $rejectMessage = "Your booking for {$booking['service_package']} on {$booking['wash_date']} was not approved.";
+                if ($hasReason) {
+                    $rejectMessage .= " Reason: {$reasonText}";
+                }
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_rejected', $rejectMessage, [
+                    'booking_id' => $bookingId,
+                    'service' => $booking['service_package'],
+                    'date' => $booking['wash_date'],
+                    'time' => $booking['wash_time'],
+                    'reason' => $hasReason ? $reasonText : null
+                ]);
+            }
+
+            if ($normalizedStatus === 'Cancelled') {
+                $cancelMessage = "Your booking for {$booking['service_package']} on {$booking['wash_date']} has been cancelled.";
+                if ($hasReason) {
+                    $cancelMessage .= " Reason: {$reasonText}";
+                }
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_cancelled', $cancelMessage, [
+                    'booking_id' => $bookingId,
+                    'service' => $booking['service_package'],
+                    'date' => $booking['wash_date'],
+                    'time' => $booking['wash_time'],
+                    'reason' => $hasReason ? $reasonText : null
+                ]);
+            }
+
             // When employee marks as DONE → notify ADMIN only
             if ($normalizedStatus === 'Done') {
                 $employeeName = '';
@@ -695,7 +734,6 @@ class Put {
             }
             
             $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
-            error_log("🔔 EMPLOYEE_ASSIGNED: About to send notification to employee {$employeeId}");
             sendNotification($this->pdo, 'employee', $employeeId, 'booking_assigned', "New assignment: {$customerName} — {$booking['service_package']} on {$booking['wash_date']}", [
                 'booking_id' => $bookingId,
                 'customer_id' => $booking['customer_id'],
