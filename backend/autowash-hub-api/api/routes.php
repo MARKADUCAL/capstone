@@ -165,15 +165,38 @@ if ($method === 'GET') {
 
     if (strpos($request, 'notifications') !== false) {
         $user = getAuthenticatedUser();
-        $stmt = $pdo->prepare("SELECT id, user_role, user_id, type, message, data, is_read, created_at FROM notifications WHERE user_role = ? AND user_id = ? AND is_read = 0 ORDER BY created_at DESC");
-        $stmt->execute([$user['role'], $user['id']]);
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = min(25, max(1, (int)($_GET['per_page'] ?? 5)));
+        $offset = ($page - 1) * $perPage;
+
+        $countStmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_role = ? AND user_id = ?");
+        $countStmt->execute([$user['role'], $user['id']]);
+        $total = (int)$countStmt->fetchColumn();
+
+        $unreadStmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_role = ? AND user_id = ? AND is_read = 0");
+        $unreadStmt->execute([$user['role'], $user['id']]);
+        $unreadCount = (int)$unreadStmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT id, user_role, user_id, type, message, data, is_read, created_at FROM notifications WHERE user_role = ? AND user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt->bindValue(1, $user['role']);
+        $stmt->bindValue(2, $user['id'], PDO::PARAM_INT);
+        $stmt->bindValue(3, $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(4, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($notifications as &$notification) {
             $notification['data'] = $notification['data'] ? json_decode($notification['data'], true) : [];
             $notification['is_read'] = (int)$notification['is_read'];
         }
         unset($notification);
-        echo json_encode(sendRoutePayload(['notifications' => $notifications, 'unread_count' => count($notifications)], 'success', 'Notifications fetched', 200));
+        echo json_encode(sendRoutePayload([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
+            'total' => $total,
+            'page' => $page,
+            'per_page' => $perPage,
+            'total_pages' => max(1, (int)ceil($total / $perPage))
+        ], 'success', 'Notifications fetched', 200));
         exit();
     }
 

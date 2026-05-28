@@ -14,6 +14,9 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   notifications: AppNotification[] = [];
   dropdownOpen = false;
+  currentPage = 1;
+  totalPages = 1;
+  perPage = 5;
   private subscription: Subscription | null = null;
 
   constructor(private notificationService: NotificationService) {}
@@ -33,21 +36,43 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.dropdownOpen = !this.dropdownOpen;
     if (this.dropdownOpen) {
+      this.currentPage = 1;
       this.loadNotifications();
     }
   }
 
   onNotifClick(notification: AppNotification) {
+    if (notification.is_read === 1) return;
+
     this.notificationService.markAsRead(notification.id).subscribe(() => {
-      this.notifications = this.notifications.filter((item) => item.id !== notification.id);
+      notification.is_read = 1;
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
     });
   }
 
   markAllAsRead(event: Event) {
     event.stopPropagation();
     this.notificationService.markAllAsRead().subscribe(() => {
-      this.notifications = [];
+      this.notifications = this.notifications.map((notification) => ({
+        ...notification,
+        is_read: 1,
+      }));
+      this.unreadCount = 0;
     });
+  }
+
+  previousPage(event: Event) {
+    event.stopPropagation();
+    if (this.currentPage <= 1) return;
+    this.currentPage--;
+    this.loadNotifications();
+  }
+
+  nextPage(event: Event) {
+    event.stopPropagation();
+    if (this.currentPage >= this.totalPages) return;
+    this.currentPage++;
+    this.loadNotifications();
   }
 
   @HostListener('document:click')
@@ -56,9 +81,11 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   private loadNotifications() {
-    this.notificationService.getNotifications().subscribe((response) => {
+    this.notificationService.getNotifications(this.currentPage, this.perPage).subscribe((response) => {
       this.notifications = response.notifications || [];
       this.unreadCount = response.unread_count || 0;
+      this.totalPages = response.total_pages || 1;
+      this.currentPage = response.page || this.currentPage;
     });
   }
 }

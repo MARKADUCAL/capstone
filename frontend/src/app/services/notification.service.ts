@@ -41,12 +41,12 @@ export class NotificationService {
     this.unreadCount.next(0);
   }
 
-  getNotifications() {
+  getNotifications(page = 1, perPage = 5) {
     return this.http
-      .get<any>(`${environment.apiUrl}/notifications`, { headers: this.getHeaders() })
+      .get<any>(`${environment.apiUrl}/notifications?page=${page}&per_page=${perPage}`, { headers: this.getHeaders() })
       .pipe(
-        map((response) => response.payload || { notifications: [], unread_count: 0 }),
-        catchError(() => of({ notifications: [], unread_count: 0 }))
+        map((response) => response.payload || { notifications: [], unread_count: 0, total: 0, page, per_page: perPage, total_pages: 1 }),
+        catchError(() => of({ notifications: [], unread_count: 0, total: 0, page, per_page: perPage, total_pages: 1 }))
       );
   }
 

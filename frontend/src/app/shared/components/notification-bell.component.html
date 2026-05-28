@@ -18,6 +18,7 @@
         class="notification-item"
         *ngFor="let notification of notifications"
         [class.unread]="notification.is_read === 0"
+        [class.read]="notification.is_read === 1"
         (click)="onNotifClick(notification)"
       >
         <span class="notification-message">{{ notification.message }}</span>
@@ -28,5 +29,11 @@
     <ng-template #emptyState>
       <div class="empty-state">No new notifications</div>
     </ng-template>
+
+    <div class="pagination-controls" *ngIf="totalPages > 1">
+      <button type="button" (click)="previousPage($event)" [disabled]="currentPage <= 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button type="button" (click)="nextPage($event)" [disabled]="currentPage >= totalPages">Next</button>
+    </div>
   </div>
 </div>
