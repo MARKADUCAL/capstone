@@ -2,6 +2,9 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  height: 42px;
+  vertical-align: middle;
   font-family: Inter, sans-serif;
 }
 
@@ -9,6 +12,7 @@
   position: relative;
   width: 42px;
   height: 42px;
+  line-height: 1;
   border: none;
   border-radius: 50%;
   background: #fff;
@@ -26,7 +30,10 @@
 }
 
 .bell-button i {
-  font-size: 1.2rem;
+  color: #c0186a;
+  font-size: 20px;
+  line-height: 1;
+  display: block;
 }
 
 .notification-badge {
