@@ -116,7 +116,7 @@ export class DashboardComponent implements OnInit {
   private isBrowser: boolean;
   private shouldUseCompactCalendarLabels = false;
   private autoRefreshSub: Subscription | null = null;
-  private readonly autoRefreshMs = 30_000;
+  private readonly autoRefreshMs = 120_000; // Increased to 2 minutes to reduce API load
 
   get currentMonthYear(): string {
     const monthNames = [
@@ -257,7 +257,10 @@ export class DashboardComponent implements OnInit {
           this.dailyStats.totalBookings = 0;
         }
       },
-      error: () => {
+      error: (error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching booking count:', error);
+        }
         this.dailyStats.totalBookings = 0;
       },
     });
@@ -274,7 +277,10 @@ export class DashboardComponent implements OnInit {
           this.dailyStats.completedTasks = 0;
         }
       },
-      error: () => {
+      error: (error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching completed booking count:', error);
+        }
         this.dailyStats.completedTasks = 0;
       },
     });
@@ -291,7 +297,10 @@ export class DashboardComponent implements OnInit {
           this.dailyStats.pendingTasks = 0;
         }
       },
-      error: () => {
+      error: (error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching pending booking count:', error);
+        }
         this.dailyStats.pendingTasks = 0;
       },
     });
@@ -319,7 +328,9 @@ export class DashboardComponent implements OnInit {
         this.dailyStats.customerRating = Number(average.toFixed(1));
       },
       error: (error) => {
-        console.error('Error loading customer rating:', error);
+        if (error.status !== 429) {
+          console.error('Error loading customer rating:', error);
+        }
         this.dailyStats.customerRating = 0;
       },
     });

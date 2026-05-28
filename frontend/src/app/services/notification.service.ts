@@ -28,7 +28,8 @@ export class NotificationService {
     if (this.pollingSubscription) return;
 
     this.fetchUnreadCount().subscribe();
-    this.pollingSubscription = interval(15000)
+    // Increased interval from 15s to 30s to reduce API load
+    this.pollingSubscription = interval(30000)
       .pipe(switchMap(() => this.fetchUnreadCount()))
       .subscribe();
   }
@@ -71,7 +72,11 @@ export class NotificationService {
           this.unreadCount.next(count);
           return count;
         }),
-        catchError(() => {
+        catchError((error) => {
+          // If rate limited (429), don't spam console
+          if (error.status !== 429) {
+            console.error('Error fetching notification count:', error);
+          }
           this.unreadCount.next(0);
           return of(0);
         })

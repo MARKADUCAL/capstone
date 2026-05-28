@@ -252,8 +252,8 @@ export class DashboardComponent implements OnInit {
 
   private autoRefreshSub: Subscription | null = null;
   private countdownSub: Subscription | null = null;
-  private readonly autoRefreshMs = 60_000; // 1 minute
-  refreshCountdown = 60; // Countdown in seconds
+  private readonly autoRefreshMs = 120_000; // Increased to 2 minutes to reduce API load
+  refreshCountdown = 120; // Countdown in seconds
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -280,7 +280,7 @@ export class DashboardComponent implements OnInit {
       if (this.isLoading) return;
       this.loadDashboardData();
       // Reset countdown when data refreshes
-      this.refreshCountdown = 60;
+      this.refreshCountdown = 120;
     });
   }
 
@@ -293,8 +293,8 @@ export class DashboardComponent implements OnInit {
       if (this.refreshCountdown > 0) {
         this.refreshCountdown--;
       } else {
-        // Reset to 60 when it reaches 0
-        this.refreshCountdown = 60;
+        // Reset to 120 when it reaches 0
+        this.refreshCountdown = 120;
       }
     });
   }
@@ -393,8 +393,11 @@ export class DashboardComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error fetching dashboard summary:', error);
-          this.showError('Failed to load dashboard summary');
+          // Suppress console spam for rate limit errors
+          if (error.status !== 429) {
+            console.error('Error fetching dashboard summary:', error);
+            this.showError('Failed to load dashboard summary');
+          }
           // Fallback to individual API calls
           this.loadIndividualStats();
         },
@@ -412,19 +415,25 @@ export class DashboardComponent implements OnInit {
     forkJoin({
       customerCount: this.http.get(`${this.apiUrl}/get_customer_count`).pipe(
         catchError((error) => {
-          console.error('Error fetching customer count:', error);
+          if (error.status !== 429) {
+            console.error('Error fetching customer count:', error);
+          }
           return of(null);
         }),
       ),
       employees: this.http.get(`${this.apiUrl}/get_all_employees`).pipe(
         catchError((error) => {
-          console.error('Error fetching employees:', error);
+          if (error.status !== 429) {
+            console.error('Error fetching employees:', error);
+          }
           return of(null);
         }),
       ),
       bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
         catchError((error) => {
-          console.error('Error fetching booking count:', error);
+          if (error.status !== 429) {
+            console.error('Error fetching booking count:', error);
+          }
           return of(null);
         }),
       ),
@@ -432,7 +441,9 @@ export class DashboardComponent implements OnInit {
         .get(`${this.apiUrl}/get_completed_booking_count`)
         .pipe(
           catchError((error) => {
-            console.error('Error fetching completed booking count:', error);
+            if (error.status !== 429) {
+              console.error('Error fetching completed booking count:', error);
+            }
             return of(null);
           }),
         ),
@@ -440,7 +451,9 @@ export class DashboardComponent implements OnInit {
         .get(`${this.apiUrl}/get_pending_booking_count`)
         .pipe(
           catchError((error) => {
-            console.error('Error fetching pending booking count:', error);
+            if (error.status !== 429) {
+              console.error('Error fetching pending booking count:', error);
+            }
             return of(null);
           }),
         ),
@@ -613,8 +626,10 @@ export class DashboardComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error fetching employees for count:', error);
-          this.showError('Failed to load employee count');
+          if (error.status !== 429) {
+            console.error('Error fetching employees for count:', error);
+            this.showError('Failed to load employee count');
+          }
         },
         complete: () => resolve(),
       });
@@ -724,8 +739,10 @@ export class DashboardComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error fetching recent bookings:', error);
-          this.showError('Failed to load recent bookings');
+          if (error.status !== 429) {
+            console.error('Error fetching recent bookings:', error);
+            this.showError('Failed to load recent bookings');
+          }
         },
         complete: () => resolve(),
       });
