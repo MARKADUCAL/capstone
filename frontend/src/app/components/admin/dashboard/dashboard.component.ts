@@ -23,7 +23,7 @@ import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 import Swal from 'sweetalert2';
-import { Subscription, interval, forkJoin, concat, of } from 'rxjs';
+import { Subscription, forkJoin, concat, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 interface BusinessStats {
@@ -110,7 +110,7 @@ interface CalendarDay {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   businessStats: BusinessStats = {
     totalCustomers: 0,
     totalBookings: 0,
@@ -252,16 +252,13 @@ export class DashboardComponent implements OnInit {
 
   private autoRefreshSub: Subscription | null = null;
   private countdownSub: Subscription | null = null;
-  private readonly autoRefreshMs = 120_000; // Increased to 2 minutes to reduce API load
-  refreshCountdown = 120; // Countdown in seconds
+  private employeeCountLoaded = false;
+  refreshCountdown = 0;
 
   ngOnInit(): void {
     this.loadDashboardData();
     this.generateCalendar();
     this.checkFirstTimeLogin();
-
-    this.startAutoRefresh();
-    this.startCountdown();
   }
 
   ngOnDestroy(): void {
@@ -269,34 +266,6 @@ export class DashboardComponent implements OnInit {
     this.autoRefreshSub = null;
     this.countdownSub?.unsubscribe();
     this.countdownSub = null;
-  }
-
-  private startAutoRefresh(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    if (this.autoRefreshSub) return;
-
-    this.autoRefreshSub = interval(this.autoRefreshMs).subscribe(() => {
-      // Avoid stacking refresh calls if a load is already in progress.
-      if (this.isLoading) return;
-      this.loadDashboardData();
-      // Reset countdown when data refreshes
-      this.refreshCountdown = 120;
-    });
-  }
-
-  private startCountdown(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    if (this.countdownSub) return;
-
-    // Update countdown every second
-    this.countdownSub = interval(1000).subscribe(() => {
-      if (this.refreshCountdown > 0) {
-        this.refreshCountdown--;
-      } else {
-        // Reset to 120 when it reaches 0
-        this.refreshCountdown = 120;
-      }
-    });
   }
 
   private checkFirstTimeLogin(): void {
@@ -421,14 +390,6 @@ export class DashboardComponent implements OnInit {
           return of(null);
         }),
       ),
-      employees: this.http.get(`${this.apiUrl}/get_all_employees`).pipe(
-        catchError((error) => {
-          if (error.status !== 429) {
-            console.error('Error fetching employees:', error);
-          }
-          return of(null);
-        }),
-      ),
       bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
         catchError((error) => {
           if (error.status !== 429) {
@@ -469,26 +430,6 @@ export class DashboardComponent implements OnInit {
           ).payload.total_customers;
         }
 
-        // Process employee count
-        if (
-          results.employees &&
-          (results.employees as any)?.status?.remarks === 'success'
-        ) {
-          const employees = (results.employees as any).payload?.employees;
-          if (Array.isArray(employees)) {
-            const hasApprovalFlag = employees.some(
-              (e: any) => 'is_approved' in e && e.is_approved !== undefined,
-            );
-            if (hasApprovalFlag) {
-              const approvedEmployees = employees.filter(
-                (employee: any) => employee.is_approved === 1,
-              );
-              this.businessStats.totalEmployees = approvedEmployees.length;
-            } else {
-              this.businessStats.totalEmployees = employees.length;
-            }
-          }
-        }
 
         // Process booking count
         if (
@@ -601,6 +542,11 @@ export class DashboardComponent implements OnInit {
   }
 
   private updateEmployeeCountIncludingPending(): Promise<void> {
+    if (this.employeeCountLoaded) {
+      return Promise.resolve();
+    }
+
+    this.employeeCountLoaded = true;
     return new Promise((resolve) => {
       this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
         next: (response: any) => {
