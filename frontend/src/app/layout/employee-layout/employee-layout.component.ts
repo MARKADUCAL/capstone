@@ -19,6 +19,8 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { Subscription, filter, map } from 'rxjs';
+import { NotificationBellComponent } from '../../shared/components/notification-bell.component';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-employee-layout',
@@ -29,6 +31,7 @@ import { Subscription, filter, map } from 'rxjs';
     RouterLinkActive,
     RouterModule,
     ClickOutsideDirective,
+    NotificationBellComponent,
   ],
   templateUrl: './employee-layout.component.html',
   styleUrl: './employee-layout.component.css',
@@ -52,6 +55,7 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private notificationService: NotificationService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     // Initialize the subscription
@@ -62,6 +66,7 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.loadUserData();
       this.setupRouteTitleTracking();
+      this.notificationService.startPolling();
     }
   }
 
@@ -185,6 +190,7 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
       // Clear any local storage items
       localStorage.removeItem('employee_token');
       localStorage.removeItem('employee_data');
+      this.notificationService.stopPolling();
 
       // Reset body overflow to ensure scrolling works after logout
       document.body.style.overflow = 'auto';

@@ -17,10 +17,12 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription, filter, map } from 'rxjs';
 import { routerTransition } from '../../animations/page-animations';
+import { NotificationBellComponent } from '../../shared/components/notification-bell.component';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-customer-layout',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, NotificationBellComponent],
   templateUrl: './customer-layout.component.html',
   styleUrl: './customer-layout.component.css',
   standalone: true,
@@ -45,6 +47,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private notificationService: NotificationService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
@@ -53,6 +56,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
       this.loadUserData();
       this.setupRouteTitleTracking();
       this.setupNavigationListener();
+      this.notificationService.startPolling();
     }
   }
 
@@ -189,6 +193,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
       // Clear the local storage or cookies
       localStorage.removeItem('auth_token');
       localStorage.removeItem('customer_data');
+      this.notificationService.stopPolling();
 
       // Reset body overflow to ensure scrolling works after logout
       document.body.style.overflow = 'auto';

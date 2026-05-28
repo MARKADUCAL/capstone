@@ -11,6 +11,7 @@ error_reporting(E_ALL);
 
 
 require_once "global.php";
+require_once __DIR__ . '/notification_helper.php';
 // PHPMailer (no composer) - load classes directly if available
 if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
     $phpMailerBase = __DIR__ . '/../PHPMailer/src';
@@ -1475,6 +1476,22 @@ class Post extends GlobalMethods
 
 
             if ($statement->rowCount() > 0) {
+                $customerStmt = $this->pdo->prepare("SELECT first_name, last_name FROM customers WHERE id = ? LIMIT 1");
+                $customerStmt->execute([$data->customer_id]);
+                $customer = $customerStmt->fetch(PDO::FETCH_ASSOC);
+                $customerName = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
+                $adminStmt = $this->pdo->prepare("SELECT id FROM admins ORDER BY id ASC LIMIT 1");
+                $adminStmt->execute();
+                $adminId = $adminStmt->fetchColumn();
+                if ($adminId) {
+                    sendNotification($this->pdo, 'admin', $adminId, 'new_booking', "New booking from {$customerName} — {$data->service_package} on {$data->wash_date}", [
+                        'booking_id' => $nextId,
+                        'customer_id' => $data->customer_id,
+                        'service' => $data->service_package,
+                        'date' => $data->wash_date,
+                        'time' => $data->wash_time
+                    ]);
+                }
 
                 return $this->sendPayload(["booking_id" => $nextId], "success", "Booking created successfully", 201);
 

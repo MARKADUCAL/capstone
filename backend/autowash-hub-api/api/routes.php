@@ -60,6 +60,7 @@ require_once "./modules/get.php";
 require_once "./modules/post.php";
 require_once "./modules/put.php";
 require_once "./modules/upload.php";
+require_once "./modules/notification_helper.php";
 require_once "./config/database.php";
 
 // Manually include JWT library to ensure it's loaded
@@ -107,6 +108,43 @@ if ($method === 'OPTIONS') {
     exit();
 }
 
+function getAuthenticatedUser() {
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+
+    if (empty($authHeader) || strpos($authHeader, 'Bearer ') !== 0) {
+        http_response_code(401);
+        echo json_encode(['status' => ['remarks' => 'failed', 'message' => 'Authentication required'], 'payload' => null]);
+        exit();
+    }
+
+    $token = substr($authHeader, 7);
+    try {
+        $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+        $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+        return [
+            'role' => $decoded->aud,
+            'id' => $decoded->data->id
+        ];
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(['status' => ['remarks' => 'failed', 'message' => 'Invalid token'], 'payload' => null]);
+        exit();
+    }
+}
+
+function sendRoutePayload($payload, $remarks, $message, $code) {
+    http_response_code($code);
+    return [
+        'status' => [
+            'remarks' => $remarks,
+            'message' => $message
+        ],
+        'payload' => $payload,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+}
+
 // Handle GET requests
 if ($method === 'GET') {
     // Serve uploaded files via API to bypass static hosting restrictions
@@ -117,6 +155,28 @@ if ($method === 'GET') {
         $uploadHandler->serveFile($filename);
         exit();
     }
+    if (strpos($request, 'notifications/count') !== false) {
+        $user = getAuthenticatedUser();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_role = ? AND user_id = ? AND is_read = 0");
+        $stmt->execute([$user['role'], $user['id']]);
+        echo json_encode(sendRoutePayload(['unread_count' => (int)$stmt->fetchColumn()], 'success', 'Unread notification count fetched', 200));
+        exit();
+    }
+
+    if (strpos($request, 'notifications') !== false) {
+        $user = getAuthenticatedUser();
+        $stmt = $pdo->prepare("SELECT id, user_role, user_id, type, message, data, is_read, created_at FROM notifications WHERE user_role = ? AND user_id = ? AND is_read = 0 ORDER BY created_at DESC");
+        $stmt->execute([$user['role'], $user['id']]);
+        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($notifications as &$notification) {
+            $notification['data'] = $notification['data'] ? json_decode($notification['data'], true) : [];
+            $notification['is_read'] = (int)$notification['is_read'];
+        }
+        unset($notification);
+        echo json_encode(sendRoutePayload(['notifications' => $notifications, 'unread_count' => count($notifications)], 'success', 'Notifications fetched', 200));
+        exit();
+    }
+
     // Status page for root access
     if ($request === '/' || $request === '/api/' || $request === '/api' || strpos($request, 'status') !== false) {
         header('Content-Type: text/html; charset=utf-8');
@@ -647,6 +707,26 @@ if ($method === 'POST') {
     // Get POST data
     $data = json_decode(file_get_contents("php://input"));
     
+    if (strpos($request, 'notifications/read-all') !== false) {
+        $user = getAuthenticatedUser();
+        $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE user_role = ? AND user_id = ? AND is_read = 0");
+        $stmt->execute([$user['role'], $user['id']]);
+        echo json_encode(sendRoutePayload(null, 'success', 'All notifications marked as read', 200));
+        exit();
+    }
+
+    if (strpos($request, 'notifications/read') !== false) {
+        $user = getAuthenticatedUser();
+        if (empty($data->id)) {
+            echo json_encode(sendRoutePayload(null, 'failed', 'Notification ID is required', 400));
+            exit();
+        }
+        $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_role = ? AND user_id = ?");
+        $stmt->execute([$data->id, $user['role'], $user['id']]);
+        echo json_encode(sendRoutePayload(null, 'success', 'Notification marked as read', 200));
+        exit();
+    }
+
     if (strpos($request, 'register_customer') !== false) {
         $result = $post->register_customer($data);
         echo json_encode($result);

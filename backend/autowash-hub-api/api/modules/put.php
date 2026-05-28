@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/notification_helper.php';
 
 class Put {
     private $pdo;
@@ -534,12 +535,12 @@ class Put {
             error_log("New status: " . $data->status);
             
             // Check if booking exists first
-            $sql = "SELECT COUNT(*) FROM bookings WHERE id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
-            $bookingExists = $stmt->fetchColumn();
-            
-            if (!$bookingExists) {
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$booking) {
                 throw new Exception("Booking not found");
             }
             
@@ -592,6 +593,20 @@ class Put {
                 throw new Exception("No rows were updated");
             }
             
+            if (in_array($normalizedStatus, ['Approved', 'Rejected'], true)) {
+                $type = $normalizedStatus === 'Approved' ? 'booking_approved' : 'booking_rejected';
+                $message = $normalizedStatus === 'Approved'
+                    ? "Your booking on {$booking['wash_date']} has been approved! See you at Leydi Boss."
+                    : "Your booking on {$booking['wash_date']} was not approved. Please rebook or contact us.";
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], $type, $message, [
+                    'booking_id' => $bookingId,
+                    'service' => $booking['service_package'],
+                    'date' => $booking['wash_date'],
+                    'time' => $booking['wash_time'],
+                    'status' => $normalizedStatus
+                ]);
+            }
+
             error_log("Booking status updated successfully");
             return $this->sendPayload(null, "success", "Booking status updated successfully", 200);
             
@@ -617,12 +632,12 @@ class Put {
             error_log("Assigning employee {$employeeId} to booking {$bookingId}");
             
             // Check if booking exists
-            $sql = "SELECT COUNT(*) FROM bookings WHERE id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
-            $bookingExists = $stmt->fetchColumn();
-            
-            if (!$bookingExists) {
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$booking) {
                 throw new Exception("Booking not found");
             }
             
@@ -652,6 +667,16 @@ class Put {
                 throw new Exception("No rows were updated");
             }
             
+            $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
+            sendNotification($this->pdo, 'employee', $employeeId, 'booking_assigned', "You have a new assignment: {$customerName} — {$booking['service_package']} on {$booking['wash_date']}", [
+                'booking_id' => $bookingId,
+                'customer_id' => $booking['customer_id'],
+                'customer_name' => $customerName,
+                'service' => $booking['service_package'],
+                'date' => $booking['wash_date'],
+                'time' => $booking['wash_time']
+            ]);
+
             error_log("Employee assigned to booking successfully");
             return $this->sendPayload(null, "success", "Employee assigned to booking successfully", 200);
             
