@@ -535,7 +535,7 @@ class Put {
             error_log("New status: " . $data->status);
             
             // Check if booking exists first
-            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.vehicle_model, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -595,9 +595,12 @@ class Put {
 
             // When admin APPROVES booking → notify CUSTOMER
             if ($normalizedStatus === 'Approved') {
-                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_approved', "Your booking for {$booking['service_package']} on {$booking['wash_date']} has been approved! See you at Leydi Boss.", [
+                $bookingItem = trim((string)($booking['vehicle_model'] ?? '')) ?: $booking['service_package'];
+                $formattedDate = date('F j, Y', strtotime($booking['wash_date']));
+                sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_approved', "Great news! Your booking for {$bookingItem} scheduled for {$formattedDate} is confirmed. See you soon at Leydi Boss.", [
                     'booking_id' => $bookingId,
                     'service' => $booking['service_package'],
+                    'vehicle_model' => $booking['vehicle_model'] ?? null,
                     'date' => $booking['wash_date'],
                     'time' => $booking['wash_time']
                 ]);
@@ -698,7 +701,7 @@ class Put {
             error_log("Assigning employee {$employeeId} to booking {$bookingId}");
             
             // Check if booking exists
-            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.vehicle_model, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
