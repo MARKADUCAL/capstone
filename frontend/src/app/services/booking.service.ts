@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, map, catchError } from 'rxjs/operators';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { catchError, delay, map, mergeMap, retryWhen } from 'rxjs/operators';
 import { Booking, BookingForm, BookingStatus } from '../models/booking.model';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../environments/environment';
@@ -72,6 +72,23 @@ export class BookingService {
         `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
       )
       .pipe(
+        retryWhen((errors) =>
+          errors.pipe(
+            mergeMap((error, index) => {
+              const retryAttempt = index + 1;
+              const shouldRetry =
+                retryAttempt <= 3 &&
+                (error.status === 429 ||
+                  (error.status >= 500 && error.status < 600));
+
+              if (!shouldRetry) {
+                return throwError(() => error);
+              }
+
+              return timer(1000 * Math.pow(2, index));
+            }),
+          ),
+        ),
         map((response) => {
           console.log('API Response:', response);
           if (response && response.payload && response.payload.bookings) {

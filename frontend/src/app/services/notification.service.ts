@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Subscription, interval, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Subscription, interval, of, throwError, timer } from 'rxjs';
+import { catchError, map, mergeMap, retryWhen, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface AppNotification {
@@ -21,15 +21,17 @@ export interface AppNotification {
 export class NotificationService {
   unreadCount = new BehaviorSubject<number>(0);
   private pollingSubscription: Subscription | null = null;
+  private readonly POLLING_INTERVAL_MS = 60000;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY_MS = 1000;
 
   constructor(private http: HttpClient) {}
 
   startPolling() {
     if (this.pollingSubscription) return;
 
-    this.fetchUnreadCount().subscribe();
-    // Increased interval from 15s to 30s to reduce API load
-    this.pollingSubscription = interval(30000)
+    timer(1500).pipe(switchMap(() => this.fetchUnreadCount())).subscribe();
+    this.pollingSubscription = interval(this.POLLING_INTERVAL_MS)
       .pipe(switchMap(() => this.fetchUnreadCount()))
       .subscribe();
   }
@@ -72,19 +74,31 @@ export class NotificationService {
     return this.http
       .get<any>(`${environment.apiUrl}/notifications/count`, { headers: this.getHeaders() })
       .pipe(
+        retryWhen((errors) =>
+          errors.pipe(
+            mergeMap((error, index) => {
+              const retryAttempt = index + 1;
+              const shouldRetry =
+                retryAttempt <= this.MAX_RETRIES &&
+                (error.status === 429 ||
+                  (error.status >= 500 && error.status < 600));
+
+              if (!shouldRetry) {
+                return throwError(() => error);
+              }
+
+              return timer(this.RETRY_DELAY_MS * Math.pow(2, index));
+            }),
+          ),
+        ),
         map((response) => {
           const count = response?.payload?.unread_count ?? 0;
           this.unreadCount.next(count);
           return count;
         }),
         catchError((error) => {
-          if (error.status === 429) {
-            this.stopPolling();
-          } else {
-            console.error('Error fetching notification count:', error);
-            this.unreadCount.next(0);
-          }
-          return of(0);
+          console.error('Error fetching notification count:', error);
+          return of(this.unreadCount.value);
         })
       );
   }

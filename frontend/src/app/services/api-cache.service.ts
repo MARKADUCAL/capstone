@@ -55,8 +55,8 @@ export class ApiCacheService {
 
             const shouldRetry =
               retryAttempt <= this.MAX_RETRIES &&
-              error.status >= 500 &&
-              error.status < 600;
+              (error.status === 429 ||
+                (error.status >= 500 && error.status < 600));
 
             if (shouldRetry) {
               // Exponential backoff: 1s, 2s, 4s

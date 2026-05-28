@@ -76,8 +76,8 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       this.loadCustomerData();
       this.loadServicePackages();
-      this.loadPricingData();
-      this.loadUserVehicles();
+      setTimeout(() => this.loadPricingData(), 400);
+      setTimeout(() => this.loadUserVehicles(), 800);
 
       // Listen for profile updates
       window.addEventListener(

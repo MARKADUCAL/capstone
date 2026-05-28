@@ -171,8 +171,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
     this.updateResponsiveState();
     if (this.isBrowser) {
       this.loadUserData();
-      this.loadServicePackages(); // Load service packages from database
-      this.loadPricingData(); // Load pricing data from database
+      setTimeout(() => this.loadServicePackages(), 800);
+      setTimeout(() => this.loadPricingData(), 1200);
 
       // Check for query parameters from pricing page
       this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
@@ -631,10 +631,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
         this.bookingForm.lastName = this.userLastName;
         this.bookingForm.phone = this.userPhone;
 
-        // Load bookings after user data is loaded
         this.loadBookings();
-        // Load customer vehicles
-        this.loadCustomerVehicles();
+        setTimeout(() => this.loadCustomerVehicles(), 400);
       } catch (error) {
       }
     } else {

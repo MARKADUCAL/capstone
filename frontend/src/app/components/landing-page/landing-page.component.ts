@@ -9,8 +9,8 @@ import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { of, throwError, timer } from 'rxjs';
+import { catchError, mergeMap, retryWhen, switchMap } from 'rxjs/operators';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -488,51 +488,81 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.pricingError = '';
 
-    // Load packages and pricing matrix from database (packages list is source of truth)
-    forkJoin({
-      packages: this.http
-        .get<any>(`${environment.apiUrl}/get_packages`)
-        .pipe(catchError(() => of(null))),
-      pricing: this.http
-        .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
-        .pipe(catchError(() => of(null))),
-    }).subscribe({
-      next: ({ packages: packagesRes, pricing: pricingRes }) => {
-        if (
-          packagesRes?.status?.remarks === 'success' &&
-          packagesRes?.payload?.packages
-        ) {
-          this.servicePackages = packagesRes.payload.packages.map(
-            (p: { code: string; description: string }) => ({
-              code: p.code,
-              description: p.description,
-            }),
-          );
-        }
-        if (pricingRes?.status?.remarks === 'success') {
-          this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
-          console.log('Loaded pricing matrix:', this.pricingMatrix);
-        } else {
-          console.error('Failed to load pricing matrix:', pricingRes);
+    this.http
+      .get<any>(`${environment.apiUrl}/get_packages`)
+      .pipe(
+        this.retryRateLimitedRequest(),
+        catchError(() => of(null)),
+        switchMap((packagesRes) =>
+          timer(400).pipe(
+            switchMap(() =>
+              this.http
+                .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
+                .pipe(
+                  this.retryRateLimitedRequest(),
+                  catchError(() => of(null)),
+                ),
+            ),
+            switchMap((pricingRes) => of({ packagesRes, pricingRes })),
+          ),
+        ),
+      )
+      .subscribe({
+        next: ({ packagesRes, pricingRes }) => {
+          if (
+            packagesRes?.status?.remarks === 'success' &&
+            packagesRes?.payload?.packages
+          ) {
+            this.servicePackages = packagesRes.payload.packages.map(
+              (p: { code: string; description: string }) => ({
+                code: p.code,
+                description: p.description,
+              }),
+            );
+          }
+          if (pricingRes?.status?.remarks === 'success') {
+            this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
+            console.log('Loaded pricing matrix:', this.pricingMatrix);
+          } else {
+            console.error('Failed to load pricing matrix:', pricingRes);
+            this.pricingMatrix = {};
+            this.pricingError =
+              pricingRes?.status?.message || 'Failed to load pricing matrix.';
+          }
+          if (this.servicePackages.length === 0) {
+            this.derivePackagesFromMatrix();
+          }
+          this.deriveVehicleTypes();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading pricing data:', error);
           this.pricingMatrix = {};
-          this.pricingError =
-            pricingRes?.status?.message || 'Failed to load pricing matrix.';
-        }
-        // If packages API failed, derive packages from pricing matrix as fallback
-        if (this.servicePackages.length === 0) {
-          this.derivePackagesFromMatrix();
-        }
-        this.deriveVehicleTypes();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading pricing data:', error);
-        this.pricingMatrix = {};
-        this.pricingError = 'Unable to load pricing data. Please try again.';
-        this.deriveVehicleTypes();
-        this.loading = false;
-      },
-    });
+          this.pricingError = 'Unable to load pricing data. Please try again.';
+          this.deriveVehicleTypes();
+          this.loading = false;
+        },
+      });
+  }
+
+  private retryRateLimitedRequest<T>() {
+    return retryWhen<T>((errors) =>
+      errors.pipe(
+        mergeMap((error, index) => {
+          const retryAttempt = index + 1;
+          const shouldRetry =
+            retryAttempt <= 3 &&
+            (error.status === 429 ||
+              (error.status >= 500 && error.status < 600));
+
+          if (!shouldRetry) {
+            return throwError(() => error);
+          }
+
+          return timer(1000 * Math.pow(2, index));
+        }),
+      ),
+    );
   }
 
   private deriveVehicleTypes(): void {
