@@ -14,8 +14,8 @@
   height: 42px;
   line-height: 1;
   border: none;
-  border-radius: 50%;
-  background: #fff;
+  border-radius: 0;
+  background: transparent;
   color: #c0186a;
   display: inline-flex;
   align-items: center;
@@ -25,15 +25,17 @@
 }
 
 .bell-button:hover {
-  background: #fce4ef;
+  background: transparent;
   transform: translateY(-1px);
 }
 
-.bell-button i {
+.bell-icon {
+  width: 22px;
+  height: 22px;
   color: #c0186a;
-  font-size: 20px;
-  line-height: 1;
+  fill: currentColor;
   display: block;
+  flex: 0 0 auto;
 }
 
 .notification-badge {

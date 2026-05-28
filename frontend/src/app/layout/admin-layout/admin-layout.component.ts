@@ -17,7 +17,6 @@ import {
   ActivatedRoute,
 } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { Subscription, filter, map } from 'rxjs';
 import { NotificationBellComponent } from '../../shared/components/notification-bell.component';
 import { NotificationService } from '../../services/notification.service';
@@ -30,7 +29,6 @@ import { NotificationService } from '../../services/notification.service';
     RouterLink,
     RouterLinkActive,
     RouterModule,
-    ClickOutsideDirective,
     NotificationBellComponent,
   ],
   templateUrl: './admin-layout.component.html',
