@@ -19,6 +19,15 @@
         }
     }
 
+    private function hasIndex(string $table, string $index): bool {
+        try {
+            $stmt = $this->pdo->query("SHOW INDEX FROM {$table} WHERE Key_name = '{$index}'");
+            return $stmt->rowCount() > 0;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
     private function ensureFeedbackEnhancements() {
         try {
             $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
@@ -335,6 +344,14 @@
 
         public function get_bookings_by_customer($customerId) {
             try {
+                if (empty($customerId) || !is_numeric($customerId)) {
+                    return $this->sendPayload(null, "failed", "Customer ID is required.", 400);
+                }
+
+                if (!$this->hasIndex('bookings', 'idx_bookings_customer_id')) {
+                    $this->pdo->exec("ALTER TABLE bookings ADD INDEX idx_bookings_customer_id (customer_id)");
+                }
+
                 $employeePositionSelect = $this->hasColumn('employees', 'position')
                     ? "e.position as employee_position"
                     : "NULL as employee_position";
@@ -387,11 +404,11 @@
                             employees e ON b.assigned_employee_id = e.id
                         WHERE 
                             b.customer_id = ?
-                        ORDER BY 
+                        ORDER BY
                             b.wash_date DESC, b.wash_time DESC";
-                
+
                 $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([$customerId]);
+                $stmt->execute([(int)$customerId]);
                 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 return $this->sendPayload(

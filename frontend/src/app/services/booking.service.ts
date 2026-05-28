@@ -85,7 +85,9 @@ export class BookingService {
           console.error('Error fetching bookings:', error);
           let errorMessage = 'Failed to load bookings.';
 
-          if (error.status === 404) {
+          if (error.status === 429) {
+            errorMessage = 'Too many booking requests. Please wait before trying again.';
+          } else if (error.status === 404) {
             errorMessage = 'No bookings found for this customer.';
           } else if (error.status === 401) {
             errorMessage = 'Authentication required. Please log in again.';

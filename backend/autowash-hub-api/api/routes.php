@@ -384,14 +384,15 @@ if ($method === 'GET') {
     }
 
     if (strpos($request, 'get_bookings_by_customer') !== false) {
-        if (isset($_GET['customer_id'])) {
-            $customerId = $_GET['customer_id'];
-            $result = $get->get_bookings_by_customer($customerId);
-            echo json_encode($result);
-        } else {
+        if (!isset($_GET['customer_id']) || trim((string)$_GET['customer_id']) === '') {
             http_response_code(400);
-            echo json_encode(['message' => 'Customer ID is required.']);
+            echo json_encode(sendRoutePayload(null, 'failed', 'Customer ID is required.', 400));
+            exit();
         }
+
+        $customerId = $_GET['customer_id'];
+        $result = $get->get_bookings_by_customer($customerId);
+        echo json_encode($result);
         exit();
     }
     

@@ -19,7 +19,7 @@ import {
   VEHICLE_TYPES,
   VEHICLE_TYPE_CODES,
 } from '../../../models/booking.model';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { pageEntranceAnimation } from '../../../animations/page-animations';
@@ -64,6 +64,9 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
   readonly vehicleTypeCodes = VEHICLE_TYPE_CODES;
 
   private isBrowser: boolean;
+  private readonly destroy$ = new Subject<void>();
+  private readonly handleVisibilityChangeBound = this.handleVisibilityChange.bind(this);
+  private bookingsLoaded = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -81,7 +84,7 @@ export class TranactionHitoryComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       document.addEventListener(
         'visibilitychange',
-        this.handleVisibilityChange.bind(this),
+        this.handleVisibilityChangeBound,
       );
     }
   }
@@ -100,15 +103,16 @@ this.errorMessage = 'Unable to open booking page. Please try again.';
     if (this.isBrowser) {
       document.removeEventListener(
         'visibilitychange',
-        this.handleVisibilityChange.bind(this),
+        this.handleVisibilityChangeBound,
       );
+      this.destroy$.next();
+      this.destroy$.complete();
     }
   }
 
   private handleVisibilityChange(): void {
     if (!document.hidden) {
-      // Page became visible, refresh data to ensure consistency
-this.loadBookings();
+      this.loadBookings(true);
     }
   }
 
@@ -352,7 +356,7 @@ this.loadBookings();
     return `Package ${packageCode.toLowerCase()}`;
   }
 
-  loadBookings(): void {
+  loadBookings(force = false): void {
     if (this.isBrowser) {
 // Check if customer is logged in
       const customerData = localStorage.getItem('customer_data');
@@ -361,10 +365,17 @@ if (customerData) {
           const customer = JSON.parse(customerData);
           const customerId = customer.id;
 if (customerId) {
+            if (this.bookingsLoaded && !force) {
+              return;
+            }
+            this.bookingsLoaded = true;
             this.isLoading = true;
             this.errorMessage = null;
 
-            this.bookingService.getBookingsByCustomerId(customerId).subscribe({
+            this.bookingService
+              .getBookingsByCustomerId(customerId)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
               next: (bookings) => {
 // Sort bookings by washDate and washTime descending (newest first)
                 this.bookings = bookings.sort((a: any, b: any) => {
@@ -558,7 +569,7 @@ this.isFeedbackModalOpen = false;
           confirmButtonColor: '#3498db',
         });
 // Reload data from backend to ensure consistency
-await this.loadBookings();
+await this.loadBookings(true);
 } else {
 throw new Error('Failed to cancel booking');
       }
@@ -735,7 +746,7 @@ this.feedbackSuccessMessage =
           setTimeout(() => {
             this.closeFeedbackModal();
             // Reload bookings to refresh the data
-            this.loadBookings();
+            this.loadBookings(true);
           }, 2000);
         } else {
           throw new Error('Failed to update feedback');
@@ -773,7 +784,7 @@ this.feedbackSuccessMessage =
           setTimeout(() => {
             this.closeFeedbackModal();
             // Reload bookings to refresh the data
-            this.loadBookings();
+            this.loadBookings(true);
           }, 2000);
         } else {
           throw new Error('Failed to submit feedback');

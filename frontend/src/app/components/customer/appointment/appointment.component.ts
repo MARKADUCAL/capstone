@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   Inject,
   PLATFORM_ID,
   HostListener,
@@ -39,6 +40,7 @@ import { ServiceService, Service } from '../../../services/service.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiCacheService } from '../../../services/api-cache.service';
 import { pageEntranceAnimation } from '../../../animations/page-animations';
+import { Subject, takeUntil } from 'rxjs';
 
 interface CalendarDay {
   date: Date;
@@ -78,7 +80,7 @@ type CalendarStatusType =
   styleUrls: ['./appointment.component.css'],
   animations: [pageEntranceAnimation],
 })
-export class AppointmentComponent implements OnInit {
+export class AppointmentComponent implements OnInit, OnDestroy {
   // Properties for booking modal
   showBookingModal = false;
   isSubmitting = false;
@@ -149,6 +151,8 @@ export class AppointmentComponent implements OnInit {
   shouldUseCompactCalendarLabels = false;
   private readonly BUSINESS_DAY_START_MINUTES = 7 * 60; // 7:00 AM
   private readonly BUSINESS_DAY_END_MINUTES = 19 * 60 + 30; // 7:30 PM
+  private readonly destroy$ = new Subject<void>();
+  private bookingsLoaded = false;
 
   constructor(
     private bookingService: BookingService,
@@ -171,7 +175,7 @@ export class AppointmentComponent implements OnInit {
       this.loadPricingData(); // Load pricing data from database
 
       // Check for query parameters from pricing page
-      this.route.queryParams.subscribe((params) => {
+      this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
         const vehicleTypeCode = params['vehicle_type'];
         const servicePackageCode = params['service_package'];
         const vehicleId = params['vehicle_id'];
@@ -204,6 +208,11 @@ export class AppointmentComponent implements OnInit {
     }
 
     this.buildCalendar();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('window:resize')
@@ -633,24 +642,28 @@ export class AppointmentComponent implements OnInit {
   }
 
   // Load customer bookings
-  loadBookings(): void {
-    if (!this.userCustomerId) {
+  loadBookings(force = false): void {
+    if (!this.userCustomerId || (this.bookingsLoaded && !force)) {
       return;
     }
 
-    this.bookingService.getBookingsByCustomerId(this.userCustomerId).subscribe(
-      (bookings) => {
-        this.customerBookings = bookings;
-        this.rebuildBookingsByDate();
-        this.buildCalendar();
-      },
-      (error) => {
-        this.errorMessage = 'Failed to load bookings: ' + error.message;
-        this.customerBookings = [];
-        this.rebuildBookingsByDate();
-        this.buildCalendar();
-      },
-    );
+    this.bookingsLoaded = true;
+    this.bookingService
+      .getBookingsByCustomerId(this.userCustomerId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (bookings) => {
+          this.customerBookings = bookings;
+          this.rebuildBookingsByDate();
+          this.buildCalendar();
+        },
+        error: (error) => {
+          this.errorMessage = 'Failed to load bookings: ' + error.message;
+          this.customerBookings = [];
+          this.rebuildBookingsByDate();
+          this.buildCalendar();
+        },
+      });
   }
 
   // Load customer vehicles from database
@@ -1003,7 +1016,7 @@ export class AppointmentComponent implements OnInit {
       (response) => {
         this.isSubmitting = false;
         this.successMessage = 'Booking created successfully!';
-        this.loadBookings(); // Refresh the bookings list
+        this.loadBookings(true); // Refresh the bookings list
 
         Swal.fire({
           icon: 'success',
@@ -1293,7 +1306,7 @@ export class AppointmentComponent implements OnInit {
   payBooking(booking: Booking): void {
     this.bookingService.payForBooking(booking.id).subscribe((success) => {
       if (success) {
-        this.loadBookings(); // Refresh the bookings list
+        this.loadBookings(true); // Refresh the bookings list
       }
     });
   }
@@ -1311,7 +1324,7 @@ export class AppointmentComponent implements OnInit {
         .subscribe({
           next: (result) => {
             if (result && result.success) {
-              this.loadBookings(); // Refresh the bookings list
+              this.loadBookings(true); // Refresh the bookings list
             } else {
               this.errorMessage = 'Failed to cancel booking.';
             }
