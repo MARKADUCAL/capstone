@@ -53,11 +53,12 @@ export class ApiCacheService {
           mergeMap((error, index) => {
             const retryAttempt = index + 1;
 
-            // Only retry on 429 (rate limit) or 5xx errors
-            if (
+            const shouldRetry =
               retryAttempt <= this.MAX_RETRIES &&
-              (error.status === 429 || error.status >= 500)
-            ) {
+              error.status >= 500 &&
+              error.status < 600;
+
+            if (shouldRetry) {
               // Exponential backoff: 1s, 2s, 4s
               const delayTime = this.RETRY_DELAY * Math.pow(2, index);
               console.log(

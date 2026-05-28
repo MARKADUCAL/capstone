@@ -47,7 +47,12 @@ export class NotificationService {
       .get<any>(`${environment.apiUrl}/notifications?page=${page}&per_page=${perPage}`, { headers: this.getHeaders() })
       .pipe(
         map((response) => response.payload || { notifications: [], unread_count: 0, total: 0, page, per_page: perPage, total_pages: 1 }),
-        catchError(() => of({ notifications: [], unread_count: 0, total: 0, page, per_page: perPage, total_pages: 1 }))
+        catchError((error) => {
+          if (error.status === 429) {
+            this.stopPolling();
+          }
+          return of({ notifications: [], unread_count: 0, total: 0, page, per_page: perPage, total_pages: 1 });
+        })
       );
   }
 
@@ -73,11 +78,12 @@ export class NotificationService {
           return count;
         }),
         catchError((error) => {
-          // If rate limited (429), don't spam console
-          if (error.status !== 429) {
+          if (error.status === 429) {
+            this.stopPolling();
+          } else {
             console.error('Error fetching notification count:', error);
+            this.unreadCount.next(0);
           }
-          this.unreadCount.next(0);
           return of(0);
         })
       );
