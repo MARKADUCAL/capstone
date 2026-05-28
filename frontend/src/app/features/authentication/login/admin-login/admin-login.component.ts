@@ -62,11 +62,12 @@ export class AdminLoginComponent {
           this.isLoading = false;
           console.log('Login response:', response);
 
-          if (response.status && response.status.remarks === 'success') {
-            // Save token and admin data to localStorage if in browser
-            if (this.isBrowser && response.payload && response.payload.token) {
+          const token = response?.payload?.token;
+
+          if (response?.status?.remarks === 'success' && typeof token === 'string' && token.trim()) {
+            if (this.isBrowser) {
               try {
-                localStorage.setItem('admin_token', response.payload.token);
+                localStorage.setItem('admin_token', token);
                 localStorage.setItem('user_role', 'admin');
                 localStorage.setItem(
                   'admin_data',
@@ -76,18 +77,16 @@ export class AdminLoginComponent {
                 console.error('Error accessing localStorage:', err);
               }
 
-              // Show success message
               Swal.fire({
                 title: 'Login Successful!',
                 text: 'Welcome back!',
                 icon: 'success',
                 confirmButtonText: 'OK',
               }).then(() => {
-                // Navigate to admin dashboard
-                this.router.navigate(['/admin-view']);
+                this.router.navigate(['/admin-view/dashboard']);
               });
             } else {
-              this.errorMessage = 'Invalid response from server';
+              this.errorMessage = 'Invalid browser session';
             }
           } else {
             const errorMessage = response.status?.message || 'Login failed';

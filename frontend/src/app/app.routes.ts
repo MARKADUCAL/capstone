@@ -39,6 +39,7 @@ import { ProfileComponent as EmployeeProfileComponent } from './components/emplo
 import { ConnectionTestComponent } from './components/connection-test/connection-test.component';
 import { TermsComponent } from './components/legal/terms/terms.component';
 import { PrivacyComponent } from './components/legal/privacy/privacy.component';
+import { adminAuthGuard } from './guards/admin-auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -71,6 +72,8 @@ export const routes: Routes = [
   {
     path: 'admin-view',
     component: AdminLayoutComponent,
+    canActivate: [adminAuthGuard],
+    canActivateChild: [adminAuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'washing-point', component: WashingPointComponent },
