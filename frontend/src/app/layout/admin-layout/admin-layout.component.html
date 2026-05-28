@@ -129,10 +129,12 @@
       </div>
       <h2>{{ pageTitle }}</h2>
       <div class="user-info">
-        <app-notification-bell></app-notification-bell>
-        <div class="user-profile-display">
-          <div class="user-avatar-placeholder">{{ userInitials }}</div>
-          <span class="user-name">{{ fullName }}</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <app-notification-bell></app-notification-bell>
+          <div class="user-profile-display">
+            <div class="user-avatar-placeholder">{{ userInitials }}</div>
+            <span class="user-name">{{ fullName }}</span>
+          </div>
         </div>
       </div>
     </div>

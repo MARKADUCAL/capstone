@@ -13,7 +13,9 @@
   width: 42px;
   height: 42px;
   line-height: 1;
-  border: none;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
   border-radius: 0;
   background: transparent;
   color: #c0186a;
@@ -24,8 +26,16 @@
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.bell-button:hover {
+.bell-button:hover,
+.bell-button:focus,
+.bell-button:active {
   background: transparent;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.bell-button:hover {
   transform: translateY(-1px);
 }
 
