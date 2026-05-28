@@ -127,7 +127,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       notification.data?.customer ||
       notification.data?.booking_name ||
       notification.data?.booking ||
-      'AutoWashHub'
+      'Leydi Boss'
     );
   }
 
