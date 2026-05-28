@@ -535,7 +535,7 @@ class Put {
             error_log("New status: " . $data->status);
             
             // Check if booking exists first
-            $sql = "SELECT b.id, b.customer_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -593,18 +593,43 @@ class Put {
                 throw new Exception("No rows were updated");
             }
             
-            if (in_array($normalizedStatus, ['Approved', 'Rejected'], true)) {
-                $type = $normalizedStatus === 'Approved' ? 'booking_approved' : 'booking_rejected';
-                $message = $normalizedStatus === 'Approved'
-                    ? "Your booking on {$booking['wash_date']} has been approved! See you at Leydi Boss."
-                    : "Your booking on {$booking['wash_date']} was not approved. Please rebook or contact us.";
-                sendNotification($this->pdo, 'customer', $booking['customer_id'], $type, $message, [
-                    'booking_id' => $bookingId,
-                    'service' => $booking['service_package'],
-                    'date' => $booking['wash_date'],
-                    'time' => $booking['wash_time'],
-                    'status' => $normalizedStatus
-                ]);
+            sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_status_updated', "Your booking on {$booking['wash_date']} is now {$normalizedStatus}.", [
+                'booking_id' => $bookingId,
+                'service' => $booking['service_package'],
+                'date' => $booking['wash_date'],
+                'time' => $booking['wash_time'],
+                'status' => $normalizedStatus
+            ]);
+
+            if (in_array($normalizedStatus, ['Done', 'Completed'], true) && (($data->actor_role ?? null) === 'employee')) {
+                $employeeName = '';
+                $employeeId = $data->employee_id ?? $data->actor_id ?? $booking['assigned_employee_id'] ?? null;
+                if ($employeeId) {
+                    $employeeStmt = $this->pdo->prepare("SELECT first_name, last_name FROM employees WHERE id = ? LIMIT 1");
+                    $employeeStmt->execute([$employeeId]);
+                    $employee = $employeeStmt->fetch(PDO::FETCH_ASSOC);
+                    $employeeName = trim(($employee['first_name'] ?? '') . ' ' . ($employee['last_name'] ?? ''));
+                }
+                if ($employeeName === '') {
+                    $employeeName = 'Employee';
+                }
+                $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
+                $adminStmt = $this->pdo->prepare("SELECT id FROM admins ORDER BY id ASC");
+                $adminStmt->execute();
+                $adminIds = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($adminIds as $adminId) {
+                    sendNotification($this->pdo, 'admin', $adminId, 'booking_completed', "{$employeeName} has completed the booking for {$customerName} — {$booking['service_package']}", [
+                        'booking_id' => $bookingId,
+                        'customer_id' => $booking['customer_id'],
+                        'customer_name' => $customerName,
+                        'employee_id' => $employeeId,
+                        'employee_name' => $employeeName,
+                        'service' => $booking['service_package'],
+                        'date' => $booking['wash_date'],
+                        'time' => $booking['wash_time'],
+                        'status' => $normalizedStatus
+                    ]);
+                }
             }
 
             error_log("Booking status updated successfully");
@@ -632,7 +657,7 @@ class Put {
             error_log("Assigning employee {$employeeId} to booking {$bookingId}");
             
             // Check if booking exists
-            $sql = "SELECT b.id, b.customer_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
+            $sql = "SELECT b.id, b.customer_id, b.assigned_employee_id, b.service_package, b.wash_date, b.wash_time, c.first_name, c.last_name FROM bookings b LEFT JOIN customers c ON b.customer_id = c.id WHERE b.id = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$bookingId]);
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -668,6 +693,13 @@ class Put {
             }
             
             $customerName = trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? ''));
+            sendNotification($this->pdo, 'customer', $booking['customer_id'], 'booking_status_updated', "Your booking on {$booking['wash_date']} is now Approved.", [
+                'booking_id' => $bookingId,
+                'service' => $booking['service_package'],
+                'date' => $booking['wash_date'],
+                'time' => $booking['wash_time'],
+                'status' => 'Approved'
+            ]);
             sendNotification($this->pdo, 'employee', $employeeId, 'booking_assigned', "You have a new assignment: {$customerName} — {$booking['service_package']} on {$booking['wash_date']}", [
                 'booking_id' => $bookingId,
                 'customer_id' => $booking['customer_id'],

@@ -1105,6 +1105,19 @@ if ($method === 'PUT') {
 
     if (strpos($request, 'update_booking_status') !== false) {
         error_log("Processing update_booking_status request");
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        if (!empty($authHeader) && strpos($authHeader, 'Bearer ') === 0) {
+            try {
+                $token = substr($authHeader, 7);
+                $key = getenv('JWT_SECRET') ?: 'default_secret_key';
+                $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+                $data->actor_role = $decoded->aud ?? null;
+                $data->actor_id = $decoded->data->id ?? null;
+            } catch (Exception $e) {
+                error_log("Unable to decode update_booking_status actor: " . $e->getMessage());
+            }
+        }
         $result = $put->update_booking_status($data);
         error_log("update_booking_status result: " . json_encode($result));
         echo json_encode($result);
