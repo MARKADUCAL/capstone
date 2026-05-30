@@ -15,17 +15,25 @@
     </div>
 
     <div class="notification-list" *ngIf="notifications.length > 0; else emptyState">
-      <button
-        type="button"
-        class="notification-item"
-        *ngFor="let notification of notifications"
-        [class.unread]="notification.is_read === 0"
-        [class.read]="notification.is_read === 1"
-        (click)="onNotifClick(notification)"
-      >
-        <span class="notification-message">{{ notification.message }}</span>
-        <span class="notification-date">{{ notification.created_at | timezone: 'MMM d, y h:mm a' }}</span>
-      </button>
+      <div *ngFor="let group of groupedNotifications" class="notification-group">
+        <div class="group-date-header">{{ group.date }}</div>
+        <button
+          type="button"
+          class="notification-item"
+          *ngFor="let notification of group.notifications"
+          [class.unread]="notification.is_read === 0"
+          [class.read]="notification.is_read === 1"
+          (click)="onNotifClick(notification)"
+        >
+          <div class="notification-content">
+            <div class="notification-indicator" *ngIf="notification.is_read === 0"></div>
+            <div class="notification-text">
+              <span class="notification-message">{{ notification.message }}</span>
+              <span class="notification-time">{{ notification.created_at | relativeTime }}</span>
+            </div>
+          </div>
+        </button>
+      </div>
     </div>
 
     <ng-template #emptyState>

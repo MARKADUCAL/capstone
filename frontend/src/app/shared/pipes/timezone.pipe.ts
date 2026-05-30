@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class TimezonePipe implements PipeTransform {
-  transform(value: string | Date | null, format: string = 'MMM d, y h:mm a'): string {
+  transform(value: string | Date | null, format: string = 'MMM d, yyyy h:mm a'): string {
     if (!value) return '';
 
     const date = typeof value === 'string' ? new Date(value) : value;
@@ -23,7 +23,7 @@ export class TimezonePipe implements PipeTransform {
 
     const year = date.getFullYear();
     const month = months[date.getMonth()];
-    const day = date.getDate();
+    const day = String(date.getDate()).padStart(2, '0');
     const dayName = days[date.getDay()];
     const hours = String(date.getHours()).padStart(2, '0');
     const hours12 = String(date.getHours() % 12 || 12).padStart(2, '0');
@@ -32,10 +32,12 @@ export class TimezonePipe implements PipeTransform {
     const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
 
     return format
+      .replace('yyyy', String(year))
       .replace('MMM', month)
-      .replace('d', String(day))
-      .replace('y', String(year))
+      .replace('dd', day)
+      .replace('d', String(date.getDate()))
       .replace('h:mm a', `${hours12}:${minutes} ${ampm}`)
       .replace('HH:mm:ss', `${hours}:${minutes}:${seconds}`);
   }
 }
+
