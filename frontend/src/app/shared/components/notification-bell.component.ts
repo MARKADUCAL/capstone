@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import {
   AppNotification,
@@ -21,13 +21,16 @@ interface NotificationGroup {
   styleUrl: './notification-bell.component.css',
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
+  @ViewChild('notificationList') notificationList: ElementRef | null = null;
+
   unreadCount = 0;
   notifications: AppNotification[] = [];
   groupedNotifications: NotificationGroup[] = [];
   dropdownOpen = false;
   currentPage = 1;
   totalPages = 1;
-  perPage = 5;
+  perPage = 10;
+  isLoadingMore = false;
   private subscription: Subscription | null = null;
 
   constructor(private notificationService: NotificationService) {}
@@ -49,8 +52,10 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.dropdownOpen = !this.dropdownOpen;
     if (this.dropdownOpen) {
-      this.currentPage = 1;
-      this.loadNotifications();
+      if (this.notifications.length === 0) {
+        this.currentPage = 1;
+        this.loadNotifications();
+      }
     }
   }
 
@@ -75,18 +80,13 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     });
   }
 
-  previousPage(event: Event) {
+  loadMore(event: Event) {
     event.stopPropagation();
-    if (this.currentPage <= 1) return;
-    this.currentPage--;
-    this.loadNotifications();
-  }
+    if (this.currentPage >= this.totalPages || this.isLoadingMore) return;
 
-  nextPage(event: Event) {
-    event.stopPropagation();
-    if (this.currentPage >= this.totalPages) return;
+    this.isLoadingMore = true;
     this.currentPage++;
-    this.loadNotifications();
+    this.loadNotifications(true);
   }
 
   private groupNotificationsByDate(notifications: AppNotification[]): NotificationGroup[] {
@@ -142,15 +142,23 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     this.dropdownOpen = false;
   }
 
-  private loadNotifications() {
+  private loadNotifications(append = false) {
     this.notificationService
       .getNotifications(this.currentPage, this.perPage)
       .subscribe((response) => {
-        this.notifications = response.notifications || [];
+        const newNotifications = response.notifications || [];
+
+        if (append) {
+          this.notifications = [...this.notifications, ...newNotifications];
+        } else {
+          this.notifications = newNotifications;
+        }
+
         this.groupedNotifications = this.groupNotificationsByDate(this.notifications);
         this.unreadCount = response.unread_count || 0;
         this.totalPages = response.total_pages || 1;
         this.currentPage = response.page || this.currentPage;
+        this.isLoadingMore = false;
       });
   }
 }

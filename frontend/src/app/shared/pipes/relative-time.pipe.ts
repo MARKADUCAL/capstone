@@ -11,11 +11,11 @@ export class RelativeTimePipe implements PipeTransform {
     const date = typeof value === 'string' ? new Date(value) : value;
     if (isNaN(date.getTime())) return '';
 
-    // Convert UTC to Philippine Time (UTC+8)
-    const phtDate = new Date(date.getTime() + (8 * 60 * 60 * 1000));
-    const now = new Date(new Date().getTime() + (8 * 60 * 60 * 1000));
+    // Get current time in UTC
+    const nowUtc = new Date();
 
-    const diffMs = now.getTime() - phtDate.getTime();
+    // Calculate difference in milliseconds (both are in UTC, so we can compare directly)
+    const diffMs = nowUtc.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -26,11 +26,15 @@ export class RelativeTimePipe implements PipeTransform {
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays}d ago`;
 
+    // For older dates, show the date in PHT
+    const phtDate = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+    const nowPht = new Date(nowUtc.getTime() + (8 * 60 * 60 * 1000));
+
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const month = months[phtDate.getMonth()];
     const day = phtDate.getDate();
     const year = phtDate.getFullYear();
 
-    return `${month} ${day}${year !== now.getFullYear() ? ', ' + year : ''}`;
+    return `${month} ${day}${year !== nowPht.getFullYear() ? ', ' + year : ''}`;
   }
 }

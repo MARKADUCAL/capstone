@@ -14,7 +14,7 @@
       </button>
     </div>
 
-    <div class="notification-list" *ngIf="notifications.length > 0; else emptyState">
+    <div class="notification-list" #notificationList *ngIf="notifications.length > 0; else emptyState">
       <div *ngFor="let group of groupedNotifications" class="notification-group">
         <div class="group-date-header">{{ group.date }}</div>
         <button
@@ -34,16 +34,22 @@
           </div>
         </button>
       </div>
+
+      <div class="load-more-container" *ngIf="currentPage < totalPages">
+        <button
+          type="button"
+          class="load-more-button"
+          (click)="loadMore($event)"
+          [disabled]="isLoadingMore"
+        >
+          <span *ngIf="!isLoadingMore">Load More</span>
+          <span *ngIf="isLoadingMore" class="loading-text">Loading...</span>
+        </button>
+      </div>
     </div>
 
     <ng-template #emptyState>
       <div class="empty-state">No new notifications</div>
     </ng-template>
-
-    <div class="pagination-controls" *ngIf="totalPages > 1">
-      <button type="button" (click)="previousPage($event)" [disabled]="currentPage <= 1">Previous</button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button type="button" (click)="nextPage($event)" [disabled]="currentPage >= totalPages">Next</button>
-    </div>
   </div>
 </div>
