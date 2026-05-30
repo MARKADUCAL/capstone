@@ -65,7 +65,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     this.notificationService.markAsRead(notification.id).subscribe(() => {
       notification.is_read = 1;
       this.unreadCount = Math.max(0, this.unreadCount - 1);
-      this.dropdownOpen = false;
     });
   }
 

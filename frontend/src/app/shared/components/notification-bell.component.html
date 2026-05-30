@@ -6,9 +6,7 @@
     <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
   </button>
 
-  <div class="notification-backdrop" *ngIf="dropdownOpen" (click)="closeDropdown()"></div>
-
-  <div class="notification-dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+  <div class="notification-dropdown" *ngIf="dropdownOpen">
     <div class="notification-header">
       <h3>Notifications</h3>
       <button type="button" class="mark-all-button" *ngIf="notifications.length > 0" (click)="markAllAsRead($event)">
