@@ -29,7 +29,7 @@
             <div class="notification-indicator" *ngIf="notification.is_read === 0"></div>
             <div class="notification-text">
               <span class="notification-message">{{ notification.message }}</span>
-              <span class="notification-time">{{ notification.created_at | relativeTime }}</span>
+              <span class="notification-time">{{ notification.created_at | timezone: 'MMM dd, yyyy · h:mm a' }}</span>
             </div>
           </div>
         </button>
