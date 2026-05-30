@@ -134,14 +134,11 @@ export class AuthService {
   // Login
   login(credentials: LoginRequest): Observable<ApiResponse> {
     console.log('🔧 AuthService: login called');
-    console.log('📤 Login data:', credentials);
 
     return this.http
       .post<ApiResponse>(`${this.apiUrl}/login_customer`, credentials)
       .pipe(
         tap((response) => {
-          console.log('📥 Login response:', response);
-
           if (response.status.remarks === 'success' && response.payload) {
             const { token, user } = response.payload;
             this.storeAuth(token, user);
@@ -161,14 +158,11 @@ export class AuthService {
   // Register
   register(userData: RegisterRequest): Observable<ApiResponse> {
     console.log('🔧 AuthService: register called');
-    console.log('📤 Register data:', userData);
 
     return this.http
       .post<ApiResponse>(`${this.apiUrl}/register_customer`, userData)
       .pipe(
         tap((response) => {
-          console.log('📥 Register response:', response);
-
           if (response.status.remarks === 'success' && response.payload) {
             const { token, user } = response.payload;
             this.storeAuth(token, user);
