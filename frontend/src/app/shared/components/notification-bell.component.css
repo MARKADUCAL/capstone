@@ -144,14 +144,14 @@
 @media (max-width: 640px) {
   .notification-dropdown {
     position: fixed;
-    top: auto;
-    bottom: 0;
+    top: 0;
+    bottom: auto;
     left: 0;
     right: 0;
     width: 100%;
     max-height: 70vh;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 20px rgba(17, 24, 39, 0.16);
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 4px 20px rgba(17, 24, 39, 0.16);
   }
 
   .notification-header {
