@@ -24,7 +24,7 @@
         (click)="onNotifClick(notification)"
       >
         <span class="notification-message">{{ notification.message }}</span>
-        <span class="notification-date">{{ notification.created_at | date: 'MMM d, y h:mm a' : '+0800' }}</span>
+        <span class="notification-date">{{ notification.created_at | timezone: 'MMM d, y h:mm a' }}</span>
       </button>
     </div>
 

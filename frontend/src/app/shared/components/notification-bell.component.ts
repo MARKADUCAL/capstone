@@ -5,11 +5,12 @@ import {
   AppNotification,
   NotificationService,
 } from '../../services/notification.service';
+import { TimezonePipe } from '../pipes/timezone.pipe';
 
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TimezonePipe],
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.css',
 })
