@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError, timer } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import {
   catchError,
-  mergeMap,
+  shareReplay,
   tap,
   delay,
+  retryWhen,
+  mergeMap,
 } from 'rxjs/operators';
 
-interface CacheEntry<T> {
-  data: T;
+interface CacheEntry {
+  data: Observable<any>;
   timestamp: number;
 }
 
@@ -17,41 +19,34 @@ interface CacheEntry<T> {
   providedIn: 'root',
 })
 export class ApiCacheService {
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000; // 1 second base delay
 
-  // Track in-flight requests to deduplicate concurrent calls
-  private inFlight = new Map<string, Observable<any>>();
-
   constructor(private http: HttpClient) {}
 
   /**
-   * Get data from cache or make HTTP request with retry logic.
-   * Caches RESOLVED VALUES, not Observable streams, so errors
-   * are never replayed to future subscribers.
+   * Get data from cache or make HTTP request with retry logic
    * @param url The API endpoint URL
    * @param forceRefresh Force a fresh API call even if cached
    */
   get<T>(url: string, forceRefresh: boolean = false): Observable<T> {
     const now = Date.now();
+    const cached = this.cache.get(url);
 
-    // Return cached DATA if valid and not forcing refresh
-    if (!forceRefresh) {
-      const cached = this.cache.get(url);
-      if (cached && now - cached.timestamp < this.CACHE_DURATION) {
-        return of(cached.data as T);
-      }
-    }
-
-    // Check if there's already an in-flight request for this URL
-    const existing = this.inFlight.get(url);
-    if (existing && !forceRefresh) {
-      return existing as Observable<T>;
+    // Return cached data if valid and not forcing refresh
+    if (
+      !forceRefresh &&
+      cached &&
+      now - cached.timestamp < this.CACHE_DURATION
+    ) {
+      console.log(`[Cache] Using cached data for: ${url}`);
+      return cached.data as Observable<T>;
     }
 
     // Make new request with retry logic
+    console.log(`[Cache] Fetching fresh data for: ${url}`);
     const request$ = this.http.get<T>(url).pipe(
       retryWhen((errors) =>
         errors.pipe(
@@ -66,6 +61,10 @@ export class ApiCacheService {
             if (shouldRetry) {
               // Exponential backoff: 1s, 2s, 4s
               const delayTime = this.RETRY_DELAY * Math.pow(2, index);
+              console.log(
+                `[Cache] Retry ${retryAttempt}/${this.MAX_RETRIES} for ${url} after ${delayTime}ms`,
+              );
+
               return of(error).pipe(delay(delayTime));
             }
 
@@ -74,24 +73,21 @@ export class ApiCacheService {
           }),
         ),
       ),
-      tap((result) => {
-        // Cache the RESOLVED VALUE, not the Observable
-        this.cache.set(url, {
-          data: result,
-          timestamp: Date.now(),
-        });
-        // Remove from in-flight map
-        this.inFlight.delete(url);
-      }),
+      shareReplay(1), // Share the result among multiple subscribers
+      tap(() => console.log(`[Cache] Successfully fetched: ${url}`)),
       catchError((error) => {
-        // Remove from in-flight map on error too
-        this.inFlight.delete(url);
+        console.error(`[Cache] Failed to fetch ${url}:`, error);
+        // Remove failed request from cache
+        this.cache.delete(url);
         return throwError(() => error);
       }),
     );
 
-    // Store in in-flight map for request deduplication
-    this.inFlight.set(url, request$);
+    // Store in cache
+    this.cache.set(url, {
+      data: request$,
+      timestamp: now,
+    });
 
     return request$;
   }
@@ -103,10 +99,10 @@ export class ApiCacheService {
   clearCache(url?: string): void {
     if (url) {
       this.cache.delete(url);
-      this.inFlight.delete(url);
+      console.log(`[Cache] Cleared cache for: ${url}`);
     } else {
       this.cache.clear();
-      this.inFlight.clear();
+      console.log('[Cache] Cleared all cache');
     }
   }
 

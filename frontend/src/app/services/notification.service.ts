@@ -1,9 +1,8 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, interval, of, throwError, timer } from 'rxjs';
+import { BehaviorSubject, Subscription, interval, of, throwError, timer } from 'rxjs';
 import { catchError, map, mergeMap, retryWhen, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { DestroyRef, inject } from '@angular/core';
 
 export interface AppNotification {
   id: number;
@@ -19,47 +18,30 @@ export interface AppNotification {
 @Injectable({
   providedIn: 'root',
 })
-export class NotificationService implements OnDestroy {
+export class NotificationService {
   unreadCount = new BehaviorSubject<number>(0);
-  private pollingSubscription: ReturnType<typeof interval>['subscribe'] | null = null;
+  private pollingSubscription: Subscription | null = null;
   private readonly POLLING_INTERVAL_MS = 60000;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY_MS = 1000;
-  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(private http: HttpClient) {
-    this.destroyRef.onDestroy(() => this.stopPolling());
-  }
-
-  ngOnDestroy() {
-    this.stopPolling();
-  }
-
-  private isPollingActive = false;
+  constructor(private http: HttpClient) {}
 
   startPolling() {
-    if (this.isPollingActive) return;
-    this.isPollingActive = true;
+    if (this.pollingSubscription) return;
 
     timer(1500).pipe(switchMap(() => this.fetchUnreadCount())).subscribe();
     this.pollingSubscription = interval(this.POLLING_INTERVAL_MS)
       .pipe(switchMap(() => this.fetchUnreadCount()))
-      .subscribe({
-        error: () => {
-          // Don't let polling errors kill the subscription
-        },
-      });
+      .subscribe();
   }
 
-  stopPolling(resetCount: boolean = true) {
+  stopPolling() {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = null;
     }
-    this.isPollingActive = false;
-    if (resetCount) {
-      this.unreadCount.next(0);
-    }
+    this.unreadCount.next(0);
   }
 
   getNotifications(page = 1, perPage = 5) {

@@ -45,7 +45,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.notificationService.stopPolling();
     this.subscription?.unsubscribe();
   }
 

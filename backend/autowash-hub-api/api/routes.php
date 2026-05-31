@@ -63,9 +63,6 @@ require_once "./modules/upload.php";
 require_once "./modules/notification_helper.php";
 require_once "./config/database.php";
 
-// Include rate limiter middleware
-require_once "./rate_limiter.php";
-
 // Manually include JWT library to ensure it's loaded
 require_once "./vendor/firebase/php-jwt/JWT.php";
 
@@ -108,33 +105,6 @@ $uploadHandler = new UploadHandler($pdo);
 // Handle OPTIONS request (CORS preflight)
 if ($method === 'OPTIONS') {
     header('HTTP/1.1 200 OK');
-    exit();
-}
-
-// Enforce rate limiting before processing any request.
-// Authenticated users get a higher limit; anonymous get the default.
-$authHeaders = function_exists('getallheaders') ? getallheaders() : [];
-$hasAuth = !empty($authHeaders['Authorization']) || !empty($authHeaders['authorization']);
-if ($hasAuth) {
-    // Check if token is valid to grant admin rate limit
-    try {
-        $authHeader = $authHeaders['Authorization'] ?? $authHeaders['authorization'] ?? '';
-        $token = substr($authHeader, 7);
-        $key = getenv('JWT_SECRET') ?: 'default_secret_key';
-        $decoded = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
-        $isAdmin = ($decoded->aud === 'admin');
-        $rlLimit = $isAdmin ? RATE_LIMIT_ADMIN_LIMIT : RATE_LIMIT_DEFAULT_LIMIT;
-        $rlWindow = RATE_LIMIT_DEFAULT_WINDOW;
-    } catch (Exception $e) {
-        $rlLimit = RATE_LIMIT_DEFAULT_LIMIT;
-        $rlWindow = RATE_LIMIT_DEFAULT_WINDOW;
-    }
-} else {
-    $rlLimit = RATE_LIMIT_DEFAULT_LIMIT;
-    $rlWindow = RATE_LIMIT_DEFAULT_WINDOW;
-}
-
-if (!rateLimitCheck($rlLimit, $rlWindow)) {
     exit();
 }
 
