@@ -23,8 +23,10 @@ import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 import Swal from 'sweetalert2';
-import { Subscription, forkJoin, concat, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Subscription, forkJoin, concat, of, timer } from 'rxjs';
+import { catchError, takeUntil, shareReplay } from 'rxjs/operators';
+import { ApiCacheService } from '../../../services/api-cache.service';
+import { DestroyRef, inject } from '@angular/core';
 
 interface BusinessStats {
   totalCustomers: number;
@@ -223,25 +225,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THUR', 'FRI', 'SAT'];
   calendarDays: CalendarDay[] = [];
 
-  get currentMonthYear(): string {
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return `${
-      monthNames[this.currentDate.getMonth()]
-    }, ${this.currentDate.getFullYear()}`;
-  }
+  private destroyRef = inject(DestroyRef);
+  private apiCache = inject(ApiCacheService);
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -255,7 +240,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private employeeCountLoaded = false;
   refreshCountdown = 0;
 
+  private dataLoadedOnce = false;
+
   ngOnInit(): void {
+    // Debounce: only load once per component lifecycle to prevent
+    // duplicate calls from navigation/route re-evaluation.
+    if (this.dataLoadedOnce) return;
+    this.dataLoadedOnce = true;
+
     this.loadDashboardData();
     this.generateCalendar();
     this.checkFirstTimeLogin();
@@ -333,366 +325,166 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isLoadingStats = true;
     this.isLoadingBookings = true;
 
-    // Load dashboard summary first for better performance
-    Promise.all([
-      this.loadDashboardSummary(),
-      this.loadRecentBookings(),
-    ]).finally(() => {
-      this.isLoading = false;
-      this.isLoadingStats = false;
-      this.isLoadingBookings = false;
-    });
-  }
+    // Consolidate all 3 API calls into a single forkJoin to avoid
+    // triggering server rate limits from simultaneous requests.
+    const dashboardSummary$ = this.apiCache.get<any>(
+      `${this.apiUrl}/get_dashboard_summary`,
+    ).pipe(
+      catchError((error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching dashboard summary:', error);
+          this.showError('Failed to load dashboard summary');
+        }
+        return of({ status: { remarks: 'error' } });
+      }),
+    );
 
-  private loadDashboardSummary(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_dashboard_summary`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            const data = response.payload?.dashboard_summary || {};
-            this.businessStats = {
-              totalCustomers: Number(data.total_customers) || 0,
-              totalBookings: Number(data.total_bookings) || 0,
-              totalEmployees: Number(data.total_employees) || 0,
-              // Keep a sensible default for satisfaction as backend doesn't provide it
-              totalRevenue: Number(data.monthly_revenue) || 0,
-              completedBookings: Number(data.completed_bookings) || 0,
-              pendingBookings: Number(data.pending_bookings) || 0,
-            };
-          }
-        },
-        error: (error) => {
-          // Suppress console spam for rate limit errors
-          if (error.status !== 429) {
-            console.error('Error fetching dashboard summary:', error);
-            this.showError('Failed to load dashboard summary');
-          }
-          // Fallback to individual API calls
-          this.loadIndividualStats();
-        },
-        complete: () => {
-          this.updateEmployeeCountIncludingPending().finally(() => resolve());
-        },
-      });
-    });
-  }
+    const bookings$ = this.apiCache.get<any>(
+      `${this.apiUrl}/get_all_bookings`,
+    ).pipe(
+      catchError((error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching recent bookings:', error);
+          this.showError('Failed to load recent bookings');
+        }
+        return of({ status: { remarks: 'error' }, payload: { bookings: [] } });
+      }),
+    );
 
-  private loadIndividualStats(): void {
-    // Fallback method if dashboard summary fails
-    // BEFORE: Called 6 separate endpoints simultaneously, causing rate limit issues
-    // AFTER: Use forkJoin to group all calls into a single subscription
+    const employees$ = this.apiCache.get<any>(
+      `${this.apiUrl}/get_all_employees`,
+    ).pipe(
+      catchError((error) => {
+        if (error.status !== 429) {
+          console.error('Error fetching employees:', error);
+          this.showError('Failed to load employee count');
+        }
+        return of({ status: { remarks: 'error' }, payload: { employees: [] } });
+      }),
+    );
+
     forkJoin({
-      customerCount: this.http.get(`${this.apiUrl}/get_customer_count`).pipe(
-        catchError((error) => {
-          if (error.status !== 429) {
-            console.error('Error fetching customer count:', error);
-          }
-          return of(null);
-        }),
-      ),
-      bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
-        catchError((error) => {
-          if (error.status !== 429) {
-            console.error('Error fetching booking count:', error);
-          }
-          return of(null);
-        }),
-      ),
-      completedCount: this.http
-        .get(`${this.apiUrl}/get_completed_booking_count`)
-        .pipe(
-          catchError((error) => {
-            if (error.status !== 429) {
-              console.error('Error fetching completed booking count:', error);
-            }
-            return of(null);
-          }),
-        ),
-      pendingCount: this.http
-        .get(`${this.apiUrl}/get_pending_booking_count`)
-        .pipe(
-          catchError((error) => {
-            if (error.status !== 429) {
-              console.error('Error fetching pending booking count:', error);
-            }
-            return of(null);
-          }),
-        ),
+      summary: dashboardSummary$,
+      bookings: bookings$,
+      employees: employees$,
     }).subscribe({
       next: (results) => {
-        // Process customer count
-        if (
-          results.customerCount &&
-          (results.customerCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.totalCustomers = (
-            results.customerCount as any
-          ).payload.total_customers;
+        // Process dashboard summary
+        const data = results.summary?.payload?.dashboard_summary || {};
+        if (results.summary?.status?.remarks === 'success') {
+          this.businessStats = {
+            totalCustomers: Number(data.total_customers) || 0,
+            totalBookings: Number(data.total_bookings) || 0,
+            totalEmployees: Number(data.total_employees) || 0,
+            totalRevenue: Number(data.monthly_revenue) || 0,
+            completedBookings: Number(data.completed_bookings) || 0,
+            pendingBookings: Number(data.pending_bookings) || 0,
+          };
         }
 
-
-        // Process booking count
-        if (
-          results.bookingCount &&
-          (results.bookingCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.totalBookings = (
-            results.bookingCount as any
-          ).payload.total_bookings;
-        }
-
-        // Process completed booking count
-        if (
-          results.completedCount &&
-          (results.completedCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.completedBookings = (
-            results.completedCount as any
-          ).payload.completed_bookings;
-        }
-
-        // Process pending booking count
-        if (
-          results.pendingCount &&
-          (results.pendingCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.pendingBookings = (
-            results.pendingCount as any
-          ).payload.pending_bookings;
-        }
-      },
-      error: (error) => {
-        console.error('Error loading individual stats:', error);
-        this.showError('Failed to load some dashboard statistics');
-      },
-    });
-  }
-
-  private loadCustomerCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_customer_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.totalCustomers =
-              response.payload.total_customers;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching customer count:', error);
-          this.showError('Failed to load customer count');
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private loadEmployeeCount(): Promise<void> {
-    return this.updateEmployeeCountIncludingPending();
-  }
-
-  private loadBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.totalBookings = response.payload.total_bookings;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching booking count:', error);
-          this.showError('Failed to load booking count');
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private loadCompletedBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_completed_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.completedBookings =
-              response.payload.completed_bookings;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching completed booking count:', error);
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private loadPendingBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_pending_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.pendingBookings =
-              response.payload.pending_bookings;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching pending booking count:', error);
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private updateEmployeeCountIncludingPending(): Promise<void> {
-    if (this.employeeCountLoaded) {
-      return Promise.resolve();
-    }
-
-    this.employeeCountLoaded = true;
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            const employees = response.payload?.employees;
-            if (Array.isArray(employees)) {
-              // Check if approval feature is enabled
-              const hasApprovalFlag = employees.some(
-                (e: any) => 'is_approved' in e && e.is_approved !== undefined,
+        // Process employees
+        if (results.employees?.status?.remarks === 'success') {
+          const employees = results.employees.payload?.employees || [];
+          if (Array.isArray(employees)) {
+            const hasApprovalFlag = employees.some(
+              (e: any) => 'is_approved' in e && e.is_approved !== undefined,
+            );
+            if (hasApprovalFlag) {
+              const approvedEmployees = employees.filter(
+                (emp: any) => emp.is_approved === 1,
               );
-
-              // Count only approved employees (is_approved === 1)
-              if (hasApprovalFlag) {
-                const approvedEmployees = employees.filter(
-                  (employee: any) => employee.is_approved === 1,
-                );
-                this.businessStats.totalEmployees = approvedEmployees.length;
-              } else {
-                // If no approval flag, count all (backward compatibility)
-                this.businessStats.totalEmployees = employees.length;
-              }
+              this.businessStats.totalEmployees = approvedEmployees.length;
+            } else {
+              this.businessStats.totalEmployees = employees.length;
             }
           }
-        },
-        error: (error) => {
-          if (error.status !== 429) {
-            console.error('Error fetching employees for count:', error);
-            this.showError('Failed to load employee count');
-          }
-        },
-        complete: () => resolve(),
-      });
+        }
+
+        // Process bookings
+        this.processBookingsResponse(results.bookings?.payload?.bookings || []);
+
+        this.isLoading = false;
+        this.isLoadingStats = false;
+        this.isLoadingBookings = false;
+      },
+      error: (error) => {
+        console.error('Dashboard data load error:', error);
+        this.showError('Failed to load dashboard data');
+        this.isLoading = false;
+        this.isLoadingStats = false;
+        this.isLoadingBookings = false;
+      },
     });
   }
 
-  private loadRecentBookings(): Promise<void> {
-    return new Promise((resolve) => {
-      // Load ALL bookings regardless of status (Pending, Approved, Rejected, Cancelled, Done, Completed)
-      this.http.get(`${this.apiUrl}/get_all_bookings`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            const bookings = response.payload.bookings || [];
+  private processBookingsResponse(bookings: any[]): void {
+    this.recentBookings = bookings.map((booking: any) => {
+      let customerName = 'Unknown Customer';
+      const firstName = booking.firstname || booking.first_name || '';
+      const lastName = booking.lastname || booking.last_name || '';
+      customerName = `${firstName} ${lastName}`.trim();
 
-            // Map all bookings without filtering by status
-            this.recentBookings = bookings.map((booking: any) => {
-              // Get customer name from firstname and lastname
-              let customerName = 'Unknown Customer';
+      if (!customerName) {
+        customerName =
+          booking.customer_name ||
+          booking.customerName ||
+          booking.name ||
+          booking.customer?.name ||
+          booking.user?.name ||
+          'Unknown Customer';
+      }
 
-              // Combine firstname and lastname
-              const firstName = booking.firstname || booking.first_name || '';
-              const lastName = booking.lastname || booking.last_name || '';
-              customerName = `${firstName} ${lastName}`.trim();
-
-              // If no name found, try fallback fields
-              if (!customerName || customerName === '') {
-                if (
-                  booking.customer_name ||
-                  booking.customerName ||
-                  booking.name
-                ) {
-                  customerName =
-                    booking.customer_name ||
-                    booking.customerName ||
-                    booking.name;
-                } else if (booking.customer?.name || booking.user?.name) {
-                  customerName = booking.customer?.name || booking.user?.name;
-                } else {
-                  customerName = 'Unknown Customer';
-                }
-              }
-
-              return {
-                id: booking.id,
-                customerName: customerName,
-                service:
-                  booking.service_name ||
-                  booking.serviceName ||
-                  booking.service ||
-                  'Unknown Service',
-                status: booking.status || 'Pending',
-                amount: booking.price || booking.amount || 0,
-                date:
-                  booking.wash_date ||
-                  booking.washDate ||
-                  booking.date ||
-                  booking.booking_date ||
-                  'Unknown Date',
-                // Employee assignment fields
-                assignedEmployeeName:
-                  booking.assignedEmployeeName ||
-                  booking.assigned_employee_name ||
-                  (booking.employee_first_name && booking.employee_last_name
-                    ? `${booking.employee_first_name} ${booking.employee_last_name}`
-                    : undefined),
-                employee_first_name: booking.employee_first_name,
-                employee_last_name: booking.employee_last_name,
-                // Cancellation reason
-                cancellationReason:
-                  booking.cancellationReason || booking.cancellation_reason,
-                // Rejection reason
-                rejectionReason:
-                  booking.rejectionReason || booking.rejection_reason,
-                // Customer feedback
-                customerRating:
-                  booking.customerRating ||
-                  booking.customer_rating ||
-                  booking.rating,
-                customerRatingComment:
-                  booking.customerRatingComment ||
-                  booking.customer_rating_comment ||
-                  booking.feedback_comment ||
-                  booking.comment,
-                // Who assigned the employee
-                assignedBy:
-                  booking.assignedBy ||
-                  booking.assigned_by ||
-                  booking.admin_name,
-              };
-            });
-
-            this.bookingsCurrentPage = 1;
-
-            // Calculate total revenue
-            this.businessStats.totalRevenue = bookings.reduce(
-              (total: number, booking: any) => {
-                return total + (booking.price || booking.amount || 0);
-              },
-              0,
-            );
-
-            // Check for expired pending bookings and mark them
-            this.markExpiredBookings();
-
-            // Regenerate calendar with updated bookings
-            this.generateCalendar();
-          }
-        },
-        error: (error) => {
-          if (error.status !== 429) {
-            console.error('Error fetching recent bookings:', error);
-            this.showError('Failed to load recent bookings');
-          }
-        },
-        complete: () => resolve(),
-      });
+      return {
+        id: booking.id,
+        customerName: customerName,
+        service:
+          booking.service_name ||
+          booking.serviceName ||
+          booking.service ||
+          'Unknown Service',
+        status: booking.status || 'Pending',
+        amount: booking.price || booking.amount || 0,
+        date:
+          booking.wash_date ||
+          booking.washDate ||
+          booking.date ||
+          booking.booking_date ||
+          'Unknown Date',
+        assignedEmployeeName:
+          booking.assignedEmployeeName ||
+          booking.assigned_employee_name ||
+          (booking.employee_first_name && booking.employee_last_name
+            ? `${booking.employee_first_name} ${booking.employee_last_name}`
+            : undefined),
+        employee_first_name: booking.employee_first_name,
+        employee_last_name: booking.employee_last_name,
+        cancellationReason:
+          booking.cancellationReason || booking.cancellation_reason,
+        rejectionReason:
+          booking.rejectionReason || booking.rejection_reason,
+        customerRating:
+          booking.customerRating || booking.customer_rating || booking.rating,
+        customerRatingComment:
+          booking.customerRatingComment ||
+          booking.customer_rating_comment ||
+          booking.feedback_comment ||
+          booking.comment,
+        assignedBy:
+          booking.assignedBy || booking.assigned_by || booking.admin_name,
+      };
     });
+
+    this.bookingsCurrentPage = 1;
+
+    this.businessStats.totalRevenue = bookings.reduce(
+      (total: number, booking: any) => {
+        return total + (booking.price || booking.amount || 0);
+      },
+      0,
+    );
+
+    this.markExpiredBookings();
+    this.generateCalendar();
   }
 
   // Check if a booking date has passed (is in the past)
@@ -783,8 +575,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           next: (response: any) => {
             if (response?.status?.remarks === 'success') {
               this.showSuccess(`Booking status updated to ${newStatus}`);
-              // Refresh data to ensure consistency
-              this.loadRecentBookings();
+              // Refresh data with cache bust to ensure consistency
+              this.refreshDashboardData();
             } else {
               // Revert on failure
               booking.status = originalStatus;
@@ -831,6 +623,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       duration: 3000,
       panelClass: ['info-snackbar'],
     });
+  }
+
+  /**
+   * Refresh data with cache bust (used after mutations like status updates).
+   */
+  refreshDashboardData(): void {
+    this.apiCache.clearCache(`${this.apiUrl}/get_all_bookings`);
+    this.apiCache.clearCache(`${this.apiUrl}/get_dashboard_summary`);
+    this.loadDashboardData();
   }
 
   // Helper method to format currency
