@@ -126,7 +126,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
   loadServicePackages(): void {
     this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
       next: (response) => {
-        if (response.status && response.status.remarks === 'success') {
+        if (response?.status && response.status.remarks === 'success') {
           this.servicePackages = response.payload.packages || [];
         } else {
           this.servicePackages = [];
@@ -147,7 +147,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
       .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
       .subscribe({
         next: (response) => {
-          if (response.status && response.status.remarks === 'success') {
+          if (response?.status && response.status.remarks === 'success') {
             this.pricingMatrix = response.payload.pricing_matrix || {};
           } else {
             this.pricingMatrix = {};
@@ -181,7 +181,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          if (response.status && response.status.remarks === 'success') {
+          if (response?.status && response.status.remarks === 'success') {
             this.userVehicles = response.payload.vehicles || [];
           }
           this.loadingVehicles = false;

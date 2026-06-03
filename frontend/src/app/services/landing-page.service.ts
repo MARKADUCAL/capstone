@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface LandingPageContent {
@@ -60,24 +61,36 @@ export class LandingPageService {
 
   // Get all landing page content
   getLandingPageContent(): Observable<ApiResponse<LandingPageContent> | null> {
-    const timestamp = new Date().getTime();
-    return this.http.get<ApiResponse<LandingPageContent> | null>(
-      `${this.apiUrl}/landing_page_content?t=${timestamp}`,
-      { headers: this.getHeaders() }
-    );
+    const timestamp = Math.floor(new Date().getTime() / 300000);
+    return this.http
+      .get<ApiResponse<LandingPageContent> | null>(
+        `${this.apiUrl}/landing_page_content?t=${timestamp}`,
+        { headers: this.getHeaders() },
+      )
+      .pipe(
+        catchError((error) => {
+          if (error.status === 429 || error.status === 504) {
+            console.warn(
+              'Landing page API unavailable. Using fallback content.',
+            );
+            return of(null);
+          }
+          throw error;
+        }),
+      );
   }
 
   // Get specific section content
   getSectionContent(sectionName: string): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/landing_page_section/${sectionName}`,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders() },
     );
   }
 
   // Update landing page content
   updateLandingPageContent(
-    content: LandingPageContent
+    content: LandingPageContent,
   ): Observable<ApiResponse<any> | null> {
     // Backend handles landing page updates under PUT (with multiple aliases)
     const url = `${this.apiUrl}/save_landing_page_content`;
@@ -96,13 +109,13 @@ export class LandingPageService {
   // Update specific section
   updateSection(
     sectionName: string,
-    content: any
+    content: any,
   ): Observable<ApiResponse<any>> {
     // Backend expects PUT for landing page section updates
     return this.http.put<ApiResponse<any>>(
       `${this.apiUrl}/save_landing_page_section/${sectionName}`,
       content,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders() },
     );
   }
 
@@ -110,11 +123,11 @@ export class LandingPageService {
   testRouting(): Observable<ApiResponse<any>> {
     console.log(
       'Testing routing with URL:',
-      `${this.apiUrl}/test_landing_page_routing`
+      `${this.apiUrl}/test_landing_page_routing`,
     );
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/test_landing_page_routing`,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders() },
     );
   }
 
@@ -123,14 +136,14 @@ export class LandingPageService {
     const testData = { test: 'data', timestamp: new Date().toISOString() };
     console.log(
       'Testing POST routing with URL:',
-      `${this.apiUrl}/test_landing_page_post`
+      `${this.apiUrl}/test_landing_page_post`,
     );
     console.log('Test data:', testData);
 
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/test_landing_page_post`,
       testData,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders() },
     );
   }
 
@@ -189,7 +202,9 @@ export class LandingPageService {
       }
       const queryMatch = val.match(/index\.php\?request=file\/([^&#]+)/);
       if (queryMatch && queryMatch[1]) {
-        const base = val.split('/index.php?request=file/')[0].replace(/\/$/, '');
+        const base = val
+          .split('/index.php?request=file/')[0]
+          .replace(/\/$/, '');
         return `${base.replace(/\/api$/, '')}/uploads/${queryMatch[1]}`;
       }
       return val;

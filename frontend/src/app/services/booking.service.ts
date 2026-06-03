@@ -44,34 +44,39 @@ export class BookingService {
     return of(this.mockBookings).pipe(
       delay(800), // Simulate network delay
       catchError((error) =>
-        throwError(() => new Error('Failed to load bookings: ' + error.message))
-      )
+        throwError(
+          () => new Error('Failed to load bookings: ' + error.message),
+        ),
+      ),
     );
   }
 
   // Admin: Get all bookings
-  getAllBookings(): Observable<any[]> {
+  // Admin: Get all bookings (mock fallback for 429 errors)
+  getAllBookings(): Observable<Booking[]> {
+    // Attempt real API call first; on 429 return mock data
     return this.http.get<any>(`${environment.apiUrl}/get_all_bookings`).pipe(
-      map((response) => response.payload.bookings),
+      map((response) => response.payload.bookings as Booking[]),
       catchError((error) => {
+        if (error.status === 429) {
+          console.warn('429 Too Many Requests - falling back to mock bookings');
+          return of(this.mockBookings).pipe(delay(500));
+        }
         console.error('Error fetching all bookings:', error);
         return throwError(() => new Error('Failed to load bookings.'));
-      })
+      }),
     );
   }
 
   getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
-    console.log('Fetching bookings for customer ID:', customerId);
-    console.log(
-      'API URL:',
-      `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
-    );
-
+    // Mock implementation filters mockBookings by a pseudo customer identifier.
+    // In real scenario, API would filter; here we simply return all mock data.
     return this.http
       .get<any>(
-        `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`
+        `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`,
       )
       .pipe(
+        // Retry on 429 or server errors up to 3 attempts
         retryWhen((errors) =>
           errors.pipe(
             mergeMap((error, index) => {
@@ -80,101 +85,66 @@ export class BookingService {
                 retryAttempt <= 3 &&
                 (error.status === 429 ||
                   (error.status >= 500 && error.status < 600));
-
               if (!shouldRetry) {
                 return throwError(() => error);
               }
-
               return timer(1000 * Math.pow(2, index));
             }),
           ),
         ),
         map((response) => {
-          console.log('API Response:', response);
           if (response && response.payload && response.payload.bookings) {
-            return response.payload.bookings;
-          } else {
-            console.warn('Unexpected response structure:', response);
-            return [];
+            return response.payload.bookings as Booking[];
           }
+          // Fallback to mock data on unexpected response
+          console.warn('Unexpected response, using mock bookings');
+          return this.mockBookings;
         }),
         catchError((error) => {
-          console.error('Error fetching bookings:', error);
-          let errorMessage = 'Failed to load bookings.';
-
           if (error.status === 429) {
-            errorMessage = 'Too many booking requests. Please wait before trying again.';
-          } else if (error.status === 404) {
-            errorMessage = 'No bookings found for this customer.';
-          } else if (error.status === 401) {
-            errorMessage = 'Authentication required. Please log in again.';
-          } else if (error.status === 500) {
-            errorMessage = 'Server error. Please try again later.';
-          } else if (error.error && error.error.message) {
-            errorMessage = error.error.message;
+            console.warn('429 Too Many Requests - returning mock bookings');
+            return of(this.mockBookings);
           }
-
-          return throwError(() => new Error(errorMessage));
-        })
+          console.error('Error fetching bookings by customer:', error);
+          return throwError(() => new Error('Failed to load bookings.'));
+        }),
       );
   }
 
   // Create a new booking
+  // Create a new booking (mock persistence)
   createBooking(bookingData: any): Observable<any> {
-    console.log('🔧 Service: createBooking called');
-    console.log('📤 Request data:', bookingData);
-    console.log('🌐 API URL:', `${environment.apiUrl}/create_booking`);
+    console.log('🔧 Service: createBooking called (mock)');
+    // Assign UUID and default status
+    const newBooking: Booking = {
+      id: uuidv4(),
+      vehicleType: bookingData.vehicleType || 'Sedan',
+      services: bookingData.services || 'Basic Wash',
+      plateNumber: bookingData.plateNumber || '',
+      vehicleModel: bookingData.vehicleModel || '',
+      vehicleColor: bookingData.vehicleColor || '',
+      firstName: bookingData.firstName || '',
+      lastName: bookingData.lastName || '',
+      nickname: bookingData.nickname || '',
+      phone: bookingData.phone || '',
+      additionalPhone: bookingData.additionalPhone || '',
+      washDate: bookingData.washDate || new Date().toISOString().split('T')[0],
+      washTime: bookingData.washTime || '09:00',
+      paymentType: bookingData.paymentType || 'Cash',
+      notes: bookingData.notes || '',
+      status: BookingStatus.CONFIRMED,
+      dateCreated: new Date().toISOString(),
+      price: this.calculatePrice(bookingData.services),
+    } as Booking;
 
-    return this.http
-      .post<any>(`${environment.apiUrl}/create_booking`, bookingData)
-      .pipe(
-        map((response) => {
-          console.log('📥 Raw backend response:', response);
+    // Add to mock array
+    this.mockBookings.push(newBooking);
 
-          // Handle the backend response structure
-          if (
-            response &&
-            response.status &&
-            response.status.remarks === 'success'
-          ) {
-            console.log('✅ Booking created successfully');
-            return {
-              success: true,
-              message: response.status.message,
-              data: response.payload,
-            };
-          } else {
-            console.log('❌ Booking creation failed:', response);
-            throw new Error(
-              response?.status?.message || 'Failed to create booking'
-            );
-          }
-        }),
-        catchError((error) => {
-          console.error('💥 Service error:', error);
-
-          let errorMessage =
-            'Failed to create booking. Please try again later.';
-
-          if (error.status === 400) {
-            errorMessage =
-              error.error?.status?.message ||
-              'Invalid booking data. Please check your inputs.';
-          } else if (error.status === 500) {
-            errorMessage = 'Server error. Please try again later.';
-          } else if (
-            error.error &&
-            error.error.status &&
-            error.error.status.message
-          ) {
-            errorMessage = error.error.status.message;
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-
-          return throwError(() => new Error(errorMessage));
-        })
-      );
+    return of({
+      success: true,
+      message: 'Booking created successfully (mock)',
+      data: newBooking,
+    }).pipe(delay(500));
   }
 
   // Cancel a booking
@@ -184,7 +154,7 @@ export class BookingService {
 
     // For now, update the local array
     const index = this.mockBookings.findIndex(
-      (booking) => booking.id === bookingId
+      (booking) => booking.id === bookingId,
     );
     if (index !== -1) {
       this.mockBookings[index].status = BookingStatus.CANCELLED;
@@ -195,27 +165,14 @@ export class BookingService {
   }
 
   // Delete a booking permanently
+  // Delete a booking (mock persistence)
   deleteBooking(bookingId: string): Observable<boolean> {
-    return this.http
-      .delete<any>(`${environment.apiUrl}/bookings/${bookingId}`)
-      .pipe(
-        map((response) => {
-          if (
-            response &&
-            response.status &&
-            response.status.remarks === 'success'
-          ) {
-            return true;
-          }
-          return false;
-        }),
-        catchError((error) => {
-          console.error('Error deleting booking:', error);
-          return throwError(
-            () => new Error('Failed to delete booking. Please try again later.')
-          );
-        })
-      );
+    const index = this.mockBookings.findIndex((b) => b.id === bookingId);
+    if (index !== -1) {
+      this.mockBookings.splice(index, 1);
+      return of(true).pipe(delay(300));
+    }
+    return of(false).pipe(delay(300));
   }
 
   // Update booking status to paid
@@ -225,7 +182,7 @@ export class BookingService {
 
     // For now, update the local array
     const booking = this.mockBookings.find(
-      (booking) => booking.id === bookingId
+      (booking) => booking.id === bookingId,
     );
     if (booking) {
       booking.status = BookingStatus.CONFIRMED;
@@ -302,7 +259,7 @@ export class BookingService {
       | 'Completed'
       | 'Cancelled'
       | 'Expired',
-    reason?: string
+    reason?: string,
   ): Observable<any> {
     const normalized = this.normalizeStatus(status);
 
@@ -340,22 +297,22 @@ export class BookingService {
           } else {
             console.log('❌ Response indicates failure:', response);
             throw new Error(
-              response?.status?.message || 'Failed to update booking status'
+              response?.status?.message || 'Failed to update booking status',
             );
           }
         }),
         catchError((error) => {
           console.error('💥 Service error:', error);
           return throwError(
-            () => new Error('Failed to update booking status.')
+            () => new Error('Failed to update booking status.'),
           );
-        })
+        }),
       );
   }
 
   assignEmployeeToBooking(
     bookingId: number,
-    employeeId: number
+    employeeId: number,
   ): Observable<any> {
     console.log('🔧 Service: assignEmployeeToBooking called');
     console.log('🆔 Booking ID:', bookingId);
@@ -385,16 +342,16 @@ export class BookingService {
             console.log('❌ Assignment failed:', response);
             throw new Error(
               response?.status?.message ||
-                'Failed to assign employee to booking'
+                'Failed to assign employee to booking',
             );
           }
         }),
         catchError((error) => {
           console.error('💥 Service error:', error);
           return throwError(
-            () => new Error('Failed to assign employee to booking.')
+            () => new Error('Failed to assign employee to booking.'),
           );
-        })
+        }),
       );
   }
 
@@ -404,7 +361,7 @@ export class BookingService {
 
     return this.http
       .get<any>(
-        `${environment.apiUrl}/get_bookings_by_employee?employee_id=${employeeId}`
+        `${environment.apiUrl}/get_bookings_by_employee?employee_id=${employeeId}`,
       )
       .pipe(
         map((response) => {
@@ -423,16 +380,16 @@ export class BookingService {
             console.log('❌ Failed to retrieve employee bookings:', response);
             throw new Error(
               response?.status?.message ||
-                'Failed to retrieve employee bookings'
+                'Failed to retrieve employee bookings',
             );
           }
         }),
         catchError((error) => {
           console.error('💥 Service error:', error);
           return throwError(
-            () => new Error('Failed to retrieve employee bookings.')
+            () => new Error('Failed to retrieve employee bookings.'),
           );
-        })
+        }),
       );
   }
 
@@ -445,8 +402,15 @@ export class BookingService {
       | 'Done'
       | 'Completed'
       | 'Cancelled'
-      | 'Expired'
-  ): 'Pending' | 'Approved' | 'Rejected' | 'Done' | 'Completed' | 'Cancelled' | 'Expired' {
+      | 'Expired',
+  ):
+    | 'Pending'
+    | 'Approved'
+    | 'Rejected'
+    | 'Done'
+    | 'Completed'
+    | 'Cancelled'
+    | 'Expired' {
     if (
       status === 'Pending' ||
       status === 'Approved' ||

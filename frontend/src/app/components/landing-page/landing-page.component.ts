@@ -489,21 +489,17 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.pricingError = '';
 
     this.http
-      .get<any>(`${environment.apiUrl}/get_packages`)
+      .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
       .pipe(
-        this.retryRateLimitedRequest(),
         catchError(() => of(null)),
-        switchMap((packagesRes) =>
-          timer(400).pipe(
+        switchMap((pricingRes) =>
+          timer(800).pipe(
             switchMap(() =>
               this.http
-                .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
-                .pipe(
-                  this.retryRateLimitedRequest(),
-                  catchError(() => of(null)),
-                ),
+                .get<any>(`${environment.apiUrl}/get_packages`)
+                .pipe(catchError(() => of(null))),
             ),
-            switchMap((pricingRes) => of({ packagesRes, pricingRes })),
+            switchMap((packagesRes) => of({ packagesRes, pricingRes })),
           ),
         ),
       )
@@ -524,7 +520,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
             console.log('Loaded pricing matrix:', this.pricingMatrix);
           } else {
-            console.error('Failed to load pricing matrix:', pricingRes);
+            console.warn('Failed to load pricing matrix:', pricingRes);
             this.pricingMatrix = {};
             this.pricingError =
               pricingRes?.status?.message || 'Failed to load pricing matrix.';
