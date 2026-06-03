@@ -28,7 +28,7 @@ export class EmployeeLoginComponent {
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -60,7 +60,6 @@ export class EmployeeLoginComponent {
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('Login response:', response);
 
           if (response.status && response.status.remarks === 'success') {
             // Save token and employee data to localStorage if in browser
@@ -70,7 +69,7 @@ export class EmployeeLoginComponent {
                 localStorage.setItem('user_role', 'employee');
                 localStorage.setItem(
                   'employee_data',
-                  JSON.stringify(response.payload.employee)
+                  JSON.stringify(response.payload.employee),
                 );
               } catch (err) {
                 console.error('Error accessing localStorage:', err);
@@ -104,7 +103,6 @@ export class EmployeeLoginComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Login error:', error);
 
           let errorMessage = '';
           if (error.error?.status?.message) {

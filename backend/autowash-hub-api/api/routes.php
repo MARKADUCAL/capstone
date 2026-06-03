@@ -395,6 +395,19 @@ if ($method === 'GET') {
         echo json_encode($result);
         exit();
     }
+
+    if (strpos($request, 'get_customer_dashboard_init') !== false) {
+        if (!isset($_GET['customer_id']) || trim((string)$_GET['customer_id']) === '') {
+            http_response_code(400);
+            echo json_encode(sendRoutePayload(null, 'failed', 'Customer ID is required.', 400));
+            exit();
+        }
+
+        $customerId = $_GET['customer_id'];
+        $result = $get->get_customer_dashboard_init($customerId);
+        echo json_encode($result);
+        exit();
+    }
     
 
 

@@ -1816,6 +1816,35 @@
             }
         }
 
+
+        public function get_customer_dashboard_init($customerId) {
+            try {
+                if (empty($customerId) || !is_numeric($customerId)) {
+                    return $this->sendPayload(null, "failed", "Customer ID is required.", 400);
+                }
+
+                $packagesResult = $this->get_packages();
+                $packages = $packagesResult['payload']['packages'] ?? [];
+
+                $matrixResult = $this->get_pricing_matrix();
+                $pricingMatrix = $matrixResult['payload']['pricing_matrix'] ?? [];
+
+                $vehiclesResult = $this->get_customer_vehicles($customerId);
+                $vehicles = $vehiclesResult['payload']['vehicles'] ?? [];
+
+                $bookingsResult = $this->get_bookings_by_customer($customerId);
+                $bookings = $bookingsResult['payload']['bookings'] ?? [];
+
+                return $this->sendPayload([
+                    'packages' => $packages,
+                    'pricing_matrix' => $pricingMatrix,
+                    'vehicles' => $vehicles,
+                    'bookings' => $bookings,
+                ], "success", "Dashboard data loaded successfully", 200);
+            } catch (\PDOException $e) {
+                return $this->sendPayload(null, "failed", "Failed to load dashboard data: " . $e->getMessage(), 500);
+            }
+        }
         public function get_revenue_by_date_range() {
             try {
                 // Get start_date and end_date from query parameters

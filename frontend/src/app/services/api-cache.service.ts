@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError, timer } from 'rxjs';
-import {
-  catchError,
-  shareReplay,
-  tap,
-  delay,
-  retryWhen,
-  mergeMap,
-} from 'rxjs/operators';
+import { Observable, throwError, timer } from 'rxjs';
+import { catchError, shareReplay, retryWhen, mergeMap } from 'rxjs/operators';
 
 interface CacheEntry {
   data: Observable<any>;
@@ -44,12 +37,10 @@ export class ApiCacheService {
       cached &&
       now - cached.timestamp < this.CACHE_DURATION
     ) {
-      console.log(`[Cache] Using cached data for: ${url}`);
       return cached.data as Observable<T>;
     }
 
     // Make new request with queue + retry logic
-    console.log(`[Cache] Fetching fresh data for: ${url}`);
     const request$ = new Observable<T>((subscriber) => {
       this.requestQueue = this.requestQueue.then(async () => {
         const elapsed = Date.now() - this.lastRequestTime;
@@ -79,10 +70,6 @@ export class ApiCacheService {
             if (shouldRetry) {
               // Exponential backoff: 1s, 2s, 4s
               const delayTime = this.RETRY_DELAY * Math.pow(2, index);
-              console.log(
-                `[Cache] Retry ${retryAttempt}/${this.MAX_RETRIES} for ${url} after ${delayTime}ms`,
-              );
-
               return timer(delayTime);
             }
 
@@ -92,9 +79,7 @@ export class ApiCacheService {
         ),
       ),
       shareReplay(1), // Share the result among multiple subscribers
-      tap(() => console.log(`[Cache] Successfully fetched: ${url}`)),
       catchError((error) => {
-        console.error(`[Cache] Failed to fetch ${url}:`, error);
         // Remove failed request from cache
         this.cache.delete(url);
         return throwError(() => error);
@@ -117,10 +102,8 @@ export class ApiCacheService {
   clearCache(url?: string): void {
     if (url) {
       this.cache.delete(url);
-      console.log(`[Cache] Cleared cache for: ${url}`);
     } else {
       this.cache.clear();
-      console.log('[Cache] Cleared all cache');
     }
   }
 

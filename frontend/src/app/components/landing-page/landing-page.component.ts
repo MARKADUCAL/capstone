@@ -179,21 +179,13 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
           // Save fresh data without clearing cache on every load
           this.saveToLocalStorage();
-          console.log(
-            'Landing page content loaded from API and cache updated.',
-          );
         } else {
-          console.warn(
-            'Failed to load landing page content from API:',
-            response?.status?.message || 'No response received',
-          );
           // Try localStorage as fallback
           this.loadFromLocalStorageFallback();
           this.isLoadingContent = false;
         }
       },
       error: (error: any) => {
-        console.error('Error loading landing page content from API:', error);
         // Try localStorage as fallback
         this.loadFromLocalStorageFallback();
         this.isLoadingContent = false;
@@ -519,9 +511,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           }
           if (pricingRes?.status?.remarks === 'success') {
             this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
-            console.log('Loaded pricing matrix:', this.pricingMatrix);
           } else {
-            console.error('Failed to load pricing matrix:', pricingRes);
             this.pricingMatrix = {};
             this.pricingError =
               pricingRes?.status?.message || 'Failed to load pricing matrix.';
@@ -533,7 +523,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading pricing data:', error);
           this.pricingMatrix = {};
           this.pricingError = 'Unable to load pricing data. Please try again.';
           this.deriveVehicleTypes();

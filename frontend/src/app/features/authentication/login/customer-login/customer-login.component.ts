@@ -35,7 +35,6 @@ export class CustomerLoginComponent implements OnInit {
   ngOnInit() {
     // Use environment configuration for API URL
     this.apiBaseUrl = environment.apiUrl;
-    console.log('API Base URL:', this.apiBaseUrl);
   }
 
   onSubmit() {
@@ -60,18 +59,11 @@ export class CustomerLoginComponent implements OnInit {
       Accept: 'application/json',
     });
 
-    // Avoid logging sensitive data like raw passwords
-    console.log('Attempting login with:', {
-      email: this.loginData.email,
-      password: '********',
-    });
-
     this.http
       .post(`${this.apiBaseUrl}/login_customer`, this.loginData, { headers })
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('Login response:', response);
 
           if (response.status && response.status.remarks === 'success') {
             // Save token and customer data to localStorage
@@ -108,7 +100,6 @@ export class CustomerLoginComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Login error:', error);
 
           let errorMessage = '';
           if (error.error?.status?.message) {

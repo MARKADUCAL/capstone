@@ -28,7 +28,7 @@ export class AdminLoginComponent {
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -60,18 +60,21 @@ export class AdminLoginComponent {
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('Login response:', response);
 
           const token = response?.payload?.token;
 
-          if (response?.status?.remarks === 'success' && typeof token === 'string' && token.trim()) {
+          if (
+            response?.status?.remarks === 'success' &&
+            typeof token === 'string' &&
+            token.trim()
+          ) {
             if (this.isBrowser) {
               try {
                 localStorage.setItem('admin_token', token);
                 localStorage.setItem('user_role', 'admin');
                 localStorage.setItem(
                   'admin_data',
-                  JSON.stringify(response.payload.admin)
+                  JSON.stringify(response.payload.admin),
                 );
               } catch (err) {
                 console.error('Error accessing localStorage:', err);
@@ -103,7 +106,6 @@ export class AdminLoginComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Login error:', error);
 
           let errorMessage = '';
           if (error.error?.status?.message) {
