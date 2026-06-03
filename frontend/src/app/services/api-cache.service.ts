@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, timer } from 'rxjs';
 import {
   catchError,
   shareReplay,
@@ -23,6 +23,9 @@ export class ApiCacheService {
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000; // 1 second base delay
+  private lastRequestTime = 0;
+  private requestQueue: Promise<void> = Promise.resolve();
+  private readonly MIN_REQUEST_GAP = 500;
 
   constructor(private http: HttpClient) {}
 
@@ -35,7 +38,7 @@ export class ApiCacheService {
     const now = Date.now();
     const cached = this.cache.get(url);
 
-    // Return cached data if valid and not forcing refresh
+    // Return cached data before making any HTTP request
     if (
       !forceRefresh &&
       cached &&
@@ -45,9 +48,24 @@ export class ApiCacheService {
       return cached.data as Observable<T>;
     }
 
-    // Make new request with retry logic
+    // Make new request with queue + retry logic
     console.log(`[Cache] Fetching fresh data for: ${url}`);
-    const request$ = this.http.get<T>(url).pipe(
+    const request$ = new Observable<T>((subscriber) => {
+      this.requestQueue = this.requestQueue.then(async () => {
+        const elapsed = Date.now() - this.lastRequestTime;
+        if (elapsed < this.MIN_REQUEST_GAP) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, this.MIN_REQUEST_GAP - elapsed),
+          );
+        }
+        this.lastRequestTime = Date.now();
+      });
+
+      this.requestQueue.then(() => {
+        const sub = this.http.get<T>(url).subscribe(subscriber);
+        subscriber.add(sub);
+      });
+    }).pipe(
       retryWhen((errors) =>
         errors.pipe(
           mergeMap((error, index) => {
@@ -65,7 +83,7 @@ export class ApiCacheService {
                 `[Cache] Retry ${retryAttempt}/${this.MAX_RETRIES} for ${url} after ${delayTime}ms`,
               );
 
-              return of(error).pipe(delay(delayTime));
+              return timer(delayTime);
             }
 
             // Don't retry other errors

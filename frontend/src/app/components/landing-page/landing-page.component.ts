@@ -177,8 +177,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.content = convertedContent;
           this.isLoadingContent = false;
 
-          // Clear old cache and save fresh data
-          this.clearLocalStorageCache();
+          // Save fresh data without clearing cache on every load
           this.saveToLocalStorage();
           console.log(
             'Landing page content loaded from API and cache updated.',
@@ -467,9 +466,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       localStorage.removeItem(this.STORAGE_KEY);
-      console.log(
-        'Cleared localStorage cache to ensure fresh data from database.',
-      );
+      console.log('Cleared landing page localStorage cache.');
     } catch (e) {
       console.warn('Failed to clear localStorage cache:', e);
     }
