@@ -175,38 +175,36 @@ export class AppointmentComponent implements OnInit, OnDestroy {
       setTimeout(() => this.loadPricingData(), 1200);
 
       // Check for query parameters from pricing page
-      this.route.queryParams
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((params) => {
-          const vehicleTypeCode = params['vehicle_type'];
-          const servicePackageCode = params['service_package'];
-          const vehicleId = params['vehicle_id'];
+      this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+        const vehicleTypeCode = params['vehicle_type'];
+        const servicePackageCode = params['service_package'];
+        const vehicleId = params['vehicle_id'];
 
-          // Handle pre-selected vehicle from customer-dashboard page
-          if (vehicleId) {
-            setTimeout(() => {
-              this.preSelectVehicleById(vehicleId);
-            }, 500);
-          }
+        // Handle pre-selected vehicle from customer-dashboard page
+        if (vehicleId) {
+          setTimeout(() => {
+            this.preSelectVehicleById(vehicleId);
+          }, 500);
+        }
 
-          if (vehicleTypeCode && servicePackageCode) {
-            // Convert codes to full descriptions and pre-select
-            this.selectPricingFromCodes(vehicleTypeCode, servicePackageCode);
-            // Store in localStorage for persistence
-            this.saveSelectedPricing(vehicleTypeCode, servicePackageCode);
-          } else {
-            // Try to load from localStorage if no query params
-            this.loadSelectedPricingFromStorage();
-          }
+        if (vehicleTypeCode && servicePackageCode) {
+          // Convert codes to full descriptions and pre-select
+          this.selectPricingFromCodes(vehicleTypeCode, servicePackageCode);
+          // Store in localStorage for persistence
+          this.saveSelectedPricing(vehicleTypeCode, servicePackageCode);
+        } else {
+          // Try to load from localStorage if no query params
+          this.loadSelectedPricingFromStorage();
+        }
 
-          // Legacy support for 'service' query parameter
-          if (params['service'] && !servicePackageCode) {
-            setTimeout(() => {
-              this.bookingForm.services = params['service'];
-              this.calculatePrice();
-            }, 500);
-          }
-        });
+        // Legacy support for 'service' query parameter
+        if (params['service'] && !servicePackageCode) {
+          setTimeout(() => {
+            this.bookingForm.services = params['service'];
+            this.calculatePrice();
+          }, 500);
+        }
+      });
     }
 
     this.buildCalendar();
@@ -483,7 +481,7 @@ export class AppointmentComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
         next: (response) => {
-          if (response?.status && response.status.remarks === 'success') {
+          if (response.status && response.status.remarks === 'success') {
             const packages = response.payload.packages || [];
             // Transform API response to format: "code - description"
             this.servicePackages = packages.map(
@@ -513,7 +511,7 @@ export class AppointmentComponent implements OnInit, OnDestroy {
         .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
         .subscribe({
           next: (response) => {
-            if (response?.status && response.status.remarks === 'success') {
+            if (response.status && response.status.remarks === 'success') {
               this.pricingMatrix = response.payload.pricing_matrix || {};
             } else {
               this.pricingMatrix = {};
@@ -569,6 +567,7 @@ export class AppointmentComponent implements OnInit, OnDestroy {
       if (vehicleCode && serviceCode) {
         this.isUnavailableSelection = true;
       }
+
     }
   }
 
@@ -634,7 +633,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
 
         this.loadBookings();
         setTimeout(() => this.loadCustomerVehicles(), 400);
-      } catch (error) {}
+      } catch (error) {
+      }
     } else {
     }
   }
@@ -684,8 +684,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
         `${environment.apiUrl}/get_customer_vehicles?customer_id=${this.userCustomerId}`,
       )
       .subscribe({
-        next: (response) => {
-          if (response?.status && response.status.remarks === 'success') {
+        next: (response: any) => {
+          if (response.status && response.status.remarks === 'success') {
             this.customerVehicles = response.payload?.vehicles || [];
             this.filterVehiclesByType();
           } else {
@@ -1757,7 +1757,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
         'selected_pricing',
         JSON.stringify(pricingSelection),
       );
-    } catch (error) {}
+    } catch (error) {
+    }
   }
 
   // Load selected pricing from localStorage
@@ -1779,7 +1780,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
           localStorage.removeItem('selected_pricing');
         }
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   }
 
   // Clear selected pricing from localStorage (call after successful booking)
@@ -1787,7 +1789,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
     if (!this.isBrowser) return;
     try {
       localStorage.removeItem('selected_pricing');
-    } catch (error) {}
+    } catch (error) {
+    }
   }
 
   // Navigate to profile page with add vehicle action
