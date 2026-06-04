@@ -11,7 +11,11 @@
           placeholder="Search employees..."
         />
       </div>
-      <button mat-raised-button color="primary" (click)="openAddEmployeeModal()">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="openAddEmployeeModal()"
+      >
         <mat-icon>add</mat-icon>
         Add New Employee
       </button>
@@ -80,48 +84,54 @@
                 {{ employee.registrationDate }}
               </td>
               <td class="employee-actions" data-label="Actions">
-                <div class="action-buttons">
+                <div class="action-dropdown">
                   <button
-                    class="action-btn view-btn"
-                    (click)="viewEmployee(employee)"
-                    title="View Details"
+                    mat-stroked-button
+                    color="primary"
+                    class="action-menu-trigger"
+                    [matMenuTriggerFor]="employeeActionsMenu"
                   >
-                    <mat-icon>visibility</mat-icon>
+                    Actions
+                    <mat-icon>expand_more</mat-icon>
                   </button>
-                  <button
-                    class="action-btn edit-btn"
-                    (click)="editEmployee(employee)"
-                    title="Edit Employee"
-                  >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    class="action-btn resend-btn"
-                    style="color: #6366f1;"
-                    (click)="resendPassword(employee)"
-                    title="Resend Password Email"
-                  >
-                    <mat-icon>mail</mat-icon>
-                  </button>
-                  <button
-                    class="action-btn delete-btn"
-                    (click)="deleteEmployee(employee)"
-                    title="Delete Employee"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <mat-menu #employeeActionsMenu="matMenu">
+                    <button mat-menu-item (click)="viewEmployee(employee)">
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item (click)="editEmployee(employee)">
+                      <span>Edit Employee</span>
+                    </button>
+                    <button mat-menu-item (click)="resendPassword(employee)">
+                      <span>Resend Password Email</span>
+                    </button>
+                    <button
+                      mat-menu-item
+                      (click)="deleteEmployee(employee)"
+                      class="danger-menu-item"
+                    >
+                      <span>Delete Employee</span>
+                    </button>
+                  </mat-menu>
                 </div>
               </td>
             </tr>
           }
         </tbody>
       </table>
-      
+
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+        <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">
+          Previous
+        </button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button mat-button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+        <button
+          mat-button
+          [disabled]="currentPage === totalPages"
+          (click)="nextPage()"
+        >
+          Next
+        </button>
       </div>
     </div>
   }
@@ -281,6 +291,7 @@
               <img
                 [src]="selectedEmployee.avatarUrl"
                 [alt]="selectedEmployee.name + ' profile photo'"
+                [title]="selectedEmployee.name + ' profile photo'"
                 class="employee-avatar-image"
                 (error)="handleAvatarError(selectedEmployee)"
               />

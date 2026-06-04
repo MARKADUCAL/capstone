@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -38,6 +39,7 @@ interface NewAdmin {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
   ],
   templateUrl: './admin-management.component.html',
   styleUrl: './admin-management.component.css',
@@ -252,7 +254,7 @@ export class AdminManagementComponent implements OnInit {
       (a) =>
         a.name.toLowerCase().includes(term) ||
         a.email.toLowerCase().includes(term) ||
-        (a.adminId && a.adminId.toLowerCase().includes(term))
+        (a.adminId && a.adminId.toLowerCase().includes(term)),
     );
   }
 
@@ -260,12 +262,15 @@ export class AdminManagementComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredAdmins.slice(
       startIndex,
-      startIndex + this.itemsPerPage
+      startIndex + this.itemsPerPage,
     );
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredAdmins.length / this.itemsPerPage));
+    return Math.max(
+      1,
+      Math.ceil(this.filteredAdmins.length / this.itemsPerPage),
+    );
   }
 
   nextPage(): void {
@@ -385,7 +390,7 @@ export class AdminManagementComponent implements OnInit {
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
-          }
+          },
         });
 
         this.http
@@ -403,7 +408,8 @@ export class AdminManagementComponent implements OnInit {
               } else {
                 Swal.fire({
                   title: 'Error!',
-                  text: response?.status?.message || 'Failed to resend password',
+                  text:
+                    response?.status?.message || 'Failed to resend password',
                   icon: 'error',
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#dc2626',
@@ -414,7 +420,9 @@ export class AdminManagementComponent implements OnInit {
               console.error('Error resending password:', error);
               Swal.fire({
                 title: 'Error!',
-                text: error?.error?.status?.message || 'Failed to resend password. Please try again.',
+                text:
+                  error?.error?.status?.message ||
+                  'Failed to resend password. Please try again.',
                 icon: 'error',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#dc2626',

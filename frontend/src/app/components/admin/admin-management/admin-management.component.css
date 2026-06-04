@@ -143,6 +143,13 @@
   gap: 12px;
 }
 
+.admin-name .name-cell span {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .user-avatar-small {
   width: 36px;
   height: 36px;
@@ -190,11 +197,26 @@
   font-size: 13px;
 }
 
-/* Action Buttons */
-.admin-actions .action-buttons {
+/* Action Dropdown */
+.admin-actions .action-dropdown {
   display: flex;
-  gap: 8px;
   justify-content: flex-start;
+}
+
+.action-menu-trigger {
+  min-width: 112px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.action-menu-trigger mat-icon {
+  margin-left: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .action-btn {
@@ -367,6 +389,10 @@
 
   .admin-table td[data-label] {
     padding-top: 28px;
+  }
+
+  .admin-actions .action-dropdown {
+    justify-content: flex-end;
   }
 
   .status-badge {

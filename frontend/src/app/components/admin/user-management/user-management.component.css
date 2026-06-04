@@ -136,6 +136,13 @@
   gap: 12px;
 }
 
+.customer-name .name-cell span {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .user-avatar-small {
   width: 36px;
   height: 36px;
@@ -164,11 +171,31 @@
   font-size: 13px;
 }
 
-/* Action Buttons */
-.customer-actions .action-buttons {
+/* Action Dropdown */
+.customer-actions .action-dropdown {
   display: flex;
-  gap: 8px;
   justify-content: flex-start;
+}
+
+.action-menu-trigger {
+  min-width: 112px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.action-menu-trigger mat-icon {
+  margin-left: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+::ng-deep .danger-menu-item span {
+  color: #dc2626;
+  font-weight: 600;
 }
 
 .action-btn {
@@ -327,7 +354,7 @@
     padding-top: 28px;
   }
 
-  .customer-actions .action-buttons {
+  .customer-actions .action-dropdown {
     justify-content: flex-end;
   }
 

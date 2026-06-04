@@ -94,34 +94,44 @@
                 {{ admin.registrationDate }}
               </td>
               <td class="admin-actions" data-label="Actions">
-                <div class="action-buttons">
+                <div class="action-dropdown">
                   <button
-                    class="action-btn view-btn"
-                    (click)="viewAdmin(admin)"
-                    title="View Details"
+                    mat-stroked-button
+                    color="primary"
+                    class="action-menu-trigger"
+                    [matMenuTriggerFor]="adminActionsMenu"
                   >
-                    <mat-icon>visibility</mat-icon>
+                    Actions
+                    <mat-icon>expand_more</mat-icon>
                   </button>
-                  <button
-                    class="action-btn resend-btn"
-                    style="color: #6366f1;"
-                    (click)="resendPassword(admin)"
-                    title="Resend Password Email"
-                  >
-                    <mat-icon>mail</mat-icon>
-                  </button>
+                  <mat-menu #adminActionsMenu="matMenu">
+                    <button mat-menu-item (click)="viewAdmin(admin)">
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item (click)="resendPassword(admin)">
+                      <span>Resend Password Email</span>
+                    </button>
+                  </mat-menu>
                 </div>
               </td>
             </tr>
           }
         </tbody>
       </table>
-      
+
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+        <button mat-button [disabled]="currentPage === 1" (click)="prevPage()">
+          Previous
+        </button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button mat-button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+        <button
+          mat-button
+          [disabled]="currentPage === totalPages"
+          (click)="nextPage()"
+        >
+          Next
+        </button>
       </div>
     </div>
   }

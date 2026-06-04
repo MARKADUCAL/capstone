@@ -78,35 +78,34 @@
                 {{ user.registrationDate }}
               </td>
               <td class="customer-actions" data-label="Actions">
-                <div class="action-buttons">
+                <div class="action-dropdown">
                   <button
-                    class="action-btn view-btn"
-                    (click)="viewUser(user)"
-                    title="View Details"
+                    mat-stroked-button
+                    color="primary"
+                    class="action-menu-trigger"
+                    [matMenuTriggerFor]="customerActionsMenu"
                   >
-                    <mat-icon>visibility</mat-icon>
+                    Actions
+                    <mat-icon>expand_more</mat-icon>
                   </button>
-                  <button
-                    class="action-btn edit-btn"
-                    (click)="editUser(user)"
-                    title="Edit Customer"
-                  >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    class="action-btn password-btn"
-                    (click)="changePassword(user)"
-                    title="Change Password"
-                  >
-                    <mat-icon>lock_reset</mat-icon>
-                  </button>
-                  <button
-                    class="action-btn delete-btn"
-                    (click)="deleteUser(user)"
-                    title="Delete Customer"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <mat-menu #customerActionsMenu="matMenu">
+                    <button mat-menu-item (click)="viewUser(user)">
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item (click)="editUser(user)">
+                      <span>Edit Customer</span>
+                    </button>
+                    <button mat-menu-item (click)="changePassword(user)">
+                      <span>Change Password</span>
+                    </button>
+                    <button
+                      mat-menu-item
+                      (click)="deleteUser(user)"
+                      class="danger-menu-item"
+                    >
+                      <span>Delete Customer</span>
+                    </button>
+                  </mat-menu>
                 </div>
               </td>
             </tr>

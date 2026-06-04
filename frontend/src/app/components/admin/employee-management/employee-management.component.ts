@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -57,6 +58,7 @@ interface CompletedBookingSummary {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
   ],
   templateUrl: './employee-management.component.html',
   styleUrl: './employee-management.component.css',
@@ -694,7 +696,7 @@ export class EmployeeManagementComponent implements OnInit {
       (e) =>
         e.name.toLowerCase().includes(term) ||
         (e.email && e.email.toLowerCase().includes(term)) ||
-        (e.employeeId && e.employeeId.toLowerCase().includes(term))
+        (e.employeeId && e.employeeId.toLowerCase().includes(term)),
     );
   }
 
@@ -702,12 +704,15 @@ export class EmployeeManagementComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredEmployees.slice(
       startIndex,
-      startIndex + this.itemsPerPage
+      startIndex + this.itemsPerPage,
     );
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredEmployees.length / this.itemsPerPage));
+    return Math.max(
+      1,
+      Math.ceil(this.filteredEmployees.length / this.itemsPerPage),
+    );
   }
 
   nextPage(): void {
@@ -783,7 +788,7 @@ export class EmployeeManagementComponent implements OnInit {
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
-          }
+          },
         });
 
         this.http
@@ -801,7 +806,8 @@ export class EmployeeManagementComponent implements OnInit {
               } else {
                 Swal.fire({
                   title: 'Error!',
-                  text: response?.status?.message || 'Failed to resend password',
+                  text:
+                    response?.status?.message || 'Failed to resend password',
                   icon: 'error',
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#dc2626',
@@ -812,7 +818,9 @@ export class EmployeeManagementComponent implements OnInit {
               console.error('Error resending password:', error);
               Swal.fire({
                 title: 'Error!',
-                text: error?.error?.status?.message || 'Failed to resend password. Please try again.',
+                text:
+                  error?.error?.status?.message ||
+                  'Failed to resend password. Please try again.',
                 icon: 'error',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#dc2626',
