@@ -432,16 +432,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
+
+.booking-id {
+  min-width: 0;
+  flex: 1;
 }
 
 .booking-id .id-label {
   font-size: 16px;
-  color: #1e293b;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #4f46e5;
+  font-weight: 700;
+  line-height: 1.35;
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .status-badge {
@@ -454,6 +460,7 @@
   gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .status-badge.status-completed {
@@ -760,7 +767,7 @@
   font-size: 14px;
 }
 
-.booking-id {
+.modal-title .booking-id {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 6px 12px;
