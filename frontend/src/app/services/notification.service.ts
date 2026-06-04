@@ -35,7 +35,8 @@ export interface AppNotification {
 export class NotificationService {
   unreadCount = new BehaviorSubject<number>(0);
   private pollingSubscription: Subscription | null = null;
-  private readonly POLLING_INTERVAL_MS = 120000;
+  private initialCheckSubscription: Subscription | null = null;
+  private readonly POLLING_INTERVAL_MS = 300000;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY_MS = 1000;
 
@@ -47,7 +48,7 @@ export class NotificationService {
     const headers = this.getHeaders();
     if (!headers.has('Authorization')) return;
 
-    timer(1500)
+    this.initialCheckSubscription = timer(1500)
       .pipe(switchMap(() => this.fetchUnreadCount()))
       .subscribe();
     this.pollingSubscription = interval(this.POLLING_INTERVAL_MS)
@@ -59,6 +60,10 @@ export class NotificationService {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = null;
+    }
+    if (this.initialCheckSubscription) {
+      this.initialCheckSubscription.unsubscribe();
+      this.initialCheckSubscription = null;
     }
     this.unreadCount.next(0);
   }

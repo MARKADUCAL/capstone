@@ -72,6 +72,7 @@ export class EmployeeLayoutComponent implements OnInit, OnDestroy {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
+    this.notificationService.stopPolling();
   }
 
   setupRouteTitleTracking() {

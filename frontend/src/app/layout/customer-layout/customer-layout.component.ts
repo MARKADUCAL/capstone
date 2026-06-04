@@ -67,6 +67,7 @@ export class CustomerLayoutComponent implements OnInit, OnDestroy {
     if (this.navigationSubscription) {
       this.navigationSubscription.unsubscribe();
     }
+    this.notificationService.stopPolling();
   }
 
   setupRouteTitleTracking() {

@@ -428,8 +428,16 @@ if ($method === 'GET') {
         }
 
         $customerId = $_GET['customer_id'];
-        $result = $get->get_bookings_by_customer($customerId);
-        echo json_encode($result);
+        $cacheKey = 'bookings_customer_' . $customerId;
+
+        if ($cached = getFileCache($cacheKey, 30)) {
+            echo $cached;
+            exit();
+        }
+
+        $result = json_encode($get->get_bookings_by_customer($customerId));
+        setFileCache($cacheKey, $result);
+        echo $result;
         exit();
     }
 
