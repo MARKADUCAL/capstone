@@ -34,6 +34,10 @@ export class EmployeeLoginComponent {
   }
 
   onSubmit() {
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
     this.isLoading = true;
 

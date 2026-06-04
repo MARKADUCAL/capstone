@@ -67,6 +67,8 @@ interface PricingMatrix {
 })
 export class LandingPageComponent implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'landingPageContent';
+  private readonly CONTENT_CACHE_KEY = 'cache_landing_content';
+  private readonly CONTENT_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
   mobileMenuOpen = false;
   selectedImage: GalleryImage | null = null;
 
@@ -140,6 +142,16 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   loadLandingPageContent() {
     if (!isPlatformBrowser(this.platformId)) return;
+
+    const cached = this.getCacheWithTTL<FrontendLandingPageContent>(
+      this.CONTENT_CACHE_KEY,
+    );
+    if (cached) {
+      this.content = cached;
+      this.isLoadingContent = false;
+      return;
+    }
+
     this.landingPageService.getLandingPageContent().subscribe({
       next: (response: ApiResponse<LandingPageContent> | null) => {
         if (
@@ -180,6 +192,11 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.isLoadingContent = false;
 
           // Save fresh data without clearing cache on every load
+          this.setCacheWithTTL(
+            this.CONTENT_CACHE_KEY,
+            this.content,
+            this.CONTENT_CACHE_TTL,
+          );
           this.saveToLocalStorage();
         } else {
           // Try localStorage as fallback
@@ -447,6 +464,32 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     } catch (e) {}
   }
 
+  private getCacheWithTTL<T>(key: string): T | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (Date.now() > parsed.expiry) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.data as T;
+    } catch {
+      return null;
+    }
+  }
+
+  private setCacheWithTTL<T>(key: string, data: T, ttl: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(
+        key,
+        JSON.stringify({ data, expiry: Date.now() + ttl }),
+      );
+    } catch {}
+  }
+
   private clearLocalStorageCache(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
@@ -468,6 +511,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   loadPricingData(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     if (this.pricingLoaded || this.loading) return;
+
+    const cachedPackages = this.getCacheWithTTL<any>('cache_packages');
+    const cachedPricing = this.getCacheWithTTL<any>('cache_pricing_matrix');
+
+    if (cachedPackages && cachedPricing) {
+      this.applyPricingData(cachedPackages, cachedPricing);
+      return;
+    }
+
     this.loading = true;
     this.pricingError = '';
 
@@ -488,30 +540,17 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: ({ packagesRes, pricingRes }) => {
-          if (
-            packagesRes?.status?.remarks === 'success' &&
-            packagesRes?.payload?.packages
-          ) {
-            this.servicePackages = packagesRes.payload.packages.map(
-              (p: { code: string; description: string }) => ({
-                code: p.code,
-                description: p.description,
-              }),
-            );
+          if (packagesRes?.status?.remarks === 'success') {
+            this.setCacheWithTTL('cache_packages', packagesRes, 5 * 60 * 1000);
           }
           if (pricingRes?.status?.remarks === 'success') {
-            this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
-          } else {
-            this.pricingMatrix = {};
-            this.pricingError =
-              pricingRes?.status?.message || 'Failed to load pricing matrix.';
+            this.setCacheWithTTL(
+              'cache_pricing_matrix',
+              pricingRes,
+              5 * 60 * 1000,
+            );
           }
-          if (this.servicePackages.length === 0) {
-            this.derivePackagesFromMatrix();
-          }
-          this.deriveVehicleTypes();
-          this.pricingLoaded = true;
-          this.loading = false;
+          this.applyPricingData(packagesRes, pricingRes);
         },
         error: (error) => {
           this.pricingMatrix = {};
@@ -521,6 +560,33 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.pricingLoaded = false;
         },
       });
+  }
+
+  private applyPricingData(packagesRes: any, pricingRes: any): void {
+    if (
+      packagesRes?.status?.remarks === 'success' &&
+      packagesRes?.payload?.packages
+    ) {
+      this.servicePackages = packagesRes.payload.packages.map(
+        (p: { code: string; description: string }) => ({
+          code: p.code,
+          description: p.description,
+        }),
+      );
+    }
+    if (pricingRes?.status?.remarks === 'success') {
+      this.pricingMatrix = pricingRes.payload.pricing_matrix || {};
+    } else {
+      this.pricingMatrix = {};
+      this.pricingError =
+        pricingRes?.status?.message || 'Failed to load pricing matrix.';
+    }
+    if (this.servicePackages.length === 0) {
+      this.derivePackagesFromMatrix();
+    }
+    this.deriveVehicleTypes();
+    this.pricingLoaded = true;
+    this.loading = false;
   }
 
   private deriveVehicleTypes(): void {
