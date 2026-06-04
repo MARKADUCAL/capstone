@@ -60,9 +60,8 @@ export class LandingPageService {
 
   // Get all landing page content
   getLandingPageContent(): Observable<ApiResponse<LandingPageContent> | null> {
-    const timestamp = new Date().getTime();
     return this.http.get<ApiResponse<LandingPageContent> | null>(
-      `${this.apiUrl}/landing_page_content?t=${timestamp}`,
+      `${this.apiUrl}/landing_page_content`,
       { headers: this.getHeaders() }
     );
   }

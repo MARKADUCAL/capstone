@@ -45,6 +45,12 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json; charset=utf-8");
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    header("Cache-Control: private, max-age=300");
+} else {
+    header("Cache-Control: no-cache, no-store, must-revalidate");
+}
+
 // Handle preflight OPTIONS request immediately
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
