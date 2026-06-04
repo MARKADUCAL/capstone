@@ -9,7 +9,7 @@ export const adminAuthGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
 
   if (!isPlatformBrowser(platformId)) {
-    return router.createUrlTree(['/login']);
+    return router.createUrlTree(['/admin']);
   }
 
   // Use AuthService instead of direct localStorage access
@@ -18,5 +18,5 @@ export const adminAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/login']);
+  return router.createUrlTree(['/admin']);
 };
