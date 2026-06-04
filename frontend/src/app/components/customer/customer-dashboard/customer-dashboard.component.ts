@@ -10,6 +10,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ApiCacheService } from '../../../services/api-cache.service';
+import { BookingService } from '../../../services/booking.service';
+import { Booking } from '../../../models/booking.model';
 import { pageEntranceAnimation } from '../../../animations/page-animations';
 
 interface PricingEntry {
@@ -42,6 +44,9 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
   userVehicles: any[] = [];
   loadingVehicles: boolean = false;
   selectedVehicleId: number | null = null;
+  recentBookings: Booking[] = [];
+  loadingRecentBookings: boolean = false;
+  recentBookingsError: string = '';
 
   // Vehicle types with descriptions
   vehicleTypes = [
@@ -67,6 +72,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
     private router: Router,
     private http: HttpClient,
     private apiCache: ApiCacheService,
+    private bookingService: BookingService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -78,6 +84,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
       this.loadServicePackages();
       setTimeout(() => this.loadPricingData(), 400);
       setTimeout(() => this.loadUserVehicles(), 800);
+      setTimeout(() => this.loadRecentBookings(), 1000);
 
       // Listen for profile updates
       window.addEventListener(
@@ -191,6 +198,110 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
           this.loadingVehicles = false;
         },
       });
+  }
+
+  loadRecentBookings(): void {
+    if (!this.customerId) return;
+
+    this.loadingRecentBookings = true;
+    this.recentBookingsError = '';
+
+    this.bookingService.getBookingsByCustomerId(this.customerId).subscribe({
+      next: (bookings) => {
+        this.recentBookings = (bookings || [])
+          .sort(
+            (a, b) => this.getBookingSortTime(b) - this.getBookingSortTime(a),
+          )
+          .slice(0, 3);
+        this.loadingRecentBookings = false;
+      },
+      error: (error) => {
+        this.recentBookings = [];
+        this.recentBookingsError =
+          error?.message || 'Unable to load recent bookings.';
+        this.loadingRecentBookings = false;
+      },
+    });
+  }
+
+  private getBookingSortTime(booking: Booking): number {
+    const bookingDate = (booking as any).washDate || (booking as any).wash_date;
+    const bookingTime =
+      (booking as any).washTime || (booking as any).wash_time || '00:00';
+    const createdDate =
+      (booking as any).dateCreated || (booking as any).date_created;
+    const dateValue = bookingDate
+      ? `${bookingDate}T${bookingTime}`
+      : createdDate;
+    const time = new Date(dateValue).getTime();
+    return isNaN(time) ? 0 : time;
+  }
+
+  getBookingServiceName(booking: Booking): string {
+    return (
+      (booking as any).serviceName ||
+      (booking as any).service_name ||
+      (booking as any).services ||
+      (booking as any).servicePackage ||
+      (booking as any).service_package ||
+      'Car wash service'
+    );
+  }
+
+  getBookingVehicle(booking: Booking): string {
+    return (
+      (booking as any).nickname ||
+      (booking as any).vehicleModel ||
+      (booking as any).vehicle_model ||
+      (booking as any).plateNumber ||
+      (booking as any).plate_number ||
+      'Vehicle'
+    );
+  }
+
+  getBookingDateTime(booking: Booking): string {
+    const date = (booking as any).washDate || (booking as any).wash_date;
+    const time = (booking as any).washTime || (booking as any).wash_time;
+
+    if (!date) return 'Schedule not set';
+
+    const parsedDate = new Date(`${date}T${time || '00:00'}`);
+    if (isNaN(parsedDate.getTime()))
+      return `${date}${time ? ' • ' + time : ''}`;
+
+    const dateText = parsedDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    return time ? `${dateText} • ${time}` : dateText;
+  }
+
+  displayBookingStatus(status: string): string {
+    const normalized = (status || '').toString().trim().toLowerCase();
+    if (normalized === 'confirmed' || normalized === 'approved')
+      return 'Ongoing';
+    if (normalized === 'completed' || normalized === 'done') return 'Completed';
+    if (normalized === 'rejected') return 'Declined';
+    if (normalized === 'cancelled' || normalized === 'canceled')
+      return 'Cancelled';
+    if (normalized === 'expired') return 'Expired';
+    return normalized
+      ? normalized.charAt(0).toUpperCase() + normalized.slice(1)
+      : 'Pending';
+  }
+
+  normalizeBookingStatus(status: string): string {
+    const normalized = (status || '').toString().trim().toLowerCase();
+    if (normalized === 'confirmed') return 'approved';
+    if (normalized === 'done') return 'completed';
+    if (normalized === 'canceled') return 'cancelled';
+    return normalized || 'pending';
+  }
+
+  navigateToHistory(): void {
+    this.router.navigate(['/customer-view/tranaction-hitory']);
   }
 
   selectVehicle(vehicleId: number): void {

@@ -76,6 +76,87 @@
     </div>
   </div>
 
+  <!-- Recent Booking History -->
+  <div class="recent-history-section">
+    <div class="recent-history-header">
+      <div>
+        <h2>Recent Booking History</h2>
+        <p>Latest car wash bookings and statuses.</p>
+      </div>
+      <button class="btn-view-history" (click)="navigateToHistory()">
+        View all
+        <i class="material-icons">arrow_forward</i>
+      </button>
+    </div>
+
+    <div *ngIf="loadingRecentBookings" class="recent-history-loading">
+      <div class="loading-spinner"></div>
+      <p>Loading recent bookings...</p>
+    </div>
+
+    <div
+      *ngIf="!loadingRecentBookings && recentBookingsError"
+      class="recent-history-error"
+    >
+      {{ recentBookingsError }}
+    </div>
+
+    <div
+      *ngIf="
+        !loadingRecentBookings &&
+        !recentBookingsError &&
+        recentBookings.length === 0
+      "
+      class="recent-history-empty"
+    >
+      <i class="material-icons">event_note</i>
+      <div>
+        <h3>No bookings yet</h3>
+        <p>Your recent booking history will appear here after booking.</p>
+      </div>
+      <button
+        class="btn-primary recent-empty-action"
+        (click)="navigateToAppointment()"
+      >
+        Book now
+      </button>
+    </div>
+
+    <div
+      *ngIf="
+        !loadingRecentBookings &&
+        !recentBookingsError &&
+        recentBookings.length > 0
+      "
+      class="recent-bookings-grid"
+    >
+      <div *ngFor="let booking of recentBookings" class="recent-booking-card">
+        <div class="recent-booking-top">
+          <span class="recent-service">{{
+            getBookingServiceName(booking)
+          }}</span>
+          <span
+            class="recent-status"
+            [ngClass]="'status-' + normalizeBookingStatus(booking.status)"
+          >
+            {{ displayBookingStatus(booking.status) }}
+          </span>
+        </div>
+        <div class="recent-booking-detail">
+          <i class="material-icons">directions_car</i>
+          <span>{{ getBookingVehicle(booking) }}</span>
+        </div>
+        <div class="recent-booking-detail">
+          <i class="material-icons">schedule</i>
+          <span>{{ getBookingDateTime(booking) }}</span>
+        </div>
+        <div class="recent-booking-price" *ngIf="booking.price">
+          {{ formatPrice(booking.price) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Authentication Error Section -->
   <div
     *ngIf="
