@@ -1,4 +1,4 @@
-    <?php
+<?php
 
 
     require_once "global.php";
@@ -9,6 +9,50 @@
         public function __construct(\PDO $pdo) {
             $this->pdo = $pdo;
         }
+
+    // =========================================================
+    // SERVER-SIDE FILE CACHE HELPER
+    // Fixes 429 Too Many Requests on Hostinger shared hosting.
+    // Cache files are stored in autowash-hub-api/cache/
+    // =========================================================
+    private function getCachedOrFetch(string $cacheKey, int $ttl, callable $fetchFn) {
+        $cacheDir = __DIR__ . '/../../cache/';
+        $cacheFile = $cacheDir . md5($cacheKey) . '.json';
+
+        // Serve from cache if still fresh
+        if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $ttl) {
+            return json_decode(file_get_contents($cacheFile), true);
+        }
+
+        // Fetch fresh data from DB
+        $result = $fetchFn();
+
+        // Save to cache only on success
+        if (
+            isset($result['status']['remarks']) &&
+            $result['status']['remarks'] === 'success'
+        ) {
+            if (!is_dir($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
+            file_put_contents($cacheFile, json_encode($result));
+        }
+
+        return $result;
+    }
+
+    // Call this after admin updates landing content, packages, or pricing
+    public function clearLandingCache(): void {
+        $cacheDir = __DIR__ . '/../../cache/';
+        $keys = ['get_landing_page_content', 'get_packages', 'get_pricing_matrix'];
+        foreach ($keys as $key) {
+            $file = $cacheDir . md5($key) . '.json';
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+    // =========================================================
 
     private function hasColumn(string $table, string $column): bool {
         try {
@@ -53,7 +97,6 @@
             $this->pdo->exec("UPDATE customer_feedback SET service_rating = rating WHERE service_rating IS NULL");
             $this->pdo->exec("UPDATE customer_feedback SET service_comment = comment WHERE service_comment IS NULL");
         } catch (\PDOException $e) {
-            // Best-effort: log and continue
             error_log("Feedback column check failed: " . $e->getMessage());
         }
     }
@@ -72,12 +115,10 @@
                     $result = null;
                     return array("code" => $code, "data" => $data);
                 } else {
-                    // if no record found, assign corresponding values to error messages/status
                     $errmsg = "No records found";
                     $code = 404;
                 }
             } catch (\PDOException $e) {
-                // PDO errors, mysql errors
                 $errmsg = $e->getMessage();
                 $code = 403;
             }
@@ -137,7 +178,6 @@
                 $stmt->execute();
                 $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Add sequential display index (1..N) independent of database id
                 foreach ($customers as $index => &$customer) {
                     $customer['display_id'] = $index + 1;
                 }
@@ -187,7 +227,6 @@
                 $stmt->execute();
                 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Add sequential display index (1..N) independent of database id
                 foreach ($employees as $index => &$employee) {
                     $employee['display_id'] = $index + 1;
                 }
@@ -211,7 +250,6 @@
 
         public function get_all_admins() {
             try {
-                // Check if is_approved column exists on admins
                 $hasIsApprovedColumn = false;
                 try {
                     $checkSql = "SHOW COLUMNS FROM admins LIKE 'is_approved'";
@@ -221,7 +259,6 @@
                     $hasIsApprovedColumn = false;
                 }
 
-                // Include is_approved if available
                 if ($hasIsApprovedColumn) {
                     $sql = "SELECT id, admin_id, first_name, last_name, email, phone, created_at, is_approved FROM admins ORDER BY id DESC";
                 } else {
@@ -232,7 +269,6 @@
                 $stmt->execute();
                 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Add sequential display index (1..N) independent of database id
                 foreach ($admins as $index => &$admin) {
                     $admin['display_id'] = $index + 1;
                 }
@@ -570,7 +606,6 @@
                 $year = isset($_GET['year']) ? (int)$_GET['year'] : null;
 
                 if ($year !== null && $year >= 2000 && $year <= 2100) {
-                    // Get monthly revenue for the specified year (Jan–Dec)
                     $sql = "SELECT 
                                 DATE_FORMAT(wash_date, '%Y-%m') as month,
                                 SUM(price) as revenue,
@@ -591,7 +626,6 @@
                         ':year_end' => $year . '-12-31'
                     ]);
                 } else {
-                    // Default: last 6 months (no year param or invalid year)
                     $sql = "SELECT 
                                 DATE_FORMAT(wash_date, '%Y-%m') as month,
                                 SUM(price) as revenue,
@@ -629,8 +663,6 @@
 
         public function get_service_distribution() {
             try {
-                // Query bookings directly and group by service_package
-                // Extract package code (handle formats like "p1", "p1 - Wash only", "p1- Wash", etc.)
                 $sql = "SELECT 
                             TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) as package_code,
                             COUNT(b.id) as booking_count,
@@ -735,16 +767,7 @@
                 $stmt->execute();
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $orderedDays = [
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday',
-                    'Sunday'
-                ];
-
+                $orderedDays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
                 $counts = array_fill_keys($orderedDays, 0);
 
                 foreach ($rows as $row) {
@@ -756,10 +779,7 @@
 
                 $weeklyBookings = [];
                 foreach ($orderedDays as $day) {
-                    $weeklyBookings[] = [
-                        'day' => $day,
-                        'bookings_count' => $counts[$day] ?? 0
-                    ];
+                    $weeklyBookings[] = ['day' => $day, 'bookings_count' => $counts[$day] ?? 0];
                 }
 
                 return $this->sendPayload(
@@ -780,27 +800,15 @@
 
         public function get_weekly_bookings_range() {
             try {
-                // Get start_date and end_date from query parameters
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
-                // Validate date format (YYYY-MM-DD)
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
                 $sql = "SELECT 
@@ -822,16 +830,7 @@
                 $stmt->execute([$startDate, $endDate]);
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $orderedDays = [
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday',
-                    'Sunday'
-                ];
-
+                $orderedDays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
                 $counts = array_fill_keys($orderedDays, 0);
 
                 foreach ($rows as $row) {
@@ -843,10 +842,7 @@
 
                 $weeklyBookings = [];
                 foreach ($orderedDays as $day) {
-                    $weeklyBookings[] = [
-                        'day' => $day,
-                        'bookings_count' => $counts[$day] ?? 0
-                    ];
+                    $weeklyBookings[] = ['day' => $day, 'bookings_count' => $counts[$day] ?? 0];
                 }
 
                 return $this->sendPayload(
@@ -856,38 +852,21 @@
                     200
                 );
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve weekly bookings: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve weekly bookings: " . $e->getMessage(), 500);
             }
         }
 
         public function get_monthly_bookings_range() {
             try {
-                // Get start_date and end_date from query parameters
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
-                // Validate date format (YYYY-MM-DD)
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
                 $sql = "SELECT 
@@ -908,10 +887,8 @@
                 $stmt->execute([$startDate, $endDate]);
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Get the number of days in the month
                 $endDateTime = new \DateTime($endDate);
-                $daysInMonth = $endDateTime->format('t'); // 't' = number of days in month
-
+                $daysInMonth = $endDateTime->format('t');
                 $counts = array_fill_keys(range(1, $daysInMonth), 0);
 
                 foreach ($rows as $row) {
@@ -924,10 +901,7 @@
 
                 $monthlyBookings = [];
                 for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $monthlyBookings[] = [
-                        'day' => (string) $day,
-                        'bookings_count' => $counts[$day] ?? 0
-                    ];
+                    $monthlyBookings[] = ['day' => (string) $day, 'bookings_count' => $counts[$day] ?? 0];
                 }
 
                 return $this->sendPayload(
@@ -937,18 +911,12 @@
                     200
                 );
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve monthly bookings: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve monthly bookings: " . $e->getMessage(), 500);
             }
         }
 
         public function get_inventory() {
             try {
-                // Ensure table exists to avoid 500s on fresh databases
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS inventory (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
@@ -960,7 +928,6 @@
                     updated_at TIMESTAMP NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-                // Ensure required columns exist on legacy tables
                 $requiredColumns = [
                     'image_url' => "ALTER TABLE inventory ADD COLUMN image_url VARCHAR(1024) NULL",
                     'stock' => "ALTER TABLE inventory ADD COLUMN stock INT NOT NULL DEFAULT 0",
@@ -974,7 +941,7 @@
                     $checkStmt->execute([$column]);
                     $exists = (int)$checkStmt->fetchColumn() > 0;
                     if (!$exists) {
-                        try { $this->pdo->exec($alterSql); } catch (\PDOException $e) { /* ignore if race */ }
+                        try { $this->pdo->exec($alterSql); } catch (\PDOException $e) { }
                     }
                 }
 
@@ -983,26 +950,14 @@
                 $stmt->execute();
                 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                return $this->sendPayload(
-                    ['inventory' => $items],
-                    "success",
-                    "Inventory retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['inventory' => $items], "success", "Inventory retrieved successfully", 200);
             } catch (\PDOException $e) {
-                // If something unexpected occurs, still return an empty list so UI can work
-                return $this->sendPayload(
-                    ['inventory' => []],
-                    "failed",
-                    "Failed to retrieve inventory: " . $e->getMessage(),
-                    200
-                );
+                return $this->sendPayload(['inventory' => []], "failed", "Failed to retrieve inventory: " . $e->getMessage(), 200);
             }
         }
 
         public function get_inventory_requests() {
             try {
-                // Ensure inventory_requests table exists
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS inventory_requests (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     item_id INT NOT NULL,
@@ -1023,25 +978,14 @@
                 $stmt->execute();
                 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                return $this->sendPayload(
-                    ['inventory_requests' => $requests],
-                    "success",
-                    "Inventory requests retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['inventory_requests' => $requests], "success", "Inventory requests retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    ['inventory_requests' => []],
-                    "failed",
-                    "Failed to retrieve inventory requests: " . $e->getMessage(),
-                    200
-                );
+                return $this->sendPayload(['inventory_requests' => []], "failed", "Failed to retrieve inventory requests: " . $e->getMessage(), 200);
             }
         }
 
         public function get_inventory_history() {
             try {
-                // Ensure inventory_history table exists
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS inventory_history (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     item_id INT NOT NULL,
@@ -1063,43 +1007,21 @@
                 $stmt->execute();
                 $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                return $this->sendPayload(
-                    ['inventory_history' => $history],
-                    "success",
-                    "Inventory history retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['inventory_history' => $history], "success", "Inventory history retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    ['inventory_history' => []],
-                    "failed",
-                    "Failed to retrieve inventory history: " . $e->getMessage(),
-                    200
-                );
+                return $this->sendPayload(['inventory_history' => []], "failed", "Failed to retrieve inventory history: " . $e->getMessage(), 200);
             }
         }
 
-        // New methods for the updated database schema
         public function get_vehicle_types() {
             try {
                 $sql = "SELECT id, name, description, base_price_multiplier, is_active FROM vehicle_types WHERE is_active = 1 ORDER BY name";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $vehicleTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['vehicle_types' => $vehicleTypes],
-                    "success",
-                    "Vehicle types retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['vehicle_types' => $vehicleTypes], "success", "Vehicle types retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve vehicle types: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve vehicle types: " . $e->getMessage(), 500);
             }
         }
 
@@ -1109,20 +1031,9 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['payment_methods' => $paymentMethods],
-                    "success",
-                    "Payment methods retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['payment_methods' => $paymentMethods], "success", "Payment methods retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve payment methods: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve payment methods: " . $e->getMessage(), 500);
             }
         }
 
@@ -1132,20 +1043,9 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $timeSlots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['time_slots' => $timeSlots],
-                    "success",
-                    "Time slots retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['time_slots' => $timeSlots], "success", "Time slots retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve time slots: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve time slots: " . $e->getMessage(), 500);
             }
         }
 
@@ -1175,28 +1075,14 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$date]);
                 $availableSlots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['available_time_slots' => $availableSlots],
-                    "success",
-                    "Available time slots retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['available_time_slots' => $availableSlots], "success", "Available time slots retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve available time slots: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve available time slots: " . $e->getMessage(), 500);
             }
         }
 
-
-
         public function get_service_categories() {
             try {
-                // Ensure table exists so this endpoint never 500s on a fresh database
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS service_categories (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
@@ -1206,7 +1092,6 @@
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-                // Seed default categories if empty (aligned with p1–p4 pricing packages)
                 $countStmt = $this->pdo->query("SELECT COUNT(*) AS cnt FROM service_categories");
                 $count = (int)($countStmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0);
 
@@ -1223,20 +1108,9 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['service_categories' => $categories],
-                    "success",
-                    "Service categories retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['service_categories' => $categories], "success", "Service categories retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve service categories: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve service categories: " . $e->getMessage(), 500);
             }
         }
 
@@ -1289,20 +1163,9 @@
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$limit]);
                 $feedback = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['customer_feedback' => $feedback],
-                    "success",
-                    "Customer feedback retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['customer_feedback' => $feedback], "success", "Customer feedback retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve customer feedback: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve customer feedback: " . $e->getMessage(), 500);
             }
         }
 
@@ -1335,26 +1198,14 @@
                     $sql .= $employeeId ? " AND es.work_date = ?" : " WHERE es.work_date = ?";
                     $params[] = $date;
                 }
-                
                 $sql .= " ORDER BY es.work_date, es.start_time";
                 
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
                 $schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['employee_schedules' => $schedules],
-                    "success",
-                    "Employee schedules retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['employee_schedules' => $schedules], "success", "Employee schedules retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve employee schedules: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve employee schedules: " . $e->getMessage(), 500);
             }
         }
 
@@ -1365,29 +1216,15 @@
                 $stmt->execute();
                 $settings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
-                // Convert to associative array for easier access
                 $settingsArray = [];
                 foreach ($settings as $setting) {
                     $settingsArray[$setting['setting_key']] = $setting['setting_value'];
                 }
-                
-                return $this->sendPayload(
-                    ['system_settings' => $settingsArray],
-                    "success",
-                    "System settings retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['system_settings' => $settingsArray], "success", "System settings retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve system settings: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve system settings: " . $e->getMessage(), 500);
             }
         }
-
-
 
         public function get_booking_details($bookingId) {
             try {
@@ -1423,297 +1260,164 @@
                 $booking = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if (!$booking) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Booking not found",
-                        404
-                    );
+                    return $this->sendPayload(null, "failed", "Booking not found", 404);
                 }
-                
-                return $this->sendPayload(
-                    ['booking' => $booking],
-                    "success",
-                    "Booking details retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['booking' => $booking], "success", "Booking details retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve booking details: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve booking details: " . $e->getMessage(), 500);
             }
         }
 
         public function get_booking_history($bookingId) {
             try {
-                $sql = "SELECT 
-                            id,
-                            status_from,
-                            status_to,
-                            changed_by,
-                            notes,
-                            created_at
-                        FROM 
-                            booking_history 
-                        WHERE 
-                            booking_id = ? 
-                        ORDER BY 
-                            created_at DESC";
-                
+                $sql = "SELECT id, status_from, status_to, changed_by, notes, created_at
+                        FROM booking_history WHERE booking_id = ? ORDER BY created_at DESC";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$bookingId]);
                 $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['booking_history' => $history],
-                    "success",
-                    "Booking history retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['booking_history' => $history], "success", "Booking history retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve booking history: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve booking history: " . $e->getMessage(), 500);
             }
         }
 
-        /**
-         * Get all contact enquiries
-         */
         public function get_contact_enquiries() {
             try {
-                $sql = "SELECT 
-                            id,
-                            name,
-                            email,
-                            subject,
-                            message,
-                            created_at,
-                            status
-                        FROM 
-                            contact_messages 
-                        ORDER BY 
-                            created_at DESC";
-                
+                $sql = "SELECT id, name, email, subject, message, created_at, status
+                        FROM contact_messages ORDER BY created_at DESC";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $enquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    $enquiries,
-                    "success",
-                    "Contact enquiries retrieved successfully",
-                    200
-                );
+                return $this->sendPayload($enquiries, "success", "Contact enquiries retrieved successfully", 200);
             } catch (\PDOException $e) {
                 error_log("Error getting contact enquiries: " . $e->getMessage());
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve contact enquiries: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve contact enquiries: " . $e->getMessage(), 500);
             }
         }
 
-        /**
-         * Get all pricing entries
-         */
         public function get_all_pricing() {
             try {
                 $sql = "SELECT * FROM pricing ORDER BY vehicle_type, service_package";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute();
                 $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['pricing' => $pricing],
-                    "success",
-                    "Pricing data retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['pricing' => $pricing], "success", "Pricing data retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve pricing data: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve pricing data: " . $e->getMessage(), 500);
             }
         }
 
-        /**
-         * Get active packages from service_packages table (name/code, description)
-         */
+        // =========================================================
+        // CACHED: get_packages — 5 minute TTL
+        // =========================================================
         public function get_packages() {
-            try {
-                // service_packages schema: id, code, description, is_active, created_at, updated_at
-                // We expose it as {id, code, description, is_active} to keep frontend stable.
-                $sql = "SELECT id, code, description, is_active FROM service_packages WHERE is_active = 1 ORDER BY id";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute();
-                $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                return $this->sendPayload(
-                    ['packages' => $packages],
-                    "success",
-                    "Packages retrieved successfully",
-                    200
-                );
-            } catch (\PDOException $e) {
-                // Fallback: derive package codes from pricing so the app can still function.
+            return $this->getCachedOrFetch('get_packages', 300, function () {
                 try {
-                    $sql = "SELECT DISTINCT service_package FROM pricing WHERE is_active = 1 ORDER BY service_package";
+                    $sql = "SELECT id, code, description, is_active FROM service_packages WHERE is_active = 1 ORDER BY id";
                     $stmt = $this->pdo->prepare($sql);
                     $stmt->execute();
-                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    $descMap = [
-                        'p1' => 'Wash only',
-                        'p1_5' => 'Body Wash + Tire Black',
-                        'p2' => 'Wash / Vacuum',
-                        'p3' => 'Wash / Vacuum / Hand Wax',
-                        'p4' => 'Wash / Vacuum / Buffing Wax',
-                        '1' => 'Wash only',
-                        '1.5' => 'Body Wash + Tire Black',
-                        '2' => 'Wash / Vacuum',
-                        '3' => 'Wash / Vacuum / Hand Wax',
-                        '4' => 'Wash / Vacuum / Buffing Wax',
-                    ];
-
-                    $packages = array_map(function ($r) use ($descMap) {
-                        $code = $r['service_package'];
-                        return [
-                            'code' => $code,
-                            'description' => $descMap[$code] ?? 'Car wash service',
-                            'is_active' => 1
-                        ];
-                    }, $rows);
-
+                    $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     return $this->sendPayload(
                         ['packages' => $packages],
                         "success",
-                        "Packages derived from pricing (fallback).",
+                        "Packages retrieved successfully",
                         200
                     );
-                } catch (\PDOException $e2) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Failed to retrieve packages: " . $e->getMessage(),
-                        500
-                    );
+                } catch (\PDOException $e) {
+                    try {
+                        $sql = "SELECT DISTINCT service_package FROM pricing WHERE is_active = 1 ORDER BY service_package";
+                        $stmt = $this->pdo->prepare($sql);
+                        $stmt->execute();
+                        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        $descMap = [
+                            'p1' => 'Wash only', 'p1_5' => 'Body Wash + Tire Black',
+                            'p2' => 'Wash / Vacuum', 'p3' => 'Wash / Vacuum / Hand Wax',
+                            'p4' => 'Wash / Vacuum / Buffing Wax', '1' => 'Wash only',
+                            '1.5' => 'Body Wash + Tire Black', '2' => 'Wash / Vacuum',
+                            '3' => 'Wash / Vacuum / Hand Wax', '4' => 'Wash / Vacuum / Buffing Wax',
+                        ];
+
+                        $packages = array_map(function ($r) use ($descMap) {
+                            $code = $r['service_package'];
+                            return ['code' => $code, 'description' => $descMap[$code] ?? 'Car wash service', 'is_active' => 1];
+                        }, $rows);
+
+                        return $this->sendPayload(
+                            ['packages' => $packages],
+                            "success",
+                            "Packages derived from pricing (fallback).",
+                            200
+                        );
+                    } catch (\PDOException $e2) {
+                        return $this->sendPayload(null, "failed", "Failed to retrieve packages: " . $e->getMessage(), 500);
+                    }
                 }
-            }
+            });
         }
 
-        /**
-         * Get pricing matrix in a structured format (only for packages that exist in service_packages table)
-         */
+        // =========================================================
+        // CACHED: get_pricing_matrix — 5 minute TTL
+        // =========================================================
         public function get_pricing_matrix() {
-            try {
-                $sql = "SELECT p.vehicle_type, p.service_package, p.price
-                        FROM pricing p
-                        INNER JOIN service_packages sp ON p.service_package = sp.code AND sp.is_active = 1
-                        WHERE p.is_active = 1
-                        ORDER BY p.vehicle_type, p.service_package";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute();
-                $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Structure the data as a matrix
-                $matrix = [];
-                foreach ($pricing as $entry) {
-                    $vehicleType = $entry['vehicle_type'];
-                    $servicePackage = $entry['service_package'];
-                    $price = $entry['price'];
-                    
-                    if (!isset($matrix[$vehicleType])) {
-                        $matrix[$vehicleType] = [];
-                    }
-                    $matrix[$vehicleType][$servicePackage] = $price;
-                }
-                
-                return $this->sendPayload(
-                    ['pricing_matrix' => $matrix],
-                    "success",
-                    "Pricing matrix retrieved successfully",
-                    200
-                );
-            } catch (\PDOException $e) {
-                // Fallback for environments where `packages` table is missing:
-                // return matrix derived from pricing alone.
+            return $this->getCachedOrFetch('get_pricing_matrix', 300, function () {
                 try {
-                    $sql = "SELECT vehicle_type, service_package, price
-                            FROM pricing
-                            WHERE is_active = 1
-                            ORDER BY vehicle_type, service_package";
+                    $sql = "SELECT p.vehicle_type, p.service_package, p.price
+                            FROM pricing p
+                            INNER JOIN service_packages sp ON p.service_package = sp.code AND sp.is_active = 1
+                            WHERE p.is_active = 1
+                            ORDER BY p.vehicle_type, p.service_package";
                     $stmt = $this->pdo->prepare($sql);
                     $stmt->execute();
                     $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     $matrix = [];
                     foreach ($pricing as $entry) {
-                        $vehicleType = $entry['vehicle_type'];
-                        $servicePackage = $entry['service_package'];
-                        $price = $entry['price'];
-
-                        if (!isset($matrix[$vehicleType])) {
-                            $matrix[$vehicleType] = [];
-                        }
-                        $matrix[$vehicleType][$servicePackage] = $price;
+                        $matrix[$entry['vehicle_type']][$entry['service_package']] = $entry['price'];
                     }
 
-                    return $this->sendPayload(
-                        ['pricing_matrix' => $matrix],
-                        "success",
-                        "Pricing matrix derived from pricing (fallback).",
-                        200
-                    );
-                } catch (\PDOException $e2) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Failed to retrieve pricing matrix: " . $e->getMessage(),
-                        500
-                    );
+                    return $this->sendPayload(['pricing_matrix' => $matrix], "success", "Pricing matrix retrieved successfully", 200);
+                } catch (\PDOException $e) {
+                    try {
+                        $sql = "SELECT vehicle_type, service_package, price FROM pricing WHERE is_active = 1 ORDER BY vehicle_type, service_package";
+                        $stmt = $this->pdo->prepare($sql);
+                        $stmt->execute();
+                        $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        $matrix = [];
+                        foreach ($pricing as $entry) {
+                            $matrix[$entry['vehicle_type']][$entry['service_package']] = $entry['price'];
+                        }
+
+                        return $this->sendPayload(['pricing_matrix' => $matrix], "success", "Pricing matrix derived from pricing (fallback).", 200);
+                    } catch (\PDOException $e2) {
+                        return $this->sendPayload(null, "failed", "Failed to retrieve pricing matrix: " . $e->getMessage(), 500);
+                    }
                 }
-            }
+            });
         }
 
-        // Landing Page Content Management Methods
+        // =========================================================
+        // CACHED: get_landing_page_content — 10 minute TTL
+        // =========================================================
         public function get_landing_page_content() {
-            try {
-                $sql = "SELECT section_name, content_data FROM landing_page_content ORDER BY section_name";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute();
-                $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Convert to associative array for easier frontend consumption
-                $content = [];
-                foreach ($sections as $section) {
-                    $content[$section['section_name']] = json_decode($section['content_data'], true);
+            return $this->getCachedOrFetch('get_landing_page_content', 600, function () {
+                try {
+                    $sql = "SELECT section_name, content_data FROM landing_page_content ORDER BY section_name";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute();
+                    $sections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $content = [];
+                    foreach ($sections as $section) {
+                        $content[$section['section_name']] = json_decode($section['content_data'], true);
+                    }
+
+                    return $this->sendPayload($content, "success", "Landing page content retrieved successfully", 200);
+                } catch (\PDOException $e) {
+                    return $this->sendPayload(null, "failed", "Failed to retrieve landing page content: " . $e->getMessage(), 500);
                 }
-                
-                return $this->sendPayload(
-                    $content,
-                    "success",
-                    "Landing page content retrieved successfully",
-                    200
-                );
-            } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve landing page content: " . $e->getMessage(),
-                    500
-                );
-            }
+            });
         }
 
         public function get_landing_page_section($section_name) {
@@ -1725,74 +1429,31 @@
                 
                 if ($result) {
                     $content = json_decode($result['content_data'], true);
-                    return $this->sendPayload(
-                        $content,
-                        "success",
-                        "Section content retrieved successfully",
-                        200
-                    );
+                    return $this->sendPayload($content, "success", "Section content retrieved successfully", 200);
                 } else {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Section not found",
-                        404
-                    );
+                    return $this->sendPayload(null, "failed", "Section not found", 404);
                 }
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve section content: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve section content: " . $e->getMessage(), 500);
             }
         }
 
         public function get_customer_vehicles($customerId) {
             try {
                 if (!is_numeric($customerId) || $customerId <= 0) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid customer ID",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid customer ID", 400);
                 }
 
-                // Ensure customer_vehicles table exists
                 $this->ensure_customer_vehicles_table();
 
-                $sql = "SELECT 
-                            id,
-                            customer_id,
-                            nickname,
-                            vehicle_type,
-                            vehicle_model,
-                            plate_number,
-                            vehicle_color,
-                            created_at
-                        FROM customer_vehicles 
-                        WHERE customer_id = ? 
-                        ORDER BY created_at DESC";
-                
+                $sql = "SELECT id, customer_id, nickname, vehicle_type, vehicle_model, plate_number, vehicle_color, created_at
+                        FROM customer_vehicles WHERE customer_id = ? ORDER BY created_at DESC";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$customerId]);
                 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                return $this->sendPayload(
-                    ['vehicles' => $vehicles],
-                    "success",
-                    "Customer vehicles retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['vehicles' => $vehicles], "success", "Customer vehicles retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve customer vehicles: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve customer vehicles: " . $e->getMessage(), 500);
             }
         }
 
@@ -1815,7 +1476,6 @@
                 error_log("Failed to ensure customer_vehicles table: " . $e->getMessage());
             }
         }
-
 
         public function get_customer_dashboard_init($customerId) {
             try {
@@ -1845,155 +1505,79 @@
                 return $this->sendPayload(null, "failed", "Failed to load dashboard data: " . $e->getMessage(), 500);
             }
         }
+
         public function get_revenue_by_date_range() {
             try {
-                // Get start_date and end_date from query parameters
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
-                // Validate date format (YYYY-MM-DD)
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
                 $sql = "SELECT 
                             COALESCE(SUM(price), 0) as total_revenue,
                             COUNT(*) as completed_bookings
-                        FROM 
-                            bookings
-                        WHERE 
-                            DATE(wash_date) >= ?
-                            AND DATE(wash_date) <= ?
-                            AND status IN ('Complete', 'Completed')";
+                        FROM bookings
+                        WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ? AND status IN ('Complete', 'Completed')";
 
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$startDate, $endDate]);
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$result) {
-                    $result = [
-                        'total_revenue' => 0,
-                        'completed_bookings' => 0
-                    ];
+                    $result = ['total_revenue' => 0, 'completed_bookings' => 0];
                 }
 
-                return $this->sendPayload(
-                    $result,
-                    "success",
-                    "Revenue data retrieved successfully",
-                    200
-                );
+                return $this->sendPayload($result, "success", "Revenue data retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve revenue data: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve revenue data: " . $e->getMessage(), 500);
             }
         }
 
         public function get_daily_revenue_range() {
             try {
-                // Get start_date and end_date from query parameters
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
-                // Validate date format (YYYY-MM-DD)
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
-                $sql = "SELECT 
-                            DAY(wash_date) as day,
-                            COALESCE(SUM(price), 0) as revenue,
-                            COUNT(*) as bookings
-                        FROM 
-                            bookings
-                        WHERE 
-                            DATE(wash_date) >= ?
-                            AND DATE(wash_date) <= ?
-                            AND status IN ('Complete', 'Completed')
-                        GROUP BY 
-                            DAY(wash_date)
-                        ORDER BY 
-                            day ASC";
+                $sql = "SELECT DAY(wash_date) as day, COALESCE(SUM(price), 0) as revenue, COUNT(*) as bookings
+                        FROM bookings
+                        WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ? AND status IN ('Complete', 'Completed')
+                        GROUP BY DAY(wash_date) ORDER BY day ASC";
 
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$startDate, $endDate]);
                 $dailyRevenue = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if (!$dailyRevenue) {
-                    $dailyRevenue = [];
-                }
-
-                return $this->sendPayload(
-                    ['daily_revenue' => $dailyRevenue],
-                    "success",
-                    "Daily revenue data retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['daily_revenue' => $dailyRevenue ?: []], "success", "Daily revenue data retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve daily revenue data: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve daily revenue data: " . $e->getMessage(), 500);
             }
         }
 
         public function get_weekly_revenue_range() {
             try {
-                // Get start_date and end_date from query parameters
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
-                // Validate date format (YYYY-MM-DD)
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
                 $sql = "SELECT 
@@ -2002,82 +1586,44 @@
                             DATE_FORMAT(DATE_ADD(wash_date, INTERVAL 7-DAYOFWEEK(wash_date) DAY), '%Y-%m-%d') as week_end_date,
                             COALESCE(SUM(price), 0) as revenue,
                             COUNT(*) as bookings
-                        FROM 
-                            bookings
-                        WHERE 
-                            DATE(wash_date) >= ?
-                            AND DATE(wash_date) <= ?
-                            AND status IN ('Complete', 'Completed')
-                        GROUP BY 
-                            WEEK(wash_date),
-                            YEAR(wash_date)
-                        ORDER BY 
-                            YEAR(wash_date) ASC,
-                            WEEK(wash_date) ASC";
+                        FROM bookings
+                        WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ? AND status IN ('Complete', 'Completed')
+                        GROUP BY WEEK(wash_date), YEAR(wash_date)
+                        ORDER BY YEAR(wash_date) ASC, WEEK(wash_date) ASC";
 
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([$startDate, $endDate]);
                 $weeklyData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if (!$weeklyData) {
-                    $weeklyData = [];
-                } else {
-                    // Format the response to match frontend expectations
-                    $weeklyData = array_map(function($row) {
-                        return [
-                            'week' => (int)$row['week'],
-                            'startDate' => $row['week_start_date'],
-                            'endDate' => $row['week_end_date'],
-                            'revenue' => (float)$row['revenue'],
-                            'bookings' => (int)$row['bookings']
-                        ];
-                    }, $weeklyData);
-                }
+                $weeklyData = array_map(function ($row) {
+                    return [
+                        'week' => (int)$row['week'],
+                        'startDate' => $row['week_start_date'],
+                        'endDate' => $row['week_end_date'],
+                        'revenue' => (float)$row['revenue'],
+                        'bookings' => (int)$row['bookings']
+                    ];
+                }, $weeklyData ?: []);
 
-                return $this->sendPayload(
-                    ['weekly_revenue' => $weeklyData],
-                    "success",
-                    "Weekly revenue data retrieved successfully",
-                    200
-                );
+                return $this->sendPayload(['weekly_revenue' => $weeklyData], "success", "Weekly revenue data retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve weekly revenue data: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve weekly revenue data: " . $e->getMessage(), 500);
             }
         }
 
-        /**
-         * Get comprehensive report summary for PDF export (weekly or monthly).
-         * Returns booking stats, revenue, customers, service breakdown, and activity data.
-         */
         public function get_report_summary() {
             try {
                 $startDate = $_GET['start_date'] ?? null;
                 $endDate = $_GET['end_date'] ?? null;
 
                 if (!$startDate || !$endDate) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "start_date and end_date parameters are required",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "start_date and end_date parameters are required", 400);
                 }
 
                 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                    return $this->sendPayload(
-                        null,
-                        "failed",
-                        "Invalid date format. Use YYYY-MM-DD",
-                        400
-                    );
+                    return $this->sendPayload(null, "failed", "Invalid date format. Use YYYY-MM-DD", 400);
                 }
 
-                // Booking counts by status
                 $sql = "SELECT 
                             COUNT(*) as total_bookings,
                             SUM(CASE WHEN status IN ('Complete', 'Completed') THEN 1 ELSE 0 END) as completed_bookings,
@@ -2094,16 +1640,11 @@
                 $completedBookings = (int)($summary['completed_bookings'] ?? 0);
                 $avgPerWash = $completedBookings > 0 ? round($totalRevenue / $completedBookings, 0) : 0;
 
-                // New vs returning customers (distinct customers)
                 $newCustomersSql = "SELECT COUNT(DISTINCT b.customer_id) as count
                     FROM bookings b
                     WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
                     AND b.status IN ('Complete', 'Completed')
-                    AND NOT EXISTS (
-                        SELECT 1 FROM bookings b2
-                        WHERE b2.customer_id = b.customer_id
-                        AND b2.status IN ('Complete', 'Completed')
-                        AND DATE(b2.wash_date) < ?)";
+                    AND NOT EXISTS (SELECT 1 FROM bookings b2 WHERE b2.customer_id = b.customer_id AND b2.status IN ('Complete', 'Completed') AND DATE(b2.wash_date) < ?)";
                 $stmt = $this->pdo->prepare($newCustomersSql);
                 $stmt->execute([$startDate, $endDate, $startDate]);
                 $newCustomers = (int)($stmt->fetchColumn() ?? 0);
@@ -2112,16 +1653,11 @@
                     FROM bookings b
                     WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
                     AND b.status IN ('Complete', 'Completed')
-                    AND EXISTS (
-                        SELECT 1 FROM bookings b2
-                        WHERE b2.customer_id = b.customer_id
-                        AND b2.status IN ('Complete', 'Completed')
-                        AND DATE(b2.wash_date) < ?)";
+                    AND EXISTS (SELECT 1 FROM bookings b2 WHERE b2.customer_id = b.customer_id AND b2.status IN ('Complete', 'Completed') AND DATE(b2.wash_date) < ?)";
                 $stmt = $this->pdo->prepare($returningSql);
                 $stmt->execute([$startDate, $endDate, $startDate]);
                 $returningCustomers = (int)($stmt->fetchColumn() ?? 0);
 
-                // Service breakdown for date range
                 $serviceSql = "SELECT 
                     CASE 
                         WHEN TRIM(LOWER(SUBSTRING_INDEX(SUBSTRING_INDEX(b.service_package, ' ', 1), '-', 1))) IN ('p1', '1') OR LOWER(b.service_package) LIKE 'p1%' OR LOWER(b.service_package) LIKE '1%' THEN 'Basic Wash'
@@ -2136,8 +1672,7 @@
                 WHERE DATE(b.wash_date) >= ? AND DATE(b.wash_date) <= ?
                 AND b.service_package IS NOT NULL AND b.service_package != ''
                 AND b.status IN ('Complete', 'Completed')
-                GROUP BY service_name
-                ORDER BY washes DESC";
+                GROUP BY service_name ORDER BY washes DESC";
                 $stmt = $this->pdo->prepare($serviceSql);
                 $stmt->execute([$startDate, $endDate]);
                 $serviceRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -2146,24 +1681,12 @@
                 foreach ($serviceRows as $row) {
                     $rev = (float)($row['revenue'] ?? 0);
                     $pct = $totalRevenue > 0 ? round(($rev / $totalRevenue) * 100, 0) : 0;
-                    $serviceBreakdown[] = [
-                        'service_name' => $row['service_name'],
-                        'washes' => (int)($row['washes'] ?? 0),
-                        'revenue' => $rev,
-                        'percentage' => $pct
-                    ];
+                    $serviceBreakdown[] = ['service_name' => $row['service_name'], 'washes' => (int)($row['washes'] ?? 0), 'revenue' => $rev, 'percentage' => $pct];
                 }
 
-                // Daily bookings (Mon-Sun) for weekly report
-                $dailySql = "SELECT 
-                    WEEKDAY(wash_date) as weekday_index,
-                    DATE_FORMAT(wash_date, '%W') as day_name,
-                    COUNT(*) as bookings_count
-                FROM bookings
-                WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ?
-                AND status IN ('Complete', 'Completed')
-                GROUP BY weekday_index, day_name
-                ORDER BY weekday_index";
+                $dailySql = "SELECT WEEKDAY(wash_date) as weekday_index, DATE_FORMAT(wash_date, '%W') as day_name, COUNT(*) as bookings_count
+                    FROM bookings WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ? AND status IN ('Complete', 'Completed')
+                    GROUP BY weekday_index, day_name ORDER BY weekday_index";
                 $stmt = $this->pdo->prepare($dailySql);
                 $stmt->execute([$startDate, $endDate]);
                 $dailyRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -2171,34 +1694,23 @@
                 $dailyCounts = array_fill_keys($orderedDays, 0);
                 foreach ($dailyRows as $r) {
                     $dn = $r['day_name'] ?? null;
-                    if ($dn && isset($dailyCounts[$dn])) {
-                        $dailyCounts[$dn] = (int)($r['bookings_count'] ?? 0);
-                    }
+                    if ($dn && isset($dailyCounts[$dn])) $dailyCounts[$dn] = (int)($r['bookings_count'] ?? 0);
                 }
                 $dailyBookings = [];
                 foreach ($orderedDays as $d) {
                     $dailyBookings[] = ['day' => substr($d, 0, 3), 'bookings_count' => $dailyCounts[$d]];
                 }
 
-                // Weekly bookings (Week 1-4) for monthly report
-                $weeklySql = "SELECT 
-                    FLOOR((DAY(wash_date) - 1) / 7) + 1 as week_num,
-                    COALESCE(SUM(price), 0) as revenue,
-                    COUNT(*) as bookings
-                FROM bookings
-                WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ?
-                AND status IN ('Complete', 'Completed')
-                GROUP BY week_num
-                ORDER BY week_num";
+                $weeklySql = "SELECT FLOOR((DAY(wash_date) - 1) / 7) + 1 as week_num, COALESCE(SUM(price), 0) as revenue, COUNT(*) as bookings
+                    FROM bookings WHERE DATE(wash_date) >= ? AND DATE(wash_date) <= ? AND status IN ('Complete', 'Completed')
+                    GROUP BY week_num ORDER BY week_num";
                 $stmt = $this->pdo->prepare($weeklySql);
                 $stmt->execute([$startDate, $endDate]);
                 $weeklyRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $weeklyBookings = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
                 foreach ($weeklyRows as $r) {
                     $wn = (int)($r['week_num'] ?? 1);
-                    if ($wn >= 1 && $wn <= 4) {
-                        $weeklyBookings[$wn] = (int)($r['bookings'] ?? 0);
-                    }
+                    if ($wn >= 1 && $wn <= 4) $weeklyBookings[$wn] = (int)($r['bookings'] ?? 0);
                 }
 
                 $payload = [
@@ -2215,19 +1727,9 @@
                     'weekly_bookings' => array_values($weeklyBookings)
                 ];
 
-                return $this->sendPayload(
-                    $payload,
-                    "success",
-                    "Report summary retrieved successfully",
-                    200
-                );
+                return $this->sendPayload($payload, "success", "Report summary retrieved successfully", 200);
             } catch (\PDOException $e) {
-                return $this->sendPayload(
-                    null,
-                    "failed",
-                    "Failed to retrieve report summary: " . $e->getMessage(),
-                    500
-                );
+                return $this->sendPayload(null, "failed", "Failed to retrieve report summary: " . $e->getMessage(), 500);
             }
         }
     }
