@@ -91,9 +91,7 @@ export class BookingService {
             mergeMap((error, index) => {
               const retryAttempt = index + 1;
               const shouldRetry =
-                retryAttempt <= 3 &&
-                (error.status === 429 ||
-                  (error.status >= 500 && error.status < 600));
+                retryAttempt <= 1 && error.status >= 500 && error.status < 600;
 
               if (!shouldRetry) {
                 return throwError(() => error);

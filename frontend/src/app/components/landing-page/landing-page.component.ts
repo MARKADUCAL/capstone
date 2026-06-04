@@ -9,8 +9,8 @@ import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { of, throwError, timer } from 'rxjs';
-import { catchError, mergeMap, retryWhen, switchMap } from 'rxjs/operators';
+import { of, timer } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import { ContactService, ContactForm } from '../../services/contact.service';
 import {
@@ -18,6 +18,7 @@ import {
   ApiResponse,
   LandingPageContent,
 } from '../../services/landing-page.service';
+import { ApiCacheService } from '../../services/api-cache.service';
 import { environment } from '../../../environments/environment';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
@@ -95,6 +96,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   pricingError: string = '';
   pricingMatrix: PricingMatrix = {};
   pricingEntries: PricingEntry[] = [];
+  private pricingLoaded = false;
 
   // Services data properties
   servicesLoading: boolean = false;
@@ -111,6 +113,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     private contactService: ContactService,
     private landingPageService: LandingPageService,
     private http: HttpClient,
+    private apiCache: ApiCacheService,
   ) {}
 
   // Dynamic content loaded from database
@@ -464,23 +467,20 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   // Pricing methods
   loadPricingData(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (this.pricingLoaded || this.loading) return;
     this.loading = true;
     this.pricingError = '';
 
-    this.http
+    this.apiCache
       .get<any>(`${environment.apiUrl}/get_packages`)
       .pipe(
-        this.retryRateLimitedRequest(),
         catchError(() => of(null)),
         switchMap((packagesRes) =>
           timer(400).pipe(
             switchMap(() =>
-              this.http
+              this.apiCache
                 .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
-                .pipe(
-                  this.retryRateLimitedRequest(),
-                  catchError(() => of(null)),
-                ),
+                .pipe(catchError(() => of(null))),
             ),
             switchMap((pricingRes) => of({ packagesRes, pricingRes })),
           ),
@@ -510,6 +510,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             this.derivePackagesFromMatrix();
           }
           this.deriveVehicleTypes();
+          this.pricingLoaded = true;
           this.loading = false;
         },
         error: (error) => {
@@ -517,28 +518,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.pricingError = 'Unable to load pricing data. Please try again.';
           this.deriveVehicleTypes();
           this.loading = false;
+          this.pricingLoaded = false;
         },
       });
-  }
-
-  private retryRateLimitedRequest<T>() {
-    return retryWhen<T>((errors) =>
-      errors.pipe(
-        mergeMap((error, index) => {
-          const retryAttempt = index + 1;
-          const shouldRetry =
-            retryAttempt <= 3 &&
-            (error.status === 429 ||
-              (error.status >= 500 && error.status < 600));
-
-          if (!shouldRetry) {
-            return throwError(() => error);
-          }
-
-          return timer(1000 * Math.pow(2, index));
-        }),
-      ),
-    );
   }
 
   private deriveVehicleTypes(): void {

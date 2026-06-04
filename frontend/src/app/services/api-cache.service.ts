@@ -14,11 +14,11 @@ interface CacheEntry {
 export class ApiCacheService {
   private cache = new Map<string, CacheEntry>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-  private readonly MAX_RETRIES = 3;
+  private readonly MAX_RETRIES = 1;
   private readonly RETRY_DELAY = 1000; // 1 second base delay
   private lastRequestTime = 0;
   private requestQueue: Promise<void> = Promise.resolve();
-  private readonly MIN_REQUEST_GAP = 500;
+  private readonly MIN_REQUEST_GAP = 1000;
 
   constructor(private http: HttpClient) {}
 
@@ -64,11 +64,12 @@ export class ApiCacheService {
 
             const shouldRetry =
               retryAttempt <= this.MAX_RETRIES &&
-              (error.status === 429 ||
-                (error.status >= 500 && error.status < 600));
+              error.status >= 500 &&
+              error.status < 600;
 
             if (shouldRetry) {
-              // Exponential backoff: 1s, 2s, 4s
+              // Exponential backoff for transient server errors only.
+              // Do not retry 429; retrying rate-limited requests creates more 429s.
               const delayTime = this.RETRY_DELAY * Math.pow(2, index);
               return timer(delayTime);
             }
