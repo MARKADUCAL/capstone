@@ -1,15 +1,11 @@
-import { Injectable, Inject, PLATFORM_ID, NgZone } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, throwError, Subject } from 'rxjs';
-import {
-  tap,
-  catchError,
-  map,
-  debounceTime,
-  distinctUntilChanged,
-} from 'rxjs/operators';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface ApiResponse {
@@ -67,15 +63,10 @@ export class AuthService {
   private tokenKey = 'auth_token';
   private userKey = 'current_user';
 
-  // Request deduplication map to prevent concurrent duplicate requests
-  private loginInProgress$ = new BehaviorSubject<boolean>(false);
-  private registerInProgress$ = new BehaviorSubject<boolean>(false);
-
   constructor(
     private http: HttpClient,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.loadStoredAuth();
   }
@@ -140,23 +131,6 @@ export class AuthService {
     return user?.role === role;
   }
 
-  // Observable getters for request states
-  getLoginInProgress$(): Observable<boolean> {
-    return this.loginInProgress$.asObservable();
-  }
-
-  getRegisterInProgress$(): Observable<boolean> {
-    return this.registerInProgress$.asObservable();
-  }
-
-  isLoginInProgress(): boolean {
-    return this.loginInProgress$.value;
-  }
-
-  isRegisterInProgress(): boolean {
-    return this.registerInProgress$.value;
-  }
-
   // Login
   login(credentials: LoginRequest): Observable<ApiResponse> {
     console.log('🔧 AuthService: login called');
@@ -175,9 +149,9 @@ export class AuthService {
         catchError((error) => {
           console.error('💥 Login error:', error);
           return throwError(
-            () => new Error('Login failed. Please check your credentials.'),
+            () => new Error('Login failed. Please check your credentials.')
           );
-        }),
+        })
       );
   }
 
@@ -199,9 +173,9 @@ export class AuthService {
         catchError((error) => {
           console.error('💥 Registration error:', error);
           return throwError(
-            () => new Error('Registration failed. Please try again.'),
+            () => new Error('Registration failed. Please try again.')
           );
-        }),
+        })
       );
   }
 
