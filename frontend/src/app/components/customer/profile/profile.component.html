@@ -360,6 +360,9 @@
             <i class="material-icons" style="font-size: 18px">close</i>
           </button>
         </div>
+        <div class="alert error" *ngIf="vehicleErrorMessage">
+          {{ vehicleErrorMessage }}
+        </div>
         <form (ngSubmit)="addVehicle()">
           <div class="modal-section-header">
             <h4>VEHICLE INFO</h4>

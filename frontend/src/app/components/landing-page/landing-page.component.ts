@@ -67,7 +67,6 @@ interface PricingMatrix {
 export class LandingPageComponent implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'landingPageContent';
   mobileMenuOpen = false;
-  showModal = false;
   selectedImage: GalleryImage | null = null;
 
   // Contact form properties
@@ -232,15 +231,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
     }
-  }
-
-  confirmBooking() {
-    this.showModal = false;
-    this.router.navigate(['/customer']);
-  }
-
-  cancelBooking() {
-    this.showModal = false;
   }
 
   // Contact form methods

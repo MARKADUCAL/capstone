@@ -385,23 +385,14 @@ export class ProfileComponent implements OnInit {
             );
             this.loadVehiclesForCurrentProfile();
           } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Failed to Add Vehicle',
-              text: response.status?.message || 'Failed to add vehicle',
-              confirmButtonColor: '#ff6347',
-            });
+            this.vehicleErrorMessage =
+              response.status?.message || 'Failed to add vehicle';
           }
         },
         error: (error) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text:
-              error.error?.status?.message ||
-              'An error occurred while adding vehicle',
-            confirmButtonColor: '#ff6347',
-          });
+          this.vehicleErrorMessage =
+            error.error?.status?.message ||
+            'An error occurred while adding vehicle';
         },
       });
   }

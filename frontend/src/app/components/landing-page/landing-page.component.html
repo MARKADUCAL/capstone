@@ -23,7 +23,7 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="get-started">
-      <a class="btn" (click)="showModal = true" style="cursor: pointer"
+      <a class="btn" (click)="onBookNowClick()" style="cursor: pointer"
         >Sign In</a
       >
     </div>
@@ -85,7 +85,7 @@
   <div class="mobile-sidebar-footer">
     <button
       class="btn-book-now"
-      (click)="closeMobileMenu(); showModal = true"
+      (click)="closeMobileMenu(); onBookNowClick()"
       style="cursor: pointer"
     >
       Sign In
@@ -120,7 +120,7 @@
     </p>
 
     <div class="hero-cta">
-      <a (click)="showModal = true" class="btn-primary" style="cursor: pointer"
+      <a (click)="onBookNowClick()" class="btn-primary" style="cursor: pointer"
         >Book Now</a
       >
       <a (click)="installPWA()" class="btn-secondary" style="cursor: pointer">{{
@@ -533,7 +533,7 @@
       </a>
 
       <h3 class="footer-heading mt-4">BOOK A SLOT</h3>
-      <button class="btn-book-footer" (click)="showModal = true">
+      <button class="btn-book-footer" (click)="onBookNowClick()">
         Book Now
       </button>
     </div>
@@ -557,26 +557,6 @@
     </div>
   </div>
 </footer>
-
-<!-- Custom Modal -->
-<div class="modal-overlay" *ngIf="showModal">
-  <div class="custom-modal">
-    <div class="modal-header">
-      <h3>Leydi boss</h3>
-    </div>
-    <div class="modal-body">
-      <p>Do you want to proceed with booking?</p>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn modal-btn-ok" (click)="confirmBooking()">
-        OK
-      </button>
-      <button class="modal-btn modal-btn-cancel" (click)="cancelBooking()">
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>
 
 <!-- Email Verification Modal -->
 <div class="modal-overlay" *ngIf="showVerificationModal">
