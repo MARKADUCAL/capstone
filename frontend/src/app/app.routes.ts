@@ -40,6 +40,7 @@ import { ConnectionTestComponent } from './components/connection-test/connection
 import { TermsComponent } from './components/legal/terms/terms.component';
 import { PrivacyComponent } from './components/legal/privacy/privacy.component';
 import { adminAuthGuard } from './guards/admin-auth.guard';
+import { customerAuthGuard } from './guards/customer-auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -78,7 +79,6 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'washing-point', component: WashingPointComponent },
       { path: 'car-wash-booking', component: CarWashBookingComponent },
-      // inventory-management route removed
       { path: 'employee-management', component: EmployeeManagementComponent },
       { path: 'admin-management', component: AdminManagementComponent },
       { path: 'user-management', component: UserManagementComponent },
@@ -100,7 +100,6 @@ export const routes: Routes = [
       { path: 'dashboard', component: EmployeeDashboardComponent },
       { path: 'car-wash-booking', component: EmployeeCarWashBookingComponent },
       { path: 'customer-records', component: CustomerRecordsComponent },
-      // employee inventory route removed
       { path: 'profile', component: EmployeeProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
@@ -110,19 +109,12 @@ export const routes: Routes = [
   {
     path: 'customer-view',
     component: CustomerLayoutComponent,
+    canActivate: [customerAuthGuard],
+    canActivateChild: [customerAuthGuard],
     children: [
-      {
-        path: 'profile',
-        component: CustomerProfileComponent,
-      },
-      {
-        path: 'appointment',
-        component: AppointmentComponent,
-      },
-      {
-        path: 'services',
-        component: ServicesPricingComponent,
-      },
+      { path: 'profile', component: CustomerProfileComponent },
+      { path: 'appointment', component: AppointmentComponent },
+      { path: 'services', component: ServicesPricingComponent },
       { path: 'tranaction-hitory', component: TranactionHitoryComponent },
       { path: '', redirectTo: 'services', pathMatch: 'full' },
     ],
