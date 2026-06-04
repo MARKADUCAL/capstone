@@ -415,7 +415,7 @@ this.errorMessage = 'Invalid customer data. Please log in again.';
         }
       } else {
 this.errorMessage =
-          'You must be logged in to view your transaction history.';
+          'You must be logged in to view your booking history.';
         this.isLoading = false;
       }
     }

@@ -1,10 +1,10 @@
-<div class="transaction-history-container" [@pageEntrance]>
+<div class="booking-history-container" [@pageEntrance]>
   <!-- Header Section -->
   <div class="page-header">
     <div class="header-content">
       <div class="header-icon">📊</div>
       <div class="header-text">
-        <h1>Transaction History</h1>
+        <h1>Booking History</h1>
         <p>View and manage your car wash bookings</p>
       </div>
     </div>
@@ -117,7 +117,7 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="loading-spinner"></div>
-    <p class="loading-text">Loading your transactions...</p>
+    <p class="loading-text">Loading your bookings...</p>
   </div>
 
   <!-- Error State -->
@@ -151,7 +151,7 @@
     class="empty-state"
   >
     <div class="empty-icon">📭</div>
-    <h3>No Transactions Yet</h3>
+    <h3>No Bookings Yet</h3>
     <p>
       You haven't made any car wash bookings yet. Book your first service to get
       started!
@@ -175,18 +175,18 @@
     <div class="empty-icon">🔍</div>
     <h3>No Results Found</h3>
     <p>
-      No transactions match the current filter. Try selecting a different
+      No bookings match the current filter. Try selecting a different
       filter.
     </p>
   </div>
 
-  <!-- Transaction Cards -->
+  <!-- Booking Cards -->
   <div
     *ngIf="!isLoading && !errorMessage && filteredBookings.length > 0"
-    class="transactions-grid"
+    class="bookings-grid"
   >
     <div
-      class="transaction-card"
+      class="booking-card"
       *ngFor="let booking of filteredBookings; trackBy: trackByBooking"
     >
       <div class="card-header">
@@ -378,7 +378,7 @@
   </div>
 </div>
 
-<!-- Enhanced View Transaction Modal -->
+<!-- Enhanced View Booking Modal -->
 <div
   class="modal-overlay"
   [class.show]="isViewModalOpen"
@@ -391,8 +391,8 @@
   >
     <div class="modal-header">
       <div class="modal-title">
-        <h2>Transaction Details</h2>
-        <span class="transaction-id">{{
+        <h2>Booking Details</h2>
+        <span class="booking-id">{{
           getServiceName(selectedBooking)
         }}</span>
       </div>
@@ -692,10 +692,10 @@
                 {{ $any(selectedBooking).paymentStatus }}
               </span>
             </div>
-            <div class="detail-row" *ngIf="$any(selectedBooking).transactionId">
-              <span class="label">Transaction ID:</span>
+            <div class="detail-row" *ngIf="$any(selectedBooking).bookingId">
+              <span class="label">Booking ID:</span>
               <span class="value">{{
-                $any(selectedBooking).transactionId
+                $any(selectedBooking).bookingId
               }}</span>
             </div>
           </div>
@@ -1044,7 +1044,7 @@
         <h3>This action cannot be undone</h3>
         <p>
           Once cancelled, this booking will be permanently removed from your
-          transaction history.
+          booking history.
         </p>
       </div>
 
