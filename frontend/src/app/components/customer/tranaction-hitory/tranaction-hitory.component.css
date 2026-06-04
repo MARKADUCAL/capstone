@@ -35,8 +35,8 @@
   color: #111827;
   line-height: 1.5;
 }
-/* Modern Transaction History Styles */
-.transaction-history-container {
+/* Modern Booking History Styles */
+.booking-history-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
@@ -400,16 +400,16 @@
   font-size: 18px;
 }
 
-/* Transaction Grid */
-.transactions-grid {
+/* Booking Grid */
+.bookings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 24px;
   margin-top: 32px;
 }
 
-/* Transaction Card */
-.transaction-card {
+/* Booking Card */
+.booking-card {
   background: white;
   border-radius: 20px;
   overflow: hidden;
@@ -420,7 +420,7 @@
   touch-action: pan-y !important;
 }
 
-.transaction-card:hover {
+.booking-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
@@ -760,7 +760,7 @@
   font-size: 14px;
 }
 
-.transaction-id {
+.booking-id {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 6px 12px;
@@ -1317,7 +1317,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .transaction-history-container {
+  .booking-history-container {
     padding: 16px;
   }
 
@@ -1336,7 +1336,7 @@
     justify-content: center;
   }
 
-  .transactions-grid {
+  .bookings-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
@@ -1381,7 +1381,7 @@
     font-size: 13px;
   }
 
-  .transaction-card {
+  .booking-card {
     margin: 0 8px;
   }
 
