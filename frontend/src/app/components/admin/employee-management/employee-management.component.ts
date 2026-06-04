@@ -116,7 +116,6 @@ export class EmployeeManagementComponent implements OnInit {
     this.http.get(`${this.apiUrl}/get_all_employees`).subscribe({
       next: (response: any) => {
         this.loading = false;
-        console.log('Employee response:', response);
 
         if (
           response &&
@@ -169,7 +168,6 @@ export class EmployeeManagementComponent implements OnInit {
       error: (error) => {
         this.loading = false;
         this.error = 'Error loading employees. Please try again later.';
-        console.error('Error loading employees:', error);
         this.showNotification(
           'Error loading employees. Please try again later.',
         );
@@ -280,7 +278,6 @@ export class EmployeeManagementComponent implements OnInit {
           },
           error: (error) => {
             this.isSubmitting = false;
-            console.error('Error creating employee:', error);
 
             let errorMessage = 'Error creating employee. Please try again.';
 
@@ -402,7 +399,6 @@ export class EmployeeManagementComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error updating employee:', error);
         Swal.fire({
           title: 'Error!',
           text: error?.error?.status?.message || 'Failed to update employee',
@@ -457,7 +453,6 @@ export class EmployeeManagementComponent implements OnInit {
             }
           },
           error: (error) => {
-            console.error('Error deleting employee:', error);
             Swal.fire({
               title: 'Error!',
               text: 'Error deleting employee. Please try again.',
@@ -542,7 +537,6 @@ export class EmployeeManagementComponent implements OnInit {
         this.completedBookingsLoading = false;
       },
       error: (err) => {
-        console.error('Failed to fetch employee bookings:', err);
         this.completedBookingsError =
           err?.message || 'Failed to load completed bookings.';
         this.completedBookingsLoading = false;
@@ -618,7 +612,6 @@ export class EmployeeManagementComponent implements OnInit {
         this.isBookingDetailsModalOpen = true;
       },
       error: (err) => {
-        console.error('Error loading feedback:', err);
         // Still open modal even if feedback loading fails
         this.selectedBookingDetails = bookingWithFeedback;
         this.isBookingDetailsModalOpen = true;
@@ -815,7 +808,6 @@ export class EmployeeManagementComponent implements OnInit {
               }
             },
             error: (error) => {
-              console.error('Error resending password:', error);
               Swal.fire({
                 title: 'Error!',
                 text:

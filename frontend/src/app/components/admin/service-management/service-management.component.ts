@@ -228,7 +228,6 @@ export class ServiceManagementComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading packages:', error);
           this.isLoadingServices = false;
         },
       });
@@ -320,7 +319,6 @@ export class ServiceManagementComponent implements OnInit {
               }
             },
             error: (error) => {
-              console.error('Error loading pricing:', error);
               this.isLoading = false;
               // Create default entries if API fails
               this.createDefaultPricingEntries();
@@ -432,7 +430,6 @@ export class ServiceManagementComponent implements OnInit {
               },
               error: (error) => {
                 this.isLoading = false;
-                console.error('Error adding pricing entry:', error);
                 this.showAlert(
                   'Error adding pricing entry to database. Please try again.',
                   'error'
@@ -454,7 +451,6 @@ export class ServiceManagementComponent implements OnInit {
   }
 
   editPricingEntry(entry: PricingEntry): void {
-    console.log('Editing entry:', entry);
 
     // If the entry doesn't have an ID, try to find the existing entry
     if (!entry.id) {
@@ -464,11 +460,9 @@ export class ServiceManagementComponent implements OnInit {
           e.servicePackage === entry.servicePackage
       );
       if (existingEntry) {
-        console.log('Found existing entry:', existingEntry);
         this.editMode = true;
         this.newPricingEntry = { ...existingEntry };
       } else {
-        console.log('No existing entry found, creating new one');
         // If no existing entry found, this will be treated as a new entry
         this.editMode = false;
         this.newPricingEntry = { ...entry };
@@ -478,7 +472,6 @@ export class ServiceManagementComponent implements OnInit {
       this.newPricingEntry = { ...entry };
     }
 
-    console.log('newPricingEntry after edit:', this.newPricingEntry);
   }
 
   updatePricingEntry(): void {
@@ -494,7 +487,6 @@ export class ServiceManagementComponent implements OnInit {
 
           // If we don't have an ID, this should be treated as a new entry
           if (!this.newPricingEntry.id) {
-            console.log('No ID found, treating as new entry');
             this.addPricingEntry();
             return;
           }
@@ -508,8 +500,6 @@ export class ServiceManagementComponent implements OnInit {
           };
 
           // Debug logging
-          console.log('Sending pricing data:', pricingData);
-          console.log('newPricingEntry:', this.newPricingEntry);
 
           this.http
             .put<ApiResponse>(
@@ -521,7 +511,6 @@ export class ServiceManagementComponent implements OnInit {
             )
             .subscribe({
               next: (response) => {
-                console.log('Update response:', response);
                 this.isLoading = false;
                 if (response.status && response.status.remarks === 'success') {
                   this.showAlert(
@@ -541,13 +530,6 @@ export class ServiceManagementComponent implements OnInit {
                 }
               },
               error: (error) => {
-                console.error('Error updating pricing entry:', error);
-                console.error('Error details:', {
-                  status: error.status,
-                  statusText: error.statusText,
-                  error: error.error,
-                  message: error.message,
-                });
                 this.isLoading = false;
                 this.showAlert('Failed to update pricing entry', 'error');
               },
@@ -619,7 +601,6 @@ export class ServiceManagementComponent implements OnInit {
               }
             },
             error: (error) => {
-              console.error('Error deleting pricing entry:', error);
               this.isLoading = false;
               this.closeModal();
               this.showAlert('Failed to delete pricing entry', 'error');
@@ -682,7 +663,6 @@ export class ServiceManagementComponent implements OnInit {
             },
             error: (error) => {
               this.isLoading = false;
-              console.error('Error updating pricing entry status:', error);
               this.showAlert('Failed to update pricing entry status', 'error');
             },
           });
@@ -803,7 +783,6 @@ export class ServiceManagementComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error deleting package:', error);
           this.isLoadingServices = false;
           this.showAlert(
             'Error deleting package from database. Please try again.',
@@ -874,7 +853,6 @@ export class ServiceManagementComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error saving package:', error);
         this.isLoadingServices = false;
         this.showAlert(
           'Error saving package to database. Please try again.',

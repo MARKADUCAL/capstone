@@ -82,7 +82,6 @@ export class AdminManagementComponent implements OnInit {
     this.http.get(`${this.apiUrl}/get_all_admins`).subscribe({
       next: (response: any) => {
         this.loading = false;
-        console.log('Admin response:', response);
 
         if (
           response &&
@@ -125,7 +124,6 @@ export class AdminManagementComponent implements OnInit {
       error: (error) => {
         this.loading = false;
         this.error = 'Error loading admins. Please try again later.';
-        console.error('Error loading admins:', error);
         this.showNotification('Error loading admins. Please try again later.');
       },
     });
@@ -417,7 +415,6 @@ export class AdminManagementComponent implements OnInit {
               }
             },
             error: (error) => {
-              console.error('Error resending password:', error);
               Swal.fire({
                 title: 'Error!',
                 text:

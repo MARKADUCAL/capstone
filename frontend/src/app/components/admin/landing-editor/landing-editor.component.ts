@@ -467,9 +467,7 @@ export class LandingEditorComponent implements OnInit {
   private clearLandingPageCache(): void {
     try {
       localStorage.removeItem('landingPageContent');
-      console.log('Cleared landing page cache after successful save.');
     } catch (error) {
-      console.warn('Failed to clear landing page cache:', error);
     }
   }
 
@@ -524,11 +522,9 @@ export class LandingEditorComponent implements OnInit {
       .post<any>(`${environment.apiUrl}/upload_file`, formData)
       .subscribe({
         next: (response) => {
-          console.log('Upload response:', response);
           this.isUploading = false;
           if (response.status === 'success') {
             this.uploadSuccess = 'Image uploaded successfully!';
-            console.log('Upload URL:', response.data?.url);
             this.content.heroBackgroundUrl = response.data.url;
             this.updateValidation(); // Update validation after successful upload
 
@@ -551,7 +547,6 @@ export class LandingEditorComponent implements OnInit {
         error: (error) => {
           this.isUploading = false;
           this.uploadError = 'Upload failed. Please try again.';
-          console.error('Upload error:', error);
         },
       });
   }
@@ -578,18 +573,12 @@ export class LandingEditorComponent implements OnInit {
     this.landingPageService.updateSection('hero', heroPayload).subscribe({
       next: (response) => {
         if (response.status && response.status.remarks === 'success') {
-          console.log('Hero background saved to database successfully');
           // Clear the landing page cache so it loads fresh data
           this.clearLandingPageCache();
         } else {
-          console.warn(
-            'Failed to save hero background to database:',
-            response.status?.message,
-          );
         }
       },
       error: (error) => {
-        console.error('Error saving hero background to database:', error);
       },
     });
   }
@@ -615,7 +604,6 @@ export class LandingEditorComponent implements OnInit {
       .updateLandingPageContent(backendContent)
       .pipe(
         catchError((e) => {
-          console.error('Bulk save error — falling back to section saves', e);
           return of(null);
         }),
       )
@@ -682,7 +670,6 @@ export class LandingEditorComponent implements OnInit {
         const requests = {
           hero: this.landingPageService.updateSection('hero', heroPayload).pipe(
             catchError((e) => {
-              console.error('Hero save error', e);
               return of(null);
             }),
           ),
@@ -690,7 +677,6 @@ export class LandingEditorComponent implements OnInit {
             .updateSection('services', servicesPayload)
             .pipe(
               catchError((e) => {
-                console.error('Services save error', e);
                 return of(null);
               }),
             ),
@@ -698,7 +684,6 @@ export class LandingEditorComponent implements OnInit {
             .updateSection('gallery', galleryPayload)
             .pipe(
               catchError((e) => {
-                console.error('Gallery save error', e);
                 return of(null);
               }),
             ),
@@ -706,7 +691,6 @@ export class LandingEditorComponent implements OnInit {
             .updateSection('contact_info', contactPayload)
             .pipe(
               catchError((e) => {
-                console.error('Contact save error', e);
                 return of(null);
               }),
             ),
@@ -714,7 +698,6 @@ export class LandingEditorComponent implements OnInit {
             .updateSection('footer', footerPayload)
             .pipe(
               catchError((e) => {
-                console.error('Footer save error', e);
                 return of(null);
               }),
             ),
@@ -769,7 +752,6 @@ export class LandingEditorComponent implements OnInit {
             },
             error: (error) => {
               this.isSaving = false;
-              console.error('Save error:', error);
               this.snackBar.open(
                 'Failed to save to database. Please try again.',
                 'Close',
@@ -833,11 +815,9 @@ export class LandingEditorComponent implements OnInit {
       .post<any>(`${environment.apiUrl}/upload_file`, formData)
       .subscribe({
         next: (response) => {
-          console.log('Gallery upload response:', response);
           this.isUploadingGallery[index] = false;
           if (response.status === 'success') {
             image.uploadSuccess = 'Image uploaded successfully!';
-            console.log('Gallery upload URL:', response.data?.url);
             image.url = response.data.url;
             this.updateValidation();
 
@@ -857,7 +837,6 @@ export class LandingEditorComponent implements OnInit {
         error: (error) => {
           this.isUploadingGallery[index] = false;
           image.uploadError = 'Upload failed. Please try again.';
-          console.error('Gallery upload error:', error);
         },
       });
   }
@@ -877,7 +856,6 @@ export class LandingEditorComponent implements OnInit {
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     const currentSrc = img?.src || '';
-    console.error('Image failed to load:', currentSrc);
 
     // Prevent infinite swap loops
     const attempts = Number(img.getAttribute('data-attempts') || 0);

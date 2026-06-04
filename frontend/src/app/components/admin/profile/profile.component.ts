@@ -175,7 +175,6 @@ export class ProfileComponent implements OnInit {
           this.errorMessage =
             error.error?.status?.message ||
             'An error occurred while updating profile';
-          console.error('Profile update error:', error);
         },
       });
   }

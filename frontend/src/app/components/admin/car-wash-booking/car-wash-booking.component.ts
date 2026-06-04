@@ -400,7 +400,6 @@ export class CarWashBookingComponent implements OnInit {
                     }, 1000); // Increased delay to ensure backend has processed the assignment
                   },
                   error: (statusErr) => {
-                    console.error('Error updating booking status:', statusErr);
                     this.showNotification(
                       'Employee assigned but failed to update booking status'
                     );
@@ -591,13 +590,8 @@ export class CarWashBookingComponent implements OnInit {
     expiredBookingIds.forEach((bookingId) => {
       this.bookingService.updateBookingStatus(bookingId, 'Expired').subscribe({
         next: () => {
-          console.log(`Booking #${bookingId} marked as Expired`);
         },
         error: (err) => {
-          console.error(
-            `Failed to mark booking #${bookingId} as Expired:`,
-            err
-          );
         },
       });
     });
@@ -901,7 +895,6 @@ export class CarWashBookingComponent implements OnInit {
         return `${displayHours}:${displayMinutes}${period}`;
       }
     } catch (error) {
-      console.warn('Error formatting time:', error);
     }
 
     return timeString; // Return original if formatting fails
@@ -931,7 +924,6 @@ export class CarWashBookingComponent implements OnInit {
           this.openDialog(bookingWithFeedback, mode);
         },
         error: (err) => {
-          console.error('Error loading feedback:', err);
           this.openDialog(bookingWithFeedback, mode);
         },
       });
@@ -996,7 +988,6 @@ export class CarWashBookingComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading employees:', error);
       },
     });
   }
@@ -1048,7 +1039,6 @@ export class CarWashBookingComponent implements OnInit {
 
   toggleMobileMenu(): void {
     // This can be connected to a sidebar service if needed
-    console.log('Mobile menu toggled');
   }
 }
 
@@ -1467,7 +1457,6 @@ export class CreateWalkInBookingDialogComponent {
         }
       },
       error: (error) => {
-        console.error('Error loading employees:', error);
         this.snackBar.open('Failed to load employees', 'Close', {
           duration: 3000,
           horizontalPosition: 'right',
@@ -1557,36 +1546,9 @@ export class CreateWalkInBookingDialogComponent {
       return;
     }
 
-    console.log('Creating booking with payload:', payload);
-    console.log('Payload validation:');
-    console.log(
-      '- customer_id:',
-      payload.customer_id,
-      typeof payload.customer_id
-    );
-    console.log(
-      '- vehicle_type:',
-      payload.vehicle_type,
-      typeof payload.vehicle_type
-    );
-    console.log(
-      '- service_package:',
-      payload.service_package,
-      typeof payload.service_package
-    );
-    console.log('- nickname:', payload.nickname, typeof payload.nickname);
-    console.log('- phone:', payload.phone, typeof payload.phone);
-    console.log('- wash_date:', payload.wash_date, typeof payload.wash_date);
-    console.log('- wash_time:', payload.wash_time, typeof payload.wash_time);
-    console.log(
-      '- payment_type:',
-      payload.payment_type,
-      typeof payload.payment_type
-    );
 
     this.bookingService.createBooking(payload).subscribe({
       next: (response) => {
-        console.log('Booking created successfully:', response);
 
         // If employee is assigned, assign them to the booking
         if (this.form.assigned_employee_id && response.data?.booking_id) {
@@ -1597,7 +1559,6 @@ export class CreateWalkInBookingDialogComponent {
             )
             .subscribe({
               next: () => {
-                console.log('Employee assigned successfully');
                 this.submitting = false;
                 this.snackBar.open(
                   'Booking created and employee assigned successfully!',
@@ -1611,7 +1572,6 @@ export class CreateWalkInBookingDialogComponent {
                 this.dialogRef.close(true);
               },
               error: (assignError) => {
-                console.error('Error assigning employee:', assignError);
                 this.submitting = false;
                 this.snackBar.open(
                   'Booking created but failed to assign employee: ' +
@@ -1637,7 +1597,6 @@ export class CreateWalkInBookingDialogComponent {
         }
       },
       error: (error) => {
-        console.error('Error creating booking:', error);
         this.submitting = false;
         this.snackBar.open(
           'Failed to create booking: ' + (error.message || 'Unknown error'),
@@ -2750,7 +2709,6 @@ export class BookingDetailsDialogComponent {
         return `${displayHours}:${displayMinutes}${period}`;
       }
     } catch (error) {
-      console.warn('Error formatting time:', error);
     }
 
     return timeString; // Return original if formatting fails

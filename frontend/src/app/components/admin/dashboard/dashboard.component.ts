@@ -364,7 +364,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         error: (error) => {
           // Suppress console spam for rate limit errors
           if (error.status !== 429) {
-            console.error('Error fetching dashboard summary:', error);
             this.showError('Failed to load dashboard summary');
           }
           // Fallback to individual API calls
@@ -385,7 +384,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       customerCount: this.http.get(`${this.apiUrl}/get_customer_count`).pipe(
         catchError((error) => {
           if (error.status !== 429) {
-            console.error('Error fetching customer count:', error);
           }
           return of(null);
         }),
@@ -393,7 +391,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
         catchError((error) => {
           if (error.status !== 429) {
-            console.error('Error fetching booking count:', error);
           }
           return of(null);
         }),
@@ -403,7 +400,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         .pipe(
           catchError((error) => {
             if (error.status !== 429) {
-              console.error('Error fetching completed booking count:', error);
             }
             return of(null);
           }),
@@ -413,7 +409,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         .pipe(
           catchError((error) => {
             if (error.status !== 429) {
-              console.error('Error fetching pending booking count:', error);
             }
             return of(null);
           }),
@@ -462,7 +457,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading individual stats:', error);
         this.showError('Failed to load some dashboard statistics');
       },
     });
@@ -478,7 +472,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error fetching customer count:', error);
           this.showError('Failed to load customer count');
         },
         complete: () => resolve(),
@@ -499,7 +492,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error fetching booking count:', error);
           this.showError('Failed to load booking count');
         },
         complete: () => resolve(),
@@ -517,7 +509,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error fetching completed booking count:', error);
         },
         complete: () => resolve(),
       });
@@ -534,7 +525,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error fetching pending booking count:', error);
         },
         complete: () => resolve(),
       });
@@ -573,7 +563,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           if (error.status !== 429) {
-            console.error('Error fetching employees for count:', error);
             this.showError('Failed to load employee count');
           }
         },
@@ -686,7 +675,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           if (error.status !== 429) {
-            console.error('Error fetching recent bookings:', error);
             this.showError('Failed to load recent bookings');
           }
         },
@@ -747,10 +735,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           })
           .pipe(
             catchError((err) => {
-              console.error(
-                `Failed to mark booking #${bookingId} as Expired:`,
-                err,
-              );
               return of(null); // Continue with next request even if this one fails
             }),
           ),
@@ -792,7 +776,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
-            console.error('Error updating booking status:', error);
             // Revert on error
             booking.status = originalStatus;
             this.showError('Failed to update booking status');
@@ -1029,7 +1012,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
           }
         } catch (error) {
-          console.warn('Error parsing booking date:', booking.date, error);
         }
       });
     }
@@ -1176,7 +1158,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         return false;
       } catch (error) {
-        console.warn('Error parsing booking date:', booking, error);
         return false;
       }
     });

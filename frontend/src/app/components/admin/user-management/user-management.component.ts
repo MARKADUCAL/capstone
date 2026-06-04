@@ -140,7 +140,6 @@ export class UserManagementComponent implements OnInit {
     this.http.get(`${this.apiUrl}/get_all_customers`).subscribe({
       next: (response: any) => {
         this.loading = false;
-        console.log('Customer response:', response);
         if (
           response &&
           response.status &&
@@ -165,7 +164,6 @@ export class UserManagementComponent implements OnInit {
       error: (error) => {
         this.loading = false;
         this.error = 'Error loading customers. Please try again later.';
-        console.error('Error loading customers:', error);
         this.showNotification(
           'Error loading customers. Please try again later.',
         );
@@ -238,7 +236,6 @@ export class UserManagementComponent implements OnInit {
         },
         error: (error) => {
           this.isSubmitting = false;
-          console.error('Error creating customer:', error);
 
           let errorMessage = 'Error creating customer. Please try again.';
 
@@ -392,7 +389,6 @@ export class UserManagementComponent implements OnInit {
         this.closeEditUserModal();
       },
       error: (error) => {
-        console.error('Error updating user:', error);
         Swal.fire({
           title: 'Error!',
           text: 'Error updating user. Please try again.',
@@ -446,7 +442,6 @@ export class UserManagementComponent implements OnInit {
             }
           },
           error: (error) => {
-            console.error('Error deleting user:', error);
             Swal.fire({
               title: 'Error!',
               text: 'Error deleting user. Please try again.',
@@ -588,7 +583,6 @@ export class UserManagementComponent implements OnInit {
         this.customerBookingsLoading = false;
       },
       error: (err) => {
-        console.error('Failed to fetch customer bookings:', err);
         this.customerBookingsError = err?.message || 'Failed to load bookings.';
         this.customerBookingsLoading = false;
       },
@@ -618,7 +612,6 @@ export class UserManagementComponent implements OnInit {
         this.isBookingDetailsModalOpen = true;
       },
       error: (err) => {
-        console.error('Error loading feedback:', err);
         // Still open modal even if feedback loading fails
         this.selectedBookingDetails = bookingWithFeedback;
         this.isBookingDetailsModalOpen = true;
@@ -705,7 +698,6 @@ export class UserManagementComponent implements OnInit {
         },
         error: (error) => {
           this.customerVehiclesLoading = false;
-          console.error('Error loading customer vehicles:', error);
           this.customerVehicles = [];
           // Don't show error message for vehicles as it's optional
         },
@@ -777,8 +769,6 @@ export class UserManagementComponent implements OnInit {
           .subscribe({
             next: (httpResponse) => {
               const response = httpResponse.body as any;
-              console.log('Password update response:', response);
-              console.log('HTTP Status:', httpResponse.status);
 
               // Handle different response formats
               if (httpResponse.status === 200) {
@@ -817,7 +807,6 @@ export class UserManagementComponent implements OnInit {
               });
             },
             error: (error) => {
-              console.error('Error updating password:', error);
 
               let errorMessage = 'Failed to update password. Please try again.';
 

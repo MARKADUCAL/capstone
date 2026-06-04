@@ -178,11 +178,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         // Reinitialize the chart in the selected tab
         switch (event.index) {
           case 0:
-            console.log('Switching to Revenue Trend tab');
             this.initializeRevenueChart();
             break;
           case 1:
-            console.log('Switching to Service Distribution tab');
             const serviceCanvas = document.getElementById('serviceChart');
             if (serviceCanvas) {
               this.initializeServiceChart();
@@ -191,7 +189,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             }
             break;
           case 2:
-            console.log('Switching to Weekly Bookings tab');
             this.currentBookingsType = 'weekly';
             const weeklyCanvas = document.getElementById('weeklyBookingsChart');
             if (weeklyCanvas) {
@@ -201,7 +198,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             }
             break;
           case 3:
-            console.log('Switching to Monthly Bookings tab');
             this.currentBookingsType = 'monthly';
             const monthlyCanvas = document.getElementById(
               'monthlyBookingsChart',
@@ -229,10 +225,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.reportingService.getDashboardSummary().subscribe({
       next: (summary) => {
         if (!summary) {
-          console.warn('Dashboard summary is null or undefined');
           return;
         }
-        console.log('Dashboard summary received:', summary);
         this.serviceStats.totalBookings = Number(summary.total_bookings) || 0;
         this.serviceStats.completedBookings =
           Number(summary.completed_bookings) || 0;
@@ -244,10 +238,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           Number(summary.declined_bookings) || 0;
         this.revenueData.weekly = Number(summary.weekly_revenue) || 0;
         this.revenueData.monthly = Number(summary.monthly_revenue) || 0;
-        console.log('Service stats updated:', this.serviceStats);
       },
       error: (err) => {
-        console.error('Error loading dashboard summary:', err);
       },
     });
   }
@@ -255,7 +247,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private loadRevenueAnalytics(): void {
     this.reportingService.getRevenueAnalytics(this.selectedYear).subscribe({
       next: (points) => {
-        console.log('Revenue analytics points received:', points);
         const months = [
           'January',
           'February',
@@ -304,7 +295,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         };
 
         if (!points || points.length === 0) {
-          console.warn('No revenue data received from API');
           // Keep 12 labels visible with 0s (no fake data).
         } else {
           points.forEach((p) => {
@@ -317,10 +307,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         this.revenueLabels = months;
         this.revenueValues = monthRevenue;
 
-        console.log('Processed revenue data:', {
-          labels: this.revenueLabels,
-          values: this.revenueValues,
-        });
         if (isPlatformBrowser(this.platformId)) {
           // Update existing chart or initialize if not exists
           if (this.revenueChart) {
@@ -331,7 +317,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         }
       },
       error: (err) => {
-        console.error('Error loading revenue analytics:', err);
         // Keep 12 labels visible even if API fails.
         this.revenueLabels = [
           'January',
@@ -439,16 +424,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
   private loadServiceDistribution(): void {
     this.reportingService.getServiceDistribution().subscribe({
       next: (items) => {
-        console.log('Service distribution data received:', items);
         // Map service names to package labels
         this.serviceLabels = items.map((i) =>
           this.mapServiceNameToPackageLabel(i.service_name),
         );
         this.serviceCounts = items.map((i) => Number(i.booking_count) || 0);
-        console.log('Processed service distribution:', {
-          labels: this.serviceLabels,
-          counts: this.serviceCounts,
-        });
         if (isPlatformBrowser(this.platformId)) {
           // Update existing chart or initialize if not exists
           if (this.serviceChart) {
@@ -459,7 +439,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
         }
       },
       error: (err) => {
-        console.error('Error loading service distribution:', err);
         // Use fallback data if API fails
         this.serviceLabels = [];
         this.serviceCounts = [];
@@ -476,16 +455,11 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const weekEnd = new Date(this.currentWeekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
-    console.log('Loading bookings for week:', {
-      start: weekStart.toISOString(),
-      end: weekEnd.toISOString(),
-    });
 
     this.reportingService
       .getWeeklyBookingsByDateRange(weekStart, weekEnd)
       .subscribe({
         next: (points) => {
-          console.log('Weekly bookings data received:', points);
 
           // Map day names to short format (Mon, Tue, etc.)
           const dayMap: { [key: string]: string } = {
@@ -523,10 +497,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             return value !== undefined ? value : 0;
           });
 
-          console.log('Processed weekly bookings:', {
-            labels: this.weeklyBookingLabels,
-            values: this.weeklyBookingValues,
-          });
 
           if (isPlatformBrowser(this.platformId)) {
             if (this.bookingsChart && this.currentBookingsType === 'weekly') {
@@ -535,7 +505,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           }
         },
         error: (err) => {
-          console.error('Error loading weekly bookings:', err);
           this.weeklyBookingLabels = [
             'Mon',
             'Tue',
@@ -563,20 +532,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const monthStart = new Date(year, month - 1, 1);
     const monthEnd = new Date(year, month, 0);
 
-    console.log('Loading bookings for month:', {
-      start: monthStart.toISOString(),
-      end: monthEnd.toISOString(),
-    });
 
     this.reportingService
       .getMonthlyBookingsByDateRange(monthStart, monthEnd)
       .subscribe({
         next: (points) => {
-          console.log('Monthly bookings data received:', points);
           if (points && points.length > 0) {
             this.processMonthlyBookings(points, monthStart, monthEnd);
           } else {
-            console.warn('No bookings data received');
             // Use fallback data
             this.weeklyBookingLabels = [];
             this.weeklyBookingValues = [];
@@ -587,7 +550,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
           }
         },
         error: (err) => {
-          console.error('Error loading monthly bookings:', err);
           // Fallback: show empty data
           this.weeklyBookingLabels = [];
           this.weeklyBookingValues = [];
@@ -608,7 +570,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     monthStart: Date,
     monthEnd: Date,
   ): void {
-    console.log('Starting to process monthly bookings with points:', points);
 
     const daysInMonth = monthEnd.getDate();
     const bookingMap = new Map<number, number>();
@@ -636,10 +597,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.monthlyBookingValues.push(bookingMap.get(i) || 0);
     }
 
-    console.log('Processed monthly bookings:', {
-      labels: this.monthlyBookingLabels,
-      values: this.monthlyBookingValues,
-    });
 
     if (isPlatformBrowser(this.platformId)) {
       if (this.bookingsChart && this.currentBookingsType === 'monthly') {
@@ -656,7 +613,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'revenueChart',
     ) as HTMLCanvasElement;
     if (!revenueCtx) {
-      console.warn('Revenue chart canvas element not found');
       return;
     }
 
@@ -664,12 +620,7 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const chartWrapper = revenueCtx.closest('.chart-wrapper') as HTMLElement;
     if (chartWrapper) {
       const wrapperHeight = chartWrapper.offsetHeight;
-      console.log('Chart wrapper dimensions:', {
-        height: wrapperHeight,
-        width: chartWrapper.offsetWidth,
-      });
       if (wrapperHeight === 0) {
-        console.warn('Chart wrapper has no height, will retry');
         setTimeout(() => this.initializeRevenueChart(), 300);
         return;
       }
@@ -696,12 +647,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const labels = this.revenueLabels.length ? this.revenueLabels : defaultLabels;
     const data = this.revenueValues.length ? this.revenueValues : Array(12).fill(0);
 
-    console.log('Initializing revenue chart with:', {
-      labels,
-      data,
-      canvasHeight: revenueCtx.offsetHeight,
-      canvasWidth: revenueCtx.offsetWidth,
-    });
 
     this.revenueChart = new Chart(revenueCtx, {
       type: 'line',
@@ -841,14 +786,12 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'serviceChart',
     ) as HTMLCanvasElement;
     if (!serviceCtx) {
-      console.warn('Service chart canvas element not found');
       return;
     }
 
     // Ensure parent container has proper height
     const chartWrapper = serviceCtx.closest('.chart-wrapper') as HTMLElement;
     if (chartWrapper && chartWrapper.offsetHeight === 0) {
-      console.warn('Service chart wrapper has no height, will retry');
       setTimeout(() => this.initializeServiceChart(), 300);
       return;
     }
@@ -882,7 +825,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'rgba(121, 85, 72, 0.8)',
     ];
 
-    console.log('Initializing service chart with:', { labels, data });
 
     this.serviceChart = new Chart(serviceCtx, {
       type: 'pie',
@@ -987,7 +929,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'weeklyBookingsChart',
     ) as HTMLCanvasElement;
     if (!bookingsCtx) {
-      console.warn('Weekly bookings chart canvas element not found');
       return;
     }
 
@@ -1003,7 +944,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       ? this.weeklyBookingValues
       : [0, 0, 0, 0, 0, 0, 0];
 
-    console.log('Initializing weekly bookings chart with:', { labels, data });
 
     this.bookingsChart = new Chart(bookingsCtx, {
       type: 'bar',
@@ -1085,7 +1025,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       'monthlyBookingsChart',
     ) as HTMLCanvasElement;
     if (!bookingsCtx) {
-      console.warn('Monthly bookings chart canvas element not found');
       return;
     }
 
@@ -1101,7 +1040,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       ? this.monthlyBookingValues
       : Array(30).fill(0);
 
-    console.log('Initializing monthly bookings chart with:', { labels, data });
 
     this.bookingsChart = new Chart(bookingsCtx, {
       type: 'bar',
@@ -1217,7 +1155,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       ? this.monthlyBookingValues
       : Array(30).fill(0);
 
-    console.log('Updating monthly bookings chart with:', { labels, data });
     this.bookingsChart.data.labels = labels;
     this.bookingsChart.data.datasets[0].data = data;
     this.bookingsChart.update('active');
@@ -1308,7 +1245,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     reportType: 'weekly' | 'monthly',
   ): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
-      console.error('PDF generation is only available in browser');
       return;
     }
 
@@ -1356,7 +1292,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             : err && typeof err === 'object' && 'message' in err
               ? String((err as { message?: string }).message)
               : 'Failed to load report data.';
-        console.error('Report fetch error:', err);
         alert(msg);
         return;
       }
@@ -1581,7 +1516,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       const fileName = `LeydiBoss_${reportType}_Report_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(fileName);
     } catch (error) {
-      console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
     } finally {
       this.isGeneratingPDF = false;
@@ -1716,12 +1650,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       this.currentWeekStart.getDate() + (week - 1) * 7,
     );
 
-    console.log(
-      'Week changed to:',
-      this.selectedWeek,
-      'Starting:',
-      this.currentWeekStart,
-    );
 
     // Load bookings for selected week
     this.loadWeeklyBookings();
@@ -1771,12 +1699,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     this.selectedYear = year;
     this.currentMonthStart = new Date(year, month - 1, 1);
 
-    console.log(
-      'Month changed to:',
-      this.selectedMonth,
-      'Starting:',
-      this.currentMonthStart,
-    );
 
     // Reload the monthly bookings data for the selected month
     this.loadMonthlyBookings();
@@ -1800,7 +1722,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   onRevenueMonthChange(): void {
     if (!this.selectedRevenueMonth) return;
-    console.log('Revenue month changed to:', this.selectedRevenueMonth);
     this.loadSpecificMonthRevenue();
   }
 
@@ -1820,25 +1741,15 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const monthStart = new Date(year, month - 1, 1);
     const monthEnd = new Date(year, month, 0);
 
-    console.log('Loading revenue for month:', {
-      start: monthStart.toISOString(),
-      end: monthEnd.toISOString(),
-    });
 
     this.reportingService
       .getRevenueByDateRange(monthStart, monthEnd)
       .subscribe({
         next: (data: any) => {
-          console.log('Monthly revenue data received:', data);
           this.specificMonthRevenue = data.total_revenue || 0;
           this.specificMonthBookings = data.completed_bookings || 0;
-          console.log('Specific month revenue updated:', {
-            revenue: this.specificMonthRevenue,
-            bookings: this.specificMonthBookings,
-          });
         },
         error: (err: any) => {
-          console.error('Error loading monthly revenue:', err);
           this.specificMonthRevenue = 0;
           this.specificMonthBookings = 0;
         },
@@ -1849,12 +1760,9 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       .getWeeklyRevenueByDateRange(monthStart, monthEnd)
       .subscribe({
         next: (data: any) => {
-          console.log('Weekly revenue data received:', data);
           this.weeklyRevenueData = data || [];
-          console.log('Weekly revenue data updated:', this.weeklyRevenueData);
         },
         error: (err: any) => {
-          console.error('Error loading weekly revenue:', err);
           this.weeklyRevenueData = [];
         },
       });
@@ -1898,7 +1806,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
 
   onRevenueWeekChange(): void {
     if (!this.selectedRevenueWeek) return;
-    console.log('Revenue week changed to:', this.selectedRevenueWeek);
     this.loadSpecificWeekRevenue();
   }
 
@@ -1933,24 +1840,14 @@ export class ReportingComponent implements OnInit, AfterViewInit {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
-    console.log('Loading revenue for week:', {
-      start: weekStart.toISOString(),
-      end: weekEnd.toISOString(),
-    });
 
     this.reportingService.getRevenueByDateRange(weekStart, weekEnd).subscribe({
       next: (data: any) => {
-        console.log('Weekly revenue data received:', data);
         this.specificWeekRevenue = data.total_revenue || 0;
         this.specificWeekBookings = data.completed_bookings || 0;
         this.revenueWeekDateRange = this.getRevenueWeekDateRange();
-        console.log('Specific week revenue updated:', {
-          revenue: this.specificWeekRevenue,
-          bookings: this.specificWeekBookings,
-        });
       },
       error: (err: any) => {
-        console.error('Error loading weekly revenue:', err);
         this.specificWeekRevenue = 0;
         this.specificWeekBookings = 0;
       },
@@ -1961,7 +1858,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
       .getDailyRevenueByDateRange(weekStart, weekEnd)
       .subscribe({
         next: (data: any) => {
-          console.log('Daily revenue data for week received:', data);
           this.weeklyRevenueData = (data || []).map((day: any) => ({
             week: this.getWeekNumber(
               new Date(
@@ -1987,13 +1883,8 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             revenue: day.revenue,
             bookings: day.bookings,
           }));
-          console.log(
-            'Daily revenue data updated for week:',
-            this.weeklyRevenueData,
-          );
         },
         error: (err: any) => {
-          console.error('Error loading daily revenue for week:', err);
           this.weeklyRevenueData = [];
         },
       });
