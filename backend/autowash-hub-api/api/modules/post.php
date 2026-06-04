@@ -33,6 +33,7 @@ class Post extends GlobalMethods
 {
 
     private $pdo;
+    private bool $feedbackEnhanced = false;
 
 
 
@@ -67,6 +68,7 @@ class Post extends GlobalMethods
     private function ensureFeedbackEnhancements()
 
     {
+        if ($this->feedbackEnhanced) return;
 
         try {
 
@@ -119,6 +121,8 @@ class Post extends GlobalMethods
             error_log("Feedback column sync failed (POST): " . $e->getMessage());
 
         }
+
+        $this->feedbackEnhanced = true;
 
     }
 

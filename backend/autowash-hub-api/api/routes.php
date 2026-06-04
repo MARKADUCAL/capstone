@@ -82,6 +82,20 @@ if (file_exists(__DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php')) {
 // Import JWT for token validation
 use Firebase\JWT\JWT;
 
+// Cache helper functions
+function getFileCache(string $key, int $ttl = 30): ?string {
+    $file = sys_get_temp_dir() . '/ac_' . md5($key) . '.json';
+    if (file_exists($file) && (time() - filemtime($file)) < $ttl) {
+        return file_get_contents($file) ?: null;
+    }
+    return null;
+}
+
+function setFileCache(string $key, string $data): void {
+    $file = sys_get_temp_dir() . '/ac_' . md5($key) . '.json';
+    @file_put_contents($file, $data);
+}
+
 // CORS configuration is now handled at the top of the file
 
 // Get the request method and endpoint
@@ -532,8 +546,14 @@ if ($method === 'GET') {
     }
 
     if (strpos($request, 'get_dashboard_summary') !== false) {
-        $result = $get->get_dashboard_summary();
-        echo json_encode($result);
+        $cacheKey = 'dashboard_summary';
+        if ($cached = getFileCache($cacheKey, 30)) {
+            echo $cached;
+            exit();
+        }
+        $result = json_encode($get->get_dashboard_summary());
+        setFileCache($cacheKey, $result);
+        echo $result;
         exit();
     }
 
@@ -616,8 +636,14 @@ if ($method === 'GET') {
 
     if (strpos($request, 'get_customer_feedback') !== false) {
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-        $result = $get->get_customer_feedback($limit);
-        echo json_encode($result);
+        $cacheKey = 'feedback_' . $limit;
+        if ($cached = getFileCache($cacheKey, 60)) {
+            echo $cached;
+            exit();
+        }
+        $result = json_encode($get->get_customer_feedback($limit));
+        setFileCache($cacheKey, $result);
+        echo $result;
         exit();
     }
 

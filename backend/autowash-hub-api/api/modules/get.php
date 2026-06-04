@@ -5,6 +5,7 @@
 
     class Get extends GlobalMethods {
         private $pdo;
+        private bool $feedbackEnhanced = false;
 
         public function __construct(\PDO $pdo) {
             $this->pdo = $pdo;
@@ -29,6 +30,8 @@
     }
 
     private function ensureFeedbackEnhancements() {
+        if ($this->feedbackEnhanced) return;
+
         try {
             $checkSql = "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_feedback' AND COLUMN_NAME = ?";
             $checkStmt = $this->pdo->prepare($checkSql);
@@ -53,9 +56,10 @@
             $this->pdo->exec("UPDATE customer_feedback SET service_rating = rating WHERE service_rating IS NULL");
             $this->pdo->exec("UPDATE customer_feedback SET service_comment = comment WHERE service_comment IS NULL");
         } catch (\PDOException $e) {
-            // Best-effort: log and continue
             error_log("Feedback column check failed: " . $e->getMessage());
         }
+
+        $this->feedbackEnhanced = true;
     }
 
         public function executeQuery($sql) {

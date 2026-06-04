@@ -14,6 +14,7 @@ import {
   mergeMap,
   retryWhen,
   switchMap,
+  retry,
 } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -122,6 +123,7 @@ export class NotificationService {
         headers: this.getHeaders(),
       })
       .pipe(
+        retry({ count: 1, delay: 3000 }),
         retryWhen((errors) =>
           errors.pipe(
             mergeMap((error, index) => {
@@ -152,6 +154,9 @@ export class NotificationService {
         catchError((error) => {
           if (error.status === 401) {
             this.stopPolling();
+          }
+          if (error.status === 429) {
+            console.warn('Rate limited on notifications');
           }
           console.error('Error fetching notification count:', error);
           return of(this.unreadCount.value);
