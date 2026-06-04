@@ -20,6 +20,10 @@ import {
 } from '../../services/landing-page.service';
 import { ApiCacheService } from '../../services/api-cache.service';
 import { environment } from '../../../environments/environment';
+import {
+  throttleRequest,
+  generateRequestKey,
+} from '../../core/utils/request-throttle.util';
 type Service = { name: string; imageUrl: string };
 type GalleryImage = { url: string; alt: string };
 type ContactInfo = {
@@ -152,7 +156,15 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.landingPageService.getLandingPageContent().subscribe({
+    // Apply throttling to prevent duplicate requests
+    const requestKey = generateRequestKey(
+      'GET',
+      `${environment.apiUrl}/landing_page_content`,
+    );
+    throttleRequest(
+      requestKey,
+      this.landingPageService.getLandingPageContent(),
+    ).subscribe({
       next: (response: ApiResponse<LandingPageContent> | null) => {
         if (
           response &&
@@ -523,16 +535,31 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.pricingError = '';
 
-    this.apiCache
-      .get<any>(`${environment.apiUrl}/get_packages`)
+    // Apply throttling to prevent duplicate concurrent requests
+    const packagesKey = generateRequestKey(
+      'GET',
+      `${environment.apiUrl}/get_packages`,
+    );
+    const pricingKey = generateRequestKey(
+      'GET',
+      `${environment.apiUrl}/get_pricing_matrix`,
+    );
+
+    throttleRequest(
+      packagesKey,
+      this.apiCache.get<any>(`${environment.apiUrl}/get_packages`),
+    )
       .pipe(
         catchError(() => of(null)),
         switchMap((packagesRes) =>
           timer(400).pipe(
             switchMap(() =>
-              this.apiCache
-                .get<any>(`${environment.apiUrl}/get_pricing_matrix`)
-                .pipe(catchError(() => of(null))),
+              throttleRequest(
+                pricingKey,
+                this.apiCache.get<any>(
+                  `${environment.apiUrl}/get_pricing_matrix`,
+                ),
+              ).pipe(catchError(() => of(null))),
             ),
             switchMap((pricingRes) => of({ packagesRes, pricingRes })),
           ),
