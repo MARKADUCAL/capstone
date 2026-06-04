@@ -34,7 +34,7 @@ export interface AppNotification {
 export class NotificationService {
   unreadCount = new BehaviorSubject<number>(0);
   private pollingSubscription: Subscription | null = null;
-  private readonly POLLING_INTERVAL_MS = 60000;
+  private readonly POLLING_INTERVAL_MS = 120000;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY_MS = 1000;
 

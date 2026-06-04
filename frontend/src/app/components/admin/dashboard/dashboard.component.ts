@@ -23,7 +23,7 @@ import { environment } from '../../../../environments/environment';
 import { BookingDetailsDialog } from './booking-details-dialog.component';
 import { DateBookingsDialogComponent } from './date-bookings-dialog.component';
 import Swal from 'sweetalert2';
-import { Subscription, forkJoin, concat, of } from 'rxjs';
+import { Subscription, concat, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 interface BusinessStats {
@@ -354,7 +354,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
               totalCustomers: Number(data.total_customers) || 0,
               totalBookings: Number(data.total_bookings) || 0,
               totalEmployees: Number(data.total_employees) || 0,
-              // Keep a sensible default for satisfaction as backend doesn't provide it
               totalRevenue: Number(data.monthly_revenue) || 0,
               completedBookings: Number(data.completed_bookings) || 0,
               pendingBookings: Number(data.pending_bookings) || 0,
@@ -362,12 +361,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          // Suppress console spam for rate limit errors
           if (error.status !== 429) {
             this.showError('Failed to load dashboard summary');
           }
-          // Fallback to individual API calls
-          this.loadIndividualStats();
         },
         complete: () => {
           this.updateEmployeeCountIncludingPending().finally(() => resolve());
@@ -376,159 +372,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadIndividualStats(): void {
-    // Fallback method if dashboard summary fails
-    // BEFORE: Called 6 separate endpoints simultaneously, causing rate limit issues
-    // AFTER: Use forkJoin to group all calls into a single subscription
-    forkJoin({
-      customerCount: this.http.get(`${this.apiUrl}/get_customer_count`).pipe(
-        catchError((error) => {
-          if (error.status !== 429) {
-          }
-          return of(null);
-        }),
-      ),
-      bookingCount: this.http.get(`${this.apiUrl}/get_booking_count`).pipe(
-        catchError((error) => {
-          if (error.status !== 429) {
-          }
-          return of(null);
-        }),
-      ),
-      completedCount: this.http
-        .get(`${this.apiUrl}/get_completed_booking_count`)
-        .pipe(
-          catchError((error) => {
-            if (error.status !== 429) {
-            }
-            return of(null);
-          }),
-        ),
-      pendingCount: this.http
-        .get(`${this.apiUrl}/get_pending_booking_count`)
-        .pipe(
-          catchError((error) => {
-            if (error.status !== 429) {
-            }
-            return of(null);
-          }),
-        ),
-    }).subscribe({
-      next: (results) => {
-        // Process customer count
-        if (
-          results.customerCount &&
-          (results.customerCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.totalCustomers = (
-            results.customerCount as any
-          ).payload.total_customers;
-        }
-
-
-        // Process booking count
-        if (
-          results.bookingCount &&
-          (results.bookingCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.totalBookings = (
-            results.bookingCount as any
-          ).payload.total_bookings;
-        }
-
-        // Process completed booking count
-        if (
-          results.completedCount &&
-          (results.completedCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.completedBookings = (
-            results.completedCount as any
-          ).payload.completed_bookings;
-        }
-
-        // Process pending booking count
-        if (
-          results.pendingCount &&
-          (results.pendingCount as any)?.status?.remarks === 'success'
-        ) {
-          this.businessStats.pendingBookings = (
-            results.pendingCount as any
-          ).payload.pending_bookings;
-        }
-      },
-      error: (error) => {
-        this.showError('Failed to load some dashboard statistics');
-      },
-    });
-  }
-
   private loadCustomerCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_customer_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.totalCustomers =
-              response.payload.total_customers;
-          }
-        },
-        error: (error) => {
-          this.showError('Failed to load customer count');
-        },
-        complete: () => resolve(),
-      });
-    });
+    return Promise.resolve();
   }
 
   private loadEmployeeCount(): Promise<void> {
     return this.updateEmployeeCountIncludingPending();
-  }
-
-  private loadBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.totalBookings = response.payload.total_bookings;
-          }
-        },
-        error: (error) => {
-          this.showError('Failed to load booking count');
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private loadCompletedBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_completed_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.completedBookings =
-              response.payload.completed_bookings;
-          }
-        },
-        error: (error) => {
-        },
-        complete: () => resolve(),
-      });
-    });
-  }
-
-  private loadPendingBookingCount(): Promise<void> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}/get_pending_booking_count`).subscribe({
-        next: (response: any) => {
-          if (response?.status?.remarks === 'success') {
-            this.businessStats.pendingBookings =
-              response.payload.pending_bookings;
-          }
-        },
-        error: (error) => {
-        },
-        complete: () => resolve(),
-      });
-    });
   }
 
   private updateEmployeeCountIncludingPending(): Promise<void> {

@@ -163,9 +163,26 @@ if ($method === 'GET') {
     }
     if (strpos($request, 'notifications/count') !== false) {
         $user = getAuthenticatedUser();
+
+        // Simple file-based cache — 30 seconds TTL to reduce DB load
+        $cacheDir = sys_get_temp_dir();
+        $cacheKey = $cacheDir . '/notif_' . md5($user['role'] . $user['id']) . '.json';
+        $cacheTtl = 30;
+
+        // Check cache validity
+        if (file_exists($cacheKey) && (time() - filemtime($cacheKey)) < $cacheTtl) {
+            echo file_get_contents($cacheKey);
+            exit();
+        }
+
+        // Cache miss — query database
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_role = ? AND user_id = ? AND is_read = 0");
         $stmt->execute([$user['role'], $user['id']]);
-        echo json_encode(sendRoutePayload(['unread_count' => (int)$stmt->fetchColumn()], 'success', 'Unread notification count fetched', 200));
+        $result = json_encode(sendRoutePayload(['unread_count' => (int)$stmt->fetchColumn()], 'success', 'Unread notification count fetched', 200));
+
+        // Write to cache
+        @file_put_contents($cacheKey, $result);
+        echo $result;
         exit();
     }
 
