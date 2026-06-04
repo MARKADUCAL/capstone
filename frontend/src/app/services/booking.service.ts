@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError, timer } from 'rxjs';
-import { catchError, delay, map, mergeMap, retryWhen } from 'rxjs/operators';
+import {
+  catchError,
+  delay,
+  map,
+  mergeMap,
+  retryWhen,
+  shareReplay,
+} from 'rxjs/operators';
 import { Booking, BookingForm, BookingStatus } from '../models/booking.model';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../environments/environment';
@@ -11,6 +18,11 @@ import { environment } from '../../environments/environment';
 })
 export class BookingService {
   private apiUrl = `${environment.apiUrl}/bookings`;
+  private customerBookingsCache = new Map<
+    string,
+    { timestamp: number; data: Observable<Booking[]> }
+  >();
+  private readonly CUSTOMER_BOOKINGS_CACHE_MS = 60 * 1000;
 
   // In a real implementation, this would be fetched from a backend API
   private mockBookings: Booking[] = [
@@ -63,7 +75,13 @@ export class BookingService {
   }
 
   getBookingsByCustomerId(customerId: string): Observable<Booking[]> {
-    return this.http
+    const now = Date.now();
+    const cached = this.customerBookingsCache.get(customerId);
+    if (cached && now - cached.timestamp < this.CUSTOMER_BOOKINGS_CACHE_MS) {
+      return cached.data;
+    }
+
+    const request$ = this.http
       .get<any>(
         `${environment.apiUrl}/get_bookings_by_customer?customer_id=${customerId}`,
       )
@@ -110,7 +128,14 @@ export class BookingService {
 
           return throwError(() => new Error(errorMessage));
         }),
+        shareReplay(1),
       );
+
+    this.customerBookingsCache.set(customerId, {
+      timestamp: now,
+      data: request$,
+    });
+    return request$;
   }
 
   // Create a new booking
@@ -125,6 +150,7 @@ export class BookingService {
             response.status &&
             response.status.remarks === 'success'
           ) {
+            this.customerBookingsCache.clear();
             return {
               success: true,
               message: response.status.message,
@@ -310,6 +336,7 @@ export class BookingService {
             response.status &&
             response.status.remarks === 'success'
           ) {
+            this.customerBookingsCache.clear();
             return { success: true, message: response.status.message };
           } else {
             throw new Error(

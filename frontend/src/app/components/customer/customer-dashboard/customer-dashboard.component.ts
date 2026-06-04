@@ -47,6 +47,12 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
   recentBookings: Booking[] = [];
   loadingRecentBookings: boolean = false;
   recentBookingsError: string = '';
+  private servicePackagesLoaded = false;
+  private pricingLoaded = false;
+  private vehiclesLoaded = false;
+  private recentBookingsLoaded = false;
+  private readonly handleProfileUpdateBound =
+    this.handleProfileUpdate.bind(this);
 
   // Vehicle types with descriptions
   vehicleTypes = [
@@ -82,14 +88,14 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       this.loadCustomerData();
       this.loadServicePackages();
-      setTimeout(() => this.loadPricingData(), 400);
-      setTimeout(() => this.loadUserVehicles(), 800);
-      setTimeout(() => this.loadRecentBookings(), 1000);
+      this.loadPricingData();
+      this.loadUserVehicles();
+      this.loadRecentBookings();
 
       // Listen for profile updates
       window.addEventListener(
         'customerProfileUpdated',
-        this.handleProfileUpdate.bind(this),
+        this.handleProfileUpdateBound,
       );
     }
   }
@@ -98,7 +104,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       window.removeEventListener(
         'customerProfileUpdated',
-        this.handleProfileUpdate.bind(this),
+        this.handleProfileUpdateBound,
       );
     }
   }
@@ -131,6 +137,8 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
   }
 
   loadServicePackages(): void {
+    if (this.servicePackagesLoaded) return;
+    this.servicePackagesLoaded = true;
     this.apiCache.get<any>(`${environment.apiUrl}/get_packages`).subscribe({
       next: (response) => {
         if (response.status && response.status.remarks === 'success') {
@@ -141,11 +149,13 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.servicePackages = [];
+        this.servicePackagesLoaded = false;
       },
     });
   }
 
   loadPricingData(): void {
+    if (this.pricingLoaded || this.loading) return;
     this.loading = true;
     this.error = '';
 
@@ -159,11 +169,13 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
           } else {
             this.pricingMatrix = {};
           }
+          this.pricingLoaded = true;
           this.loading = false;
         },
         error: (error) => {
           this.pricingMatrix = {};
           this.loading = false;
+          this.pricingLoaded = false;
         },
       });
   }
@@ -180,6 +192,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
 
   loadUserVehicles(): void {
     if (!this.customerId) return;
+    if (this.vehiclesLoaded || this.loadingVehicles) return;
 
     this.loadingVehicles = true;
     this.apiCache
@@ -191,17 +204,20 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
           if (response.status && response.status.remarks === 'success') {
             this.userVehicles = response.payload.vehicles || [];
           }
+          this.vehiclesLoaded = true;
           this.loadingVehicles = false;
         },
         error: (error) => {
           this.userVehicles = [];
           this.loadingVehicles = false;
+          this.vehiclesLoaded = false;
         },
       });
   }
 
   loadRecentBookings(): void {
     if (!this.customerId) return;
+    if (this.recentBookingsLoaded || this.loadingRecentBookings) return;
 
     this.loadingRecentBookings = true;
     this.recentBookingsError = '';
@@ -213,6 +229,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
             (a, b) => this.getBookingSortTime(b) - this.getBookingSortTime(a),
           )
           .slice(0, 3);
+        this.recentBookingsLoaded = true;
         this.loadingRecentBookings = false;
       },
       error: (error) => {
@@ -220,6 +237,7 @@ export class ServicesPricingComponent implements OnInit, OnDestroy {
         this.recentBookingsError =
           error?.message || 'Unable to load recent bookings.';
         this.loadingRecentBookings = false;
+        this.recentBookingsLoaded = false;
       },
     });
   }
