@@ -38,6 +38,10 @@ export class CustomerLoginComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
     this.isLoading = true;
 
@@ -109,6 +113,9 @@ export class CustomerLoginComponent implements OnInit {
               'Cannot connect to server. Please check your connection.';
           } else if (error.status === 401) {
             errorMessage = 'Invalid email or password. Please try again.';
+          } else if (error.status === 429) {
+            errorMessage =
+              'Too many login attempts. Please wait a minute before trying again.';
           } else if (error.status === 404) {
             errorMessage = 'API endpoint not found. Please check the URL.';
           } else {
