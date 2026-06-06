@@ -457,8 +457,14 @@ if ($method === 'GET') {
 
 
     if (strpos($request, 'get_all_bookings') !== false) {
-        $result = $get->get_all_bookings();
-        echo json_encode($result);
+        $cacheKey = 'all_bookings';
+        if ($cached = getFileCache($cacheKey, 30)) {
+            echo $cached;
+            exit();
+        }
+        $result = json_encode($get->get_all_bookings());
+        setFileCache($cacheKey, $result);
+        echo $result;
         exit();
     }
 
@@ -907,6 +913,19 @@ if ($method === 'POST') {
 
     if (strpos($request, 'create_booking') !== false) {
         $result = $post->create_booking($data);
+
+        // Clear related caches after creating a booking
+        if (isset($data->customer_id)) {
+            $cacheFile = sys_get_temp_dir() . '/ac_' . md5('bookings_customer_' . $data->customer_id) . '.json';
+            if (file_exists($cacheFile)) unlink($cacheFile);
+        }
+        // Clear all bookings cache too
+        $cacheFile = sys_get_temp_dir() . '/ac_' . md5('all_bookings') . '.json';
+        if (file_exists($cacheFile)) unlink($cacheFile);
+        // Clear dashboard cache
+        $cacheFile = sys_get_temp_dir() . '/ac_' . md5('dashboard_summary') . '.json';
+        if (file_exists($cacheFile)) unlink($cacheFile);
+
         echo json_encode($result);
         exit();
     }
@@ -1190,6 +1209,21 @@ if ($method === 'PUT') {
             }
         }
         $result = $put->update_booking_status($data);
+
+        // Clear related caches after update
+        $cacheFiles = [
+            sys_get_temp_dir() . '/ac_' . md5('all_bookings') . '.json',
+            sys_get_temp_dir() . '/ac_' . md5('dashboard_summary') . '.json',
+        ];
+        foreach ($cacheFiles as $file) {
+            if (file_exists($file)) unlink($file);
+        }
+        // Also clear customer bookings cache if we have customer_id
+        if (isset($data->customer_id)) {
+            $cacheFile = sys_get_temp_dir() . '/ac_' . md5('bookings_customer_' . $data->customer_id) . '.json';
+            if (file_exists($cacheFile)) unlink($cacheFile);
+        }
+
         error_log("update_booking_status result: " . json_encode($result));
         echo json_encode($result);
         exit();
@@ -1211,6 +1245,21 @@ if ($method === 'PUT') {
             }
         }
         $result = $put->assign_employee_to_booking($data);
+
+        // Clear booking cache after assignment
+        $cacheFiles = [
+            sys_get_temp_dir() . '/ac_' . md5('all_bookings') . '.json',
+            sys_get_temp_dir() . '/ac_' . md5('dashboard_summary') . '.json',
+        ];
+        foreach ($cacheFiles as $file) {
+            if (file_exists($file)) unlink($file);
+        }
+        // Also clear customer bookings cache if we have customer_id
+        if (isset($data->customer_id)) {
+            $cacheFile = sys_get_temp_dir() . '/ac_' . md5('bookings_customer_' . $data->customer_id) . '.json';
+            if (file_exists($cacheFile)) unlink($cacheFile);
+        }
+
         error_log("assign_employee_to_booking result: " . json_encode($result));
         echo json_encode($result);
         exit();

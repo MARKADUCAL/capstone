@@ -72,6 +72,11 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   mobileMenuOpen = false;
   selectedImage: GalleryImage | null = null;
 
+  // Carousel properties
+  currentCarouselIndex = 0;
+  private carouselInterval: any;
+  isCarouselHovered = false;
+
   // Contact form properties
   contactForm: ContactForm = {
     name: '',
@@ -191,6 +196,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
           this.content = convertedContent;
           this.isLoadingContent = false;
 
+          // Start carousel after content loads
+          this.startCarousel();
+
           // Save fresh data without clearing cache on every load
           this.setCacheWithTTL(
             this.CONTENT_CACHE_KEY,
@@ -251,6 +259,49 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = '';
     }
+    this.stopCarousel();
+  }
+
+  private startCarousel(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.content?.galleryImages?.length) return;
+    this.carouselInterval = setInterval(() => {
+      if (!this.isCarouselHovered) {
+        this.nextCarouselSlide();
+      }
+    }, 4000);
+  }
+
+  private stopCarousel(): void {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+      this.carouselInterval = null;
+    }
+  }
+
+  nextCarouselSlide(): void {
+    if (!this.content?.galleryImages?.length) return;
+    this.currentCarouselIndex = (this.currentCarouselIndex + 1) % this.content.galleryImages.length;
+  }
+
+  prevCarouselSlide(): void {
+    if (!this.content?.galleryImages?.length) return;
+    this.currentCarouselIndex = (this.currentCarouselIndex - 1 + this.content.galleryImages.length) % this.content.galleryImages.length;
+  }
+
+  goToCarouselSlide(index: number): void {
+    if (index >= 0 && index < (this.content?.galleryImages?.length || 0)) {
+      this.currentCarouselIndex = index;
+    }
+  }
+
+  onCarouselHover(): void {
+    this.isCarouselHovered = true;
+    this.stopCarousel();
+  }
+
+  onCarouselLeave(): void {
+    this.isCarouselHovered = false;
+    this.startCarousel();
   }
 
   // Contact form methods

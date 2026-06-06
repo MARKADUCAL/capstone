@@ -297,19 +297,44 @@
 <!-- Gallery Section -->
 <section class="gallery" id="gallery">
   <h2>GALLERY</h2>
-  <div class="gallery-container" *ngIf="content">
-    <div
-      class="gallery-item"
-      *ngFor="let g of content.galleryImages; let i = index"
-      (click)="openLightbox(g)"
-    >
-      <img
-        [src]="g.url"
-        [alt]="g.alt || 'Gallery image'"
-        [title]="g.alt || 'Gallery image'"
-        loading="lazy"
-      />
-      <div class="gallery-caption">{{ g.alt || "Photo " + (i + 1) }}</div>
+  <div class="carousel-container" *ngIf="content && content.galleryImages?.length" (mouseenter)="onCarouselHover()" (mouseleave)="onCarouselLeave()">
+    <!-- Carousel Slides -->
+    <div class="carousel-wrapper">
+      <div class="carousel-track" [style.transform]="'translateX(-' + (currentCarouselIndex * 100) + '%)'">
+        <div class="carousel-slide" *ngFor="let g of content.galleryImages; let i = index">
+          <img
+            [src]="g.url"
+            [alt]="g.alt || 'Gallery image'"
+            [title]="g.alt || 'Gallery image'"
+            loading="lazy"
+            (click)="openLightbox(g)"
+          />
+          <div class="carousel-caption">{{ g.alt || "Photo " + (i + 1) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <button class="carousel-btn carousel-btn-prev" (click)="prevCarouselSlide()" aria-label="Previous slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button class="carousel-btn carousel-btn-next" (click)="nextCarouselSlide()" aria-label="Next slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+
+    <!-- Dot Indicators -->
+    <div class="carousel-indicators">
+      <button
+        *ngFor="let g of content.galleryImages; let i = index"
+        class="carousel-dot"
+        [class.active]="currentCarouselIndex === i"
+        (click)="goToCarouselSlide(i)"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
+      ></button>
     </div>
   </div>
 
